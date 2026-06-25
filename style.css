@@ -100,7 +100,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #0f172a; /* Dark Slate */
+  color: var(--text-primary); /* Fixed for dark theme */
 }
 
 a {
@@ -190,7 +190,7 @@ ul {
   font-weight: 800;
   font-size: 1.25rem;
   letter-spacing: 0.05em;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .logo-subtext {
@@ -1028,6 +1028,7 @@ body.lens-hybrid .font-hybrid {
   font-size: 1.8rem;
   margin-bottom: 1rem;
   line-height: 1.2;
+  color: #fff;
 }
 
 .project-excerpt {
@@ -1132,7 +1133,7 @@ body.lens-hybrid .font-hybrid {
 
 .timeline-company {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .timeline-location {
@@ -1248,7 +1249,7 @@ body.lens-hybrid .font-hybrid {
 .about-lead {
   font-size: 1.2rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .about-text-content p {
@@ -1825,8 +1826,8 @@ body.lens-hybrid .font-hybrid {
 
 @media (max-width: 768px) {
   .tutorial-card {
-    height: 650px !important; /* Lock height on mobile to prevent Safari 3D grid stretch bug */
-    min-height: auto;
+    min-height: 650px !important; 
+    height: auto !important;
   }
 }
 
@@ -1841,9 +1842,11 @@ body.lens-hybrid .font-hybrid {
   animation: peekFlip 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-.tutorial-card:hover .project-card-inner {
-  animation: none !important;
-  transform: rotateY(5deg);
+@media (hover: hover) {
+  .tutorial-card:hover .project-card-inner {
+    animation: none !important;
+    transform: rotateY(5deg);
+  }
 }
 
 .peeking-hand {
