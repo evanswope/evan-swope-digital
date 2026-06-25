@@ -1807,12 +1807,13 @@ body.lens-hybrid .font-hybrid {
   perspective: 2000px;
 }
 .tutorial-card {
-  height: 600px; /* Lock height on desktop to prevent Safari 3D grid stretching bug */
+  min-height: 650px; /* Allow natural growth on desktop */
 }
 
 @media (max-width: 768px) {
   .tutorial-card {
-    height: 600px !important; /* Shortened on mobile as per request */
+    height: 650px !important; /* Lock height on mobile to prevent Safari 3D grid stretch bug */
+    min-height: auto;
   }
 }
 
