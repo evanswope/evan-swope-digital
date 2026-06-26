@@ -23,8 +23,22 @@ const synthState = {
     decay: 0.2,   // seconds
     sustain: 0.7, // 0.0 to 1.0
     release: 0.3  // seconds
+  },
+  fx: {
+    lfoRate: 5,
+    lfoDepth: 0,
+    lfoTarget: 'none',
+    delayTime: 0.3,
+    delayFb: 0.4,
+    delayMix: 0,
+    filterCutoff: 20000,
+    filterRes: 0
   }
 };
+
+// Global FX Nodes
+let globalFilter, delayNode, delayFeedbackNode, delayMixWet, delayMixDry;
+let lfoOsc, lfoGain;
 
 // Key mapping (QWERTY home row ish to piano keys)
 const keyboardMap = {
@@ -59,6 +73,26 @@ async function initAudio() {
   masterGain = audioCtx.createGain();
   masterGain.gain.value = synthState.masterVol;
   
+  // 1. Master Filter
+  globalFilter = audioCtx.createBiquadFilter();
+  globalFilter.type = 'lowpass';
+  globalFilter.frequency.value = synthState.fx.filterCutoff;
+  globalFilter.Q.value = synthState.fx.filterRes;
+
+  // 2. Delay Network
+  delayNode = audioCtx.createDelay(2.0); // max delay 2s
+  delayNode.delayTime.value = synthState.fx.delayTime;
+  
+  delayFeedbackNode = audioCtx.createGain();
+  delayFeedbackNode.gain.value = synthState.fx.delayFb;
+  
+  delayMixDry = audioCtx.createGain();
+  delayMixDry.gain.value = 1.0 - synthState.fx.delayMix;
+  
+  delayMixWet = audioCtx.createGain();
+  delayMixWet.gain.value = synthState.fx.delayMix;
+
+  // 3. Compressor
   const compressor = audioCtx.createDynamicsCompressor();
   compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
   compressor.knee.setValueAtTime(40, audioCtx.currentTime);
@@ -66,7 +100,34 @@ async function initAudio() {
   compressor.attack.setValueAtTime(0, audioCtx.currentTime);
   compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
 
-  masterGain.connect(compressor);
+  // 4. LFO
+  lfoOsc = audioCtx.createOscillator();
+  lfoOsc.type = 'sine';
+  lfoOsc.frequency.value = synthState.fx.lfoRate;
+  lfoGain = audioCtx.createGain();
+  lfoGain.gain.value = synthState.fx.lfoDepth;
+  lfoOsc.connect(lfoGain);
+  lfoOsc.start();
+  // LFO connections are dynamic based on target selection, handled later
+
+  // ROUTING
+  masterGain.connect(globalFilter);
+  
+  // Split to Dry/Wet
+  globalFilter.connect(delayMixDry);
+  globalFilter.connect(delayNode);
+  
+  // Delay Feedback Loop
+  delayNode.connect(delayFeedbackNode);
+  delayFeedbackNode.connect(delayNode);
+  
+  // Delay Out
+  delayNode.connect(delayMixWet);
+  
+  // Mix together into Compressor
+  delayMixDry.connect(compressor);
+  delayMixWet.connect(compressor);
+  
   compressor.connect(audioCtx.destination);
 
   if (audioCtx.state === 'suspended') {
@@ -372,6 +433,15 @@ class SynthVoice {
       this.setupAdditiveChannel(synthState.ch4);
     }
 
+    if (synthState.fx.lfoTarget === 'pitch') {
+      this.nodesToStop.forEach(n => {
+        if (n.detune && lfoGain) {
+          // Increase LFO depth specifically for pitch since detune is in cents (100 = 1 semitone)
+          lfoGain.connect(n.detune);
+        }
+      });
+    }
+
     // Apply Global ADSR Attack
     const now = audioCtx.currentTime;
     this.voiceGain.gain.cancelScheduledValues(now);
@@ -512,6 +582,82 @@ btnModeWavetable.addEventListener('click', () => {
 });
 
 btnFreeze.addEventListener('click', freezeToWavetable);
+
+// FX Bindings
+function bindFxSlider(id, prop, updateFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    synthState.fx[prop] = val;
+    if (updateFn) updateFn(val);
+  });
+}
+
+bindFxSlider('filter-cutoff', 'filterCutoff', (v) => { if(globalFilter) globalFilter.frequency.setTargetAtTime(v, audioCtx.currentTime, 0.05); });
+bindFxSlider('filter-res', 'filterRes', (v) => { if(globalFilter) globalFilter.Q.setTargetAtTime(v, audioCtx.currentTime, 0.05); });
+bindFxSlider('delay-time', 'delayTime', (v) => { if(delayNode) delayNode.delayTime.setTargetAtTime(v, audioCtx.currentTime, 0.05); });
+bindFxSlider('delay-fb', 'delayFb', (v) => { if(delayFeedbackNode) delayFeedbackNode.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05); });
+bindFxSlider('delay-mix', 'delayMix', (v) => { 
+  if(delayMixDry) delayMixDry.gain.setTargetAtTime(1.0 - v, audioCtx.currentTime, 0.05); 
+  if(delayMixWet) delayMixWet.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05); 
+});
+
+bindFxSlider('lfo-rate', 'lfoRate', (v) => { if(lfoOsc) lfoOsc.frequency.setTargetAtTime(v, audioCtx.currentTime, 0.05); });
+bindFxSlider('lfo-depth', 'lfoDepth', (v) => { 
+  if(lfoGain) {
+    // If target is pitch, we need a massive multiplier because detune is in cents (100 = 1 semitone)
+    // If target is volume/pan, depth should be 0.0 - 1.0. 
+    // Slider goes 0 - 1. So if target is pitch, multiply by 400 (4 semitones vibrato max)
+    const mult = synthState.fx.lfoTarget === 'pitch' ? 400 : 1;
+    lfoGain.gain.setTargetAtTime(v * mult, audioCtx.currentTime, 0.05); 
+  }
+});
+
+let lfoPanNode = null;
+function updateLfoRouting() {
+  if (!lfoGain || !audioCtx) return;
+  lfoGain.disconnect();
+  
+  if (lfoPanNode) {
+    lfoPanNode.disconnect();
+    masterGain.disconnect();
+    masterGain.connect(globalFilter); // restore normal routing
+    lfoPanNode = null;
+  }
+
+  const target = synthState.fx.lfoTarget;
+  
+  // Re-apply depth multiplier based on new target
+  const depthEl = document.getElementById('lfo-depth');
+  if (depthEl) {
+    const v = parseFloat(depthEl.value);
+    const mult = target === 'pitch' ? 400 : 1;
+    lfoGain.gain.setTargetAtTime(v * mult, audioCtx.currentTime, 0.05);
+  }
+
+  if (target === 'volume') {
+    lfoGain.connect(masterGain.gain);
+  } 
+  else if (target === 'pan') {
+    if (audioCtx.createStereoPanner) {
+      lfoPanNode = audioCtx.createStereoPanner();
+      masterGain.disconnect();
+      masterGain.connect(lfoPanNode);
+      lfoPanNode.connect(globalFilter);
+      lfoGain.connect(lfoPanNode.pan);
+    }
+  }
+  // If target === 'pitch', it is handled dynamically in the SynthVoice constructor
+}
+
+const lfoTargetSelect = document.getElementById('lfo-target');
+if (lfoTargetSelect) {
+  lfoTargetSelect.addEventListener('change', (e) => {
+    synthState.fx.lfoTarget = e.target.value;
+    updateLfoRouting();
+  });
+}
 
 // --------------------------------------------------------------------------
 // Keyboard Generation & Events

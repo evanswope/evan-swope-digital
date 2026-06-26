@@ -142,6 +142,18 @@
   color: #555;
 }
 
+/* FX Rack */
+.fx-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  letter-spacing: 2px;
+}
+.fx-knob {
+  accent-color: var(--neon-purple); /* We can rely on CSS vars or just fallback */
+}
+
 /* Master Section */
 .mixer-section {
   display: flex;
