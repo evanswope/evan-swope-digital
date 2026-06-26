@@ -292,79 +292,46 @@
       </div>
 
       <div class="philosophy-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto;">
-        
-        <div class="philosophy-card project-card-container" style="min-height: 250px;">
-          <div class="project-card-inner">
-            <div class="project-card-front card-strategy project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <svg class="icon-unravel" viewBox="0 0 48 48" width="64" height="64" style="margin-bottom: 1rem; filter:url(#scribble-filter);">
-  <path class="unravel-path" d="M16 16 C16 10, 32 10, 32 16 C32 24, 24 24, 24 30 L24 40" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round"/>
-  <circle class="unravel-dot" cx="24" cy="46" r="2" fill="var(--accent-color)"/>
-</svg>
-              <h3 style="color: var(--neon-blue); text-align:center;">Relentless Curiosity</h3>
-              <p style="text-align:center; font-size: 0.9rem; margin-top: 1rem;">Active listening first. Strategy begins by understanding what is left unsaid.</p>
-            </div>
-            <div class="project-card-back card-creative project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <p style="text-align:center; font-style:italic;">"The best questions are the ones you didn't know you needed to ask."</p>
-            </div>
-          </div>
+        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
+          <svg class="icon-unravel" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
+            <path class="unravel-path" d="M16 16 C16 10, 32 10, 32 16 C32 24, 24 24, 24 30 L24 40" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round"/>
+            <circle class="unravel-dot" cx="24" cy="46" r="2" fill="var(--accent-color)"/>
+          </svg>
+          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Relentless Curiosity</h3>
+          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Active listening first. Strategy begins by understanding what is left unsaid.</p>
+          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"The best questions are the ones you didn't know you needed to ask."</p>
         </div>
 
-        <div class="philosophy-card project-card-container" style="min-height: 250px;">
-          <div class="project-card-inner">
-            <div class="project-card-front card-strategy project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <svg class="icon-lift" viewBox="0 0 48 48" width="64" height="64" style="margin-bottom: 1rem; filter:url(#scribble-filter);">
-  <rect class="lift-block" x="12" y="10" width="24" height="8" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
-  <path class="lift-hands" d="M16 38 L16 26 L20 26 M32 38 L32 26 L28 26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="square"/>
-</svg>
-              <h3 style="color: var(--neon-blue); text-align:center;">Service Leadership</h3>
-              <p style="text-align:center; font-size: 0.9rem; margin-top: 1rem;">Caring for others, stewardship, and leaving the world a little better than I found it.</p>
-            </div>
-            <div class="project-card-back card-creative project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <p style="text-align:center; font-style:italic;">"Lead by supporting the people who actually do the heavy lifting."</p>
-            </div>
-          </div>
+        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
+          <svg class="icon-lift" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
+            <rect class="lift-block" x="12" y="10" width="24" height="8" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
+            <path class="lift-hands" d="M16 38 L16 26 L20 26 M32 38 L32 26 L28 26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="square"/>
+          </svg>
+          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Service Leadership</h3>
+          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Caring for others, stewardship, and leaving the world a little better than I found it.</p>
+          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"Lead by supporting the people who actually do the heavy lifting."</p>
         </div>
 
-        <div class="philosophy-card project-card-container" style="min-height: 250px;">
-          <div class="project-card-inner">
-            <div class="project-card-front card-strategy project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <svg class="icon-spark" viewBox="0 0 48 48" width="64" height="64" style="margin-bottom: 1rem; filter:url(#scribble-filter);">
-  <polygon class="spark-anvil" points="14,38 34,38 30,26 36,26 36,22 12,22 12,26 18,26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="miter"/>
-  <path class="spark-hammer" d="M38 16 L44 16 L44 10 L38 10 Z M41 16 L34 26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="miter"/>
-  <circle class="spark-particle p1" cx="32" cy="18" r="1.5" fill="var(--accent-color)"/>
-  <circle class="spark-particle p2" cx="38" cy="22" r="1.5" fill="var(--accent-color)"/>
-</svg>
-              <h3 style="color: var(--neon-blue); text-align:center;">Challenge & Grit</h3>
-              <p style="text-align:center; font-size: 0.9rem; margin-top: 1rem;">Doing the hard things, failing forward, and having fun while doing it.</p>
-            </div>
-            <div class="project-card-back card-creative project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <p style="text-align:center; font-style:italic;">"If it was easy, everyone would do it. And that's boring."</p>
-            </div>
-          </div>
+        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
+          <svg class="icon-spark" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
+            <polygon class="spark-anvil" points="14,38 34,38 30,26 36,26 36,22 12,22 12,26 18,26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="miter"/>
+            <path class="spark-hammer" d="M38 16 L44 16 L44 10 L38 10 Z M41 16 L34 26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="miter"/>
+            <circle class="spark-particle p1" cx="32" cy="18" r="1.5" fill="var(--accent-color)"/>
+            <circle class="spark-particle p2" cx="38" cy="22" r="1.5" fill="var(--accent-color)"/>
+          </svg>
+          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Challenge & Grit</h3>
+          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Doing the hard things, failing forward, and having fun while doing it.</p>
+          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"If it was easy, everyone would do it. And that's boring."</p>
         </div>
 
-        <div class="philosophy-card project-card-container" style="min-height: 250px;">
-          <div class="project-card-inner">
-            <div class="project-card-front card-strategy project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <svg class="icon-shifter" viewBox="0 0 48 48" width="64" height="64" style="margin-bottom: 1rem; filter:url(#scribble-filter);">
-  <rect class="shifter-square" x="14" y="14" width="20" height="20" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
-  <path class="shifter-scribble" d="M12 24 Q 18 10, 24 24 T 36 24 Q 28 36, 20 24" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
-</svg>
-              <h3 style="color: var(--neon-blue); text-align:center;">Unapologetic Authenticity</h3>
-              <p style="text-align:center; font-size: 0.9rem; margin-top: 1rem;">Being unapologetically myself in an unyielding world.</p>
-            </div>
-            <div class="project-card-back card-creative project-card-face" style="padding: 2rem; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-              <svg class="scribble-outline"><rect /></svg>
-              <p style="text-align:center; font-style:italic;">"No filters. Well, maybe an SVG fractalNoise filter."</p>
-            </div>
-          </div>
+        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
+          <svg class="icon-shifter" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
+            <rect class="shifter-square" x="14" y="14" width="20" height="20" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
+            <path class="shifter-scribble" d="M12 24 Q 18 10, 24 24 T 36 24 Q 28 36, 20 24" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
+          </svg>
+          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Unapologetic Authenticity</h3>
+          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Being unapologetically myself in an unyielding world.</p>
+          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"No filters. Well, maybe an SVG fractalNoise filter."</p>
         </div>
 
       </div>
@@ -463,24 +430,19 @@
         <h2 class="section-title">Okay But Who Is Evan?</h2>
       </div>
       
-      <article class="project-card-container tilt-left" style="max-width: 1000px; margin: 0 auto; min-height: auto;">
-        <div class="project-card-inner" style="min-height: auto; display: grid;">
-          <div class="project-card-front card-creative project-card-face" style="padding: 3rem; display:flex; gap: 2rem; align-items:center; flex-wrap: wrap; position:relative; grid-area: 1 / 1;">
-            <svg class="scribble-outline"><rect /></svg>
-            <div class="about-image" style="flex: 1; min-width: 250px;">
-              <img src="assets/images/headshot.jpg" alt="Evan Swope Headshot" style="width: 100%; border-radius: 12px;">
-            </div>
-            <div class="about-text" style="flex: 2; min-width: 300px;">
-              <p style="font-size: 1.2rem; margin-bottom: 1rem;">I believe that the best creative solutions are backed by rigorous systems design, and the best business strategies are brought to life through beautiful visual storytelling.</p>
-              <p style="margin-bottom: 1rem; color: rgba(255,255,255,0.7);">Over my 15-year career, I have made 8 original brands from scratch, written their guidelines, scaled email campaigns, and worked in formats ranging from documentaries to scoring audio for contemporary dance and robotics.</p>
-              <p style="margin-bottom: 1rem; color: rgba(255,255,255,0.7);">I graduated from the University of Washington with a BFA in Digital Art & Experimental Media (DXARTS) and a BA in Communication.</p>
-              <p style="font-size:0.9rem; font-style:italic; opacity: 0.7; margin-top: 2rem;">Click to flip for more</p>
-            </div>
-          </div>
-          <div class="project-card-back card-strategy project-card-face" style="padding: 3rem; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; position:relative; grid-area: 1 / 1;">
-            <svg class="scribble-outline"><rect /></svg>
-            <h3 style="color: var(--neon-blue); margin-bottom: 1rem;">Beyond the desk</h3>
-            <p style="font-size: 1.1rem; max-width: 600px; margin: 0 auto; margin-bottom: 1rem;">In my off time, you can find me tackling home improvement projects, doing stand-up comedy, or relying on my retired drag persona to remind me not to take myself too seriously.</p><p style="font-size: 1.1rem; max-width: 600px; margin: 0 auto;">And yes—I currently work two full-time jobs while serving as the VP of my condo board (and acting as the sole eligible defendant in a lawsuit against said board). I thrive in the chaos.</p>
+      <article class="about-card" style="max-width: 1000px; margin: 0 auto; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 3rem; display:flex; gap: 3rem; align-items:center; flex-wrap: wrap;">
+        <div class="about-image" style="flex: 1; min-width: 250px;">
+          <img src="assets/images/headshot.jpg" alt="Evan Swope Headshot" style="width: 100%; border-radius: 12px;">
+        </div>
+        <div class="about-text" style="flex: 2; min-width: 300px;">
+          <p style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-primary);">I believe that the best creative solutions are backed by rigorous systems design, and the best business strategies are brought to life through beautiful visual storytelling.</p>
+          <p style="margin-bottom: 1rem; color: var(--text-secondary);">Over my 15-year career, I have made 8 original brands from scratch, written their guidelines, scaled email campaigns, and worked in formats ranging from documentaries to scoring audio for contemporary dance and robotics.</p>
+          <p style="margin-bottom: 1rem; color: var(--text-secondary);">I graduated from the University of Washington with a BFA in Digital Art & Experimental Media (DXARTS) and a BA in Communication.</p>
+          
+          <div class="about-extras" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <h3 style="color: var(--neon-blue); margin-bottom: 1rem; font-size: 1.1rem;">Beyond the desk</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1rem;">In my off time, you can find me tackling home improvement projects, doing stand-up comedy, or relying on my retired drag persona to remind me not to take myself too seriously.</p>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">And yes—I currently work two full-time jobs while serving as the VP of my condo board (and acting as the sole eligible defendant in a lawsuit against said board). I thrive in the chaos.</p>
           </div>
         </div>
       </article>
