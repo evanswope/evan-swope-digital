@@ -1,0 +1,887 @@
+{
+    "/": {
+        "title": "Videographer & Creative | Seattle Freelance | Evan Swope Digital",
+        "text_content": [
+            {
+                "tag": "li",
+                "text": "PORTFOLIO"
+            },
+            {
+                "tag": "p",
+                "text": "PORTFOLIO"
+            },
+            {
+                "tag": "li",
+                "text": "EVAN"
+            },
+            {
+                "tag": "p",
+                "text": "EVAN"
+            },
+            {
+                "tag": "li",
+                "text": "RESUME"
+            },
+            {
+                "tag": "p",
+                "text": "RESUME"
+            },
+            {
+                "tag": "li",
+                "text": "More"
+            },
+            {
+                "tag": "p",
+                "text": "More"
+            },
+            {
+                "tag": "h1",
+                "text": "EVAN"
+            },
+            {
+                "tag": "h1",
+                "text": "SWOPE"
+            },
+            {
+                "tag": "h1",
+                "text": "DIGITAL"
+            },
+            {
+                "tag": "p",
+                "text": "Find the voice you talk to customers with.Creative direction, videography and digital design."
+            },
+            {
+                "tag": "p",
+                "text": "Seattle, Washington, and beyond."
+            },
+            {
+                "tag": "h2",
+                "text": "WHAT'S NEW"
+            },
+            {
+                "tag": "h2",
+                "text": "Gallery"
+            },
+            {
+                "tag": "h1",
+                "text": "FOLLOW"
+            },
+            {
+                "tag": "p",
+                "text": "Copyright © 2026 Evan Swope Digital LLC"
+            }
+        ],
+        "images": [
+            {
+                "original_url": "https://static.wixstatic.com/media/d33d07_68bc60abbfdb496e9f6054e09a825594~mv2.png/v1/fill/w_1280,h_960,al_c,q_90,usm_0.33_1.00_0.00,enc_avif,quality_auto/d33d07_68bc60abbfdb496e9f6054e09a825594~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/d33d07_68bc60abbfdb496e9f6054e09a825594~mv2.png",
+                "local_path": "images\\d33d07_68bc60abbfdb496e9f6054e09a825594~mv2.png",
+                "alt": "",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/d33d07_2f1c2c9c2911433bb46594a43a0fc780~mv2.png/v1/fill/w_109,h_109,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/d33d07_2f1c2c9c2911433bb46594a43a0fc780~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/d33d07_2f1c2c9c2911433bb46594a43a0fc780~mv2.png",
+                "local_path": "images\\d33d07_2f1c2c9c2911433bb46594a43a0fc780~mv2.png",
+                "alt": "Evan Swope Digital Logo",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png/v1/fill/w_30,h_30,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "local_path": "images\\11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "alt": "LinkedIn",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png/v1/fill/w_30,h_30,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "local_path": "images\\11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "alt": "Instagram",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png/v1/fill/w_30,h_30,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "local_path": "images\\11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "alt": "Youtube",
+                "title": "",
+                "source_type": "img_tag"
+            }
+        ]
+    },
+    "/evan": {
+        "title": "About Evan Swope | Seattle | Videographer & Designer",
+        "text_content": [
+            {
+                "tag": "li",
+                "text": "PORTFOLIO"
+            },
+            {
+                "tag": "p",
+                "text": "PORTFOLIO"
+            },
+            {
+                "tag": "li",
+                "text": "EVAN"
+            },
+            {
+                "tag": "p",
+                "text": "EVAN"
+            },
+            {
+                "tag": "li",
+                "text": "RESUME"
+            },
+            {
+                "tag": "p",
+                "text": "RESUME"
+            },
+            {
+                "tag": "li",
+                "text": "More"
+            },
+            {
+                "tag": "p",
+                "text": "More"
+            },
+            {
+                "tag": "h1",
+                "text": "ABOUTEVAN SWOPE"
+            },
+            {
+                "tag": "p",
+                "text": "I am a Creative Director who has made 8 original brands (and their design guidelines), expanded the output of small brands' media campaigns by 5x, and worked in every format of media from producing on documentaries, to print and digital ads, email and social, even scoring music for contemporary dance, and robotics."
+            },
+            {
+                "tag": "h2",
+                "text": "EVERY BRAND HAS A VOICE"
+            },
+            {
+                "tag": "p",
+                "text": "Learning who your customers are and how to talk to them, or even talk like them, is key to creating a likeable digital persona. Let's work together to find out who we're talking to and how we can sound like the voice of authority, a friend, or an intriguing mystery to be solved."
+            },
+            {
+                "tag": "h2",
+                "text": "Visual first"
+            },
+            {
+                "tag": "p",
+                "text": "The best campaigns start off with great visuals, and no industry is without a need for powerful, evocative, and relatable imagery. This can start with cohesive product photography, and be as large as multimedia ad campaigns to capture audiences on social, TV, and even radio or streaming audio services."
+            },
+            {
+                "tag": "h2",
+                "text": "KNOW trends"
+            },
+            {
+                "tag": "p",
+                "text": "There's a world of data out there. Where do you start? I like to start with search term clusters and competitor analysis. What else do people search for when they search for your products? What kinds of videos do people watch on social channels? Trends help you find where the attention already is."
+            },
+            {
+                "tag": "h2",
+                "text": "Form a team"
+            },
+            {
+                "tag": "p",
+                "text": "Maybe you've never touched an ad platform, or worked with a voice actor before. Don't worry! I can help find the right talent and tools for the job. Communications can be scaled up based on success when we've found a resonant message."
+            },
+            {
+                "tag": "h2",
+                "text": "Okay but who is Evan"
+            },
+            {
+                "tag": "p",
+                "text": "Alright, alright. In my off time, I like to dabble in hobbies like home improvement in my condo, stand-up comedy, and drag. I lived in Portland, OR, and Tri-Cities, WA before moving to Seattle to attend University of Washington Seattle. I've been here ever since."
+            },
+            {
+                "tag": "h1",
+                "text": "FOLLOW"
+            },
+            {
+                "tag": "p",
+                "text": "Copyright © 2026 Evan Swope Digital LLC"
+            }
+        ],
+        "images": [
+            {
+                "original_url": "https://static.wixstatic.com/media/d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png/v1/fill/w_1280,h_960,al_r,q_90,usm_0.33_1.00_0.00,enc_avif,quality_auto/d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png",
+                "local_path": "images\\d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png",
+                "alt": "",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/d33d07_3d3fcc9563ab4796a8b7235833d71134~mv2.jpg/v1/crop/x_250,y_0,w_1070,h_1070/fill/w_300,h_300,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Evan%20Swope%20Headshot%202022%20-2_edited.jpg",
+                "high_res_url": "https://static.wixstatic.com/media/d33d07_3d3fcc9563ab4796a8b7235833d71134~mv2.jpg",
+                "local_path": "images\\d33d07_3d3fcc9563ab4796a8b7235833d71134~mv2.jpg",
+                "alt": "Evan Swope headshot",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/d33d07_75bc04ed6cdd43daafd926885e082f92~mv2.jpg/v1/crop/x_500,y_0,w_2000,h_2000/fill/w_300,h_300,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Evan%20photographer%20lightbox_edited.jpg",
+                "high_res_url": "https://static.wixstatic.com/media/d33d07_75bc04ed6cdd43daafd926885e082f92~mv2.jpg",
+                "local_path": "images\\d33d07_75bc04ed6cdd43daafd926885e082f92~mv2.jpg",
+                "alt": "Evan's hands in lightbox holding camera",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png/v1/fill/w_50,h_50,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "local_path": "images\\11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "alt": "LinkedIn",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png/v1/fill/w_50,h_50,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "local_path": "images\\11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "alt": "Instagram",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png/v1/fill/w_50,h_50,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "local_path": "images\\11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "alt": "Youtube",
+                "title": "",
+                "source_type": "img_tag"
+            }
+        ]
+    },
+    "/resume": {
+        "title": "Resume | Seattle | Evan Swope Digital",
+        "text_content": [
+            {
+                "tag": "li",
+                "text": "PORTFOLIO"
+            },
+            {
+                "tag": "p",
+                "text": "PORTFOLIO"
+            },
+            {
+                "tag": "li",
+                "text": "EVAN"
+            },
+            {
+                "tag": "p",
+                "text": "EVAN"
+            },
+            {
+                "tag": "li",
+                "text": "RESUME"
+            },
+            {
+                "tag": "p",
+                "text": "RESUME"
+            },
+            {
+                "tag": "li",
+                "text": "More"
+            },
+            {
+                "tag": "p",
+                "text": "More"
+            },
+            {
+                "tag": "h1",
+                "text": "RESUME"
+            },
+            {
+                "tag": "h2",
+                "text": "PROFESSIONAL SUMMARY"
+            },
+            {
+                "tag": "p",
+                "text": "Intuitive Creative Director with 15 years of experience in art direction, videography, and creative strategy for B2B and B2C markets. Proven track record of driving measurable business growth, including $13.3M in revenue increases and 48% growth in key product categories through strategic creative leadership and brand development. Skilled in leading cross-functional teams, optimizing workflows, and delivering high-quality creative assets on time and within budget."
+            },
+            {
+                "tag": "p",
+                "text": "Willing to relocate: West Coast of US or Canada, Chicago, Berlin"
+            },
+            {
+                "tag": "p",
+                "text": "Authorized to work in the US for any employer"
+            },
+            {
+                "tag": "p",
+                "text": "Download as PDF"
+            },
+            {
+                "tag": "h2",
+                "text": "EXPERIENCE"
+            },
+            {
+                "tag": "p",
+                "text": "CREATIVE DIRECTORMarx Companies"
+            },
+            {
+                "tag": "p",
+                "text": "Seattle, WA (January 2025 - present)"
+            },
+            {
+                "tag": "li",
+                "text": "Spearheaded brand development and creative strategy for specialty food products, driving $13.3M in total revenue growth (33% increase) from 2023–2025 through strategic brand positioning and immersive visual storytelling."
+            },
+            {
+                "tag": "p",
+                "text": "Spearheaded brand development and creative strategy for specialty food products, driving $13.3M in total revenue growth (33% increase) from 2023–2025 through strategic brand positioning and immersive visual storytelling."
+            },
+            {
+                "tag": "li",
+                "text": "Generated $10.4M in beef program revenue growth (48% increase over 2 years) by launching 6 white-label brands and 5 new beef programs (including Irish Nature Beef, Ocean Beef, and Pure Black Wagyu)."
+            },
+            {
+                "tag": "p",
+                "text": "Generated $10.4M in beef program revenue growth (48% increase over 2 years) by launching 6 white-label brands and 5 new beef programs (including Irish Nature Beef, Ocean Beef, and Pure Black Wagyu)."
+            },
+            {
+                "tag": "li",
+                "text": "Revitalized underperforming categories through targeted \"hero\" campaigns, achieving a 166% sales spike in Venison and a 50% increase in Veal sales over two years."
+            },
+            {
+                "tag": "p",
+                "text": "Revitalized underperforming categories through targeted \"hero\" campaigns, achieving a 166% sales spike in Venison and a 50% increase in Veal sales over two years."
+            },
+            {
+                "tag": "li",
+                "text": "Managed a cross-functional matrixed team with our marketing manager and the CEO."
+            },
+            {
+                "tag": "p",
+                "text": "Managed a cross-functional matrixed team with our marketing manager and the CEO."
+            },
+            {
+                "tag": "li",
+                "text": "Intensive skills mentoring for new team members in Adobe products, studio photography, and efficient post-production workflows."
+            },
+            {
+                "tag": "p",
+                "text": "Intensive skills mentoring for new team members in Adobe products, studio photography, and efficient post-production workflows."
+            },
+            {
+                "tag": "p",
+                "text": "Senior Designer and Videographer"
+            },
+            {
+                "tag": "p",
+                "text": "Marx Companies"
+            },
+            {
+                "tag": "p",
+                "text": "Seattle, WA (May 2019 - January 2025)"
+            },
+            {
+                "tag": "li",
+                "text": "Designed for print, web, and social across many vendor brands and internal sub-brands. Successful rebrand and relaunch of Marx Foodservice in 2024."
+            },
+            {
+                "tag": "p",
+                "text": "Designed for print, web, and social across many vendor brands and internal sub-brands. Successful rebrand and relaunch of Marx Foodservice in 2024."
+            },
+            {
+                "tag": "li",
+                "text": "Led integrated marketing campaigns that increased email engagement by 30% and click-throughs by 25%, while supporting overall company revenue growth through strategic creative execution."
+            },
+            {
+                "tag": "p",
+                "text": "Led integrated marketing campaigns that increased email engagement by 30% and click-throughs by 25%, while supporting overall company revenue growth through strategic creative execution."
+            },
+            {
+                "tag": "li",
+                "text": "Decreased email load times by up to 80% through advanced compression."
+            },
+            {
+                "tag": "p",
+                "text": "Decreased email load times by up to 80% through advanced compression."
+            },
+            {
+                "tag": "li",
+                "text": "Led web store front end development with UX/UI wireframing in Netsuite, Wordpress, and HTML/CSS sites, with agile workflows."
+            },
+            {
+                "tag": "p",
+                "text": "Led web store front end development with UX/UI wireframing in Netsuite, Wordpress, and HTML/CSS sites, with agile workflows."
+            },
+            {
+                "tag": "li",
+                "text": "Designed new content production workflows, increasing photography and video output by 500% through AI-integrated tools and streamlined processes."
+            },
+            {
+                "tag": "p",
+                "text": "Designed new content production workflows, increasing photography and video output by 500% through AI-integrated tools and streamlined processes."
+            },
+            {
+                "tag": "p",
+                "text": "CREATIVE & TECHNICAL DIRECTOR"
+            },
+            {
+                "tag": "p",
+                "text": "Freelance"
+            },
+            {
+                "tag": "p",
+                "text": "Seattle, WA and Remote (January 2011 - present)"
+            },
+            {
+                "tag": "li",
+                "text": "Led technical direction for remote conferencing across multiple days for National Women’s Political Caucus & local chapters annual events and meetings. Complex timelines with multiple subcontractors."
+            },
+            {
+                "tag": "p",
+                "text": "Led technical direction for remote conferencing across multiple days for National Women’s Political Caucus & local chapters annual events and meetings. Complex timelines with multiple subcontractors."
+            },
+            {
+                "tag": "li",
+                "text": "Videography and production for private clients as well as University of Washington, increasing visibility for prospective customers in embedded web videos."
+            },
+            {
+                "tag": "p",
+                "text": "Videography and production for private clients as well as University of Washington, increasing visibility for prospective customers in embedded web videos."
+            },
+            {
+                "tag": "li",
+                "text": "Apparel photos with model management, media management and post-production."
+            },
+            {
+                "tag": "p",
+                "text": "Apparel photos with model management, media management and post-production."
+            },
+            {
+                "tag": "li",
+                "text": "ADA Compliance to increase user engagement in print and web assets."
+            },
+            {
+                "tag": "p",
+                "text": "ADA Compliance to increase user engagement in print and web assets."
+            },
+            {
+                "tag": "p",
+                "text": "Designer and Videographer"
+            },
+            {
+                "tag": "p",
+                "text": "Avanti Markets"
+            },
+            {
+                "tag": "p",
+                "text": "Renton, WA (September 2018 - May 2019)"
+            },
+            {
+                "tag": "li",
+                "text": "Video and audio branding, design standards, large scale printing for POS vinyl and tradeshow materials."
+            },
+            {
+                "tag": "p",
+                "text": "Video and audio branding, design standards, large scale printing for POS vinyl and tradeshow materials."
+            },
+            {
+                "tag": "li",
+                "text": "Created 2-3 new brands per month for SaaS clients in the quick-service retail space, including 3d mockups of new locations."
+            },
+            {
+                "tag": "p",
+                "text": "Created 2-3 new brands per month for SaaS clients in the quick-service retail space, including 3d mockups of new locations."
+            },
+            {
+                "tag": "li",
+                "text": "UX/UI app design, technical documentation."
+            },
+            {
+                "tag": "p",
+                "text": "UX/UI app design, technical documentation."
+            },
+            {
+                "tag": "p",
+                "text": "Web Information Specialist"
+            },
+            {
+                "tag": "p",
+                "text": "Department of Communication (UW)"
+            },
+            {
+                "tag": "p",
+                "text": "Seattle, WA (June 2012 - September 2018)"
+            },
+            {
+                "tag": "li",
+                "text": "Created instructional designs, IT support, videography and photography for events, graphic design."
+            },
+            {
+                "tag": "p",
+                "text": "Created instructional designs, IT support, videography and photography for events, graphic design."
+            },
+            {
+                "tag": "li",
+                "text": "Taught 20-30 undergraduates in digital media classes for college credit per quarter."
+            },
+            {
+                "tag": "p",
+                "text": "Taught 20-30 undergraduates in digital media classes for college credit per quarter."
+            },
+            {
+                "tag": "li",
+                "text": "Oversaw 3-5 interns per quarter in the media checkout internship."
+            },
+            {
+                "tag": "p",
+                "text": "Oversaw 3-5 interns per quarter in the media checkout internship."
+            },
+            {
+                "tag": "li",
+                "text": "Produced skills-based video tutorials with interns based on emerging media.​​"
+            },
+            {
+                "tag": "p",
+                "text": "Produced skills-based video tutorials with interns based on emerging media.​​"
+            },
+            {
+                "tag": "h2",
+                "text": "SKILLS"
+            },
+            {
+                "tag": "li",
+                "text": "Art Direction"
+            },
+            {
+                "tag": "p",
+                "text": "Art Direction"
+            },
+            {
+                "tag": "li",
+                "text": "Video Production (studio and on-site)"
+            },
+            {
+                "tag": "p",
+                "text": "Video Production (studio and on-site)"
+            },
+            {
+                "tag": "li",
+                "text": "Audio Production"
+            },
+            {
+                "tag": "p",
+                "text": "Audio Production"
+            },
+            {
+                "tag": "li",
+                "text": "Product Photography"
+            },
+            {
+                "tag": "p",
+                "text": "Product Photography"
+            },
+            {
+                "tag": "li",
+                "text": "Creative Strategy"
+            },
+            {
+                "tag": "p",
+                "text": "Creative Strategy"
+            },
+            {
+                "tag": "li",
+                "text": "Art & Creative Direction"
+            },
+            {
+                "tag": "p",
+                "text": "Art & Creative Direction"
+            },
+            {
+                "tag": "li",
+                "text": "Digital Marketing"
+            },
+            {
+                "tag": "p",
+                "text": "Digital Marketing"
+            },
+            {
+                "tag": "li",
+                "text": "Project Management"
+            },
+            {
+                "tag": "p",
+                "text": "Project Management"
+            },
+            {
+                "tag": "li",
+                "text": "Asana"
+            },
+            {
+                "tag": "p",
+                "text": "Asana"
+            },
+            {
+                "tag": "li",
+                "text": "Adobe CC Products including Illustrator, Photoshop, XD, Premiere, InDesign, Lightroom, Audition, & Acrobat,After Effects"
+            },
+            {
+                "tag": "p",
+                "text": "Adobe CC Products including Illustrator, Photoshop, XD, Premiere, InDesign, Lightroom, Audition, & Acrobat,After Effects"
+            },
+            {
+                "tag": "li",
+                "text": "Final Cut, AVID, DaVinci Resolve"
+            },
+            {
+                "tag": "p",
+                "text": "Final Cut, AVID, DaVinci Resolve"
+            },
+            {
+                "tag": "li",
+                "text": "Figma & Sketch"
+            },
+            {
+                "tag": "p",
+                "text": "Figma & Sketch"
+            },
+            {
+                "tag": "li",
+                "text": "Media Management"
+            },
+            {
+                "tag": "p",
+                "text": "Media Management"
+            },
+            {
+                "tag": "li",
+                "text": "Time Management"
+            },
+            {
+                "tag": "p",
+                "text": "Time Management"
+            },
+            {
+                "tag": "li",
+                "text": "Collaboration & Mentoring"
+            },
+            {
+                "tag": "p",
+                "text": "Collaboration & Mentoring"
+            },
+            {
+                "tag": "li",
+                "text": "Team Building"
+            },
+            {
+                "tag": "p",
+                "text": "Team Building"
+            },
+            {
+                "tag": "li",
+                "text": "Creative Briefs"
+            },
+            {
+                "tag": "p",
+                "text": "Creative Briefs"
+            },
+            {
+                "tag": "li",
+                "text": "Color Grading"
+            },
+            {
+                "tag": "p",
+                "text": "Color Grading"
+            },
+            {
+                "tag": "li",
+                "text": "Multicamera Editing"
+            },
+            {
+                "tag": "p",
+                "text": "Multicamera Editing"
+            },
+            {
+                "tag": "li",
+                "text": "Graphic Design & Brand Development"
+            },
+            {
+                "tag": "p",
+                "text": "Graphic Design & Brand Development"
+            },
+            {
+                "tag": "li",
+                "text": "Digital Audio Workstations"
+            },
+            {
+                "tag": "p",
+                "text": "Digital Audio Workstations"
+            },
+            {
+                "tag": "li",
+                "text": "AI-assisted Photo Editing"
+            },
+            {
+                "tag": "p",
+                "text": "AI-assisted Photo Editing"
+            },
+            {
+                "tag": "li",
+                "text": "HTML & CSS"
+            },
+            {
+                "tag": "p",
+                "text": "HTML & CSS"
+            },
+            {
+                "tag": "li",
+                "text": "Aerial & Drone"
+            },
+            {
+                "tag": "p",
+                "text": "Aerial & Drone"
+            },
+            {
+                "tag": "li",
+                "text": "UX/UI"
+            },
+            {
+                "tag": "p",
+                "text": "UX/UI"
+            },
+            {
+                "tag": "li",
+                "text": "Netsuite, Wordpress & GoDaddy"
+            },
+            {
+                "tag": "p",
+                "text": "Netsuite, Wordpress & GoDaddy"
+            },
+            {
+                "tag": "li",
+                "text": "Hubspot, Salesforce, & Google Analytics"
+            },
+            {
+                "tag": "p",
+                "text": "Hubspot, Salesforce, & Google Analytics"
+            },
+            {
+                "tag": "li",
+                "text": "Microsoft Word, Excel, Powerpoint & Publisher"
+            },
+            {
+                "tag": "p",
+                "text": "Microsoft Word, Excel, Powerpoint & Publisher"
+            },
+            {
+                "tag": "li",
+                "text": "Arduino"
+            },
+            {
+                "tag": "p",
+                "text": "Arduino"
+            },
+            {
+                "tag": "li",
+                "text": "3D rendering"
+            },
+            {
+                "tag": "p",
+                "text": "3D rendering"
+            },
+            {
+                "tag": "li",
+                "text": "Stereoscopic video"
+            },
+            {
+                "tag": "p",
+                "text": "Stereoscopic video"
+            },
+            {
+                "tag": "li",
+                "text": "Ambisonics"
+            },
+            {
+                "tag": "p",
+                "text": "Ambisonics"
+            },
+            {
+                "tag": "h2",
+                "text": "EDUCATION"
+            },
+            {
+                "tag": "p",
+                "text": "BFA, Center for Digital Art and Experimental Media (DXARTS)"
+            },
+            {
+                "tag": "p",
+                "text": "University of Washington, Seattle"
+            },
+            {
+                "tag": "p",
+                "text": "BA, Communication"
+            },
+            {
+                "tag": "p",
+                "text": "University of Washington, Seattle​"
+            },
+            {
+                "tag": "h2",
+                "text": "OTHER"
+            },
+            {
+                "tag": "p",
+                "text": "Vice President"
+            },
+            {
+                "tag": "p",
+                "text": "Barrett Condo Association"
+            },
+            {
+                "tag": "p",
+                "text": "2021-Present"
+            },
+            {
+                "tag": "h1",
+                "text": "FOLLOW"
+            },
+            {
+                "tag": "p",
+                "text": "Copyright © 2026 Evan Swope Digital LLC"
+            }
+        ],
+        "images": [
+            {
+                "original_url": "https://static.wixstatic.com/media/d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png/v1/fill/w_1280,h_960,al_r,q_90,usm_0.33_1.00_0.00,enc_avif,quality_auto/d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png",
+                "local_path": "images\\d33d07_d7b58359bf4044c3bb341620186335b9~mv2.png",
+                "alt": "",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png/v1/fill/w_50,h_50,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "local_path": "images\\11062b_7dcffe5daf2944b7be0a46ac6d472634~mv2.png",
+                "alt": "LinkedIn",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png/v1/fill/w_50,h_50,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "local_path": "images\\11062b_603340b7bcb14e7785c7b65b233cd9f9~mv2.png",
+                "alt": "Instagram",
+                "title": "",
+                "source_type": "img_tag"
+            },
+            {
+                "original_url": "https://static.wixstatic.com/media/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png/v1/fill/w_50,h_50,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "high_res_url": "https://static.wixstatic.com/media/11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "local_path": "images\\11062b_c67939a99eaf442d95d3f851857ceedf~mv2.png",
+                "alt": "Youtube",
+                "title": "",
+                "source_type": "img_tag"
+            }
+        ]
+    }
+}

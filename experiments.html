@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiments | Evan Swope</title>
+  <meta name="description" content="Interactive browser-based experiments and audio synthesis.">
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Permanent+Marker&display=swap" rel="stylesheet">
+  
+  <!-- Icon System -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="synth.css">
+</head>
+<body class="lens-hybrid">
+  
+  <!-- Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo">
+        <span class="logo-text">EVAN SWOPE</span>
+        <span class="logo-subtext">CREATIVE + STRATEGY</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#work" class="nav-link">Work</a>
+        <a href="index.html#resume" class="nav-link">Experience</a>
+        <a href="index.html#about" class="nav-link">About</a>
+        <a href="experiments.html" class="nav-link" style="color: var(--accent-color);">Experiments</a>
+        <a href="index.html#contact" class="nav-link btn-contact">Let's Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content synth-page-layout" style="padding-top: 100px;">
+    
+    <div class="experiments-header">
+      <h1 class="hero-title" style="color: #fff; text-align: center; margin-top: 2rem; font-size: clamp(2rem, 5vw, 3rem);">Web Audio Additive Synth</h1>
+      <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: 1rem auto 3rem auto;">An interactive polyphonic synthesizer. Map to your keyboard or click the keys below. Adjust the mix of 4 independent channels.</p>
+    </div>
+
+    <!-- The Synth Panel -->
+    <div class="synth-container">
+      <div class="synth-panel wood-panel-left"></div>
+      
+      <div class="synth-faceplate">
+        
+        <!-- Controls Section -->
+        <div class="synth-controls">
+          
+          <div class="synth-brand">
+            <h2 class="moog-font">MOOG-ISH</h2>
+            <div class="power-light" id="power-indicator"></div>
+          </div>
+
+          <div class="mixer-section">
+            
+            <!-- Channel 1: SINE -->
+            <div class="channel-strip">
+              <div class="channel-label">CH 1</div>
+              <div class="waveform-icon">~</div>
+              <div class="fader-track">
+                <input type="range" class="fader custom-slider" id="vol-sine" min="0" max="1" step="0.01" value="0.5">
+              </div>
+              <div class="knob-container">
+                <div class="knob-label">TUNE</div>
+                <input type="range" class="rotary-knob custom-slider" id="tune-sine" min="-12" max="12" step="1" value="0">
+              </div>
+            </div>
+
+            <!-- Channel 2: SQUARE -->
+            <div class="channel-strip">
+              <div class="channel-label">CH 2</div>
+              <div class="waveform-icon">_|-|_</div>
+              <div class="fader-track">
+                <input type="range" class="fader custom-slider" id="vol-square" min="0" max="1" step="0.01" value="0.2">
+              </div>
+              <div class="knob-container">
+                <div class="knob-label">TUNE</div>
+                <input type="range" class="rotary-knob custom-slider" id="tune-square" min="-12" max="12" step="1" value="0">
+              </div>
+            </div>
+
+            <!-- Channel 3: TRIANGLE -->
+            <div class="channel-strip">
+              <div class="channel-label">CH 3</div>
+              <div class="waveform-icon">/\</div>
+              <div class="fader-track">
+                <input type="range" class="fader custom-slider" id="vol-triangle" min="0" max="1" step="0.01" value="0.2">
+              </div>
+              <div class="knob-container">
+                <div class="knob-label">TUNE</div>
+                <input type="range" class="rotary-knob custom-slider" id="tune-triangle" min="-12" max="12" step="1" value="0">
+              </div>
+            </div>
+
+            <!-- Channel 4: NOISE -->
+            <div class="channel-strip">
+              <div class="channel-label">NOISE</div>
+              <div class="waveform-icon">***</div>
+              <div class="fader-track">
+                <input type="range" class="fader custom-slider" id="vol-noise" min="0" max="1" step="0.01" value="0.0">
+              </div>
+              <div class="knob-container">
+                <div class="knob-label">FILTER</div>
+                <input type="range" class="rotary-knob custom-slider" id="filter-noise" min="100" max="10000" step="100" value="5000">
+              </div>
+            </div>
+
+            <!-- Master Section -->
+            <div class="channel-strip master-strip">
+              <div class="channel-label" style="color: #ff758c;">MASTER</div>
+              <div class="master-meter" id="master-meter">
+                <div class="meter-level" id="meter-level-bar"></div>
+              </div>
+              <div class="knob-container">
+                <div class="knob-label">VOL</div>
+                <input type="range" class="rotary-knob custom-slider" id="vol-master" min="0" max="1" step="0.01" value="0.5">
+              </div>
+            </div>
+
+          </div>
+          
+        </div> <!-- End Controls -->
+
+        <!-- Keyboard Section -->
+        <div class="synth-keyboard-wrapper">
+          <div class="keyboard-tooltip">
+            <i class="fa-solid fa-info-circle"></i> Use your computer keyboard (A, W, S, E, D...) or touch to play!
+          </div>
+          <div id="keyboard" class="keyboard">
+            <!-- Dynamically generated keys will go here -->
+          </div>
+        </div>
+
+      </div> <!-- End Faceplate -->
+
+      <div class="synth-panel wood-panel-right"></div>
+    </div>
+
+    <!-- Power On Overlay (Required to start AudioContext) -->
+    <div id="audio-start-overlay" class="audio-start-overlay">
+      <div class="start-btn-container">
+        <h2 style="color: #fff; margin-bottom: 1rem;">Initialize Synth Engine</h2>
+        <button id="btn-start-audio" class="btn-start-audio">POWER ON</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="synth.js"></script>
+</body>
+</html>

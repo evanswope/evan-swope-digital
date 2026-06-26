@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evan Swope | Creative Operations & Growth Director</title>
+  <meta name="description" content="Portfolio of Evan Swope - Creative Operations & Growth Director. Intersecting high-impact multimedia design, B2B growth strategy, and AI-powered systems.">
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Icon System -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="lens-hybrid">
+  
+  <!-- Canvas for Reactive Triangle Matrix -->
+  <canvas id="bg-canvas"></canvas>
+  
+  <!-- Ambient Gradient Orbs (Background Glows) -->
+  <div class="orb orb-1" id="orb-1"></div>
+  <div class="orb orb-2" id="orb-2"></div>
+  
+  <!-- Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="#" class="brand-logo">
+        <span class="logo-text">EVAN SWOPE</span>
+        <span class="logo-subtext">CREATIVE + STRATEGY</span>
+      </a>
+      
+      <!-- The Bifocal Lens Toggle -->
+      <div class="lens-selector-wrapper">
+        <span class="selector-label"><i class="fa-solid fa-eye"></i> View Perspective:</span>
+        <div class="lens-selector">
+          <button class="lens-btn active" data-lens="creative" id="btn-creative">
+            <span class="btn-icon"><i class="fa-solid fa-palette"></i></span>
+            <span class="btn-text">Creative (Front)</span>
+          </button>
+          <button class="lens-btn" data-lens="strategy" id="btn-strategy">
+            <span class="btn-icon"><i class="fa-solid fa-chart-line"></i></span>
+            <span class="btn-text">Strategy (Back)</span>
+          </button>
+          <div class="slider-indicator"></div>
+        </div></div>
+      
+      <nav class="nav-links">
+        <a href="#work" class="nav-link">Work</a>
+        <a href="#resume" class="nav-link">Experience</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link btn-contact">Let's Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    
+    <!-- Hero Showcase Section -->
+    <section class="hero-section">
+      <div class="hero-container">
+        
+        <!-- Dynamic Hero Text -->
+        <div class="hero-content">
+          <div class="tagline-badge">
+            <span class="badge-creative-text"><i class="fa-solid fa-wand-magic-sparkles"></i> Art-Science Design Systems & Visual Intuition</span>
+            <span class="badge-hybrid-text"><i class="fa-solid fa-circle-nodes"></i> Creative, AI, and Hard Questions</span>
+            <span class="badge-strategy-text"><i class="fa-solid fa-gears"></i> Technical B2B Strategy & AI Operations</span>
+          </div>
+          
+          <h1 class="hero-title" id="dynamic-title">
+            <span class="title-creative">Art-science design systems driven by visual intuition.</span>
+            <span class="title-hybrid">At the intersection of creative, AI, and hard questions.</span>
+            <span class="title-strategy">Data-driven B2B systems & technical strategy.</span>
+          </h1>
+          
+          <p class="hero-subtitle" id="dynamic-subtitle">
+            <span class="subtitle-creative">Providing commercial photography, art direction, and brand guidelines staging. Building sensory digital narratives for apparel, specialty foods, and retail brands.</span>
+            <span class="subtitle-hybrid">Fusing DXARTS experimental design methodologies with technical B2B operations to scale CPG and food brands. Driving $13.3M in revenue increases, optimizing distribution networks, and engineering custom growth systems.</span>
+            <span class="subtitle-strategy">Structuring spatial Google Maps lead generation systems, planning wholesale marketing roadmaps, and automating video/photo pipelines with AI.</span>
+          </p>
+          
+          <div class="hero-cta-group">
+            <a href="#work" class="cta-primary">Explore Case Studies</a>
+            <a href="#resume" class="cta-secondary">View Work Experience</a>
+          </div>
+        </div>
+        
+        <!-- Interactive Tech Graphic / Visual Display -->
+        <div class="hero-visual">
+          <div class="visual-card-wrapper">
+            <div class="visual-card">
+              <!-- Visual Content (Changes dynamically with JS/CSS transitions) -->
+              <div class="display-creative-graphic">
+                <div class="creative-grid">
+                  <div class="grid-item item-1"></div>
+                  <div class="grid-item item-2"></div>
+                  <div class="grid-item item-3"></div>
+                  <div class="grid-item item-4"></div>
+                </div>
+                <div class="media-badge"><i class="fa-solid fa-play"></i> Showreel 2026</div>
+              </div>
+              
+              <div class="display-strategy-graphic">
+                <div class="stats-board">
+                  <div class="stat-row">
+                    <span class="stat-label">Wholesale Accounts</span>
+                    <span class="stat-val font-glow-blue">+300%</span>
+                  </div>
+                  <div class="stat-chart">
+                    <div class="bar bar-1" style="height: 25%"></div>
+                    <div class="bar bar-2" style="height: 40%"></div>
+                    <div class="bar bar-3" style="height: 60%"></div>
+                    <div class="bar bar-4" style="height: 100%"></div>
+                  </div>
+                  <div class="stat-footer">
+                    <span>Active accounts grew 2 to 8 in 6 months</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="display-hybrid-graphic">
+                <div class="intersection-venn">
+                  <div class="circle circle-creative"><span>Creative</span></div>
+                  <div class="circle circle-strategy"><span>Strategy</span></div>
+                  <div class="venn-core"><span>AI Ops</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- Key Metrics Highlight Section -->
+    <section class="metrics-section">
+      <div class="metrics-container">
+        <div class="metric-card" data-lens-only="hybrid,strategy">
+          <h3 class="metric-number" id="metric-rev">$13.3M</h3>
+          <p class="metric-label">Revenue Growth Generated</p>
+          <span class="metric-desc">Led specialty food brand positioning & creative strategies at Marx Companies (2023-2025).</span>
+        </div>
+        <div class="metric-card" data-lens-only="hybrid,strategy">
+          <h3 class="metric-number">+300%</h3>
+          <p class="metric-label">Wholesale Expansion</p>
+          <span class="metric-desc">Scaled Crushworthy active wholesale accounts from 2 to 8 within 6 months.</span>
+        </div>
+        <div class="metric-card" data-lens-only="hybrid,creative">
+          <h3 class="metric-number">5x</h3>
+          <p class="metric-label">Creative Output Increase</p>
+          <span class="metric-desc">Engineered AI-integrated production workflows to scale photo and video pipelines.</span>
+        </div>
+        <div class="metric-card" data-lens-only="hybrid,creative,strategy">
+          <h3 class="metric-number">+32%</h3>
+          <p class="metric-label">In-Person Revenue Spike</p>
+          <span class="metric-desc">Optimized Seattle Pride event product mix, boosting average basket sizes.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Case Studies / Work Section -->
+    <section id="work" class="work-section">
+      <div class="section-header-container">
+        <h2 class="section-title">Case Studies & Showcase</h2>
+        <p class="section-subtitle">A duality of execution and intent. Click any card to flip between the creative output and the grit of the strategy behind it.</p>
+      </div>
+
+      <div class="projects-grid flip-grid">
+        
+        <!-- CARD 1: Crushworthy E-commerce -->
+        <article class="project-card-container">
+          <div class="project-card-inner">
+            
+            <!-- FRONT: Creative -->
+            <div class="project-card-front card-creative project-card-face" data-gallery="[&quot;assets/images/8 brands-01.jpg&quot;, &quot;assets/images/Bass Strait Beef Program Flyer_MFS draft 6.jpg&quot;, &quot;assets/images/camera_lightbox.jpg&quot;, &quot;assets/images/Crown Range Angus Item List 2025-03.jpg&quot;, &quot;assets/images/Crown Range Box Print.jpg&quot;, &quot;assets/images/Crown Range Design Standard FINAL 9-12-19_Page_01.jpg&quot;, &quot;assets/images/crushworthy pink sock 1-2.jpg&quot;, &quot;assets/images/crushworthy pink sock 2-2.jpg&quot;]">
+              <div class="front-media-background">
+                <img src="assets/images/CW%20Homepage%20offend%20your%20aunt.jpg" alt="Crushworthy Homepage">
+              </div>
+              <div class="svg-container creative-svgs">
+                 <i class="fa-solid fa-bolt animated-svg float-1"></i>
+                 <i class="fa-solid fa-camera animated-svg float-2"></i>
+                 <i class="fa-solid fa-pen-nib animated-svg float-3"></i>
+              </div>
+              <div class="creative-badge"><i class="fa-solid fa-palette"></i> Creative</div>
+              <button class="flip-cue"><i class="fa-solid fa-rotate"></i> Strategy</button>
+              
+              <div class="front-overlay-gradient"></div>
+              <div class="front-title-container">
+                <span class="project-category">Crushworthy / E-commerce & Social</span>
+                <h2 class="project-title">E-commerce & Social Brand Refresh</h2>
+              </div>
+            </div>
+
+            <!-- BACK: Strategy -->
+            <div class="project-card-back card-strategy project-card-face">
+              <div class="svg-container strategy-svgs">
+                 <i class="fa-solid fa-chart-line animated-svg pop-1"></i>
+                 <i class="fa-solid fa-arrow-trend-up animated-svg pop-2"></i>
+                 <i class="fa-solid fa-seedling animated-svg pop-3"></i>
+              </div>
+              <div class="strategy-badge"><i class="fa-solid fa-chart-line"></i> Strategy</div>
+              <button class="flip-cue"><i class="fa-solid fa-rotate"></i> Creative</button>
+              
+              <div class="project-info">
+                <span class="project-category">Crushworthy / B2B Growth Strategy</span>
+                <h2 class="project-title">2026 Wholesale Marketing Roadmap</h2>
+                <p class="project-excerpt">Wrote a comprehensive strategic growth manual outlining email automation, social media architecture, video pipeline setups, and front-end site overhauls.</p>
+                <div class="project-bullets">
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Growth Manual:</strong> Formulated wholesale strategy targeting retail boutiques.</div>
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Email Automation:</strong> Structured wholesale customer nurture flows.</div>
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Systems Design:</strong> Planned media production schedules and retail outreach workflows.</div>
+                </div>
+                <div class="tech-tags">
+                  <span>Marketing Strategy</span>
+                  <span>Growth Roadmap</span>
+                  <span>Systems Design</span>
+                  <span>Email Nurturing</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- CARD 2: Crushworthy Experiential -->
+        <article class="project-card-container">
+          <div class="project-card-inner">
+            
+            <!-- FRONT: Creative -->
+            <div class="project-card-front card-creative project-card-face" data-gallery="[&quot;assets/images/EJP wed 1.jpg&quot;, &quot;assets/images/EJP wed 2.jpg&quot;, &quot;assets/images/EJP wed 3.jpg&quot;, &quot;assets/images/ESD Ad reel 2023.mp4&quot;, &quot;assets/images/ESD Creative  reel 2023.mp4&quot;, &quot;assets/images/headshot.jpg&quot;, &quot;assets/images/Iberico box mockup2.jpg&quot;, &quot;assets/images/INB Box mockup.jpg&quot;]">
+              <div class="front-media-background">
+                <video src="assets/images/ESD%20Creative%20%20reel%202023.mp4" autoplay loop muted playsinline></video>
+              </div>
+              <div class="svg-container creative-svgs">
+                 <i class="fa-solid fa-video animated-svg float-1"></i>
+                 <i class="fa-solid fa-lightbulb animated-svg float-2"></i>
+                 <i class="fa-solid fa-star animated-svg float-3"></i>
+              </div>
+              <div class="creative-badge"><i class="fa-solid fa-palette"></i> Creative</div>
+              <button class="flip-cue"><i class="fa-solid fa-rotate"></i> Strategy</button>
+              
+              <div class="front-overlay-gradient"></div>
+              <div class="front-title-container">
+                <span class="project-category">Crushworthy / Photography & Videography</span>
+                <h2 class="project-title">Q2 Product Campaigns & BTS Production</h2>
+              </div>
+            </div>
+
+            <!-- BACK: Strategy -->
+            <div class="project-card-back card-strategy project-card-face">
+              <div class="svg-container strategy-svgs">
+                 <i class="fa-solid fa-map-location-dot animated-svg pop-1"></i>
+                 <i class="fa-solid fa-magnifying-glass-chart animated-svg pop-2"></i>
+                 <i class="fa-solid fa-network-wired animated-svg pop-3"></i>
+              </div>
+              <div class="strategy-badge"><i class="fa-solid fa-chart-line"></i> Strategy</div>
+              <button class="flip-cue"><i class="fa-solid fa-rotate"></i> Creative</button>
+              
+              <div class="project-info">
+                <span class="project-category">Crushworthy / B2B Sales & Lead Gen</span>
+                <h2 class="project-title">Spatial Lead Generation & Direct Sampling</h2>
+                <p class="project-excerpt">Built spatial Google Maps lead tracking systems for direct retail sampling, mapping competitors and targeted stockists to secure new accounts.</p>
+                <div class="project-bullets">
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Google Maps Mapping:</strong> Plotted local boutiques and target locations for B2B.</div>
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Direct Delivery:</strong> Visited store leads physically with curated samples to secure warm receptions.</div>
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Account Scale:</strong> Grew active wholesale accounts from 2 to 8 within 6 months.</div>
+                </div>
+                <div class="tech-tags">
+                  <span>Lead Sourcing</span>
+                  <span>Spatial Mapping</span>
+                  <span>B2B Sales</span>
+                  <span>Competitor Analysis</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- CARD 3: Marx Companies Food -->
+        <article class="project-card-container">
+          <div class="project-card-inner">
+            
+            <!-- FRONT: Creative -->
+            <div class="project-card-front card-creative project-card-face" data-gallery="[&quot;assets/images/Marx Website Update Slides-Lamb.jpg&quot;, &quot;assets/images/Marx Website Update Slides-Rabbit.jpg&quot;, &quot;assets/images/Moralejo Spanish Lamb Program Flyer_MFS_Page_1.jpg&quot;, &quot;assets/images/NAMA-4-2880w.webp&quot;, &quot;assets/images/Ocean beef box mockup.jpg&quot;, &quot;assets/images/Ocean Beef Box Print Layout 2024-01.jpg&quot;, &quot;assets/images/seattle_leads_map.png&quot;, &quot;assets/images/SFF Vension US Design Standard 2022_Page_01.jpg&quot;]">
+              <div class="front-media-background">
+                <img src="assets/images/marx_showcase.png" alt="Marx Companies Food & Culinary Photography">
+              </div>
+              <div class="svg-container creative-svgs">
+                 <i class="fa-solid fa-utensils animated-svg float-1"></i>
+                 <i class="fa-solid fa-camera-retro animated-svg float-2"></i>
+                 <i class="fa-solid fa-fire-burner animated-svg float-3"></i>
+              </div>
+              <div class="creative-badge"><i class="fa-solid fa-palette"></i> Creative</div>
+              <button class="flip-cue"><i class="fa-solid fa-rotate"></i> Strategy</button>
+              
+              <div class="front-overlay-gradient"></div>
+              <div class="front-title-container">
+                <span class="project-category">Marx Companies / Commercial Photography</span>
+                <h2 class="project-title">Culinary & Product Photography</h2>
+              </div>
+            </div>
+
+            <!-- BACK: Strategy -->
+            <div class="project-card-back card-strategy project-card-face">
+              <div class="svg-container strategy-svgs">
+                 <i class="fa-solid fa-layer-group animated-svg pop-1"></i>
+                 <i class="fa-solid fa-chess-knight animated-svg pop-2"></i>
+                 <i class="fa-solid fa-chart-pie animated-svg pop-3"></i>
+              </div>
+              <div class="strategy-badge"><i class="fa-solid fa-chart-line"></i> Strategy</div>
+              <button class="flip-cue"><i class="fa-solid fa-rotate"></i> Creative</button>
+              
+              <div class="project-info">
+                <span class="project-category">Marx Companies / Brand Identity</span>
+                <h2 class="project-title">Beef Program Brand Architecture</h2>
+                <p class="project-excerpt">Engineered 6 white-label brands and 5 new beef programs, strategically positioning products by price, country, and eating quality to avoid cannibalization.</p>
+                <div class="project-bullets">
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Brand Launch:</strong> Formulated Irish Nature Beef, Ocean Beef, and Pure Black Wagyu guidelines.</div>
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Non-Cannibalizing Strategy:</strong> Placed product lines to secure distinct price tiers.</div>
+                  <div class="bullet-item"><i class="fa-solid fa-circle-check"></i> <strong>Category Growth:</strong> Expanded category sales by over $9M in two years.</div>
+                </div>
+                <div class="tech-tags">
+                  <span>Brand Guidelines</span>
+                  <span>Strategic Staging</span>
+                  <span>B2B Positioning</span>
+                  <span>CPG Marketing</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+      </div>
+    </section>
+    <!-- Philosophy & Approach Section -->
+    <section id="philosophy" class="philosophy-section">
+      <div class="section-header-container">
+        <h2 class="section-title">Core Philosophy & Approach</h2>
+        <p class="section-subtitle">How a digital multimedia background fuses with technical growth strategy.</p>
+      </div>
+      <div class="philosophy-grid">
+        <div class="philosophy-card">
+          <div class="phil-icon"><i class="fa-solid fa-ear-listen"></i></div>
+          <h3>Active Listening</h3>
+          <p>Strategic growth begins by understanding audience motivations and client needs. Intuition is sharpened by hearing what is left unsaid.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="phil-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+          <h3>Rigorous Research</h3>
+          <p>Tackling hard questions with spatial mapping, sales auditing, and competitor positioning. Creative decisions must build on market truth.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="phil-icon"><i class="fa-solid fa-microchip"></i></div>
+          <h3>Tech Inspiration</h3>
+          <p>Harnessing AI toolchains to scale creative production 5x, optimizing front-end e-commerce, and automating systems bottlenecks.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="phil-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h3>Artistic Intuition</h3>
+          <p>Anchored in DXARTS experimental media, creating sensory product photos, lighting, and sound layouts that resonate emotionally.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience Timeline / Resume Section -->
+    <section id="resume" class="resume-section">
+      <div class="section-header-container">
+        <h2 class="section-title">Professional Experience</h2>
+        <p class="section-subtitle">Bridging creative execution and growth strategy across CPG, SaaS, and Higher Ed.</p>
+      </div>
+
+      <div class="timeline">
+        
+        <!-- Job 1: Crushworthy -->
+        <div class="timeline-item">
+          <div class="timeline-meta">
+            <span class="timeline-date">Jan 2026 - Present</span>
+            <span class="timeline-company">Crushworthy</span>
+            <span class="timeline-location">Seattle, WA (Remote)</span>
+          </div>
+          <div class="timeline-content">
+            <h3 class="job-title">Part-Owner & B2B Growth Director</h3>
+            <p class="job-summary font-strategy">Steering business operations, distribution pipelines, and digital branding for a rapidly growing Seattle apparel brand.</p>
+            <ul class="job-bullets">
+              <li>Formulated the <strong>2026 Marketing Strategy Roadmap</strong> detailing product line expansion, influencer campaign funnels, and retail opportunities.</li>
+              <li>Rebuilt and scaled social media architectures across IG, TikTok, X, Bluesky, and LinkedIn to generate fresh consumer interest.</li>
+              <li>Engineered a comprehensive front-end redesign of the brand's BigCommerce online storefront.</li>
+              <li>Built and optimized a data-driven <strong>B2B wholesale outreach system</strong> using geographic mapping and competitor audits, successfully growing active wholesale accounts from <strong>2 to 8</strong>.</li>
+              <li>Optimized the physical store product mix for Seattle Pride events, yielding a <strong>32% transaction-to-revenue increase</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job 2: Marx Companies CD -->
+        <div class="timeline-item">
+          <div class="timeline-meta">
+            <span class="timeline-date">Jan 2025 - Present</span>
+            <span class="timeline-company">Marx Companies</span>
+            <span class="timeline-location">Seattle, WA</span>
+          </div>
+          <div class="timeline-content">
+            <h3 class="job-title">Creative Director</h3>
+            <p class="job-summary font-hybrid">Leading brand architectures, cross-functional creative operations, and e-commerce growth strategies.</p>
+            <ul class="job-bullets">
+              <li>Spearheaded specialty food brand positioning, contributing to <strong>$13.3M in total revenue growth</strong> (33% increase).</li>
+              <li>Generated <strong>$10.4M in beef program revenue growth</strong> (48% increase) by launching 6 white-label brands and 5 new beef programs.</li>
+              <li>Optimized underperforming food categories via visual "hero" campaigns, securing a <strong>166% sales spike in Venison</strong> and <strong>50% in Veal</strong> over two years.</li>
+              <li>Mentored team members in Adobe Creative Cloud, studio lighting, product photography, and high-efficiency post-production.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job 3: Marx Companies Senior Designer -->
+        <div class="timeline-item">
+          <div class="timeline-meta">
+            <span class="timeline-date">May 2019 - Jan 2025</span>
+            <span class="timeline-company">Marx Companies</span>
+            <span class="timeline-location">Seattle, WA</span>
+          </div>
+          <div class="timeline-content">
+            <h3 class="job-title">Senior Designer & Videographer</h3>
+            <p class="job-summary font-creative">Directing web, social, and print creative for wholesale foodservice and retail brands.</p>
+            <ul class="job-bullets">
+              <li>Spearheaded front-end development and UX/UI wireframing for NetSuite and WordPress e-commerce platforms.</li>
+              <li>Designed automated media workflows, boosting video and photo output by <strong>500%</strong> using early AI-integrated asset tagging and editing tools.</li>
+              <li>Architected the rebrand and relaunch of <em>Marx Foodservice</em> (2024).</li>
+              <li>Designed integrated digital campaigns, boosting email click-through rates by 25% and reduced file load times by 80% using advanced encoding algorithms.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job 4: Avanti Markets -->
+        <div class="timeline-item">
+          <div class="timeline-meta">
+            <span class="timeline-date">Sep 2018 - May 2019</span>
+            <span class="timeline-company">Avanti Markets</span>
+            <span class="timeline-location">Renton, WA</span>
+          </div>
+          <div class="timeline-content">
+            <h3 class="job-title">Designer & Videographer</h3>
+            <p class="job-summary font-creative">Creating brand assets and interactive screen interfaces for quick-service retail kiosks.</p>
+            <ul class="job-bullets">
+              <li>Crafted 2-3 new brand designs monthly for SaaS vending kiosk clients, including 3D environment layouts.</li>
+              <li>Designed POS vinyl print assets and audio/video standards for nationwide trade shows.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job 5: UW Communication -->
+        <div class="timeline-item">
+          <div class="timeline-meta">
+            <span class="timeline-date">Jun 2012 - Sep 2018</span>
+            <span class="timeline-company">UW Department of Communication</span>
+            <span class="timeline-location">Seattle, WA</span>
+          </div>
+          <div class="timeline-content">
+            <h3 class="job-title">Web Information Specialist</h3>
+            <p class="job-summary font-creative">Leading technical operations, instructional technology design, and creative media mentoring.</p>
+            <ul class="job-bullets">
+              <li>Taught 20-30 undergraduate students per quarter in college-credit digital media courses.</li>
+              <li>Oversaw the department's media equipment center and managed 3-5 interns per quarter.</li>
+              <li>Produced video tutorials demonstrating emerging media and digital recording workflows.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+      <div class="about-container">
+        <div class="about-image-wrapper">
+          <div class="about-frame">
+            <img src="assets/images/headshot.jpg" alt="Evan Swope Headshot" class="about-headshot">
+          </div>
+        </div>
+        <div class="about-text-content">
+          <h2 class="section-title">About Evan</h2>
+          <p class="about-lead">I believe that the best creative solutions are backed by rigorous systems design, and the best business strategies are brought to life through beautiful visual storytelling.</p>
+          <p>Over my 15-year career, I have made 8 original brands from scratch, written their guidelines, scaled email campaigns, and worked in formats ranging from documentaries to scoring audio for contemporary dance and robotics.</p>
+          <p>Lately, my focus has shifted toward building operational systems that let companies scale. At Crushworthy, that meant setting up data-driven B2B lead generation lists and redesigning their online retail front-end. At Marx Companies, it meant designing AI-integrated workflows to increase media output 5x.</p>
+          <p class="about-fun-fact"><i class="fa-solid fa-face-smile"></i> <strong>Beyond the desk:</strong> In my off time, you can find me tackling home improvement projects in my Seattle condo, doing stand-up comedy, or drag. I graduated from the University of Washington with a BFA in Digital Art & Experimental Media (DXARTS) and a BA in Communication.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+      <div class="contact-card">
+        <h2>Bring Creative + Strategy to Your Team</h2>
+        <p>Whether you're looking for a Creative Operations leader to scale your CPG/retail brand, or need a growth consultant to design B2B distribution funnels and automate pipelines—let's build something rad.</p>
+        <div class="contact-links">
+          <a href="mailto:evan@evanswope.com" class="contact-link"><i class="fa-solid fa-envelope"></i> evan@evanswope.com</a>
+          <a href="https://www.linkedin.com/in/evanswope" target="_blank" class="contact-link"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+          <a href="https://github.com/evanswope" target="_blank" class="contact-link"><i class="fa-brands fa-github"></i> GitHub</a>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright © 2026 Evan Swope Digital LLC. Built with raw code & self-hosted.</p>
+  </footer>
+
+  <script src="app.js"></script>
+
+  <!-- Lightbox Gallery Modal -->
+  <div id="lightbox-modal" class="lightbox-modal" aria-hidden="true">
+    <div class="lightbox-backdrop"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" aria-label="Close Gallery"><i class="fa-solid fa-xmark"></i></button>
+      <button class="lightbox-prev" aria-label="Previous Image"><i class="fa-solid fa-chevron-left"></i></button>
+      <div class="lightbox-media-container">
+        <!-- Media inserted here via JS -->
+      </div>
+      <button class="lightbox-next" aria-label="Next Image"><i class="fa-solid fa-chevron-right"></i></button>
+      <div class="lightbox-counter">1 / 10</div>
+    </div>
+  </div>
+
+</body>
+</html>
