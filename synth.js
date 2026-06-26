@@ -7,17 +7,26 @@ let masterGain;
 let isPowerOn = false;
 let activeVoices = {}; // Tracks currently playing notes
 
-// Mixer state
+// Engine Mode
+let engineMode = 'additive'; // 'additive' or 'wavetable'
+let customWavetable = null; // Will hold the PeriodicWave
+
+// Synth State
 const synthState = {
   masterVol: 0.5,
-  ch1: { vol: 0.5, tune: 0 },
-  ch2: { vol: 0.2, tune: 0 },
-  ch3: { vol: 0.2, tune: 0 },
-  ch4: { vol: 0.0, filterFreq: 5000 }
+  ch1: { type: 'sine', vol: 0.5, tuneCoarse: 0, tuneFine: 0 },
+  ch2: { type: 'square', vol: 0.2, tuneCoarse: 0, tuneFine: 0 },
+  ch3: { type: 'triangle', vol: 0.2, tuneCoarse: 0, tuneFine: 0 },
+  ch4: { type: 'noise', vol: 0.0, tuneCoarse: 0, tuneFine: 0 }, // For noise, fine = cutoff
+  adsr: {
+    attack: 0.1,  // seconds
+    decay: 0.2,   // seconds
+    sustain: 0.7, // 0.0 to 1.0
+    release: 0.3  // seconds
+  }
 };
 
 // Key mapping (QWERTY home row ish to piano keys)
-// Z = C3, S = C#3, X = D3, D = D#3, C = E3, V = F3, G = F#3, B = G3, H = G#3, N = A3, J = A#3, M = B3, , = C4
 const keyboardMap = {
   'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
   ',': 60, 'l': 61, '.': 62, ';': 63, '/': 64,
@@ -31,6 +40,11 @@ const overlay = document.getElementById('audio-start-overlay');
 const powerLight = document.getElementById('power-indicator');
 const keyboardContainer = document.getElementById('keyboard');
 
+const btnModeAdditive = document.getElementById('btn-mode-additive');
+const btnModeWavetable = document.getElementById('btn-mode-wavetable');
+const btnFreeze = document.getElementById('btn-freeze-wavetable');
+const wavetableStatus = document.getElementById('wavetable-status');
+
 // --------------------------------------------------------------------------
 // Initialization
 // --------------------------------------------------------------------------
@@ -39,15 +53,12 @@ btnStart.addEventListener('click', initAudio);
 async function initAudio() {
   if (audioCtx) return;
   
-  // Create AudioContext
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   audioCtx = new AudioContext();
   
-  // Create Master Gain
   masterGain = audioCtx.createGain();
   masterGain.gain.value = synthState.masterVol;
   
-  // Add a subtle compressor to the master bus to prevent clipping
   const compressor = audioCtx.createDynamicsCompressor();
   compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
   compressor.knee.setValueAtTime(40, audioCtx.currentTime);
@@ -58,7 +69,6 @@ async function initAudio() {
   masterGain.connect(compressor);
   compressor.connect(audioCtx.destination);
 
-  // Resume context if suspended
   if (audioCtx.state === 'suspended') {
     await audioCtx.resume();
   }
@@ -66,122 +76,355 @@ async function initAudio() {
   isPowerOn = true;
   overlay.classList.add('hidden');
   powerLight.classList.add('is-on');
+  btnFreeze.disabled = false;
 
-  // Start Meter Animation
   requestAnimationFrame(updateMeter);
+  drawADSR();
 }
 
 // --------------------------------------------------------------------------
-// Synth Engine (Voice Class)
+// ADSR Canvas Logic
 // --------------------------------------------------------------------------
+const canvas = document.getElementById('adsr-canvas');
+const ctx = canvas.getContext('2d');
+let draggingNode = null;
 
-// Create a buffer for noise once
+// ADSR Graph mapping (Max 2 seconds for ADR, max 1.0 for sustain)
+const maxTime = 2.0;
+
+function getAdsrNodes() {
+  const w = canvas.width;
+  const h = canvas.height;
+  const pad = 10;
+  const usableW = w - (pad * 2);
+  const usableH = h - (pad * 2);
+
+  // X coords based on time relative to maxTime (2s total for A+D+R, assuming sustain is fixed width for drawing)
+  // Let's allocate drawing width: A (0-30%), D (30-60%), S (60-80%), R (80-100%)
+  const aX = pad + (synthState.adsr.attack / maxTime) * (usableW * 0.3);
+  const dX = aX + (synthState.adsr.decay / maxTime) * (usableW * 0.3);
+  const sX = dX + (usableW * 0.2); // fixed sustain width in UI
+  const rX = sX + (synthState.adsr.release / maxTime) * (usableW * 0.2);
+
+  const aY = pad; // Max height
+  const sY = pad + (1.0 - synthState.adsr.sustain) * usableH; // Sustain level
+
+  return [
+    { id: 'attack', x: aX, y: aY },
+    { id: 'decay', x: dX, y: sY },
+    { id: 'release', x: rX, y: usableH + pad }
+  ];
+}
+
+function drawADSR() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  const w = canvas.width;
+  const h = canvas.height;
+  const pad = 10;
+  
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  for(let i=1; i<4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, i * (h/4));
+    ctx.lineTo(w, i * (h/4));
+    ctx.stroke();
+  }
+
+  const nodes = getAdsrNodes();
+  
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(pad, h - pad);
+  ctx.lineTo(nodes[0].x, nodes[0].y); // Attack
+  ctx.lineTo(nodes[1].x, nodes[1].y); // Decay
+  ctx.lineTo(nodes[1].x + (w*0.2), nodes[1].y); // Sustain hold
+  ctx.lineTo(nodes[2].x, nodes[2].y); // Release
+  
+  ctx.strokeStyle = 'var(--neon-blue)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Fill gradient
+  ctx.lineTo(pad, h - pad);
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, 'rgba(33, 212, 253, 0.4)');
+  grad.addColorStop(1, 'rgba(33, 212, 253, 0.0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Draw points
+  nodes.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 6, 0, Math.PI*2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = 'var(--neon-blue)';
+    ctx.stroke();
+  });
+}
+
+// ADSR Mouse Interaction
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  const nodes = getAdsrNodes();
+  for (let n of nodes) {
+    if (Math.hypot(n.x - mouseX, n.y - mouseY) < 15) {
+      draggingNode = n.id;
+      break;
+    }
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  draggingNode = null;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!draggingNode) return;
+  const rect = canvas.getBoundingClientRect();
+  let mouseX = Math.max(10, Math.min(e.clientX - rect.left, canvas.width - 10));
+  let mouseY = Math.max(10, Math.min(e.clientY - rect.top, canvas.height - 10));
+  
+  const usableW = canvas.width - 20;
+  const usableH = canvas.height - 20;
+
+  if (draggingNode === 'attack') {
+    synthState.adsr.attack = Math.max(0.01, (mouseX / (usableW * 0.3)) * maxTime);
+  } 
+  else if (draggingNode === 'decay') {
+    // Decay updates X (time) and Y (sustain level)
+    const aX = 10 + (synthState.adsr.attack / maxTime) * (usableW * 0.3);
+    const dTime = Math.max(0.01, ((mouseX - aX) / (usableW * 0.3)) * maxTime);
+    synthState.adsr.decay = dTime;
+    synthState.adsr.sustain = 1.0 - ((mouseY - 10) / usableH);
+    synthState.adsr.sustain = Math.max(0, Math.min(1, synthState.adsr.sustain));
+  }
+  else if (draggingNode === 'release') {
+    const aX = 10 + (synthState.adsr.attack / maxTime) * (usableW * 0.3);
+    const dX = aX + (synthState.adsr.decay / maxTime) * (usableW * 0.3);
+    const sX = dX + (usableW * 0.2);
+    synthState.adsr.release = Math.max(0.01, ((mouseX - sX) / (usableW * 0.2)) * maxTime);
+  }
+  
+  drawADSR();
+});
+
+drawADSR();
+
+
+// --------------------------------------------------------------------------
+// Synth Engine & Wavetable Extraction
+// --------------------------------------------------------------------------
 let noiseBuffer = null;
-function getNoiseBuffer() {
-  if (noiseBuffer) return noiseBuffer;
-  if (!audioCtx) return null;
-  const bufferSize = audioCtx.sampleRate * 2; // 2 seconds
-  noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const output = noiseBuffer.getChannelData(0);
+function getNoiseBuffer(ctx = audioCtx) {
+  if (noiseBuffer && ctx === audioCtx) return noiseBuffer;
+  if (!ctx) return null;
+  const bufferSize = ctx.sampleRate * 2;
+  const buf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const output = buf.getChannelData(0);
   for (let i = 0; i < bufferSize; i++) {
     output[i] = Math.random() * 2 - 1;
   }
-  return noiseBuffer;
+  if (ctx === audioCtx) noiseBuffer = buf;
+  return buf;
 }
 
 function midiToFreq(midiNote) {
   return 440 * Math.pow(2, (midiNote - 69) / 12);
 }
 
+// --------------------------------------------------------------------------
+// FFT Wavetable Generation
+// --------------------------------------------------------------------------
+async function freezeToWavetable() {
+  if (!audioCtx) return;
+  
+  wavetableStatus.innerHTML = "Rendering single cycle...";
+  wavetableStatus.style.color = "var(--neon-orange)";
+  btnFreeze.disabled = true;
+
+  // We analyze at a low fundamental frequency to get high harmonic resolution
+  const fundamentalMidi = 36; // C2 (approx 65.4 Hz)
+  const freq = midiToFreq(fundamentalMidi);
+  const sampleRate = audioCtx.sampleRate;
+  const cycleLengthSeconds = 1 / freq;
+  
+  // Render exactly one cycle. To avoid edge cases, render slightly more and truncate exactly.
+  const renderFrames = Math.ceil(sampleRate * cycleLengthSeconds);
+  
+  const offCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, renderFrames, sampleRate);
+  
+  // Replicate the 4 channels
+  const tempMaster = offCtx.createGain();
+  tempMaster.connect(offCtx.destination);
+  tempMaster.gain.value = 1.0; // Don't apply ADSR to the wavetable itself, just the raw mix
+
+  function setupChannel(chState, masterNode) {
+    if (chState.type === 'noise') {
+      const src = offCtx.createBufferSource();
+      src.buffer = getNoiseBuffer(offCtx);
+      src.loop = true;
+      const filter = offCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = chState.tuneFine; // UI uses tuneFine for cutoff on noise
+      const gain = offCtx.createGain();
+      gain.gain.value = chState.vol;
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterNode);
+      src.start();
+    } else {
+      const osc = offCtx.createOscillator();
+      osc.type = chState.type;
+      // Calculate detuned frequency
+      const detunedMidi = fundamentalMidi + chState.tuneCoarse + (chState.tuneFine / 100);
+      osc.frequency.value = midiToFreq(detunedMidi);
+      const gain = offCtx.createGain();
+      gain.gain.value = chState.vol;
+      osc.connect(gain);
+      gain.connect(masterNode);
+      osc.start();
+    }
+  }
+
+  setupChannel(synthState.ch1, tempMaster);
+  setupChannel(synthState.ch2, tempMaster);
+  setupChannel(synthState.ch3, tempMaster);
+  setupChannel(synthState.ch4, tempMaster);
+
+  // Render
+  const renderedBuffer = await offCtx.startRendering();
+  const channelData = renderedBuffer.getChannelData(0);
+
+  wavetableStatus.innerHTML = "Running FFT Analysis...";
+
+  // Perform a custom Discrete Fourier Transform (DFT) for a single cycle
+  // We want to extract real and imag arrays for PeriodicWave (size e.g., 64 harmonics)
+  const numHarmonics = 64;
+  const real = new Float32Array(numHarmonics);
+  const imag = new Float32Array(numHarmonics);
+  const N = channelData.length;
+
+  for (let k = 1; k < numHarmonics; k++) {
+    let sumReal = 0;
+    let sumImag = 0;
+    for (let n = 0; n < N; n++) {
+      const angle = (2 * Math.PI * k * n) / N;
+      sumReal += channelData[n] * Math.cos(angle);
+      sumImag += channelData[n] * Math.sin(angle); // -sin for standard DFT, but Web Audio PeriodicWave uses positive sin
+    }
+    // Normalize (Fourier series coefficients)
+    real[k] = (2 / N) * sumReal;
+    imag[k] = (2 / N) * sumImag;
+  }
+  
+  // DC offset
+  real[0] = 0;
+  imag[0] = 0;
+
+  customWavetable = audioCtx.createPeriodicWave(real, imag, {disableNormalization: false});
+
+  wavetableStatus.innerHTML = "Wavetable Ready. Switching mode.";
+  wavetableStatus.style.color = "var(--neon-blue)";
+  
+  // Switch mode
+  engineMode = 'wavetable';
+  btnModeAdditive.classList.remove('active');
+  btnModeWavetable.classList.add('active');
+  btnFreeze.disabled = false;
+  
+  // Stop all active additive notes
+  Object.keys(activeVoices).forEach(note => noteOff(note));
+}
+
+
 class SynthVoice {
   constructor(midiNote) {
     this.midiNote = midiNote;
     this.baseFreq = midiToFreq(midiNote);
     
-    // Voice master gain (for envelope)
+    // Global Envelope Gain
     this.voiceGain = audioCtx.createGain();
     this.voiceGain.gain.value = 0;
     this.voiceGain.connect(masterGain);
 
-    // CH 1: Sine
-    this.osc1 = audioCtx.createOscillator();
-    this.osc1.type = 'sine';
-    this.osc1.frequency.value = midiToFreq(this.midiNote + synthState.ch1.tune);
-    this.gain1 = audioCtx.createGain();
-    this.gain1.gain.value = synthState.ch1.vol;
-    this.osc1.connect(this.gain1);
-    this.gain1.connect(this.voiceGain);
+    this.nodesToStop = [];
 
-    // CH 2: Square
-    this.osc2 = audioCtx.createOscillator();
-    this.osc2.type = 'square';
-    this.osc2.frequency.value = midiToFreq(this.midiNote + synthState.ch2.tune);
-    this.gain2 = audioCtx.createGain();
-    this.gain2.gain.value = synthState.ch2.vol;
-    this.osc2.connect(this.gain2);
-    this.gain2.connect(this.voiceGain);
+    if (engineMode === 'wavetable' && customWavetable) {
+      // WAVETABLE MODE
+      this.osc = audioCtx.createOscillator();
+      this.osc.setPeriodicWave(customWavetable);
+      this.osc.frequency.value = this.baseFreq;
+      this.osc.connect(this.voiceGain);
+      this.osc.start();
+      this.nodesToStop.push(this.osc);
+    } else {
+      // ADDITIVE MODE
+      this.setupAdditiveChannel(synthState.ch1);
+      this.setupAdditiveChannel(synthState.ch2);
+      this.setupAdditiveChannel(synthState.ch3);
+      this.setupAdditiveChannel(synthState.ch4);
+    }
 
-    // CH 3: Triangle
-    this.osc3 = audioCtx.createOscillator();
-    this.osc3.type = 'triangle';
-    this.osc3.frequency.value = midiToFreq(this.midiNote + synthState.ch3.tune);
-    this.gain3 = audioCtx.createGain();
-    this.gain3.gain.value = synthState.ch3.vol;
-    this.osc3.connect(this.gain3);
-    this.gain3.connect(this.voiceGain);
+    // Apply Global ADSR Attack
+    const now = audioCtx.currentTime;
+    this.voiceGain.gain.cancelScheduledValues(now);
+    this.voiceGain.gain.setValueAtTime(0, now);
+    this.voiceGain.gain.linearRampToValueAtTime(1, now + synthState.adsr.attack);
+    this.voiceGain.gain.setTargetAtTime(synthState.adsr.sustain, now + synthState.adsr.attack, synthState.adsr.decay);
+  }
 
-    // CH 4: Noise
-    this.noiseSrc = audioCtx.createBufferSource();
-    this.noiseSrc.buffer = getNoiseBuffer();
-    this.noiseSrc.loop = true;
-    
-    this.noiseFilter = audioCtx.createBiquadFilter();
-    this.noiseFilter.type = 'lowpass';
-    this.noiseFilter.frequency.value = synthState.ch4.filterFreq;
+  setupAdditiveChannel(chState) {
+    if (chState.vol === 0) return;
 
-    this.gain4 = audioCtx.createGain();
-    this.gain4.gain.value = synthState.ch4.vol;
-
-    this.noiseSrc.connect(this.noiseFilter);
-    this.noiseFilter.connect(this.gain4);
-    this.gain4.connect(this.voiceGain);
-
-    // Start all
-    this.osc1.start();
-    this.osc2.start();
-    this.osc3.start();
-    this.noiseSrc.start();
-
-    // Envelope Attack
-    this.voiceGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.02);
+    if (chState.type === 'noise') {
+      const src = audioCtx.createBufferSource();
+      src.buffer = getNoiseBuffer();
+      src.loop = true;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = chState.tuneFine; // UI uses tuneFine for cutoff
+      const gain = audioCtx.createGain();
+      gain.gain.value = chState.vol;
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.voiceGain);
+      src.start();
+      this.nodesToStop.push(src);
+    } else {
+      const osc = audioCtx.createOscillator();
+      osc.type = chState.type;
+      const detunedMidi = this.midiNote + chState.tuneCoarse + (chState.tuneFine / 100);
+      osc.frequency.value = midiToFreq(detunedMidi);
+      const gain = audioCtx.createGain();
+      gain.gain.value = chState.vol;
+      osc.connect(gain);
+      gain.connect(this.voiceGain);
+      osc.start();
+      this.nodesToStop.push(osc);
+    }
   }
 
   stop() {
-    // Envelope Release
-    this.voiceGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+    const now = audioCtx.currentTime;
+    // Release
+    this.voiceGain.gain.cancelScheduledValues(now);
+    // Keep current value to avoid pops, then ramp down
+    const currentVol = this.voiceGain.gain.value;
+    this.voiceGain.gain.setValueAtTime(currentVol, now);
+    this.voiceGain.gain.setTargetAtTime(0, now, synthState.adsr.release);
     
+    // Garbage collection slightly after release tail
     setTimeout(() => {
-      this.osc1.stop();
-      this.osc2.stop();
-      this.osc3.stop();
-      this.noiseSrc.stop();
+      this.nodesToStop.forEach(n => n.stop());
       this.voiceGain.disconnect();
-    }, 200); // Wait for release
-  }
-
-  // Update parameters live
-  updateParams() {
-    this.gain1.gain.setTargetAtTime(synthState.ch1.vol, audioCtx.currentTime, 0.05);
-    this.osc1.frequency.setTargetAtTime(midiToFreq(this.midiNote + synthState.ch1.tune), audioCtx.currentTime, 0.05);
-
-    this.gain2.gain.setTargetAtTime(synthState.ch2.vol, audioCtx.currentTime, 0.05);
-    this.osc2.frequency.setTargetAtTime(midiToFreq(this.midiNote + synthState.ch2.tune), audioCtx.currentTime, 0.05);
-
-    this.gain3.gain.setTargetAtTime(synthState.ch3.vol, audioCtx.currentTime, 0.05);
-    this.osc3.frequency.setTargetAtTime(midiToFreq(this.midiNote + synthState.ch3.tune), audioCtx.currentTime, 0.05);
-
-    this.gain4.gain.setTargetAtTime(synthState.ch4.vol, audioCtx.currentTime, 0.05);
-    this.noiseFilter.frequency.setTargetAtTime(synthState.ch4.filterFreq, audioCtx.currentTime, 0.05);
+    }, (synthState.adsr.release * 5 * 1000) + 100); 
   }
 }
 
@@ -190,12 +433,11 @@ class SynthVoice {
 // --------------------------------------------------------------------------
 function noteOn(midiNote) {
   if (!isPowerOn) return;
-  if (activeVoices[midiNote]) return; // Already playing
+  if (activeVoices[midiNote]) return; 
 
   const voice = new SynthVoice(midiNote);
   activeVoices[midiNote] = voice;
   
-  // Update UI key
   const keyEl = document.querySelector(`.key[data-note="${midiNote}"]`);
   if (keyEl) keyEl.classList.add('active');
 }
@@ -206,24 +448,24 @@ function noteOff(midiNote) {
     delete activeVoices[midiNote];
   }
 
-  // Update UI key
   const keyEl = document.querySelector(`.key[data-note="${midiNote}"]`);
   if (keyEl) keyEl.classList.remove('active');
 }
 
-// Update all active voices when a knob moves
-function updateAllVoices() {
-  Object.values(activeVoices).forEach(voice => voice.updateParams());
-}
-
-
 // --------------------------------------------------------------------------
 // UI Controls Binding
 // --------------------------------------------------------------------------
-
-// Helper to bind slider to state
-function bindSlider(id, stateObj, prop, isMaster = false) {
+function bindSelect(id, stateObj, prop) {
   const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', (e) => {
+    stateObj[prop] = e.target.value;
+  });
+}
+
+function bindSlider(id, stateObj, prop, isMaster = false, textElId = null) {
+  const el = document.getElementById(id);
+  const textEl = textElId ? document.getElementById(textElId) : null;
   if (!el) return;
   el.addEventListener('input', (e) => {
     const val = parseFloat(e.target.value);
@@ -232,59 +474,71 @@ function bindSlider(id, stateObj, prop, isMaster = false) {
       if (masterGain) masterGain.gain.setTargetAtTime(val, audioCtx.currentTime, 0.05);
     } else {
       stateObj[prop] = val;
-      updateAllVoices();
+      if (textEl) textEl.innerText = val > 0 ? `+${val}st` : `${val}st`;
     }
   });
 }
 
 bindSlider('vol-master', synthState, 'masterVol', true);
 
-bindSlider('vol-sine', synthState.ch1, 'vol');
-bindSlider('tune-sine', synthState.ch1, 'tune');
+// Channel Bindings
+for(let i=1; i<=4; i++) {
+  const chState = synthState[`ch${i}`];
+  bindSelect(`wave-${i}`, chState, 'type');
+  bindSlider(`vol-${i}`, chState, 'vol');
+  bindSlider(`tune-coarse-${i}`, chState, 'tuneCoarse', false, `val-coarse-${i}`);
+  bindSlider(`tune-fine-${i}`, chState, 'tuneFine');
+}
 
-bindSlider('vol-square', synthState.ch2, 'vol');
-bindSlider('tune-square', synthState.ch2, 'tune');
+// Mode Buttons
+btnModeAdditive.addEventListener('click', () => {
+  engineMode = 'additive';
+  btnModeAdditive.classList.add('active');
+  btnModeWavetable.classList.remove('active');
+  wavetableStatus.innerHTML = "Additive Engine Active";
+  wavetableStatus.style.color = "var(--neon-orange)";
+});
 
-bindSlider('vol-triangle', synthState.ch3, 'vol');
-bindSlider('tune-triangle', synthState.ch3, 'tune');
+btnModeWavetable.addEventListener('click', () => {
+  if (!customWavetable) {
+    wavetableStatus.innerHTML = "Freeze a wavetable first!";
+    return;
+  }
+  engineMode = 'wavetable';
+  btnModeAdditive.classList.remove('active');
+  btnModeWavetable.classList.add('active');
+  wavetableStatus.innerHTML = "Wavetable Engine Active";
+  wavetableStatus.style.color = "var(--neon-blue)";
+});
 
-bindSlider('vol-noise', synthState.ch4, 'vol');
-bindSlider('filter-noise', synthState.ch4, 'filterFreq');
-
+btnFreeze.addEventListener('click', freezeToWavetable);
 
 // --------------------------------------------------------------------------
 // Keyboard Generation & Events
 // --------------------------------------------------------------------------
-
 let isPointerDown = false;
-const keyNoteMap = []; // To keep track of generated keys
 const BASE_NOTE = 48; // C3
 
 function generateKeyboard() {
   if (!keyboardContainer) return;
   keyboardContainer.innerHTML = '';
   
-  // Calculate how many white keys we can fit. Let's say a white key is ~40px min
   const containerWidth = keyboardContainer.clientWidth;
-  const whiteKeyWidth = Math.max(containerWidth / 15, 30); // Max 15 keys, min 30px
+  const whiteKeyWidth = Math.max(containerWidth / 15, 30);
   const numWhiteKeys = Math.floor(containerWidth / whiteKeyWidth);
   
-  const pattern = [0, 2, 4, 5, 7, 9, 11]; // Major scale intervals (white keys)
-  let currentNote = BASE_NOTE;
+  const pattern = [0, 2, 4, 5, 7, 9, 11]; 
   let whiteIndex = 0;
 
   for (let i = 0; i < numWhiteKeys; i++) {
-    // Figure out the note number based on pattern
     const octave = Math.floor(whiteIndex / 7);
     const noteInOctave = pattern[whiteIndex % 7];
     const midiNote = BASE_NOTE + (octave * 12) + noteInOctave;
     
-    // Create white key
     const wKey = document.createElement('div');
     wKey.className = 'key key-white';
     wKey.dataset.note = midiNote;
     
-    // Add label for specific keys mapping
     const keyLabelStr = Object.keys(keyboardMap).find(k => keyboardMap[k] === midiNote);
     if (keyLabelStr) {
       wKey.innerHTML = `<div class="key-label">${keyLabelStr.toUpperCase()}</div>`;
@@ -292,16 +546,11 @@ function generateKeyboard() {
 
     keyboardContainer.appendChild(wKey);
 
-    // Create black key if applicable (C#, D#, F#, G#, A#)
     const hasBlackKey = [0, 1, 3, 4, 5].includes(whiteIndex % 7);
     if (hasBlackKey && i < numWhiteKeys - 1) {
       const bKey = document.createElement('div');
       bKey.className = 'key key-black';
       bKey.dataset.note = midiNote + 1;
-      // Position black key relative to this white key. Since it's flex, we can't easily absolute position relative to container.
-      // Actually, we can absolute position it relative to the white key.
-      // Wait, flex items don't work great with absolute children overflowing unless the parent has no overflow hidden.
-      // We'll append it to the white key!
       wKey.appendChild(bKey);
       
       const bLabelStr = Object.keys(keyboardMap).find(k => keyboardMap[k] === midiNote + 1);
@@ -309,25 +558,20 @@ function generateKeyboard() {
         bKey.innerHTML = `<div class="key-label">${bLabelStr.toUpperCase()}</div>`;
       }
     }
-    
     whiteIndex++;
   }
 }
 
-// Generate on load and resize
 generateKeyboard();
 window.addEventListener('resize', generateKeyboard);
 
-// Mouse / Touch events for the keyboard
 keyboardContainer.addEventListener('pointerdown', (e) => {
   isPointerDown = true;
   const key = e.target.closest('.key');
   if (key) {
-    // If we clicked a black key, don't trigger the white key underneath
     e.stopPropagation();
     const note = parseInt(key.dataset.note);
     noteOn(note);
-    // Store active touch note on the element or globally to handle drag off
     key.dataset.activePointer = e.pointerId;
     key.setPointerCapture(e.pointerId);
   }
@@ -343,7 +587,6 @@ keyboardContainer.addEventListener('pointerup', (e) => {
       key.releasePointerCapture(e.pointerId);
     }
   }
-  // Failsafe: turn off all notes
   Object.keys(activeVoices).forEach(note => noteOff(note));
 });
 
@@ -354,13 +597,11 @@ keyboardContainer.addEventListener('pointercancel', (e) => {
 
 keyboardContainer.addEventListener('pointermove', (e) => {
   if (!isPointerDown) return;
-  // Custom glissando logic: find element from point since pointerCapture sends events to the original target
   const el = document.elementFromPoint(e.clientX, e.clientY);
   if (el) {
     const key = el.closest('.key');
     if (key) {
       const note = parseInt(key.dataset.note);
-      // Turn off other notes (monophonic glide behavior for mouse, though touch could be polyphonic)
       Object.keys(activeVoices).forEach(n => {
         if (parseInt(n) !== note) noteOff(n);
       });
@@ -369,9 +610,8 @@ keyboardContainer.addEventListener('pointermove', (e) => {
   }
 });
 
-// Computer Keyboard events
 window.addEventListener('keydown', (e) => {
-  if (e.repeat) return; // Prevent continuous re-trigger
+  if (e.repeat) return; 
   const key = e.key.toLowerCase();
   if (keyboardMap[key]) {
     noteOn(keyboardMap[key]);
@@ -404,13 +644,12 @@ function updateMeter() {
   const dataArray = new Uint8Array(analyzer.frequencyBinCount);
   analyzer.getByteFrequencyData(dataArray);
   
-  // Calculate average volume
   let sum = 0;
   for(let i=0; i<dataArray.length; i++) {
     sum += dataArray[i];
   }
   const avg = sum / dataArray.length;
-  const percent = Math.min(100, (avg / 128) * 100); // 128 is a reasonable max for this
+  const percent = Math.min(100, (avg / 128) * 100); 
   
   meterBar.style.height = percent + '%';
 }
