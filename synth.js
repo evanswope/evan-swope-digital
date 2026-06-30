@@ -230,8 +230,10 @@ function drawADSR() {
 // ADSR Mouse Interaction
 canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const mouseX = (e.clientX - rect.left) * scaleX;
+  const mouseY = (e.clientY - rect.top) * scaleY;
   
   const nodes = getAdsrNodes();
   for (let n of nodes) {
@@ -249,8 +251,14 @@ window.addEventListener('mouseup', () => {
 canvas.addEventListener('mousemove', (e) => {
   if (!draggingNode) return;
   const rect = canvas.getBoundingClientRect();
-  let mouseX = Math.max(10, Math.min(e.clientX - rect.left, canvas.width - 10));
-  let mouseY = Math.max(10, Math.min(e.clientY - rect.top, canvas.height - 10));
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  
+  let mouseX = (e.clientX - rect.left) * scaleX;
+  let mouseY = (e.clientY - rect.top) * scaleY;
+  
+  mouseX = Math.max(10, Math.min(mouseX, canvas.width - 10));
+  mouseY = Math.max(10, Math.min(mouseY, canvas.height - 10));
   
   const usableW = canvas.width - 20;
   const usableH = canvas.height - 20;
