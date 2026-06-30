@@ -210,7 +210,7 @@ function drawADSR() {
   ctx.lineTo(nodes[1].x + (w*0.2), nodes[1].y); // Sustain hold
   ctx.lineTo(nodes[2].x, nodes[2].y); // Release
   
-  ctx.strokeStyle = 'var(--neon-blue)';
+  ctx.strokeStyle = '#21d4fd'; // neon-blue
   ctx.lineWidth = 3;
   ctx.stroke();
 
@@ -228,7 +228,7 @@ function drawADSR() {
     ctx.arc(n.x, n.y, 6, 0, Math.PI*2);
     ctx.fillStyle = '#fff';
     ctx.fill();
-    ctx.strokeStyle = 'var(--neon-blue)';
+    ctx.strokeStyle = '#21d4fd'; // neon-blue
     ctx.stroke();
   });
 }
@@ -923,7 +923,7 @@ function updateMeter() {
       oscCtx.fillRect(0, 0, w, h);
       
       oscCtx.lineWidth = 2;
-      oscCtx.strokeStyle = 'var(--neon-green)';
+      oscCtx.strokeStyle = '#39ff14'; // neon-green
       oscCtx.beginPath();
       
       const sliceWidth = w * 1.0 / dataArray.length;
@@ -936,7 +936,8 @@ function updateMeter() {
         else oscCtx.lineTo(x, y);
         x += sliceWidth;
       }
-      oscCtx.lineTo(canvas.width, canvas.height/2);
+      // Fix: it was trying to draw to `canvas` which was the ADSR canvas, it should be oscCanvas.height/2
+      // Also the last line to x, y is enough.
       oscCtx.stroke();
     }
   }
@@ -960,7 +961,7 @@ function updateMeter() {
         // Scale magnitude for display (mag is usually 0 to 1)
         const barHeight = Math.min(mag * h, h);
         
-        fCtx.fillStyle = i === 1 ? 'var(--neon-orange)' : 'var(--neon-purple)'; // Highlight fundamental
+        fCtx.fillStyle = i === 1 ? '#ff7e5f' : '#a855f7'; // neon-orange / neon-purple
         fCtx.fillRect(i * barWidth, h - barHeight, barWidth - 1, barHeight);
       }
     }

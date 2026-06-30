@@ -157,8 +157,8 @@
 /* Mixer Section */
 .mixer-section {
   display: flex;
-  gap: 1rem;
-  justify-content: space-between;
+  gap: 2px;
+  justify-content: center;
   border-top: 1px solid rgba(255,255,255,0.05);
   padding-top: 2rem;
 }
@@ -180,6 +180,7 @@
 .master-strip.compact-strip {
   width: 90px;
   border-color: rgba(255, 117, 140, 0.3);
+  margin-left: 2rem; /* Give master some space from channels */
 }
 
 /* Wave Toggles */
@@ -203,10 +204,11 @@
   transition: all 0.2s;
 }
 .wave-btn.active {
-  background: var(--neon-blue);
+  background: #21d4fd; /* neon blue */
   color: #000;
-  border-color: var(--neon-blue);
+  border-color: #21d4fd;
   font-weight: bold;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.6); /* depressed physical button look */
 }
 
 /* Drag Boxes (Ableton Style) */
