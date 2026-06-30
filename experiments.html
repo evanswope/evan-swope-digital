@@ -57,205 +57,100 @@
             <div class="power-light" id="power-indicator"></div>
           </div>
 
-          <div class="synth-top-section" style="display:flex; gap: 2rem; margin-bottom: 2rem;">
-            <!-- Dynamic Dashboard Container -->
-            <div id="dynamic-dashboard" style="flex: 1; position: relative;">
+          <div class="synth-top-section" style="display:flex; flex-direction: column; gap: 2rem; margin-bottom: 2rem;">
+            
+            <!-- Sampler Dashboard -->
+            <div id="sampler-section" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 2rem;">
               
-              <!-- ADSR Dashboard -->
-              <div id="adsr-section" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
-                <h3 style="color: var(--neon-blue); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 0.5rem; text-align: center;">GLOBAL ENVELOPE (ADSR)</h3>
-                <canvas id="adsr-canvas" width="400" height="150" style="width: 100%; height: 150px; background: #000; border: 1px solid #334155; border-radius: 4px; cursor: crosshair;"></canvas>
+              <button id="btn-record-sample" style="background: #ef4444; color: #fff; border: 2px solid #b91c1c; border-radius: 50%; width: 80px; height: 80px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition: all 0.2s;">
+                <i class="fa-solid fa-microphone" style="font-size: 1.5rem; margin-bottom: 4px;"></i>
+                <span style="font-family: var(--font-mono); font-size: 0.6rem; font-weight: bold;">REC (1s)</span>
+              </button>
+              
+              <div style="flex: 1; position: relative;">
+                <h3 style="color: var(--neon-blue); font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 0.5rem; letter-spacing: 2px;">SAMPLE BUFFER & ENVELOPE</h3>
+                <canvas id="sample-canvas" width="600" height="120" style="width: 100%; height: 120px; background: #050510; border: 1px solid #334155; border-radius: 4px;"></canvas>
+                <div id="sampler-status" style="position: absolute; top: 10px; right: 10px; font-family: var(--font-mono); font-size: 0.6rem; color: #ef4444; font-weight: bold; display: none;">RECORDING...</div>
               </div>
+            </div>
 
-              <!-- Wavetable Interactive Dashboard (Hidden by default) -->
-              <div id="wavetable-dashboard" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
-                <h3 style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 0.5rem; text-align: center;">INTERACTIVE SPECTRAL EDITOR</h3>
+            <!-- Wavetable Interactive Dashboard -->
+            <div id="wavetable-dashboard" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+                <h3 style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.9rem;">FFT MUTATION ENGINE</h3>
+                
+                <!-- Mutation Buttons -->
                 <div style="display: flex; gap: 1rem;">
-                  <div style="flex: 1;">
-                    <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #a855f7; margin-bottom: 4px;">HARMONICS (DRAW TO EDIT)</div>
-                    <canvas id="fft-canvas" width="250" height="130" style="width: 100%; height: 130px; background: #050510; border: 1px solid #334155; border-radius: 4px; cursor: crosshair;"></canvas>
-                  </div>
-                  <div style="flex: 1;">
-                    <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #10b981; margin-bottom: 4px;">LIVE OSCILLOSCOPE</div>
-                    <canvas id="osc-canvas" width="250" height="130" style="width: 100%; height: 130px; background: #050510; border: 1px solid #334155; border-radius: 4px;"></canvas>
-                  </div>
+                  <button id="btn-mutate-scramble" class="mutation-btn" title="Scramble Harmonics">
+                    <i class="fa-solid fa-shuffle"></i>
+                  </button>
+                  <button id="btn-mutate-phase" class="mutation-btn" title="Phase Invert">
+                    <i class="fa-solid fa-arrows-up-down"></i>
+                  </button>
+                  <button id="btn-mutate-octave" class="mutation-btn" title="Octave Quantize">
+                    <i class="fa-solid fa-stairs"></i>
+                  </button>
                 </div>
               </div>
 
-            </div>
-            
-            <!-- Wavetable Engine Toggle -->
-            <div class="wavetable-section" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); min-width: 250px;">
-              <h3 style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 1rem;">SYNTHESIS MODE</h3>
-              <div style="display:flex; gap: 1rem; margin-bottom: 1rem;">
-                <button id="btn-mode-additive" class="engine-toggle active">ADDITIVE</button>
-                <button id="btn-mode-wavetable" class="engine-toggle">WAVETABLE</button>
+              <div style="display: flex; gap: 1rem;">
+                <div style="flex: 1;">
+                  <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #a855f7; margin-bottom: 4px;">HARMONICS (DRAW TO EDIT)</div>
+                  <canvas id="fft-canvas" width="400" height="150" style="width: 100%; height: 150px; background: #050510; border: 1px solid #334155; border-radius: 4px; cursor: crosshair;"></canvas>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #10b981; margin-bottom: 4px;">LIVE OSCILLOSCOPE</div>
+                  <canvas id="osc-canvas" width="400" height="150" style="width: 100%; height: 150px; background: #050510; border: 1px solid #334155; border-radius: 4px;"></canvas>
+                </div>
               </div>
-              <button id="btn-freeze-wavetable" class="btn-freeze" disabled>FREEZE TO WAVETABLE</button>
-              <div id="wavetable-status" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">FFT Engine Standby</div>
             </div>
+
           </div>
 
-          <div class="mixer-section">
+          <div class="mixer-section" style="justify-content: space-between; align-items: stretch; margin-bottom: 0;">
             
-            <!-- Channel 1 -->
-            <div class="channel-strip compact-strip">
-              <div class="channel-label">CH 1</div>
-              <div class="wave-toggles" id="wave-group-1">
-                <div class="wave-btn active" data-val="sine">SIN</div>
-                <div class="wave-btn" data-val="square">SQR</div>
-                <div class="wave-btn" data-val="triangle">TRI</div>
-                <div class="wave-btn" data-val="sawtooth">SAW</div>
+            <!-- FX Rack -->
+            <div class="fx-rack" style="flex: 1; display:flex; justify-content:space-around; align-items: center; padding: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
+              
+              <!-- LFO Module -->
+              <div class="fx-module compact-fx">
+                <i class="fa-solid fa-water fx-icon" style="color: #a855f7;"></i>
+                <input type="range" class="rotary-knob fx-knob" id="lfo-rate" min="0.1" max="20" step="0.1" value="5" title="LFO Rate">
+                <input type="range" class="rotary-knob fx-knob" id="lfo-depth" min="0" max="1" step="0.01" value="0" title="LFO Depth">
+                <select id="lfo-target" class="wave-select" style="margin-top: 10px; border-color: #a855f7; color: #a855f7;">
+                  <option value="none">OFF</option>
+                  <option value="pitch">PCH</option>
+                  <option value="volume">VOL</option>
+                  <option value="pan">PAN</option>
+                </select>
               </div>
-              <div class="fader-track">
-                <input type="range" class="fader custom-slider" id="vol-1" min="0" max="1" step="0.01" value="0.5">
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">COARSE</div>
-                <div class="drag-box" id="drag-coarse-1">0</div>
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">FINE</div>
-                <div class="drag-box" id="drag-fine-1">0</div>
-              </div>
-            </div>
 
-            <!-- Channel 2 -->
-            <div class="channel-strip compact-strip">
-              <div class="channel-label">CH 2</div>
-              <div class="wave-toggles" id="wave-group-2">
-                <div class="wave-btn" data-val="sine">SIN</div>
-                <div class="wave-btn active" data-val="square">SQR</div>
-                <div class="wave-btn" data-val="triangle">TRI</div>
-                <div class="wave-btn" data-val="sawtooth">SAW</div>
+              <!-- Delay Module -->
+              <div class="fx-module compact-fx" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
+                <i class="fa-solid fa-clock-rotate-left fx-icon" style="color: #10b981;"></i>
+                <input type="range" class="rotary-knob fx-knob" id="delay-time" min="0.01" max="1.5" step="0.01" value="0.3" title="Delay Time">
+                <input type="range" class="rotary-knob fx-knob" id="delay-fb" min="0" max="0.95" step="0.01" value="0.4" title="Delay Feedback">
+                <input type="range" class="rotary-knob fx-knob" id="delay-mix" min="0" max="1" step="0.01" value="0" title="Delay Mix">
               </div>
-              <div class="fader-track">
-                <input type="range" class="fader custom-slider" id="vol-2" min="0" max="1" step="0.01" value="0.2">
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">COARSE</div>
-                <div class="drag-box" id="drag-coarse-2">0</div>
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">FINE</div>
-                <div class="drag-box" id="drag-fine-2">0</div>
-              </div>
-            </div>
 
-            <!-- Channel 3 -->
-            <div class="channel-strip compact-strip">
-              <div class="channel-label">CH 3</div>
-              <div class="wave-toggles" id="wave-group-3">
-                <div class="wave-btn" data-val="sine">SIN</div>
-                <div class="wave-btn" data-val="square">SQR</div>
-                <div class="wave-btn active" data-val="triangle">TRI</div>
-                <div class="wave-btn" data-val="sawtooth">SAW</div>
+              <!-- Master Filter -->
+              <div class="fx-module compact-fx" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
+                <i class="fa-solid fa-filter fx-icon" style="color: #eab308;"></i>
+                <input type="range" class="rotary-knob fx-knob" id="filter-cutoff" min="20" max="20000" step="1" value="20000" title="Filter Cutoff">
+                <input type="range" class="rotary-knob fx-knob" id="filter-res" min="0" max="20" step="0.1" value="0" title="Filter Resonance">
               </div>
-              <div class="fader-track">
-                <input type="range" class="fader custom-slider" id="vol-3" min="0" max="1" step="0.01" value="0.2">
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">COARSE</div>
-                <div class="drag-box" id="drag-coarse-3">0</div>
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">FINE</div>
-                <div class="drag-box" id="drag-fine-3">0</div>
-              </div>
-            </div>
 
-            <!-- Channel 4 -->
-            <div class="channel-strip compact-strip">
-              <div class="channel-label">CH 4</div>
-              <div class="wave-toggles" id="wave-group-4">
-                <div class="wave-btn" data-val="sine">SIN</div>
-                <div class="wave-btn" data-val="square">SQR</div>
-                <div class="wave-btn" data-val="triangle">TRI</div>
-                <div class="wave-btn" data-val="sawtooth">SAW</div>
-                <div class="wave-btn active" data-val="noise">NOI</div>
-              </div>
-              <div class="fader-track">
-                <input type="range" class="fader custom-slider" id="vol-4" min="0" max="1" step="0.01" value="0.0">
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">COARSE</div>
-                <div class="drag-box" id="drag-coarse-4">0</div>
-              </div>
-              <div class="drag-box-container">
-                <div class="knob-label">FINE / CUTOFF</div>
-                <div class="drag-box" id="drag-fine-4">0</div>
-              </div>
             </div>
 
             <!-- Master Section -->
-            <div class="channel-strip master-strip compact-strip">
+            <div class="channel-strip master-strip compact-strip" style="margin-left: 2rem;">
               <div class="channel-label" style="color: #ff758c;">MASTER</div>
               <div class="master-meter" id="master-meter">
                 <div class="meter-level" id="meter-level-bar"></div>
               </div>
               <div class="fader-track" style="margin-top: 1rem;">
                 <input type="range" class="fader custom-slider master-fader" id="vol-master" min="0" max="1" step="0.01" value="0.5">
-              </div>
-              <div class="knob-label" style="margin-top: 10px;">LIMITER OUT</div>
-            </div>
-
-          </div>
-
-          <!-- FX Rack -->
-          <div class="fx-rack" style="display:flex; justify-content:space-between; margin-top: 2rem; padding: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
-            
-            <!-- LFO Module -->
-            <div class="fx-module">
-              <div class="fx-label" style="color: #a855f7;">LFO</div>
-              <div style="display:flex; gap: 1rem;">
-                <div class="knob-container">
-                  <div class="knob-label">RATE</div>
-                  <input type="range" class="rotary-knob fx-knob" id="lfo-rate" min="0.1" max="20" step="0.1" value="5">
-                </div>
-                <div class="knob-container">
-                  <div class="knob-label">DEPTH</div>
-                  <input type="range" class="rotary-knob fx-knob" id="lfo-depth" min="0" max="1" step="0.01" value="0">
-                </div>
-              </div>
-              <select id="lfo-target" class="wave-select" style="margin-top: 10px; width: 100%; border-color: #a855f7; color: #a855f7;">
-                <option value="none" selected>Target: None</option>
-                <option value="pitch">Pitch</option>
-                <option value="volume">Volume</option>
-                <option value="pan">Auto-Pan</option>
-              </select>
-            </div>
-
-            <!-- Delay Module -->
-            <div class="fx-module" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
-              <div class="fx-label" style="color: #10b981;">TAPE ECHO</div>
-              <div style="display:flex; gap: 1rem;">
-                <div class="knob-container">
-                  <div class="knob-label">TIME</div>
-                  <input type="range" class="rotary-knob fx-knob" id="delay-time" min="0.01" max="1.5" step="0.01" value="0.3">
-                </div>
-                <div class="knob-container">
-                  <div class="knob-label">FEEDBACK</div>
-                  <input type="range" class="rotary-knob fx-knob" id="delay-fb" min="0" max="0.95" step="0.01" value="0.4">
-                </div>
-                <div class="knob-container">
-                  <div class="knob-label">MIX</div>
-                  <input type="range" class="rotary-knob fx-knob" id="delay-mix" min="0" max="1" step="0.01" value="0">
-                </div>
-              </div>
-            </div>
-
-            <!-- Master Filter -->
-            <div class="fx-module" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
-              <div class="fx-label" style="color: #eab308;">ACID FILTER</div>
-              <div style="display:flex; gap: 1rem;">
-                <div class="knob-container">
-                  <div class="knob-label">CUTOFF</div>
-                  <input type="range" class="rotary-knob fx-knob" id="filter-cutoff" min="20" max="20000" step="10" value="20000">
-                </div>
-                <div class="knob-container">
-                  <div class="knob-label">RESONANCE</div>
-                  <input type="range" class="rotary-knob fx-knob" id="filter-res" min="0" max="30" step="0.1" value="0">
-                </div>
               </div>
             </div>
 
