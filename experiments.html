@@ -58,129 +58,145 @@
           </div>
 
           <div class="synth-top-section" style="display:flex; gap: 2rem; margin-bottom: 2rem;">
-            <!-- Global ADSR Canvas -->
-            <div class="adsr-section" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
-              <h3 style="color: var(--neon-blue); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 0.5rem; text-align: center;">GLOBAL ENVELOPE (ADSR)</h3>
-              <canvas id="adsr-canvas" width="400" height="150" style="width: 100%; height: 150px; background: #000; border: 1px solid #334155; border-radius: 4px; cursor: crosshair;"></canvas>
+            <!-- Dynamic Dashboard Container -->
+            <div id="dynamic-dashboard" style="flex: 1; position: relative;">
+              
+              <!-- ADSR Dashboard -->
+              <div id="adsr-section" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
+                <h3 style="color: var(--neon-blue); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 0.5rem; text-align: center;">GLOBAL ENVELOPE (ADSR)</h3>
+                <canvas id="adsr-canvas" width="400" height="150" style="width: 100%; height: 150px; background: #000; border: 1px solid #334155; border-radius: 4px; cursor: crosshair;"></canvas>
+              </div>
+
+              <!-- Wavetable Interactive Dashboard (Hidden by default) -->
+              <div id="wavetable-dashboard" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
+                <h3 style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 0.5rem; text-align: center;">INTERACTIVE SPECTRAL EDITOR</h3>
+                <div style="display: flex; gap: 1rem;">
+                  <div style="flex: 1;">
+                    <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #a855f7; margin-bottom: 4px;">HARMONICS (DRAW TO EDIT)</div>
+                    <canvas id="fft-canvas" width="250" height="130" style="width: 100%; height: 130px; background: #050510; border: 1px solid #334155; border-radius: 4px; cursor: crosshair;"></canvas>
+                  </div>
+                  <div style="flex: 1;">
+                    <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #10b981; margin-bottom: 4px;">LIVE OSCILLOSCOPE</div>
+                    <canvas id="osc-canvas" width="250" height="130" style="width: 100%; height: 130px; background: #050510; border: 1px solid #334155; border-radius: 4px;"></canvas>
+                  </div>
+                </div>
+              </div>
+
             </div>
             
             <!-- Wavetable Engine Toggle -->
-            <div class="wavetable-section" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
+            <div class="wavetable-section" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); min-width: 250px;">
               <h3 style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 1rem;">SYNTHESIS MODE</h3>
               <div style="display:flex; gap: 1rem; margin-bottom: 1rem;">
                 <button id="btn-mode-additive" class="engine-toggle active">ADDITIVE</button>
                 <button id="btn-mode-wavetable" class="engine-toggle">WAVETABLE</button>
               </div>
               <button id="btn-freeze-wavetable" class="btn-freeze" disabled>FREEZE TO WAVETABLE</button>
-              <div id="wavetable-status" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">FFT Engine Standby</div>
+              <div id="wavetable-status" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">FFT Engine Standby</div>
             </div>
           </div>
 
           <div class="mixer-section">
             
             <!-- Channel 1 -->
-            <div class="channel-strip">
+            <div class="channel-strip compact-strip">
               <div class="channel-label">CH 1</div>
-              <select id="wave-1" class="wave-select">
-                <option value="sine">Sine</option>
-                <option value="square">Square</option>
-                <option value="triangle">Triangle</option>
-                <option value="sawtooth">Sawtooth</option>
-              </select>
+              <div class="wave-toggles" id="wave-group-1">
+                <div class="wave-btn active" data-val="sine">SIN</div>
+                <div class="wave-btn" data-val="square">SQR</div>
+                <div class="wave-btn" data-val="triangle">TRI</div>
+                <div class="wave-btn" data-val="sawtooth">SAW</div>
+              </div>
               <div class="fader-track">
                 <input type="range" class="fader custom-slider" id="vol-1" min="0" max="1" step="0.01" value="0.5">
               </div>
-              <div class="knob-container">
+              <div class="drag-box-container">
                 <div class="knob-label">COARSE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-coarse-1" min="-24" max="24" step="1" value="0">
-                <div id="val-coarse-1" class="knob-val">0st</div>
+                <div class="drag-box" id="drag-coarse-1">0</div>
               </div>
-              <div class="knob-container" style="margin-top: 10px;">
+              <div class="drag-box-container">
                 <div class="knob-label">FINE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-fine-1" min="-50" max="50" step="1" value="0">
+                <div class="drag-box" id="drag-fine-1">0</div>
               </div>
             </div>
 
             <!-- Channel 2 -->
-            <div class="channel-strip">
+            <div class="channel-strip compact-strip">
               <div class="channel-label">CH 2</div>
-              <select id="wave-2" class="wave-select">
-                <option value="sine">Sine</option>
-                <option value="square" selected>Square</option>
-                <option value="triangle">Triangle</option>
-                <option value="sawtooth">Sawtooth</option>
-              </select>
+              <div class="wave-toggles" id="wave-group-2">
+                <div class="wave-btn" data-val="sine">SIN</div>
+                <div class="wave-btn active" data-val="square">SQR</div>
+                <div class="wave-btn" data-val="triangle">TRI</div>
+                <div class="wave-btn" data-val="sawtooth">SAW</div>
+              </div>
               <div class="fader-track">
                 <input type="range" class="fader custom-slider" id="vol-2" min="0" max="1" step="0.01" value="0.2">
               </div>
-              <div class="knob-container">
+              <div class="drag-box-container">
                 <div class="knob-label">COARSE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-coarse-2" min="-24" max="24" step="1" value="0">
-                <div id="val-coarse-2" class="knob-val">0st</div>
+                <div class="drag-box" id="drag-coarse-2">0</div>
               </div>
-              <div class="knob-container" style="margin-top: 10px;">
+              <div class="drag-box-container">
                 <div class="knob-label">FINE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-fine-2" min="-50" max="50" step="1" value="0">
+                <div class="drag-box" id="drag-fine-2">0</div>
               </div>
             </div>
 
             <!-- Channel 3 -->
-            <div class="channel-strip">
+            <div class="channel-strip compact-strip">
               <div class="channel-label">CH 3</div>
-              <select id="wave-3" class="wave-select">
-                <option value="sine">Sine</option>
-                <option value="square">Square</option>
-                <option value="triangle" selected>Triangle</option>
-                <option value="sawtooth">Sawtooth</option>
-              </select>
+              <div class="wave-toggles" id="wave-group-3">
+                <div class="wave-btn" data-val="sine">SIN</div>
+                <div class="wave-btn" data-val="square">SQR</div>
+                <div class="wave-btn active" data-val="triangle">TRI</div>
+                <div class="wave-btn" data-val="sawtooth">SAW</div>
+              </div>
               <div class="fader-track">
                 <input type="range" class="fader custom-slider" id="vol-3" min="0" max="1" step="0.01" value="0.2">
               </div>
-              <div class="knob-container">
+              <div class="drag-box-container">
                 <div class="knob-label">COARSE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-coarse-3" min="-24" max="24" step="1" value="0">
-                <div id="val-coarse-3" class="knob-val">0st</div>
+                <div class="drag-box" id="drag-coarse-3">0</div>
               </div>
-              <div class="knob-container" style="margin-top: 10px;">
+              <div class="drag-box-container">
                 <div class="knob-label">FINE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-fine-3" min="-50" max="50" step="1" value="0">
+                <div class="drag-box" id="drag-fine-3">0</div>
               </div>
             </div>
 
-            <!-- Channel 4 (Can be noise or oscillator) -->
-            <div class="channel-strip">
+            <!-- Channel 4 -->
+            <div class="channel-strip compact-strip">
               <div class="channel-label">CH 4</div>
-              <select id="wave-4" class="wave-select">
-                <option value="sine">Sine</option>
-                <option value="square">Square</option>
-                <option value="triangle">Triangle</option>
-                <option value="sawtooth">Sawtooth</option>
-                <option value="noise" selected>Noise</option>
-              </select>
+              <div class="wave-toggles" id="wave-group-4">
+                <div class="wave-btn" data-val="sine">SIN</div>
+                <div class="wave-btn" data-val="square">SQR</div>
+                <div class="wave-btn" data-val="triangle">TRI</div>
+                <div class="wave-btn" data-val="sawtooth">SAW</div>
+                <div class="wave-btn active" data-val="noise">NOI</div>
+              </div>
               <div class="fader-track">
                 <input type="range" class="fader custom-slider" id="vol-4" min="0" max="1" step="0.01" value="0.0">
               </div>
-              <div class="knob-container">
+              <div class="drag-box-container">
                 <div class="knob-label">COARSE</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-coarse-4" min="-24" max="24" step="1" value="0">
-                <div id="val-coarse-4" class="knob-val">0st</div>
+                <div class="drag-box" id="drag-coarse-4">0</div>
               </div>
-              <div class="knob-container" style="margin-top: 10px;">
+              <div class="drag-box-container">
                 <div class="knob-label">FINE / CUTOFF</div>
-                <input type="range" class="rotary-knob custom-slider" id="tune-fine-4" min="-50" max="50" step="1" value="0">
+                <div class="drag-box" id="drag-fine-4">0</div>
               </div>
             </div>
 
             <!-- Master Section -->
-            <div class="channel-strip master-strip">
+            <div class="channel-strip master-strip compact-strip">
               <div class="channel-label" style="color: #ff758c;">MASTER</div>
               <div class="master-meter" id="master-meter">
                 <div class="meter-level" id="meter-level-bar"></div>
               </div>
-              <div class="knob-container">
-                <div class="knob-label">VOL</div>
-                <input type="range" class="rotary-knob custom-slider" id="vol-master" min="0" max="1" step="0.01" value="0.5">
+              <div class="fader-track" style="margin-top: 1rem;">
+                <input type="range" class="fader custom-slider master-fader" id="vol-master" min="0" max="1" step="0.01" value="0.5">
               </div>
+              <div class="knob-label" style="margin-top: 10px;">LIMITER OUT</div>
             </div>
 
           </div>

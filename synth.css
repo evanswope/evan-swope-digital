@@ -154,31 +154,84 @@
   accent-color: var(--neon-purple); /* We can rely on CSS vars or just fallback */
 }
 
-/* Master Section */
+/* Mixer Section */
 .mixer-section {
   display: flex;
-  justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 3rem;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 2rem;
 }
 
 .channel-strip {
-  flex: 1;
-  min-width: 120px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 6px;
-  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
 }
 
-.master-strip {
+.compact-strip {
+  width: 70px;
+}
+.master-strip.compact-strip {
+  width: 90px;
   border-color: rgba(255, 117, 140, 0.3);
-  background: rgba(255, 117, 140, 0.05);
+}
+
+/* Wave Toggles */
+.wave-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+.wave-btn {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-align: center;
+  padding: 4px 0;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.wave-btn.active {
+  background: var(--neon-blue);
+  color: #000;
+  border-color: var(--neon-blue);
+  font-weight: bold;
+}
+
+/* Drag Boxes (Ableton Style) */
+.drag-box-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  width: 100%;
+}
+.drag-box {
+  width: 100%;
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--neon-blue);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 4px 0;
+  cursor: ns-resize; /* up/down drag cursor */
+  border-radius: 3px;
+  user-select: none;
+}
+.drag-box:hover {
+  border-color: var(--neon-blue);
 }
 
 .channel-label {

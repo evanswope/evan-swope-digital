@@ -39,6 +39,7 @@ const synthState = {
 // Global FX Nodes
 let globalFilter, delayNode, delayFeedbackNode, delayMixWet, delayMixDry;
 let lfoOsc, lfoGain;
+let analyserNode;
 
 // Key mapping (QWERTY home row ish to piano keys)
 const keyboardMap = {
@@ -94,11 +95,15 @@ async function initAudio() {
 
   // 3. Compressor
   const compressor = audioCtx.createDynamicsCompressor();
-  compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
-  compressor.knee.setValueAtTime(40, audioCtx.currentTime);
-  compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-  compressor.attack.setValueAtTime(0, audioCtx.currentTime);
+  compressor.threshold.setValueAtTime(-20, audioCtx.currentTime); // Tighter threshold for limiting
+  compressor.knee.setValueAtTime(0, audioCtx.currentTime); // Hard knee
+  compressor.ratio.setValueAtTime(20, audioCtx.currentTime); // High ratio (limiting)
+  compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
   compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+
+  // Analyser Node for Oscilloscope
+  analyserNode = audioCtx.createAnalyser();
+  analyserNode.fftSize = 2048;
 
   // 4. LFO
   lfoOsc = audioCtx.createOscillator();
@@ -128,7 +133,8 @@ async function initAudio() {
   delayMixDry.connect(compressor);
   delayMixWet.connect(compressor);
   
-  compressor.connect(audioCtx.destination);
+  compressor.connect(analyserNode);
+  analyserNode.connect(audioCtx.destination);
 
   if (audioCtx.state === 'suspended') {
     await audioCtx.resume();
@@ -371,13 +377,26 @@ async function freezeToWavetable() {
   const renderedBuffer = await offCtx.startRendering();
   const channelData = renderedBuffer.getChannelData(0);
 
+// Global FFT State
+const numHarmonics = 64;
+let fftReal = new Float32Array(numHarmonics);
+let fftImag = new Float32Array(numHarmonics);
+
+function updateCustomWavetable() {
+  if (!audioCtx) return;
+  customWavetable = audioCtx.createPeriodicWave(fftReal, fftImag, {disableNormalization: false});
+  // Update all currently playing wavetable voices
+  Object.values(activeVoices).forEach(voice => {
+    if (voice.osc && engineMode === 'wavetable') {
+      voice.osc.setPeriodicWave(customWavetable);
+    }
+  });
+}
+
   wavetableStatus.innerHTML = "Running FFT Analysis...";
 
   // Perform a custom Discrete Fourier Transform (DFT) for a single cycle
   // We want to extract real and imag arrays for PeriodicWave (size e.g., 64 harmonics)
-  const numHarmonics = 64;
-  const real = new Float32Array(numHarmonics);
-  const imag = new Float32Array(numHarmonics);
   const N = channelData.length;
 
   for (let k = 1; k < numHarmonics; k++) {
@@ -389,15 +408,15 @@ async function freezeToWavetable() {
       sumImag += channelData[n] * Math.sin(angle); // -sin for standard DFT, but Web Audio PeriodicWave uses positive sin
     }
     // Normalize (Fourier series coefficients)
-    real[k] = (2 / N) * sumReal;
-    imag[k] = (2 / N) * sumImag;
+    fftReal[k] = (2 / N) * sumReal;
+    fftImag[k] = (2 / N) * sumImag;
   }
   
   // DC offset
-  real[0] = 0;
-  imag[0] = 0;
+  fftReal[0] = 0;
+  fftImag[0] = 0;
 
-  customWavetable = audioCtx.createPeriodicWave(real, imag, {disableNormalization: false});
+  updateCustomWavetable();
 
   wavetableStatus.innerHTML = "Wavetable Ready. Switching mode.";
   wavetableStatus.style.color = "var(--neon-blue)";
@@ -408,6 +427,12 @@ async function freezeToWavetable() {
   btnModeWavetable.classList.add('active');
   btnFreeze.disabled = false;
   
+  // Switch Dashboards
+  if (adsrSection && wavetableDashboard) {
+    adsrSection.style.display = 'none';
+    wavetableDashboard.style.display = 'block';
+  }
+
   // Stop all active additive notes
   Object.keys(activeVoices).forEach(note => noteOff(note));
 }
@@ -557,16 +582,85 @@ function bindSlider(id, stateObj, prop, isMaster = false, textElId = null) {
   });
 }
 
+function bindWaveToggles(groupId, stateObj, prop) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  const btns = group.querySelectorAll('.wave-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      stateObj[prop] = btn.getAttribute('data-val');
+    });
+  });
+}
+
+function bindDragBox(id, stateObj, prop, min, max) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  
+  let isDragging = false;
+  let startY = 0;
+  let startVal = 0;
+
+  el.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startY = e.clientY;
+    startVal = stateObj[prop];
+    document.body.style.cursor = 'ns-resize';
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const deltaY = startY - e.clientY; // up is positive
+    let newVal = startVal + deltaY;
+    if (newVal < min) newVal = min;
+    if (newVal > max) newVal = max;
+    stateObj[prop] = newVal;
+    el.innerText = newVal > 0 && prop !== 'tuneFine' ? `+${newVal}` : newVal;
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    document.body.style.cursor = '';
+  });
+  
+  // Mobile touch support
+  el.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    startY = e.touches[0].clientY;
+    startVal = stateObj[prop];
+  }, {passive: true});
+
+  window.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const deltaY = startY - e.touches[0].clientY;
+    let newVal = startVal + Math.round(deltaY / 2); // slower on mobile
+    if (newVal < min) newVal = min;
+    if (newVal > max) newVal = max;
+    stateObj[prop] = newVal;
+    el.innerText = newVal > 0 && prop !== 'tuneFine' ? `+${newVal}` : newVal;
+  }, {passive: true});
+
+  window.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+}
+
 bindSlider('vol-master', synthState, 'masterVol', true);
 
 // Channel Bindings
 for(let i=1; i<=4; i++) {
   const chState = synthState[`ch${i}`];
-  bindSelect(`wave-${i}`, chState, 'type');
+  bindWaveToggles(`wave-group-${i}`, chState, 'type');
   bindSlider(`vol-${i}`, chState, 'vol');
-  bindSlider(`tune-coarse-${i}`, chState, 'tuneCoarse', false, `val-coarse-${i}`);
-  bindSlider(`tune-fine-${i}`, chState, 'tuneFine');
+  bindDragBox(`drag-coarse-${i}`, chState, 'tuneCoarse', -24, 24);
+  bindDragBox(`drag-fine-${i}`, chState, 'tuneFine', -50, 50);
 }
+
+// Dashboards
+const adsrSection = document.getElementById('adsr-section');
+const wavetableDashboard = document.getElementById('wavetable-dashboard');
 
 // Mode Buttons
 btnModeAdditive.addEventListener('click', () => {
@@ -575,6 +669,12 @@ btnModeAdditive.addEventListener('click', () => {
   btnModeWavetable.classList.remove('active');
   wavetableStatus.innerHTML = "Additive Engine Active";
   wavetableStatus.style.color = "var(--neon-orange)";
+  
+  // Switch Dashboards
+  if (adsrSection && wavetableDashboard) {
+    adsrSection.style.display = 'block';
+    wavetableDashboard.style.display = 'none';
+  }
 });
 
 btnModeWavetable.addEventListener('click', () => {
@@ -787,23 +887,118 @@ let analyzer;
 
 function updateMeter() {
   requestAnimationFrame(updateMeter);
-  if (!audioCtx || !isPowerOn || !meterBar) return;
+  if (!audioCtx || !isPowerOn) return;
   
-  if (!analyzer) {
-    analyzer = audioCtx.createAnalyser();
-    analyzer.fftSize = 256;
-    masterGain.connect(analyzer);
+  if (meterBar) {
+    if (!analyzer) {
+      analyzer = audioCtx.createAnalyser();
+      analyzer.fftSize = 256;
+      masterGain.connect(analyzer);
+    }
+
+    const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+    analyzer.getByteFrequencyData(dataArray);
+    
+    let sum = 0;
+    for(let i=0; i<dataArray.length; i++) {
+      sum += dataArray[i];
+    }
+    const avg = sum / dataArray.length;
+    const percent = Math.min(100, (avg / 128) * 100); 
+    
+    meterBar.style.height = percent + '%';
   }
 
-  const dataArray = new Uint8Array(analyzer.frequencyBinCount);
-  analyzer.getByteFrequencyData(dataArray);
-  
-  let sum = 0;
-  for(let i=0; i<dataArray.length; i++) {
-    sum += dataArray[i];
+  // Draw Oscilloscope
+  if (engineMode === 'wavetable' && analyserNode) {
+    const oscCanvas = document.getElementById('osc-canvas');
+    if (oscCanvas) {
+      const oscCtx = oscCanvas.getContext('2d');
+      const w = oscCanvas.width;
+      const h = oscCanvas.height;
+      const dataArray = new Float32Array(analyserNode.frequencyBinCount);
+      analyserNode.getFloatTimeDomainData(dataArray);
+
+      oscCtx.fillStyle = '#050510';
+      oscCtx.fillRect(0, 0, w, h);
+      
+      oscCtx.lineWidth = 2;
+      oscCtx.strokeStyle = 'var(--neon-green)';
+      oscCtx.beginPath();
+      
+      const sliceWidth = w * 1.0 / dataArray.length;
+      let x = 0;
+      
+      for(let i = 0; i < dataArray.length; i++) {
+        const v = dataArray[i];
+        const y = (v * 0.5 + 0.5) * h;
+        if(i === 0) oscCtx.moveTo(x, y);
+        else oscCtx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      oscCtx.lineTo(canvas.width, canvas.height/2);
+      oscCtx.stroke();
+    }
   }
-  const avg = sum / dataArray.length;
-  const percent = Math.min(100, (avg / 128) * 100); 
+
+  // Draw Spectral Editor
+  if (engineMode === 'wavetable') {
+    const fftCanvas = document.getElementById('fft-canvas');
+    if (fftCanvas) {
+      const fCtx = fftCanvas.getContext('2d');
+      const w = fftCanvas.width;
+      const h = fftCanvas.height;
+      
+      fCtx.fillStyle = '#050510';
+      fCtx.fillRect(0, 0, w, h);
+
+      const barWidth = w / numHarmonics;
+      
+      for(let i=1; i<numHarmonics; i++) {
+        // Magnitude = sqrt(real^2 + imag^2)
+        const mag = Math.sqrt(fftReal[i]*fftReal[i] + fftImag[i]*fftImag[i]);
+        // Scale magnitude for display (mag is usually 0 to 1)
+        const barHeight = Math.min(mag * h, h);
+        
+        fCtx.fillStyle = i === 1 ? 'var(--neon-orange)' : 'var(--neon-purple)'; // Highlight fundamental
+        fCtx.fillRect(i * barWidth, h - barHeight, barWidth - 1, barHeight);
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------------------
+// Interactive Spectral Editor (FFT Drag Logic)
+// --------------------------------------------------------------------------
+const fftCanvas = document.getElementById('fft-canvas');
+let isDrawingSpectrum = false;
+
+function updateHarmonicFromMouse(e) {
+  if (!fftCanvas || engineMode !== 'wavetable') return;
+  const rect = fftCanvas.getBoundingClientRect();
+  const scaleX = fftCanvas.width / rect.width;
+  const scaleY = fftCanvas.height / rect.height;
   
-  meterBar.style.height = percent + '%';
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  
+  const binIndex = Math.floor(x / (fftCanvas.width / numHarmonics));
+  if (binIndex > 0 && binIndex < numHarmonics) {
+    const mag = 1.0 - (y / fftCanvas.height); // 0 to 1
+    // We update real part directly (cosine phase). Setting imag to 0 for simplicity on user-drawn shapes.
+    fftReal[binIndex] = Math.max(0, Math.min(1, mag));
+    fftImag[binIndex] = 0; 
+    updateCustomWavetable();
+  }
+}
+
+if (fftCanvas) {
+  fftCanvas.addEventListener('mousedown', (e) => {
+    isDrawingSpectrum = true;
+    updateHarmonicFromMouse(e);
+  });
+  window.addEventListener('mouseup', () => isDrawingSpectrum = false);
+  fftCanvas.addEventListener('mousemove', (e) => {
+    if (isDrawingSpectrum) updateHarmonicFromMouse(e);
+  });
 }
