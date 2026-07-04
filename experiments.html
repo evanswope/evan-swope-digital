@@ -75,13 +75,19 @@
                   <canvas id="grid-canvas"></canvas>
                 </div>
                 <div class="card-controls">
-                  <div class="playback-controls">
-                    <button id="btn-play-sim" class="icon-btn" title="Play/Pause"><i class="fa-solid fa-play" id="play-icon"></i></button>
-                    <button id="btn-random-sim" class="icon-btn" title="Randomize"><i class="fa-solid fa-dice"></i></button>
-                    <button id="btn-clear-sim" class="icon-btn" title="Clear Grid"><i class="fa-solid fa-trash-can"></i></button>
-                    <div class="speed-control">
-                      <i class="fa-solid fa-gauge-high"></i>
-                      <input type="range" id="sim-speed" min="50" max="500" step="10" value="150" class="line-slider">
+                                    <div class="playback-controls">
+                    <button id="btn-play-fractal" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
+                    <div class="fractal-select-wrapper">
+                      <select id="fractal-type" class="minimal-select">
+                        <option value="mandelbrot">Mandelbrot</option>
+                        <option value="julia">Julia</option>
+                        <option value="burning">Burning Ship</option>
+                      </select>
+                      <select id="fractal-tuning" class="minimal-select">
+                        <option value="harmonic">Harmonic Series</option>
+                        <option value="pentatonic">C Minor Pentatonic</option>
+                        <option value="lydian">C Lydian Dominant</option>
+                      </select>
                     </div>
                   </div>
                   <div class="fx-controls">
@@ -119,13 +125,18 @@
                   <canvas id="fractal-canvas"></canvas>
                 </div>
                 <div class="card-controls">
-                  <div class="playback-controls">
+                                    <div class="playback-controls">
                     <button id="btn-play-fractal" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
                     <div class="fractal-select-wrapper">
                       <select id="fractal-type" class="minimal-select">
                         <option value="mandelbrot">Mandelbrot</option>
                         <option value="julia">Julia</option>
                         <option value="burning">Burning Ship</option>
+                      </select>
+                      <select id="fractal-tuning" class="minimal-select">
+                        <option value="harmonic">Harmonic Series</option>
+                        <option value="pentatonic">C Minor Pentatonic</option>
+                        <option value="lydian">C Lydian Dominant</option>
                       </select>
                     </div>
                   </div>
