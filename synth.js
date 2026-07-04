@@ -162,9 +162,7 @@ function buildFXRack() {
   return fxBus;
 }
 
-// Ensure fxBus is connected after limiter is created
 
-}
 
 // --------------------------------------------------------------------------
 // Generative Synth Voice (Pluck)

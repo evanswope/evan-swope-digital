@@ -21,16 +21,22 @@
   </svg>
   
   
-  <nav class="main-nav">
-    <div class="nav-brand">
-      <a href="index.html">EvanSwope.</a>
+    <!-- Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo">
+        <span class="logo-text">EVAN SWOPE</span>
+        <span class="logo-subtext">CREATIVE + STRATEGY</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#work" class="nav-link">Work</a>
+        <a href="index.html#resume" class="nav-link">Experience</a>
+        <a href="index.html#about" class="nav-link">About</a>
+        <a href="experiments.html" class="nav-link">Experiments</a>
+        <a href="contact.html" class="nav-link btn-contact">Let's Connect</a>
+      </nav>
     </div>
-    <div class="nav-links">
-      <a href="index.html">Work</a>
-      <a href="experiments.html" class="active">Experiments</a>
-      <a href="contact.html">Contact</a>
-    </div>
-  </nav>
+  </header>
 
   <main class="main-content">
     <div class="container">
@@ -45,22 +51,23 @@
           <!-- SVG Filter for Boiling Effect -->
           
 
-          <div class="generative-card">
-            <!-- SVG Pink Scribble Overlay -->
+                    <div class="generative-card">
+            <!-- SVG Scribble Border -->
             <svg class="scribble-outline"><rect /></svg>
+
+            <!-- FULL CARD OVERLAY (Boot Up) -->
+            <div id="audio-start-overlay" class="card-overlay">
+              <button id="btn-start-audio" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
+            </div>
 
             <div class="card-header">
               <h2 class="card-title">Generative Automata</h2>
               <div class="power-container">
-                <button id="btn-start-audio" class="start-btn">POWER <i class="fa-solid fa-power-off"></i></button>
                 <div id="power-indicator" class="power-light"></div>
               </div>
             </div>
             
             <div id="grid-container" class="grid-container">
-              <div id="audio-start-overlay" class="overlay">
-                <p>Initialize Audio Engine</p>
-              </div>
               <canvas id="grid-canvas"></canvas>
             </div>
             
