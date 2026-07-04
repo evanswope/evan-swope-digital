@@ -279,14 +279,14 @@ class FractalSynth {
     this.tuning = 'harmonic';
     
     this.zoomLevel = 1.0;
-    this.zoomSpeed = 1.01; // controlled by slider
+    this.zoomSpeed = 1.01;
     this.zoomTargetX = -0.7436438870371587; // Seahorse valley
     this.zoomTargetY = 0.13182590420531197;
     
-    this.resolutionX = 256; // Time segments
-    this.resolutionY = 64;  // Frequency bands
-    this.fractalData = [];  // 2D Array [x][y]
-    this.imagePixels = null; // Uint8ClampedArray for rendering
+    this.resolutionX = 256;
+    this.resolutionY = 64;
+    this.fractalData = [];
+    this.imagePixels = null;
     
     this.isPlaying = false;
   }
@@ -369,7 +369,7 @@ class FractalSynth {
   }
   
   applyTuning() {
-    const baseFreq = 65.41; // C2
+    const baseFreq = 65.41; 
     let freqs = [];
     
     if (this.tuning === 'harmonic') {
@@ -415,21 +415,12 @@ class FractalSynth {
         if (this.type === 'julia') {
           zx = cx; zy = cy;
           cx = -0.4; cy = 0.6;
-        } else if (this.type === 'burning') {
-          // Adjust target offsets so it centers on a cool spot for burning ship
-          let bsTargetX = -1.75;
-          let bsTargetY = -0.05;
-          let bsStartX = bsTargetX - viewWidth/2;
-          let bsStartY = bsTargetY - viewHeight/2;
-          cx = bsStartX + (x / this.resolutionX) * viewWidth;
-          cy = bsStartY + (y / this.resolutionY) * viewHeight;
         }
         
         while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
           let xtemp = zx*zx - zy*zy + cx;
           zy = 2*zx*zy + cy;
           if (this.type === 'burning') {
-            xtemp = zx*zx - zy*zy + cx;
             zy = Math.abs(2*zx*zy) + cy;
             zx = Math.abs(xtemp);
           } else {
@@ -439,10 +430,11 @@ class FractalSynth {
         }
         
         let val = 0;
-        if (iteration !== this.iterations) {
-          let smooth = iteration + 1 - Math.log(Math.log(Math.sqrt(zx*zx+zy*zy))) / Math.log(2);
-          val = (Math.sin(smooth * 0.7) + 1.0) / 2.0; 
+        if (iteration < this.iterations) {
+          // Safe calculation to avoid NaN
+          val = (Math.sin(iteration * 0.7) + 1.0) / 2.0; 
           val = Math.pow(val, 3);
+          if (isNaN(val)) val = 0;
         }
         
         col.push(val);
@@ -467,9 +459,10 @@ class FractalSynth {
       btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
     } else {
       btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
+      const ctx = globalAudioCtx;
       for (let y = 0; y < this.resolutionY; y++) {
-        this.filterGains[y].gain.cancelScheduledValues(globalAudioCtx.currentTime);
-        this.filterGains[y].gain.linearRampToValueAtTime(0, globalAudioCtx.currentTime + 0.1);
+        this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
+        this.filterGains[y].gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
       }
     }
   }
@@ -485,12 +478,10 @@ class FractalSynth {
   drawFractal(time) {
     if (!this.isActive) return;
     
-    // Always compute the new zooming fractal frame
     this.computeFractal();
     
-    // Increment zoom
     this.zoomLevel *= this.zoomSpeed;
-    if (this.zoomLevel > 1000000) { // Reset before floating point breaks
+    if (this.zoomLevel > 100000) { 
       this.zoomLevel = 1.0;
     }
     
@@ -500,7 +491,6 @@ class FractalSynth {
     }
     
     if (this.isPlaying) {
-      // Loop is 2 seconds (2000ms)
       let progress = (performance.now() % 2000) / 2000;
       let cursorX = progress * this.resolutionX;
       
@@ -511,18 +501,14 @@ class FractalSynth {
       this.ctx.lineWidth = 1;
       this.ctx.stroke();
       
-      // Update Audio!
-      // Because we are zooming continuously, scheduleNextLoop is outdated. 
-      // We apply the slice of fractal data directly in the animation loop for instant feedback!
       const ctx = globalAudioCtx;
       const now = ctx.currentTime;
       let xIndex = Math.floor(cursorX);
       if (xIndex >= 0 && xIndex < this.resolutionX && this.fractalData[xIndex]) {
         for (let y = 0; y < this.resolutionY; y++) {
           let val = this.fractalData[xIndex][y];
-          // Adding a tiny bit of attack/release smooths out the frame-by-frame jumpiness
-          this.filterGains[y].gain.cancelScheduledValues(now);
-          this.filterGains[y].gain.setTargetAtTime(val * 0.15, now, 0.02); 
+          // Use setValueAtTime directly to avoid web audio queue clogs!
+          this.filterGains[y].gain.setValueAtTime(val * 0.15, now);
         }
       }
     }
@@ -534,18 +520,36 @@ class FractalSynth {
     document.getElementById('btn-play-fractal')?.addEventListener('click', () => {
       this.triggerEnvelope();
     });
+    
     document.getElementById('fractal-type')?.addEventListener('change', (e) => {
       this.type = e.target.value;
-      this.zoomLevel = 1.0; // Reset zoom on type change
+      this.zoomLevel = 1.0;
+      
+      // Select interesting targets for each fractal
+      if (this.type === 'julia') {
+        this.zoomTargetX = 0.0;
+        this.zoomTargetY = 0.0;
+      } else if (this.type === 'burning') {
+        this.zoomTargetX = -1.75;
+        this.zoomTargetY = -0.05;
+      } else {
+        this.zoomTargetX = -0.7436438870371587;
+        this.zoomTargetY = 0.13182590420531197;
+      }
     });
+    
     document.getElementById('fractal-tuning')?.addEventListener('change', (e) => {
       this.tuning = e.target.value;
       this.applyTuning();
     });
+    
     document.getElementById('fractal-zoom')?.addEventListener('input', (e) => {
-      // slider is 1 to 100. Map to 1.001 to 1.05
       let val = parseInt(e.target.value);
-      this.zoomSpeed = 1.0 + (val / 1000.0);
+      if (val === 1) {
+        this.zoomSpeed = 1.0; // Stop zooming entirely
+      } else {
+        this.zoomSpeed = 1.0 + (val / 1500.0);
+      }
     });
   }
 }
