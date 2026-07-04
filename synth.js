@@ -326,12 +326,12 @@ class FractalSynth {
     this.noiseSource.start();
   }
   
-  computeFractal() {
+    computeFractal() {
     this.fractalData = [];
     for(let i = 0; i < this.resolution; i++) {
-      // 1D slice across the X axis
-      let x0 = -2.0 + (i / this.resolution) * 3.0; // from -2 to +1
-      let y0 = 0.0;
+      // Zoom in on a more complex boundary (Seahorse valley or similar)
+      let x0 = -1.5 + (i / this.resolution) * 1.5; // from -1.5 to 0.0
+      let y0 = 0.2; // A slice above the boring equator
       let x = 0.0, y = 0.0;
       let iteration = 0;
       
@@ -352,45 +352,72 @@ class FractalSynth {
         }
         iteration++;
       }
-      // Normalize to 0.0 - 1.0
-      this.fractalData.push(iteration / this.iterations);
+      // If it never escaped (inside the set), set volume/filter to 0
+      // Otherwise, create a bumpy landscape based on how fast it escaped
+      if (iteration === this.iterations) {
+        this.fractalData.push(0.0);
+      } else {
+        // Create interesting peaks and valleys using modulo/sine to make bands
+        let smooth = iteration + 1 - Math.log(Math.log(Math.sqrt(x*x+y*y))) / Math.log(2);
+        let val = (Math.sin(smooth * 0.5) + 1.0) / 2.0; 
+        this.fractalData.push(val);
+      }
     }
   }
   
-  triggerEnvelope() {
+    triggerEnvelope() {
     if(!this.audioInit || !this.isActive) return;
+    
+    // Toggle play state
+    this.isPlaying = !this.isPlaying;
+    const btn = document.getElementById('btn-play-fractal');
+    if (this.isPlaying) {
+      btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+      this.scheduleNextLoop();
+    } else {
+      btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
+      // Silence filters immediately
+      for (let b = 0; b < 32; b++) {
+        this.filterGains[b].gain.cancelScheduledValues(globalAudioCtx.currentTime);
+        this.filterGains[b].gain.linearRampToValueAtTime(0, globalAudioCtx.currentTime + 0.1);
+      }
+    }
+  }
+  
+  scheduleNextLoop() {
+    if(!this.isPlaying || !this.isActive) return;
     const ctx = globalAudioCtx;
     const now = ctx.currentTime;
     
-    // The envelope plays over 4 seconds, stepping through the 256 fractal values
-    const duration = 4.0; 
+    // The envelope plays over 2 seconds
+    const duration = 2.0; 
     const stepTime = duration / this.resolution;
     
     for (let b = 0; b < 32; b++) {
       this.filterGains[b].gain.cancelScheduledValues(now);
-      this.filterGains[b].gain.setValueAtTime(0, now);
+      this.filterGains[b].gain.setValueAtTime(this.filterGains[b].gain.value, now);
     }
     
     for(let i=0; i<this.resolution; i++) {
       let val = this.fractalData[i]; // 0 to 1
       let time = now + (i * stepTime);
       
-      // Carve the frequencies based on the fractal value!
-      // If val is high, higher harmonics ring out.
+      // We carve the frequencies based on the fractal value.
+      // High value = high frequencies. Low value = low frequencies.
       const activeBand = Math.floor(val * 31);
       
       for (let b = 0; b < 32; b++) {
-        // Create a spectral "bump" around the active band
         const distance = Math.abs(b - activeBand);
-        let bandGain = Math.max(0, 1.0 - (distance * 0.2)); 
-        this.filterGains[b].gain.linearRampToValueAtTime(bandGain * 0.1, time);
+        // Tighter distance calculation for sharper resonant peaks
+        let bandGain = Math.max(0, 1.0 - (distance * 0.15)); 
+        this.filterGains[b].gain.linearRampToValueAtTime(bandGain * 0.2, time);
       }
     }
     
-    // Silence at end
-    for (let b = 0; b < 32; b++) {
-      this.filterGains[b].gain.linearRampToValueAtTime(0, now + duration + 0.1);
-    }
+    // Schedule the next loop right as this one ends
+    setTimeout(() => {
+      if(this.isPlaying) this.scheduleNextLoop();
+    }, duration * 1000);
   }
   
   initCanvas() {
@@ -402,14 +429,14 @@ class FractalSynth {
     this.ctx = this.canvas.getContext('2d'); this.ctx.scale(dpr, dpr);
   }
   
-  drawFractal(time) {
+    drawFractal(time) {
     if (!this.isActive) return;
     const w = this.canvas.width / (window.devicePixelRatio || 1); 
     const h = this.canvas.height / (window.devicePixelRatio || 1);
     
     this.ctx.clearRect(0, 0, w, h);
     
-    // Draw the 1D slice as a wave/envelope
+    // Draw the 1D slice
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
     for(let i=0; i<this.resolution; i++) {
@@ -424,6 +451,31 @@ class FractalSynth {
     this.ctx.strokeStyle = '#ec4899';
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
+    
+    // Draw playback cursor if playing
+    if (this.isPlaying) {
+      // Loop is 2 seconds (2000ms)
+      let progress = (performance.now() % 2000) / 2000;
+      let cursorX = progress * w;
+      let dataIndex = Math.floor(progress * this.resolution);
+      let cursorY = h - (this.fractalData[dataIndex] * h * 0.9);
+      
+      this.ctx.beginPath();
+      this.ctx.moveTo(cursorX, 0);
+      this.ctx.lineTo(cursorX, h);
+      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+      
+      // Draw a glowing dot on the line
+      this.ctx.beginPath();
+      this.ctx.arc(cursorX, cursorY, 6, 0, Math.PI*2);
+      this.ctx.fillStyle = '#fff';
+      this.ctx.shadowBlur = 10;
+      this.ctx.shadowColor = '#fff';
+      this.ctx.fill();
+      this.ctx.shadowBlur = 0;
+    }
     
     requestAnimationFrame((t) => this.drawFractal(t));
   }
