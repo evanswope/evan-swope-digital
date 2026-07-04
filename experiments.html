@@ -3,166 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Experiments | Evan Swope</title>
-  <meta name="description" content="Interactive browser-based experiments and audio synthesis.">
+  <title>Experiments | Evan Swope Digital</title>
   
-  <!-- Premium Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Permanent+Marker&display=swap" rel="stylesheet">
-  
-  <!-- Icon System -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="synth.css">
 </head>
-<body class="lens-hybrid">
+<body>
   
-  <!-- Navigation Header -->
-  <header class="site-header">
-    <div class="header-container">
-      <a href="index.html" class="brand-logo">
-        <span class="logo-text">EVAN SWOPE</span>
-        <span class="logo-subtext">CREATIVE + STRATEGY</span>
-      </a>
-      <nav class="nav-links">
-        <a href="index.html#work" class="nav-link">Work</a>
-        <a href="index.html#resume" class="nav-link">Experience</a>
-        <a href="index.html#about" class="nav-link">About</a>
-        <a href="experiments.html" class="nav-link" style="color: var(--accent-color);">Experiments</a>
-        <a href="index.html#contact" class="nav-link btn-contact">Let's Connect</a>
-      </nav>
+  <nav class="main-nav">
+    <div class="nav-brand">
+      <a href="index.html">EvanSwope.</a>
     </div>
-  </header>
-
-  <main class="main-content synth-page-layout" style="padding-top: 100px;">
-    
-    <div class="experiments-header">
-      <h1 class="hero-title" style="color: #fff; text-align: center; margin-top: 2rem; font-size: clamp(2rem, 5vw, 3rem);">Web Audio Additive Synth</h1>
-      <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: 1rem auto 3rem auto;">An interactive polyphonic synthesizer. Map to your keyboard or click the keys below. Adjust the mix of 4 independent channels.</p>
+    <div class="nav-links">
+      <a href="index.html">Work</a>
+      <a href="experiments.html" class="active">Experiments</a>
+      <a href="contact.html">Contact</a>
     </div>
+  </nav>
 
-    <!-- The Synth Panel -->
-    <div class="synth-container">
-      <div class="synth-panel wood-panel-left"></div>
-      
-      <div class="synth-faceplate">
-        
-        <!-- Controls Section -->
-        <div class="synth-controls">
+  <main class="main-content">
+    <div class="container">
+      <header class="section-header fade-in">
+        <h1 class="glitch-text" data-text="Lab">Lab</h1>
+        <p class="subtitle">Audio / Visual / Interactive</p>
+      </header>
+
+      <div class="experiments-grid">
+        <section class="experiment-section fade-in">
           
-          <div class="synth-brand">
-            <h2 class="moog-font">MOOG-ISH</h2>
-            <div class="power-light" id="power-indicator"></div>
-          </div>
+          <div class="generative-card">
+            <!-- SVG Pink Scribble Overlay -->
+            <svg class="pink-scribble" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-50,150 Q100,-50 250,120 T500,50 T750,180 T900,20" stroke="#ec4899" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M-20,170 Q120,10 270,140 T520,70 T770,160 T920,40" stroke="#f472b6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Swirl -->
+              <path d="M700,50 C 720,20 780,20 780,60 C 780,100 700,100 700,140 C 700,180 760,180 770,150" stroke="#ec4899" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
 
-          <div class="synth-top-section" style="display:flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+            <div class="card-header">
+              <h2 class="card-title">Generative Automata</h2>
+              <div class="power-container">
+                <button id="btn-start-audio" class="start-btn">POWER <i class="fa-solid fa-power-off"></i></button>
+                <div id="power-indicator" class="power-light"></div>
+              </div>
+            </div>
             
-            <!-- Automata Controls -->
-            <div id="automata-controls" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1rem; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; gap: 2rem;">
-              
-              <div style="display: flex; gap: 1rem;">
-                <button id="btn-play-sim" class="mutation-btn" style="width: 50px; background: #10b981; color: #fff; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                  <i class="fa-solid fa-play" id="play-icon"></i>
-                </button>
-                <button id="btn-random-sim" class="mutation-btn" style="padding: 0 1rem; font-family: var(--font-mono); font-size: 0.8rem; border-radius: 4px; background: #334155; color: #fff; border: none; cursor: pointer;">
-                  RANDOMIZE
-                </button>
-                <button id="btn-clear-sim" class="mutation-btn" style="padding: 0 1rem; font-family: var(--font-mono); font-size: 0.8rem; border-radius: 4px; background: #ef4444; color: #fff; border: none; cursor: pointer;">
-                  CLEAR
-                </button>
+            <div id="grid-container" class="grid-container">
+              <div id="audio-start-overlay" class="overlay">
+                <p>Initialize Audio Engine</p>
               </div>
-
-              <div style="flex: 1; display: flex; align-items: center; gap: 1rem;">
-                <div class="knob-label" style="margin: 0; min-width: 80px;">SPEED</div>
-                <input type="range" class="rotary-knob fx-knob" id="sim-speed" min="50" max="500" step="10" value="150" style="flex: 1;">
-              </div>
-              
+              <canvas id="grid-canvas"></canvas>
             </div>
-
-            <!-- Automata Grid Canvas -->
-            <div id="grid-container" style="width: 100%; background: #050510; border: 1px solid #334155; border-radius: 6px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.8); position: relative; overflow: hidden; height: 350px;">
-              <canvas id="grid-canvas" style="width: 100%; height: 100%; cursor: crosshair;"></canvas>
-              <div style="position: absolute; top: 10px; left: 10px; font-family: var(--font-mono); font-size: 0.8rem; color: #10b981; pointer-events: none; letter-spacing: 2px; text-shadow: 0 0 5px #10b981;">GENERATIVE SEQUENCER</div>
-            </div>
-
-          </div>
-
-          <div class="mixer-section" style="justify-content: space-between; align-items: stretch; margin-bottom: 0;">
             
-            <!-- FX Rack -->
-            <div class="fx-rack" style="flex: 1; display:flex; justify-content:space-around; align-items: center; padding: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);">
+            <div class="card-controls">
               
-              <!-- LFO Module -->
-              <div class="fx-module compact-fx">
-                <i class="fa-solid fa-water fx-icon" style="color: #a855f7;"></i>
-                <input type="range" class="rotary-knob fx-knob" id="lfo-rate" min="0.1" max="20" step="0.1" value="5" title="LFO Rate">
-                <input type="range" class="rotary-knob fx-knob" id="lfo-depth" min="0" max="1" step="0.01" value="0" title="LFO Depth">
-                <select id="lfo-target" class="wave-select" style="margin-top: 10px; border-color: #a855f7; color: #a855f7;">
-                  <option value="none">OFF</option>
-                  <option value="pitch">PCH</option>
-                  <option value="volume">VOL</option>
-                  <option value="pan">PAN</option>
-                </select>
+              <div class="playback-controls">
+                <button id="btn-play-sim" class="icon-btn" title="Play/Pause"><i class="fa-solid fa-play" id="play-icon"></i></button>
+                <button id="btn-random-sim" class="icon-btn" title="Randomize"><i class="fa-solid fa-dice"></i></button>
+                <button id="btn-clear-sim" class="icon-btn" title="Clear Grid"><i class="fa-solid fa-trash-can"></i></button>
+                <div class="speed-control">
+                  <i class="fa-solid fa-gauge-high"></i>
+                  <input type="range" id="sim-speed" min="50" max="500" step="10" value="150" class="line-slider">
+                </div>
               </div>
-
-              <!-- Delay Module -->
-              <div class="fx-module compact-fx" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
-                <i class="fa-solid fa-clock-rotate-left fx-icon" style="color: #10b981;"></i>
-                <input type="range" class="rotary-knob fx-knob" id="delay-time" min="0.01" max="1.5" step="0.01" value="0.3" title="Delay Time">
-                <input type="range" class="rotary-knob fx-knob" id="delay-fb" min="0" max="0.95" step="0.01" value="0.4" title="Delay Feedback">
-                <input type="range" class="rotary-knob fx-knob" id="delay-mix" min="0" max="1" step="0.01" value="0" title="Delay Mix">
-              </div>
-
-              <!-- Master Filter -->
-              <div class="fx-module compact-fx" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
-                <i class="fa-solid fa-filter fx-icon" style="color: #eab308;"></i>
-                <input type="range" class="rotary-knob fx-knob" id="filter-cutoff" min="20" max="20000" step="1" value="20000" title="Filter Cutoff">
-                <input type="range" class="rotary-knob fx-knob" id="filter-res" min="0" max="20" step="0.1" value="0" title="Filter Resonance">
+              
+              <div class="fx-controls">
+                <div class="fx-knob-group">
+                  <i class="fa-solid fa-water fx-icon" title="Chorus"></i>
+                  <input type="range" id="fx-chorus" class="line-slider" min="0" max="1" step="0.01" value="0">
+                </div>
+                <div class="fx-knob-group">
+                  <i class="fa-solid fa-satellite-dish fx-icon" title="Phaser"></i>
+                  <input type="range" id="fx-phaser" class="line-slider" min="0" max="1" step="0.01" value="0">
+                </div>
+                <div class="fx-knob-group">
+                  <i class="fa-solid fa-hurricane fx-icon" title="Granular Cloud"></i>
+                  <input type="range" id="fx-granular" class="line-slider" min="0" max="1" step="0.01" value="0">
+                </div>
               </div>
 
             </div>
-
-            <!-- Master Section -->
-            <div class="channel-strip master-strip compact-strip" style="margin-left: 2rem;">
-              <div class="channel-label" style="color: #ff758c;">MASTER</div>
-              <div class="master-meter" id="master-meter">
-                <div class="meter-level" id="meter-level-bar"></div>
-              </div>
-              <div class="fader-track" style="margin-top: 1rem;">
-                <input type="range" class="fader custom-slider master-fader" id="vol-master" min="0" max="1" step="0.01" value="0.5">
-              </div>
-            </div>
-
           </div>
-          
-        </div> <!-- End Controls -->
 
-        <!-- Keyboard Section -->
-        <div class="synth-keyboard-wrapper">
-          <div class="keyboard-tooltip">
-            <i class="fa-solid fa-info-circle"></i> Use your computer keyboard (A, W, S, E, D...) or touch to play!
-          </div>
-          <div id="keyboard" class="keyboard">
-            <!-- Dynamically generated keys will go here -->
-          </div>
-        </div>
-
-      </div> <!-- End Faceplate -->
-
-      <div class="synth-panel wood-panel-right"></div>
-    </div>
-
-    <!-- Power On Overlay (Required to start AudioContext) -->
-    <div id="audio-start-overlay" class="audio-start-overlay">
-      <div class="start-btn-container">
-        <h2 style="color: #fff; margin-bottom: 1rem;">Initialize Synth Engine</h2>
-        <button id="btn-start-audio" class="btn-start-audio">POWER ON</button>
+        </section>
       </div>
     </div>
-
   </main>
+
+  <footer class="main-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 Evan Swope. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script src="synth.js"></script>
 </body>
