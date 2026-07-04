@@ -51,58 +51,101 @@
           <!-- SVG Filter for Boiling Effect -->
           
 
-                    <div class="generative-card">
-            <!-- SVG Scribble Border -->
-            <svg class="scribble-outline"><rect /></svg>
-
-            <!-- FULL CARD OVERLAY (Boot Up) -->
-            <div id="audio-start-overlay" class="card-overlay">
-              <button id="btn-start-audio" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
-            </div>
-
-            <div class="card-header">
-              <h2 class="card-title">Generative Automata</h2>
-              <div class="power-container">
-                <div id="power-indicator" class="power-light"></div>
-              </div>
-            </div>
+                    
+      <div class="carousel-wrapper">
+        <button id="carousel-prev" class="carousel-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        
+        <div class="carousel-viewport">
+          <div class="carousel-track" id="carousel-track">
             
-            <div id="grid-container" class="grid-container">
-              <canvas id="grid-canvas"></canvas>
+            <!-- SLIDE 1: Generative Automata -->
+            <div class="carousel-slide">
+              <div class="generative-card">
+                <svg class="scribble-outline"><rect /></svg>
+                <div id="audio-start-overlay" class="card-overlay">
+                  <button id="btn-start-audio" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
+                </div>
+                <div class="card-header">
+                  <h2 class="card-title">Generative Automata</h2>
+                  <div class="power-container">
+                    <div id="power-indicator" class="power-light"></div>
+                  </div>
+                </div>
+                <div id="grid-container" class="grid-container">
+                  <canvas id="grid-canvas"></canvas>
+                </div>
+                <div class="card-controls">
+                  <div class="playback-controls">
+                    <button id="btn-play-sim" class="icon-btn" title="Play/Pause"><i class="fa-solid fa-play" id="play-icon"></i></button>
+                    <button id="btn-random-sim" class="icon-btn" title="Randomize"><i class="fa-solid fa-dice"></i></button>
+                    <button id="btn-clear-sim" class="icon-btn" title="Clear Grid"><i class="fa-solid fa-trash-can"></i></button>
+                    <div class="speed-control">
+                      <i class="fa-solid fa-gauge-high"></i>
+                      <input type="range" id="sim-speed" min="50" max="500" step="10" value="150" class="line-slider">
+                    </div>
+                  </div>
+                  <div class="fx-controls">
+                    <div class="fx-knob-group">
+                      <i class="fa-solid fa-water fx-icon" title="Chorus"></i>
+                      <input type="range" id="fx-chorus" class="line-slider" min="0" max="1" step="0.01" value="0">
+                    </div>
+                    <div class="fx-knob-group">
+                      <i class="fa-solid fa-bolt fx-icon" title="Lo-Fi Distortion"></i>
+                      <input type="range" id="fx-dist" class="line-slider" min="0" max="1" step="0.01" value="0">
+                    </div>
+                    <div class="fx-knob-group">
+                      <i class="fa-solid fa-hurricane fx-icon" title="Granular Cloud"></i>
+                      <input type="range" id="fx-granular" class="line-slider" min="0" max="1" step="0.01" value="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div class="card-controls">
-              
-              <div class="playback-controls">
-                <button id="btn-play-sim" class="icon-btn" title="Play/Pause"><i class="fa-solid fa-play" id="play-icon"></i></button>
-                <button id="btn-random-sim" class="icon-btn" title="Randomize"><i class="fa-solid fa-dice"></i></button>
-                <button id="btn-clear-sim" class="icon-btn" title="Clear Grid"><i class="fa-solid fa-trash-can"></i></button>
-                <div class="speed-control">
-                  <i class="fa-solid fa-gauge-high"></i>
-                  <input type="range" id="sim-speed" min="50" max="500" step="10" value="150" class="line-slider">
-                </div>
-              </div>
-              
-              <div class="fx-controls">
-                <div class="fx-knob-group">
-                  <i class="fa-solid fa-water fx-icon" title="Chorus"></i>
-                  <input type="range" id="fx-chorus" class="line-slider" min="0" max="1" step="0.01" value="0">
-                </div>
-                <!-- Swapped Phaser for Distortion -->
-                <div class="fx-knob-group">
-                  <i class="fa-solid fa-bolt fx-icon" title="Lo-Fi Distortion"></i>
-                  <input type="range" id="fx-dist" class="line-slider" min="0" max="1" step="0.01" value="0">
-                </div>
-                <div class="fx-knob-group">
-                  <i class="fa-solid fa-hurricane fx-icon" title="Granular Cloud"></i>
-                  <input type="range" id="fx-granular" class="line-slider" min="0" max="1" step="0.01" value="0">
-                </div>
-              </div>
 
+            <!-- SLIDE 2: Fractal Subtractive Synth -->
+            <div class="carousel-slide">
+              <div class="generative-card fractal-card">
+                <svg class="scribble-outline"><rect /></svg>
+                <div id="fractal-overlay" class="card-overlay">
+                  <button id="btn-start-fractal" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
+                </div>
+                <div class="card-header">
+                  <h2 class="card-title">Fractal Subtractive</h2>
+                  <div class="power-container">
+                    <div id="fractal-power-indicator" class="power-light"></div>
+                  </div>
+                </div>
+                <div class="grid-container" style="background:#0a0a1a;">
+                  <canvas id="fractal-canvas"></canvas>
+                </div>
+                <div class="card-controls">
+                  <div class="playback-controls">
+                    <button id="btn-play-fractal" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
+                    <div class="fractal-select-wrapper">
+                      <select id="fractal-type" class="minimal-select">
+                        <option value="mandelbrot">Mandelbrot</option>
+                        <option value="julia">Julia</option>
+                        <option value="burning">Burning Ship</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="fx-controls">
+                    <div class="fx-knob-group">
+                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">ITERATIONS</span>
+                      <input type="range" id="fractal-iters" class="line-slider" min="10" max="200" step="1" value="50">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
           </div>
+        </div>
+        
+        <button id="carousel-next" class="carousel-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
 
-        </section>
+</section>
       </div>
     </div>
   </main>

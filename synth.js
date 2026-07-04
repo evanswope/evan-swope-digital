@@ -1,418 +1,472 @@
 /* --------------------------------------------------------------------------
-   GENERATIVE AUTOMATA SEQUENCER (Dark Mode, Limiter & Lo-Fi)
+   EVAN SWOPE DIGITAL - LAB CORE (Modular Synths)
    -------------------------------------------------------------------------- */
 
-let audioCtx;
-let masterGain;
-let isPowerOn = false;
+let globalAudioCtx = null;
 
-// Grid State (32x16 = 2:1 aspect ratio)
-const COLS = 32;
-const ROWS = 16;
-let grid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
-let nextGrid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
-let isSimPlaying = false;
-let simSpeed = 150; // ms per tick
-let lastTickTime = 0;
-let lastBoilTime = 0;
-
-// Musical Scale (C Minor Pentatonic)
-const scaleNotes = [
-  84, 82, 79, 77, 75, // C6, Bb5, G5, F5, Eb5
-  72, 70, 67, 65, 63, // C5, Bb4, G4, F4, Eb4
-  60, 58, 55, 53, 51, // C4, Bb3, G3, F3, Eb3
-  48                  // C3
-];
-
-// Custom FX Nodes
-let chorusLfo, chorusDelay, chorusMix;
-let distNode, distMix;
-let granDelays = [], granMix;
-let masterLimiter;
-
-// FX State
-let fxLevels = {
-  chorus: 0,
-  dist: 0,
-  granular: 0
-};
-
-// UI Elements
-const btnStart = document.getElementById('btn-start-audio');
-const overlay = document.getElementById('audio-start-overlay');
-const powerLight = document.getElementById('power-indicator');
-const turbulence = document.getElementById('boil-turbulence');
-
-// --------------------------------------------------------------------------
-// Initialization & FX Routing
-// --------------------------------------------------------------------------
-btnStart.addEventListener('click', initAudio);
-
-function makeDistortionCurve(amount) {
-  const k = amount * 100; // Map 0-1 to 0-100 distortion
-  const n_samples = 44100;
-  const curve = new Float32Array(n_samples);
-  const deg = Math.PI / 180;
-  for (let i = 0; i < n_samples; ++i) {
-    const x = (i * 2) / n_samples - 1;
-    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+function getAudioCtx() {
+  if (!globalAudioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    globalAudioCtx = new AudioContext();
   }
-  return curve;
+  return globalAudioCtx;
 }
 
-async function initAudio() {
-  if (audioCtx) return;
-  
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  audioCtx = new AudioContext();
-  
-  masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0.5;
-  
-  const fxBus = buildFXRack();
-  
-  // Limiter to prevent clipping from heavy FX stacking
-  masterLimiter = audioCtx.createDynamicsCompressor();
-  masterLimiter.threshold.setValueAtTime(-5, audioCtx.currentTime); // Hard clamp at -5dB
-  masterLimiter.knee.setValueAtTime(0, audioCtx.currentTime); // Hard knee
-  masterLimiter.ratio.setValueAtTime(20, audioCtx.currentTime); // 20:1 ratio
-  masterLimiter.attack.setValueAtTime(0.005, audioCtx.currentTime); // Fast attack
-  masterLimiter.release.setValueAtTime(0.05, audioCtx.currentTime); // Fast release
-  
-  // Dry routing
-  masterGain.connect(masterLimiter);
-  
-  masterLimiter.connect(audioCtx.destination);
-  fxBus.connect(masterLimiter);
-
-  if (audioCtx.state === 'suspended') {
-    await audioCtx.resume();
+/* --------------------------------------------------------------------------
+   MODULE 1: GENERATIVE AUTOMATA
+   -------------------------------------------------------------------------- */
+class GenerativeAutomata {
+  constructor() {
+    this.isActive = false;
+    this.COLS = 32;
+    this.ROWS = 16;
+    this.grid = new Array(this.COLS).fill(0).map(() => new Array(this.ROWS).fill(0));
+    this.nextGrid = new Array(this.COLS).fill(0).map(() => new Array(this.ROWS).fill(0));
+    this.isSimPlaying = false;
+    this.simSpeed = 150;
+    this.lastTickTime = 0;
+    
+    this.scaleNotes = [84, 82, 79, 77, 75, 72, 70, 67, 65, 63, 60, 58, 55, 53, 51, 48];
+    this.fxLevels = { chorus: 0, dist: 0, granular: 0 };
+    
+    this.audioInit = false;
   }
-
-  isPowerOn = true;
-  overlay.classList.add('hidden');
-  powerLight.classList.add('is-on');
-
-  initGridCanvas();
-}
-
-function buildFXRack() {
-  const fxBus = audioCtx.createGain();
-  fxBus.gain.value = 1.0;
-  // Route ALL FX through the limiter
-  // NOTE: masterLimiter is defined in initAudio. 
-  // Wait, buildFXRack is called before masterLimiter connects. That's fine, we will connect it after.
   
-  // 1. Chorus
-  chorusMix = audioCtx.createGain();
-  chorusMix.gain.value = fxLevels.chorus;
-  
-  chorusDelay = audioCtx.createDelay(0.1);
-  chorusDelay.delayTime.value = 0.03;
-  
-  chorusLfo = audioCtx.createOscillator();
-  chorusLfo.type = 'sine';
-  chorusLfo.frequency.value = 1.5;
-  const chorusDepth = audioCtx.createGain();
-  chorusDepth.gain.value = 0.005;
-  
-  chorusLfo.connect(chorusDepth);
-  chorusDepth.connect(chorusDelay.delayTime);
-  chorusLfo.start();
-  
-  masterGain.connect(chorusDelay);
-  chorusDelay.connect(chorusMix);
-  chorusMix.connect(fxBus);
-  
-  // 2. Lo-Fi Distortion
-  distMix = audioCtx.createGain();
-  distMix.gain.value = fxLevels.dist;
-  
-  distNode = audioCtx.createWaveShaper();
-  distNode.curve = makeDistortionCurve(0.8);
-  distNode.oversample = 'none'; // Lo-Fi Aliasing
-  
-  masterGain.connect(distNode);
-  distNode.connect(distMix);
-  distMix.connect(fxBus);
-  
-  // 3. Granular Cloud (Multi-tap feedback network)
-  granMix = audioCtx.createGain();
-  granMix.gain.value = fxLevels.granular;
-  
-  for(let i=0; i<3; i++) {
-    const delay = audioCtx.createDelay(2.0);
-    delay.delayTime.value = 0.15 + (i * 0.13); 
-    const fb = audioCtx.createGain();
-    fb.gain.value = 0.6 + (Math.random() * 0.2);
-    const pan = audioCtx.createStereoPanner();
-    pan.pan.value = -0.8 + (i * 0.8); 
+  async start() {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') await ctx.resume();
     
-    masterGain.connect(delay);
-    delay.connect(fb);
-    fb.connect(delay); 
-    delay.connect(pan);
-    pan.connect(granMix);
-    granDelays.push(delay);
-  }
-  granMix.connect(fxBus);
-  
-  // We will connect fxBus to limiter in initAudio, so we must expose fxBus or bind it late.
-  // Actually, we can just defer the connection in initAudio:
-  return fxBus;
-}
-
-
-
-// --------------------------------------------------------------------------
-// Generative Synth Voice (Pluck)
-// --------------------------------------------------------------------------
-function noteToFreq(note) {
-  return 440 * Math.pow(2, (note - 69) / 12);
-}
-
-class PluckVoice {
-  constructor(row, col) {
-    if (!audioCtx) return;
-    
-    // Pitch based on Row
-    const midiNote = scaleNotes[row % scaleNotes.length];
-    const freq = noteToFreq(midiNote);
-    
-    // X-Axis maps to Filter Cutoff (Brightness)
-    const filterFreq = 300 + ((col / (COLS - 1)) * 2700);
-    
-    this.osc = audioCtx.createOscillator();
-    this.osc.type = 'triangle'; 
-    this.osc.frequency.value = freq;
-    
-    this.filter = audioCtx.createBiquadFilter();
-    this.filter.type = 'lowpass';
-    this.filter.frequency.setValueAtTime(filterFreq, audioCtx.currentTime);
-    this.filter.frequency.exponentialRampToValueAtTime(Math.max(100, filterFreq - 1000), audioCtx.currentTime + 0.3);
-    
-    this.gainNode = audioCtx.createGain();
-    this.gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-    
-    // Fast attack, exponential decay for pluck
-    this.gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.02);
-    this.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
-    
-    this.panNode = audioCtx.createStereoPanner();
-    this.panNode.pan.value = (Math.random() * 0.6) - 0.3;
-    
-    // Connect
-    this.osc.connect(this.filter);
-    this.filter.connect(this.gainNode);
-    this.gainNode.connect(this.panNode);
-    this.panNode.connect(masterGain);
-    
-    this.osc.start();
-    
-    // Auto kill
-    setTimeout(() => {
-      this.osc.stop();
-      this.osc.disconnect();
-      this.filter.disconnect();
-      this.gainNode.disconnect();
-      this.panNode.disconnect();
-    }, 700);
-  }
-}
-
-// --------------------------------------------------------------------------
-// Cellular Automata Simulation
-// --------------------------------------------------------------------------
-function countNeighbors(x, y) {
-  let sum = 0;
-  for (let i = -1; i < 2; i++) {
-    for (let j = -1; j < 2; j++) {
-      let col = (x + i + COLS) % COLS;
-      let row = (y + j + ROWS) % ROWS;
-      sum += grid[col][row];
-    }
-  }
-  sum -= grid[x][y];
-  return sum;
-}
-
-function tick() {
-  if (!isPowerOn) return;
-  
-  let newlyBorn = [];
-  
-  for (let i = 0; i < COLS; i++) {
-    for (let j = 0; j < ROWS; j++) {
-      let state = grid[i][j];
-      let neighbors = countNeighbors(i, j);
+    if (!this.audioInit) {
+      this.masterGain = ctx.createGain();
+      this.masterGain.gain.value = 0.0; 
       
-      if (state === 0 && neighbors === 3) {
-        nextGrid[i][j] = 1;
-        newlyBorn.push({c: i, r: j});
-      } else if (state === 1 && (neighbors < 2 || neighbors > 3)) {
-        nextGrid[i][j] = 0;
-      } else {
-        nextGrid[i][j] = state;
+      this.buildFXRack(ctx);
+      
+      this.masterLimiter = ctx.createDynamicsCompressor();
+      this.masterLimiter.threshold.setValueAtTime(-5, ctx.currentTime);
+      this.masterLimiter.knee.setValueAtTime(0, ctx.currentTime);
+      this.masterLimiter.ratio.setValueAtTime(20, ctx.currentTime);
+      this.masterLimiter.attack.setValueAtTime(0.005, ctx.currentTime);
+      this.masterLimiter.release.setValueAtTime(0.05, ctx.currentTime);
+      
+      this.masterGain.connect(this.masterLimiter);
+      this.masterLimiter.connect(ctx.destination);
+      if (this.fxBus) this.fxBus.connect(this.masterLimiter);
+      
+      this.initCanvas();
+      this.bindUI();
+      this.audioInit = true;
+    }
+    
+    this.isActive = true;
+    this.masterGain.gain.cancelScheduledValues(ctx.currentTime);
+    this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, ctx.currentTime);
+    this.masterGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.1);
+    
+    document.getElementById('audio-start-overlay').classList.add('hidden');
+    document.getElementById('power-indicator').classList.add('is-on');
+    requestAnimationFrame((t) => this.drawGrid(t));
+  }
+  
+  stop() {
+    this.isActive = false;
+    if (this.audioInit && globalAudioCtx) {
+      const ct = globalAudioCtx.currentTime;
+      this.masterGain.gain.cancelScheduledValues(ct);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, ct);
+      this.masterGain.gain.exponentialRampToValueAtTime(0.001, ct + 2.0);
+    }
+    document.getElementById('audio-start-overlay').classList.remove('hidden');
+    document.getElementById('power-indicator').classList.remove('is-on');
+  }
+
+  buildFXRack(ctx) {
+    this.fxBus = ctx.createGain();
+    this.fxBus.gain.value = 1.0;
+    
+    // Chorus
+    this.chorusMix = ctx.createGain();
+    this.chorusMix.gain.value = this.fxLevels.chorus;
+    this.chorusDelay = ctx.createDelay(0.1);
+    this.chorusDelay.delayTime.value = 0.03;
+    this.chorusLfo = ctx.createOscillator();
+    this.chorusLfo.type = 'sine';
+    this.chorusLfo.frequency.value = 1.5;
+    const chorusDepth = ctx.createGain();
+    chorusDepth.gain.value = 0.005;
+    this.chorusLfo.connect(chorusDepth);
+    chorusDepth.connect(this.chorusDelay.delayTime);
+    this.chorusLfo.start();
+    this.masterGain.connect(this.chorusDelay);
+    this.chorusDelay.connect(this.chorusMix);
+    this.chorusMix.connect(this.fxBus);
+    
+    // Dist
+    this.distMix = ctx.createGain();
+    this.distMix.gain.value = this.fxLevels.dist;
+    this.distNode = ctx.createWaveShaper();
+    const k = 80; const n = 44100; const curve = new Float32Array(n); const deg = Math.PI / 180;
+    for (let i = 0; i < n; ++i) {
+      const x = (i * 2) / n - 1;
+      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+    }
+    this.distNode.curve = curve;
+    this.masterGain.connect(this.distNode);
+    this.distNode.connect(this.distMix);
+    this.distMix.connect(this.fxBus);
+    
+    // Granular
+    this.granMix = ctx.createGain();
+    this.granMix.gain.value = this.fxLevels.granular;
+    for(let i=0; i<3; i++) {
+      const d = ctx.createDelay(2.0);
+      d.delayTime.value = 0.15 + (i * 0.13); 
+      const fb = ctx.createGain();
+      fb.gain.value = 0.6 + (Math.random() * 0.2);
+      const pan = ctx.createStereoPanner();
+      pan.pan.value = -0.8 + (i * 0.8); 
+      this.masterGain.connect(d); d.connect(fb); fb.connect(d); d.connect(pan); pan.connect(this.granMix);
+    }
+    this.granMix.connect(this.fxBus);
+  }
+
+  playVoice(r, c) {
+    if (!this.isActive || !globalAudioCtx) return;
+    const ctx = globalAudioCtx;
+    const freq = 440 * Math.pow(2, (this.scaleNotes[r % this.scaleNotes.length] - 69) / 12);
+    const filterFreq = 300 + ((c / (this.COLS - 1)) * 2700);
+    
+    const osc = ctx.createOscillator();
+    osc.type = 'triangle'; osc.frequency.value = freq;
+    
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.setValueAtTime(filterFreq, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(100, filterFreq - 1000), ctx.currentTime + 0.3);
+    
+    const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    
+    const pan = ctx.createStereoPanner(); pan.pan.value = (Math.random() * 0.6) - 0.3;
+    
+    osc.connect(filter); filter.connect(gain); gain.connect(pan); pan.connect(this.masterGain);
+    osc.start();
+    setTimeout(() => { osc.stop(); osc.disconnect(); filter.disconnect(); gain.disconnect(); pan.disconnect(); }, 700);
+  }
+  
+  tick() {
+    if (!this.isActive) return;
+    let newlyBorn = [];
+    for (let i = 0; i < this.COLS; i++) {
+      for (let j = 0; j < this.ROWS; j++) {
+        let sum = 0;
+        for (let x = -1; x < 2; x++) {
+          for (let y = -1; y < 2; y++) sum += this.grid[(i + x + this.COLS) % this.COLS][(j + y + this.ROWS) % this.ROWS];
+        }
+        sum -= this.grid[i][j];
+        if (this.grid[i][j] === 0 && sum === 3) { this.nextGrid[i][j] = 1; newlyBorn.push({c: i, r: j}); }
+        else if (this.grid[i][j] === 1 && (sum < 2 || sum > 3)) this.nextGrid[i][j] = 0;
+        else this.nextGrid[i][j] = this.grid[i][j];
       }
     }
+    let temp = this.grid; this.grid = this.nextGrid; this.nextGrid = temp;
+    for(const cell of newlyBorn) this.playVoice(cell.r, cell.c);
   }
   
-  // Swap grids
-  let temp = grid;
-  grid = nextGrid;
-  nextGrid = temp;
-  
-  // Trigger synths
-  if (isPowerOn) {
-    for(const cell of newlyBorn) {
-      new PluckVoice(cell.r, cell.c);
-    }
-  }
-}
-
-// --------------------------------------------------------------------------
-// Grid Canvas Rendering & Interaction
-// --------------------------------------------------------------------------
-let canvas, ctx;
-let isDrawing = false;
-let drawMode = 1;
-
-function initGridCanvas() {
-  canvas = document.getElementById('grid-canvas');
-  if(!canvas) return;
-  
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.parentNode.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  
-  canvas.addEventListener('mousedown', handleGridDown);
-  canvas.addEventListener('mousemove', handleGridMove);
-  window.addEventListener('mouseup', handleGridUp);
-  canvas.addEventListener('mouseleave', handleGridUp);
-  
-  requestAnimationFrame(drawGrid);
-}
-
-function getCellFromMouse(e) {
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-  const cellW = rect.width / COLS;
-  const cellH = rect.height / ROWS;
-  const c = Math.floor(mouseX / cellW);
-  const r = Math.floor(mouseY / cellH);
-  return {c, r};
-}
-
-function handleGridDown(e) {
-  if(!isPowerOn) return;
-  isDrawing = true;
-  const {c, r} = getCellFromMouse(e);
-  if(c >= 0 && c < COLS && r >= 0 && r < ROWS) {
-    drawMode = grid[c][r] ? 0 : 1;
-    grid[c][r] = drawMode;
-    if(drawMode === 1) new PluckVoice(r, c);
-  }
-}
-
-function handleGridMove(e) {
-  if (!isDrawing) return;
-  const {c, r} = getCellFromMouse(e);
-  if(c >= 0 && c < COLS && r >= 0 && r < ROWS) {
-    if (grid[c][r] !== drawMode) {
-      grid[c][r] = drawMode;
-      if(drawMode === 1) new PluckVoice(r, c);
-    }
-  }
-}
-
-function handleGridUp() {
-  isDrawing = false;
-}
-
-function drawGrid(time) {
-  if (isSimPlaying && time - lastTickTime > simSpeed) {
-    tick();
-    lastTickTime = time;
+  initCanvas() {
+    this.canvas = document.getElementById('grid-canvas');
+    if(!this.canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = this.canvas.parentNode.getBoundingClientRect();
+    this.canvas.width = rect.width * dpr; this.canvas.height = rect.height * dpr;
+    this.ctx = this.canvas.getContext('2d'); this.ctx.scale(dpr, dpr);
+    
+    let isDrawing = false; let drawMode = 1;
+    const getCell = (e) => {
+      const r = this.canvas.getBoundingClientRect();
+      return { c: Math.floor((e.clientX - r.left) / (r.width / this.COLS)), r: Math.floor((e.clientY - r.top) / (r.height / this.ROWS)) };
+    };
+    this.canvas.addEventListener('mousedown', (e) => {
+      if(!this.isActive) return; isDrawing = true;
+      const {c, r} = getCell(e);
+      if(c>=0 && c<this.COLS && r>=0 && r<this.ROWS) { drawMode = this.grid[c][r] ? 0 : 1; this.grid[c][r] = drawMode; if(drawMode) this.playVoice(r,c); }
+    });
+    this.canvas.addEventListener('mousemove', (e) => {
+      if(!isDrawing) return; const {c, r} = getCell(e);
+      if(c>=0 && c<this.COLS && r>=0 && r<this.ROWS && this.grid[c][r] !== drawMode) { this.grid[c][r] = drawMode; if(drawMode) this.playVoice(r,c); }
+    });
+    window.addEventListener('mouseup', () => isDrawing = false);
   }
   
-  const w = canvas.width / (window.devicePixelRatio || 1);
-  const h = canvas.height / (window.devicePixelRatio || 1);
-  const cellW = w / COLS;
-  const cellH = h / ROWS;
-  
-  // Clear background
-  ctx.clearRect(0, 0, w, h);
-  
-  // Faint dark grid lines
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  for(let i=0; i<=COLS; i++) { ctx.moveTo(i*cellW, 0); ctx.lineTo(i*cellW, h); }
-  for(let j=0; j<=ROWS; j++) { ctx.moveTo(0, j*cellH); ctx.lineTo(w, j*cellH); }
-  ctx.stroke();
-  
-  // Draw Cells (Pink)
-  for (let i = 0; i < COLS; i++) {
-    for (let j = 0; j < ROWS; j++) {
-      if (grid[i][j] === 1) {
-        ctx.fillStyle = '#ec4899';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#ec4899';
-        ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2);
-        ctx.shadowBlur = 0;
+  drawGrid(time) {
+    if (!this.isActive) return;
+    if (this.isSimPlaying && time - this.lastTickTime > this.simSpeed) { this.tick(); this.lastTickTime = time; }
+    
+    const w = this.canvas.width / (window.devicePixelRatio || 1); const h = this.canvas.height / (window.devicePixelRatio || 1);
+    const cellW = w / this.COLS; const cellH = h / this.ROWS;
+    
+    this.ctx.clearRect(0, 0, w, h);
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'; this.ctx.lineWidth = 1; this.ctx.beginPath();
+    for(let i=0; i<=this.COLS; i++) { this.ctx.moveTo(i*cellW, 0); this.ctx.lineTo(i*cellW, h); }
+    for(let j=0; j<=this.ROWS; j++) { this.ctx.moveTo(0, j*cellH); this.ctx.lineTo(w, j*cellH); }
+    this.ctx.stroke();
+    
+    for (let i = 0; i < this.COLS; i++) {
+      for (let j = 0; j < this.ROWS; j++) {
+        if (this.grid[i][j] === 1) {
+          this.ctx.fillStyle = '#ec4899'; this.ctx.shadowBlur = 10; this.ctx.shadowColor = '#ec4899';
+          this.ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2); this.ctx.shadowBlur = 0;
+        }
       }
     }
+    requestAnimationFrame((t) => this.drawGrid(t));
   }
   
-  requestAnimationFrame(drawGrid);
+  bindUI() {
+    document.getElementById('btn-play-sim')?.addEventListener('click', () => {
+      this.isSimPlaying = !this.isSimPlaying;
+      const icon = document.getElementById('play-icon');
+      icon.className = this.isSimPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+    });
+    document.getElementById('btn-clear-sim')?.addEventListener('click', () => { this.grid = new Array(this.COLS).fill(0).map(() => new Array(this.ROWS).fill(0)); });
+    document.getElementById('btn-random-sim')?.addEventListener('click', () => {
+      for (let i = 0; i < this.COLS; i++) for (let j = 0; j < this.ROWS; j++) this.grid[i][j] = Math.random() > 0.85 ? 1 : 0;
+    });
+    document.getElementById('sim-speed')?.addEventListener('input', (e) => this.simSpeed = 550 - parseFloat(e.target.value));
+    document.getElementById('fx-chorus')?.addEventListener('input', (e) => { this.fxLevels.chorus = parseFloat(e.target.value); if(this.chorusMix) this.chorusMix.gain.value = this.fxLevels.chorus; });
+    document.getElementById('fx-dist')?.addEventListener('input', (e) => { this.fxLevels.dist = parseFloat(e.target.value); if(this.distMix) this.distMix.gain.value = this.fxLevels.dist; });
+    document.getElementById('fx-granular')?.addEventListener('input', (e) => { this.fxLevels.granular = parseFloat(e.target.value); if(this.granMix) this.granMix.gain.value = this.fxLevels.granular; });
+  }
 }
 
-// --------------------------------------------------------------------------
-// UI Listeners
-// --------------------------------------------------------------------------
-document.getElementById('btn-play-sim')?.addEventListener('click', () => {
-  isSimPlaying = !isSimPlaying;
-  const icon = document.getElementById('play-icon');
-  if(isSimPlaying) {
-    icon.classList.remove('fa-play');
-    icon.classList.add('fa-pause');
-  } else {
-    icon.classList.remove('fa-pause');
-    icon.classList.add('fa-play');
+/* --------------------------------------------------------------------------
+   MODULE 2: FRACTAL SUBTRACTIVE SYNTH
+   -------------------------------------------------------------------------- */
+class FractalSynth {
+  constructor() {
+    this.isActive = false;
+    this.audioInit = false;
+    this.iterations = 50;
+    this.type = 'mandelbrot';
+    this.fractalData = []; // 1D array of 0.0 to 1.0 values
+    this.resolution = 256;
+    this.isPlaying = false;
   }
-});
-
-document.getElementById('btn-clear-sim')?.addEventListener('click', () => {
-  grid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
-});
-
-document.getElementById('btn-random-sim')?.addEventListener('click', () => {
-  for (let i = 0; i < COLS; i++) {
-    for (let j = 0; j < ROWS; j++) {
-      grid[i][j] = Math.random() > 0.85 ? 1 : 0;
+  
+  async start() {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') await ctx.resume();
+    
+    if (!this.audioInit) {
+      this.masterGain = ctx.createGain();
+      this.masterGain.gain.value = 0.0;
+      this.masterGain.connect(ctx.destination);
+      
+      this.buildFilterBank(ctx);
+      this.initCanvas();
+      this.bindUI();
+      this.computeFractal();
+      this.audioInit = true;
+    }
+    
+    this.isActive = true;
+    this.masterGain.gain.cancelScheduledValues(ctx.currentTime);
+    this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, ctx.currentTime);
+    this.masterGain.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.1);
+    
+    document.getElementById('fractal-overlay').classList.add('hidden');
+    document.getElementById('fractal-power-indicator').classList.add('is-on');
+    requestAnimationFrame((t) => this.drawFractal(t));
+  }
+  
+  stop() {
+    this.isActive = false;
+    if (this.audioInit && globalAudioCtx) {
+      const ct = globalAudioCtx.currentTime;
+      this.masterGain.gain.cancelScheduledValues(ct);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, ct);
+      this.masterGain.gain.exponentialRampToValueAtTime(0.001, ct + 2.0);
+    }
+    document.getElementById('fractal-overlay').classList.remove('hidden');
+    document.getElementById('fractal-power-indicator').classList.remove('is-on');
+  }
+  
+  buildFilterBank(ctx) {
+    // Generate white noise buffer
+    const bufferSize = ctx.sampleRate * 2; // 2 seconds
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+    
+    this.noiseSource = ctx.createBufferSource();
+    this.noiseSource.buffer = noiseBuffer;
+    this.noiseSource.loop = true;
+    
+    // Create 32-Band Harmonic Filter Bank (C2 base)
+    this.filters = [];
+    this.filterGains = [];
+    const baseFreq = 65.41; // C2
+    
+    for (let i = 1; i <= 32; i++) {
+      const f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = baseFreq * i; // Harmonic series!
+      f.Q.value = 20; // High Q for resonant pitch
+      
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      
+      this.noiseSource.connect(f);
+      f.connect(g);
+      g.connect(this.masterGain);
+      
+      this.filters.push(f);
+      this.filterGains.push(g);
+    }
+    this.noiseSource.start();
+  }
+  
+  computeFractal() {
+    this.fractalData = [];
+    for(let i = 0; i < this.resolution; i++) {
+      // 1D slice across the X axis
+      let x0 = -2.0 + (i / this.resolution) * 3.0; // from -2 to +1
+      let y0 = 0.0;
+      let x = 0.0, y = 0.0;
+      let iteration = 0;
+      
+      if (this.type === 'julia') {
+        x = x0; y = y0;
+        x0 = -0.4; y0 = 0.6;
+      }
+      
+      while (x*x + y*y <= 4 && iteration < this.iterations) {
+        let xtemp = x*x - y*y + x0;
+        y = 2*x*y + y0;
+        if (this.type === 'burning') {
+          xtemp = x*x - y*y + x0;
+          y = Math.abs(2*x*y) + y0;
+          x = Math.abs(xtemp);
+        } else {
+          x = xtemp;
+        }
+        iteration++;
+      }
+      // Normalize to 0.0 - 1.0
+      this.fractalData.push(iteration / this.iterations);
     }
   }
-});
+  
+  triggerEnvelope() {
+    if(!this.audioInit || !this.isActive) return;
+    const ctx = globalAudioCtx;
+    const now = ctx.currentTime;
+    
+    // The envelope plays over 4 seconds, stepping through the 256 fractal values
+    const duration = 4.0; 
+    const stepTime = duration / this.resolution;
+    
+    for (let b = 0; b < 32; b++) {
+      this.filterGains[b].gain.cancelScheduledValues(now);
+      this.filterGains[b].gain.setValueAtTime(0, now);
+    }
+    
+    for(let i=0; i<this.resolution; i++) {
+      let val = this.fractalData[i]; // 0 to 1
+      let time = now + (i * stepTime);
+      
+      // Carve the frequencies based on the fractal value!
+      // If val is high, higher harmonics ring out.
+      const activeBand = Math.floor(val * 31);
+      
+      for (let b = 0; b < 32; b++) {
+        // Create a spectral "bump" around the active band
+        const distance = Math.abs(b - activeBand);
+        let bandGain = Math.max(0, 1.0 - (distance * 0.2)); 
+        this.filterGains[b].gain.linearRampToValueAtTime(bandGain * 0.1, time);
+      }
+    }
+    
+    // Silence at end
+    for (let b = 0; b < 32; b++) {
+      this.filterGains[b].gain.linearRampToValueAtTime(0, now + duration + 0.1);
+    }
+  }
+  
+  initCanvas() {
+    this.canvas = document.getElementById('fractal-canvas');
+    if(!this.canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = this.canvas.parentNode.getBoundingClientRect();
+    this.canvas.width = rect.width * dpr; this.canvas.height = rect.height * dpr;
+    this.ctx = this.canvas.getContext('2d'); this.ctx.scale(dpr, dpr);
+  }
+  
+  drawFractal(time) {
+    if (!this.isActive) return;
+    const w = this.canvas.width / (window.devicePixelRatio || 1); 
+    const h = this.canvas.height / (window.devicePixelRatio || 1);
+    
+    this.ctx.clearRect(0, 0, w, h);
+    
+    // Draw the 1D slice as a wave/envelope
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    for(let i=0; i<this.resolution; i++) {
+      let x = (i / this.resolution) * w;
+      let y = h - (this.fractalData[i] * h * 0.9);
+      this.ctx.lineTo(x, y);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.fillStyle = 'rgba(236,72,153, 0.2)';
+    this.ctx.fill();
+    
+    this.ctx.strokeStyle = '#ec4899';
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
+    
+    requestAnimationFrame((t) => this.drawFractal(t));
+  }
+  
+  bindUI() {
+    document.getElementById('btn-play-fractal')?.addEventListener('click', () => {
+      this.triggerEnvelope();
+    });
+    document.getElementById('fractal-type')?.addEventListener('change', (e) => {
+      this.type = e.target.value;
+      this.computeFractal();
+    });
+    document.getElementById('fractal-iters')?.addEventListener('input', (e) => {
+      this.iterations = parseInt(e.target.value);
+      this.computeFractal();
+    });
+  }
+}
 
-document.getElementById('sim-speed')?.addEventListener('input', (e) => {
-  const val = parseFloat(e.target.value);
-  simSpeed = 550 - val; 
-});
+/* --------------------------------------------------------------------------
+   CAROUSEL CONTROLLER
+   -------------------------------------------------------------------------- */
+const modules = [
+  new GenerativeAutomata(),
+  new FractalSynth()
+];
+let currentIndex = 0;
 
-// FX Controls
-document.getElementById('fx-chorus')?.addEventListener('input', (e) => {
-  fxLevels.chorus = parseFloat(e.target.value);
-  if(chorusMix) chorusMix.gain.value = fxLevels.chorus;
+document.getElementById('btn-start-audio').addEventListener('click', () => modules[0].start());
+document.getElementById('btn-start-fractal').addEventListener('click', () => modules[1].start());
+
+const track = document.getElementById('carousel-track');
+document.getElementById('carousel-prev').addEventListener('click', () => {
+  if (currentIndex > 0) {
+    modules[currentIndex].stop();
+    currentIndex--;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  }
 });
-document.getElementById('fx-dist')?.addEventListener('input', (e) => {
-  fxLevels.dist = parseFloat(e.target.value);
-  if(distMix) distMix.gain.value = fxLevels.dist;
-});
-document.getElementById('fx-granular')?.addEventListener('input', (e) => {
-  fxLevels.granular = parseFloat(e.target.value);
-  if(granMix) granMix.gain.value = fxLevels.granular;
+document.getElementById('carousel-next').addEventListener('click', () => {
+  if (currentIndex < modules.length - 1) {
+    modules[currentIndex].stop();
+    currentIndex++;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  }
 });
