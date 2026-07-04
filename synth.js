@@ -309,9 +309,9 @@ class FractalSynth {
       if (typeEl) {
         this.type = typeEl.value;
         if (this.type === 'julia') {
-          zx = cx; zy = cy;
-          // Cool spiral Julia set constant
-          cx = -0.74543; cy = 0.11301;
+          this.zoomTargetX = -0.5855;
+          this.zoomTargetY = 0.4464;
+          this.zoomLevel = 50.0;
         } else if (this.type === 'burning') {
           this.zoomTargetX = -1.749204;
           this.zoomTargetY = -0.027732;
@@ -320,10 +320,6 @@ class FractalSynth {
           this.zoomTargetX = -0.738012624328;
           this.zoomTargetY = 0.170669229045;
           this.zoomLevel = 50.0;
-        }
-      } else if (this.type === 'burning') {
-          this.zoomTargetX = -1.75;
-          this.zoomTargetY = -0.05;
         }
       }
       const tuneEl = document.getElementById('fractal-tuning');
@@ -448,7 +444,6 @@ class FractalSynth {
         
         if (this.type === 'julia') {
           zx = cx; zy = cy;
-          // Cool spiral Julia set constant
           cx = -0.74543; cy = 0.11301;
         }
         
