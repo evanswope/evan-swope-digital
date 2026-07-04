@@ -454,6 +454,7 @@ class FractalSynth {
           cx = -0.5251993; cy = 0.0;
         }
         
+        let minDist = 1000.0;
         while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
           let xtemp = zx*zx - zy*zy + cx;
           zy = 2*zx*zy + cy;
@@ -464,6 +465,8 @@ class FractalSynth {
             zx = xtemp;
           }
           iteration++;
+          let dist = zx*zx + zy*zy;
+          if (dist < minDist) minDist = dist;
         }
         
         let val = 0;
@@ -471,9 +474,9 @@ class FractalSynth {
           val = (Math.sin(iteration * 0.7) + 1.0) / 2.0; 
           val = Math.pow(val, 3);
         } else {
-          // ORBIT TRAP FOR INTERIOR POINTS (e.g. The Julia Temple at 0,0)
-          let dist = Math.sqrt(zx*zx + zy*zy);
-          val = (Math.sin(dist * 50.0) + 1.0) / 2.0;
+          // MIN-DISTANCE ORBIT TRAP FOR INTERIOR POINTS (e.g. The Julia Temple at 0,0)
+          val = (Math.sin(minDist * 150.0) + 1.0) / 2.0;
+          val = Math.pow(val, 2.0);
         }
         if (isNaN(val)) val = 0;
         
@@ -573,11 +576,11 @@ class FractalSynth {
       if (this.type === 'julia') {
         this.zoomTargetX = 0.0;
         this.zoomTargetY = 0.0;
-        this.zoomLevel = 1.2;
+        this.zoomLevel = 2.0;
       } else if (this.type === 'burning') {
         this.zoomTargetX = -1.6;
         this.zoomTargetY = 0.0;
-        this.zoomLevel = 2.0;
+        this.zoomLevel = 500.0;
       } else {
         this.zoomTargetX = -0.745;
         this.zoomTargetY = 0.15;
