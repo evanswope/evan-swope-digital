@@ -309,9 +309,9 @@ class FractalSynth {
       if (typeEl) {
         this.type = typeEl.value;
         if (this.type === 'julia') {
-          this.zoomTargetX = -0.4812;
-          this.zoomTargetY = 0.5228;
-          this.zoomLevel = 100.0;
+          this.zoomTargetX = 0.0;
+          this.zoomTargetY = 0.0;
+          this.zoomLevel = 2.0;
         } else if (this.type === 'burning') {
           this.zoomTargetX = -1.6;
           this.zoomTargetY = 0.0;
@@ -470,8 +470,12 @@ class FractalSynth {
         if (iteration < this.iterations) {
           val = (Math.sin(iteration * 0.7) + 1.0) / 2.0; 
           val = Math.pow(val, 3);
-          if (isNaN(val)) val = 0;
+        } else {
+          // ORBIT TRAP FOR INTERIOR POINTS (e.g. The Julia Temple at 0,0)
+          let dist = Math.sqrt(zx*zx + zy*zy);
+          val = (Math.sin(dist * 50.0) + 1.0) / 2.0;
         }
+        if (isNaN(val)) val = 0;
         
         col.push(val);
         
