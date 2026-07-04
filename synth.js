@@ -278,10 +278,10 @@ class FractalSynth {
     this.type = 'mandelbrot';
     this.tuning = 'harmonic';
     
-    this.zoomLevel = 100.0;
+    this.zoomLevel = 2.0;
     this.zoomSpeed = 1.01;
-    this.zoomTargetX = -0.740711186330862; 
-    this.zoomTargetY = 0.12960730527906075;
+    this.zoomTargetX = -0.745; 
+    this.zoomTargetY = 0.15;
     
     this.resolutionX = 256;
     this.resolutionY = 64;
@@ -309,17 +309,17 @@ class FractalSynth {
       if (typeEl) {
         this.type = typeEl.value;
         if (this.type === 'julia') {
-          this.zoomTargetX = -0.08895336433458778;
-          this.zoomTargetY = 0.10784395071051045;
-          this.zoomLevel = 100.0;
+          this.zoomTargetX = 0.0;
+          this.zoomTargetY = 0.0;
+          this.zoomLevel = 1.2;
         } else if (this.type === 'burning') {
-          this.zoomTargetX = -1.737678058675311;
-          this.zoomTargetY = -0.028887125530744587;
-          this.zoomLevel = 100.0;
+          this.zoomTargetX = -1.75;
+          this.zoomTargetY = -0.05;
+          this.zoomLevel = 4.0;
         } else {
-          this.zoomTargetX = -0.740711186330862;
-          this.zoomTargetY = 0.12960730527906075;
-          this.zoomLevel = 100.0;
+          this.zoomTargetX = -0.745;
+          this.zoomTargetY = 0.15;
+          this.zoomLevel = 2.0;
         }
       }
       const tuneEl = document.getElementById('fractal-tuning');
@@ -451,7 +451,7 @@ class FractalSynth {
         
         if (this.type === 'julia') {
           zx = cx; zy = cy;
-          cx = -0.74543; cy = 0.11301;
+          cx = -0.8; cy = 0.156;
         }
         
         while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
@@ -522,7 +522,7 @@ class FractalSynth {
     this.computeFractal();
     
     this.zoomLevel *= this.zoomSpeed;
-    if (this.zoomLevel > 100000) { 
+    if (this.zoomLevel > 500) { 
       this.zoomLevel = 1.0;
     }
     
@@ -567,17 +567,17 @@ class FractalSynth {
       this.type = e.target.value;
       
       if (this.type === 'julia') {
-        this.zoomTargetX = -0.08895336433458778;
-        this.zoomTargetY = 0.10784395071051045;
-        this.zoomLevel = 100.0;
+        this.zoomTargetX = 0.0;
+        this.zoomTargetY = 0.0;
+        this.zoomLevel = 1.2;
       } else if (this.type === 'burning') {
-        this.zoomTargetX = -1.737678058675311;
-        this.zoomTargetY = -0.028887125530744587;
-        this.zoomLevel = 100.0;
+        this.zoomTargetX = -1.75;
+        this.zoomTargetY = -0.05;
+        this.zoomLevel = 4.0;
       } else {
-        this.zoomTargetX = -0.740711186330862;
-        this.zoomTargetY = 0.12960730527906075;
-        this.zoomLevel = 100.0;
+        this.zoomTargetX = -0.745;
+        this.zoomTargetY = 0.15;
+        this.zoomLevel = 2.0;
       }
     });
     
