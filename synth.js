@@ -1,21 +1,19 @@
 /* --------------------------------------------------------------------------
-   FM NEURAL MATRIX ENGINE (synth.js)
+   GENERATIVE AUTOMATA SEQUENCER (synth.js)
    -------------------------------------------------------------------------- */
 
 let audioCtx;
 let masterGain;
 let isPowerOn = false;
-let activeVoices = {}; // Tracks currently playing notes
 
-// Matrix State
-const fmNodes = [
-  { id: 0, x: 0.5, y: 0.5, type: 'sine', ratio: 1.0, isCarrier: true, color: '#ff7e5f' }, // Carrier (Node 1)
-  { id: 1, x: 0.2, y: 0.2, type: 'sine', ratio: 2.0, isCarrier: false, color: '#a855f7' }, // Modulator (Node 2)
-  { id: 2, x: 0.8, y: 0.2, type: 'sine', ratio: 0.5, isCarrier: false, color: '#39ff14' }, // Modulator (Node 3)
-  { id: 3, x: 0.5, y: 0.8, type: 'sine', ratio: 3.0, isCarrier: false, color: '#21d4fd' }  // Modulator (Node 4)
-];
-let selectedNode = null;
-let draggedNode = null;
+// Grid State
+const COLS = 32;
+const ROWS = 16;
+let grid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
+let nextGrid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
+let isSimPlaying = false;
+let simSpeed = 150; // ms per tick
+let lastTickTime = 0;
 
 // Synth State
 const synthState = {
@@ -36,13 +34,14 @@ const synthState = {
 let globalFilter, delayNode, delayFeedbackNode, delayMixWet, delayMixDry;
 let lfoOsc, lfoGain;
 
-// Key mapping (QWERTY)
-const keyboardMap = {
-  'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
-  ',': 60, 'l': 61, '.': 62, ';': 63, '/': 64,
-  'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
-  'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
-};
+// Musical Scale (C Minor Pentatonic across 16 rows)
+// C3 to C6 roughly. Higher rows = lower pitch visually? Let's make Top row = High pitch
+const scaleNotes = [
+  84, 82, 79, 77, 75, // C6, Bb5, G5, F5, Eb5
+  72, 70, 67, 65, 63, // C5, Bb4, G4, F4, Eb4
+  60, 58, 55, 53, 51, // C4, Bb3, G3, F3, Eb3
+  48                  // C3
+];
 
 // UI Elements
 const btnStart = document.getElementById('btn-start-audio');
@@ -119,130 +118,139 @@ async function initAudio() {
   overlay.classList.add('hidden');
   powerLight.classList.add('is-on');
 
-  initMatrixCanvas();
+  initGridCanvas();
 }
 
 // --------------------------------------------------------------------------
-// FM Synth Voice (Polyphonic 4-Operator)
+// Generative Synth Voice (Pluck)
 // --------------------------------------------------------------------------
-class FMSynthVoice {
-  constructor(baseFreq) {
-    this.baseFreq = baseFreq;
+function noteToFreq(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+class PluckVoice {
+  constructor(row, col) {
+    if (!audioCtx) return;
     
-    // Create 4 Oscillators
-    this.oscs = [];
-    this.gains = []; // Output gains (only Carrier is audible, Modulators go into freq)
+    // Pitch based on Row (Y-axis)
+    const midiNote = scaleNotes[row % scaleNotes.length];
+    const freq = noteToFreq(midiNote);
     
-    for(let i = 0; i < 4; i++) {
-      const osc = audioCtx.createOscillator();
-      const nodeDef = fmNodes[i];
-      
-      osc.type = nodeDef.type;
-      osc.frequency.value = baseFreq * nodeDef.ratio;
-      
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0; // Starts at 0
-      
-      osc.connect(gain);
-      osc.start();
-      
-      this.oscs.push(osc);
-      this.gains.push(gain);
-    }
+    // Panning based on Column (X-axis)
+    // -1.0 (Left) to 1.0 (Right)
+    const panValue = ((col / (COLS - 1)) * 2.0) - 1.0;
     
-    // Routing: Modulators -> Carrier Frequency
-    // (In a true matrix, they could modulate each other, but for this demo, 2,3,4 modulate 1)
-    this.gains[1].connect(this.oscs[0].frequency);
-    this.gains[2].connect(this.oscs[0].frequency);
-    this.gains[3].connect(this.oscs[0].frequency);
+    this.osc = audioCtx.createOscillator();
+    this.osc.type = 'triangle'; // Nice muted pluck tone
+    this.osc.frequency.value = freq;
     
-    // Main Envelope for the Carrier
-    this.envGain = audioCtx.createGain();
-    this.envGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    this.envGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05); // Attack
+    this.gainNode = audioCtx.createGain();
+    this.gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
     
-    this.gains[0].connect(this.envGain);
+    // Fast attack, exponential decay for pluck
+    this.gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.02);
+    this.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+    
+    this.panNode = audioCtx.createStereoPanner();
+    this.panNode.pan.value = panValue;
+    
+    // Connect
+    this.osc.connect(this.gainNode);
     
     // LFO Modulation routing
-    this.panNode = audioCtx.createStereoPanner();
     const target = synthState.fx.lfoTarget;
     if (target === 'pitch') {
-      lfoGain.connect(this.oscs[0].detune);
+      lfoGain.connect(this.osc.detune);
       this.lfoConnectedDetune = true;
     } else if (target === 'volume') {
-      lfoGain.connect(this.envGain.gain);
+      lfoGain.connect(this.gainNode.gain);
       this.lfoConnectedGain = true;
     } else if (target === 'pan') {
+      // Don't override our spatial panning, maybe add to it, but standard LFO might clobber it.
+      // We will let the LFO just connect directly to the pan node.
       lfoGain.connect(this.panNode.pan);
       this.lfoConnectedPan = true;
     }
     
-    this.envGain.connect(this.panNode);
+    this.gainNode.connect(this.panNode);
     this.panNode.connect(masterGain);
     
-    // Set initial modulation depths
-    this.updateModulationDepths();
-  }
-
-  updateModulationDepths() {
-    // Carrier is always on
-    this.gains[0].gain.setTargetAtTime(1.0, audioCtx.currentTime, 0.01);
+    this.osc.start();
     
-    const carrier = fmNodes[0];
-    
-    // Modulators (1, 2, 3) distance to Carrier (0)
-    for(let i = 1; i < 4; i++) {
-      const mod = fmNodes[i];
-      const dx = mod.x - carrier.x;
-      const dy = mod.y - carrier.y;
-      const dist = Math.sqrt(dx*dx + dy*dy); // 0.0 to 1.414
-      
-      // The closer it is, the higher the modulation index.
-      // Max distance = 1.0 (corners). Let's clamp at 0.8
-      const proximity = Math.max(0, 1.0 - (dist / 0.8)); // 1.0 when touching, 0.0 when far
-      
-      // FM Depth formula: BaseFreq * Ratio * ModIndex
-      // For wild sounds, ModIndex can go up to 10 or 20.
-      const modDepth = this.baseFreq * mod.ratio * (proximity * proximity * 15);
-      
-      // Update the gain node smoothly
-      this.gains[i].gain.setTargetAtTime(modDepth, audioCtx.currentTime, 0.02);
-    }
-  }
-
-  stop() {
-    try {
-      // Release
-      this.envGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      this.envGain.gain.setValueAtTime(this.envGain.gain.value, audioCtx.currentTime);
-      this.envGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-      
-      setTimeout(() => {
-        for(let i=0; i<4; i++) {
-          this.oscs[i].stop();
-          this.oscs[i].disconnect();
-          this.gains[i].disconnect();
-        }
-        if (this.lfoConnectedDetune) lfoGain.disconnect(this.oscs[0].detune);
-        if (this.lfoConnectedGain) lfoGain.disconnect(this.envGain.gain);
-        if (this.lfoConnectedPan) lfoGain.disconnect(this.panNode.pan);
-        this.envGain.disconnect();
-        this.panNode.disconnect();
-      }, 350);
-    } catch (e) {}
+    // Auto kill after decay
+    setTimeout(() => {
+      this.osc.stop();
+      if (this.lfoConnectedDetune) lfoGain.disconnect(this.osc.detune);
+      if (this.lfoConnectedGain) lfoGain.disconnect(this.gainNode.gain);
+      if (this.lfoConnectedPan) lfoGain.disconnect(this.panNode.pan);
+      this.osc.disconnect();
+      this.gainNode.disconnect();
+      this.panNode.disconnect();
+    }, 600);
   }
 }
 
 // --------------------------------------------------------------------------
-// Neural Matrix Canvas Rendering & Interaction
+// Cellular Automata Simulation
+// --------------------------------------------------------------------------
+function countNeighbors(x, y) {
+  let sum = 0;
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      let col = (x + i + COLS) % COLS; // Wrap around edges
+      let row = (y + j + ROWS) % ROWS;
+      sum += grid[col][row];
+    }
+  }
+  sum -= grid[x][y];
+  return sum;
+}
+
+function tick() {
+  if (!isPowerOn) return;
+  
+  let newlyBorn = [];
+  
+  for (let i = 0; i < COLS; i++) {
+    for (let j = 0; j < ROWS; j++) {
+      let state = grid[i][j];
+      let neighbors = countNeighbors(i, j);
+      
+      if (state === 0 && neighbors === 3) {
+        nextGrid[i][j] = 1;
+        newlyBorn.push({c: i, r: j});
+      } else if (state === 1 && (neighbors < 2 || neighbors > 3)) {
+        nextGrid[i][j] = 0;
+      } else {
+        nextGrid[i][j] = state;
+      }
+    }
+  }
+  
+  // Swap grids
+  let temp = grid;
+  grid = nextGrid;
+  nextGrid = temp;
+  
+  // Trigger synths for newly born cells
+  if (isPowerOn) {
+    for(const cell of newlyBorn) {
+      new PluckVoice(cell.r, cell.c);
+    }
+  }
+}
+
+// --------------------------------------------------------------------------
+// Grid Canvas Rendering & Interaction
 // --------------------------------------------------------------------------
 let canvas, ctx;
+let isDrawing = false;
+let drawMode = 1; // 1 to draw, 0 to erase
 
-function initMatrixCanvas() {
-  canvas = document.getElementById('fm-canvas');
+function initGridCanvas() {
+  canvas = document.getElementById('grid-canvas');
   if(!canvas) return;
   
-  // High DPI canvas setup
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.parentNode.getBoundingClientRect();
   canvas.width = rect.width * dpr;
@@ -250,203 +258,128 @@ function initMatrixCanvas() {
   ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   
-  canvas.addEventListener('mousedown', handleMatrixDown);
-  canvas.addEventListener('mousemove', handleMatrixMove);
-  window.addEventListener('mouseup', handleMatrixUp);
+  canvas.addEventListener('mousedown', handleGridDown);
+  canvas.addEventListener('mousemove', handleGridMove);
+  window.addEventListener('mouseup', handleGridUp);
+  canvas.addEventListener('mouseleave', handleGridUp);
   
-  requestAnimationFrame(drawMatrix);
+  requestAnimationFrame(drawGrid);
 }
 
-function handleMatrixDown(e) {
+function getCellFromMouse(e) {
   const rect = canvas.getBoundingClientRect();
-  const mouseX = (e.clientX - rect.left) / rect.width;
-  const mouseY = (e.clientY - rect.top) / rect.height;
-  
-  // Find clicked node (radius is ~0.05 in normalized coords)
-  for(let i = fmNodes.length - 1; i >= 0; i--) {
-    const node = fmNodes[i];
-    const dx = node.x - mouseX;
-    const dy = node.y - mouseY;
-    if (Math.hypot(dx, dy) < 0.05) {
-      selectedNode = node;
-      if (!node.isCarrier) {
-        draggedNode = node;
-      }
-      updateInspectorUI();
-      return;
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  const cellW = rect.width / COLS;
+  const cellH = rect.height / ROWS;
+  const c = Math.floor(mouseX / cellW);
+  const r = Math.floor(mouseY / cellH);
+  return {c, r};
+}
+
+function handleGridDown(e) {
+  if(!isPowerOn) return;
+  isDrawing = true;
+  const {c, r} = getCellFromMouse(e);
+  if(c >= 0 && c < COLS && r >= 0 && r < ROWS) {
+    // Toggle state on click
+    drawMode = grid[c][r] ? 0 : 1;
+    grid[c][r] = drawMode;
+    if(drawMode === 1) new PluckVoice(r, c); // Play note when drawn
+  }
+}
+
+function handleGridMove(e) {
+  if (!isDrawing) return;
+  const {c, r} = getCellFromMouse(e);
+  if(c >= 0 && c < COLS && r >= 0 && r < ROWS) {
+    if (grid[c][r] !== drawMode) {
+      grid[c][r] = drawMode;
+      if(drawMode === 1) new PluckVoice(r, c); // Play note when drawn
     }
   }
-  
-  // Clicked empty space
-  selectedNode = null;
-  updateInspectorUI();
 }
 
-function handleMatrixMove(e) {
-  if (!draggedNode) return;
-  
-  const rect = canvas.getBoundingClientRect();
-  let mouseX = (e.clientX - rect.left) / rect.width;
-  let mouseY = (e.clientY - rect.top) / rect.height;
-  
-  // Clamp to canvas bounds
-  draggedNode.x = Math.max(0.05, Math.min(0.95, mouseX));
-  draggedNode.y = Math.max(0.05, Math.min(0.95, mouseY));
-  
-  // Update audio engine modulations in real-time
-  Object.values(activeVoices).forEach(voice => voice.updateModulationDepths());
+function handleGridUp() {
+  isDrawing = false;
 }
 
-function handleMatrixUp() {
-  draggedNode = null;
-}
-
-function drawMatrix(time) {
+function drawGrid(time) {
+  if (isSimPlaying && time - lastTickTime > simSpeed) {
+    tick();
+    lastTickTime = time;
+  }
+  
   const w = canvas.width / (window.devicePixelRatio || 1);
   const h = canvas.height / (window.devicePixelRatio || 1);
+  const cellW = w / COLS;
+  const cellH = h / ROWS;
   
   ctx.fillStyle = '#050510';
   ctx.fillRect(0, 0, w, h);
   
-  // Draw Synapses (Lines to Carrier)
-  const carrier = fmNodes[0];
-  for(let i = 1; i < 4; i++) {
-    const mod = fmNodes[i];
-    const dx = mod.x - carrier.x;
-    const dy = mod.y - carrier.y;
-    const dist = Math.hypot(dx, dy);
-    
-    // Closer = thicker and brighter
-    const proximity = Math.max(0, 1.0 - (dist / 0.8)); 
-    const thickness = proximity * 6 + 1;
-    const alpha = proximity * 0.8 + 0.1;
-    
-    ctx.beginPath();
-    ctx.moveTo(mod.x * w, mod.y * h);
-    ctx.lineTo(carrier.x * w, carrier.y * h);
-    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-    ctx.lineWidth = thickness;
-    ctx.stroke();
-    
-    // Draw flowing energy on active synapse
-    if (proximity > 0.1 && Object.keys(activeVoices).length > 0) {
-      const flowPos = (time / 500) % 1;
-      const energyX = mod.x + (carrier.x - mod.x) * flowPos;
-      const energyY = mod.y + (carrier.y - mod.y) * flowPos;
-      
-      ctx.beginPath();
-      ctx.arc(energyX * w, energyY * h, 3 + (proximity * 3), 0, Math.PI*2);
-      ctx.fillStyle = mod.color;
-      ctx.fill();
+  // Draw Grid Lines
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let i=0; i<=COLS; i++) { ctx.moveTo(i*cellW, 0); ctx.lineTo(i*cellW, h); }
+  for(let j=0; j<=ROWS; j++) { ctx.moveTo(0, j*cellH); ctx.lineTo(w, j*cellH); }
+  ctx.stroke();
+  
+  // Draw Cells
+  for (let i = 0; i < COLS; i++) {
+    for (let j = 0; j < ROWS; j++) {
+      if (grid[i][j] === 1) {
+        ctx.fillStyle = '#10b981'; // neon-green
+        // Add a slight glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#10b981';
+        // Padding inside cell
+        ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2);
+        ctx.shadowBlur = 0;
+      }
     }
   }
   
-  // Draw Nodes
-  for(let i = 0; i < 4; i++) {
-    const node = fmNodes[i];
-    const x = node.x * w;
-    const y = node.y * h;
-    const radius = node.isCarrier ? 24 : 18;
-    
-    // Glow effect
-    const grad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
-    grad.addColorStop(0, node.color);
-    grad.addColorStop(1, 'transparent');
-    
-    ctx.beginPath();
-    ctx.arc(x, y, radius * 2, 0, Math.PI*2);
-    ctx.fillStyle = grad;
-    ctx.globalAlpha = 0.6;
-    ctx.fill();
-    ctx.globalAlpha = 1.0;
-    
-    // Core
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI*2);
-    ctx.fillStyle = '#111';
-    ctx.fill();
-    ctx.lineWidth = selectedNode === node ? 3 : 1;
-    ctx.strokeStyle = node.color;
-    ctx.stroke();
-    
-    // Label
-    ctx.fillStyle = node.color;
-    ctx.font = '10px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(node.isCarrier ? 'OUT' : `M${i}`, x, y);
-  }
-  
-  requestAnimationFrame(drawMatrix);
+  requestAnimationFrame(drawGrid);
 }
 
 // --------------------------------------------------------------------------
-// Node Inspector UI
+// UI Listeners (Automata Controls)
 // --------------------------------------------------------------------------
-const inspectorContent = document.getElementById('inspector-content');
-const inspectorEmpty = document.getElementById('inspector-empty');
-const inspectorTitle = document.getElementById('inspector-title');
-const inspectorRatio = document.getElementById('inspector-ratio');
-const ratioDisplay = document.getElementById('ratio-display');
-const waveBtns = document.querySelectorAll('#inspector-wave-toggles .wave-btn');
-
-function updateInspectorUI() {
-  if (!selectedNode) {
-    inspectorContent.style.display = 'none';
-    inspectorEmpty.style.display = 'flex';
-    inspectorTitle.innerText = "NODE INSPECTOR";
-    inspectorTitle.style.color = "var(--text-primary)";
-    return;
+document.getElementById('btn-play-sim')?.addEventListener('click', () => {
+  isSimPlaying = !isSimPlaying;
+  const icon = document.getElementById('play-icon');
+  if(isSimPlaying) {
+    icon.classList.remove('fa-play');
+    icon.classList.add('fa-pause');
+  } else {
+    icon.classList.remove('fa-pause');
+    icon.classList.add('fa-play');
   }
-  
-  inspectorContent.style.display = 'flex';
-  inspectorEmpty.style.display = 'none';
-  
-  inspectorTitle.innerText = selectedNode.isCarrier ? "CARRIER NODE" : `MODULATOR ${selectedNode.id}`;
-  inspectorTitle.style.color = selectedNode.color;
-  
-  // Set Waveform toggle
-  waveBtns.forEach(btn => {
-    if (btn.dataset.val === selectedNode.type) btn.classList.add('active');
-    else btn.classList.remove('active');
-  });
-  
-  // Set Ratio slider
-  inspectorRatio.value = selectedNode.ratio;
-  ratioDisplay.innerText = selectedNode.ratio.toFixed(2) + 'x';
-}
-
-// Bind Waveform toggles
-waveBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    if(!selectedNode) return;
-    
-    // update UI
-    waveBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    // update state
-    selectedNode.type = btn.dataset.val;
-    
-    // update active voices
-    Object.values(activeVoices).forEach(voice => {
-      voice.oscs[selectedNode.id].type = selectedNode.type;
-    });
-  });
 });
 
-// Bind Ratio slider
-inspectorRatio.addEventListener('input', (e) => {
-  if(!selectedNode) return;
-  const ratio = parseFloat(e.target.value);
-  selectedNode.ratio = ratio;
-  ratioDisplay.innerText = ratio.toFixed(2) + 'x';
-  
-  // update active voices
-  Object.values(activeVoices).forEach(voice => {
-    voice.oscs[selectedNode.id].frequency.value = voice.baseFreq * ratio;
-  });
+document.getElementById('btn-clear-sim')?.addEventListener('click', () => {
+  grid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
 });
+
+document.getElementById('btn-random-sim')?.addEventListener('click', () => {
+  for (let i = 0; i < COLS; i++) {
+    for (let j = 0; j < ROWS; j++) {
+      grid[i][j] = Math.random() > 0.85 ? 1 : 0;
+    }
+  }
+});
+
+document.getElementById('sim-speed')?.addEventListener('input', (e) => {
+  // Invert slider so right = faster (smaller ms)
+  // min 50, max 500
+  // If value is 500, we want speed to be 50.
+  // If value is 50, we want speed to be 500.
+  const val = parseFloat(e.target.value);
+  simSpeed = 550 - val; 
+});
+
 
 // --------------------------------------------------------------------------
 // UI Listeners (FX and Master)
@@ -490,79 +423,8 @@ document.getElementById('filter-res').addEventListener('input', (e) => {
   if(globalFilter) globalFilter.Q.value = synthState.fx.filterRes;
 });
 
-// --------------------------------------------------------------------------
-// MIDI Keyboard
-// --------------------------------------------------------------------------
-function noteToFreq(note) {
-  return 440 * Math.pow(2, (note - 69) / 12);
-}
-
-function handleKeydown(e) {
-  if (!isPowerOn) return;
-  if (e.repeat) return;
-  
-  const note = keyboardMap[e.key.toLowerCase()];
-  if (note && !activeVoices[note]) {
-    const keyEl = document.querySelector(`.key[data-note="${note}"]`);
-    if (keyEl) keyEl.classList.add('active');
-    
-    const freq = noteToFreq(note);
-    activeVoices[note] = new FMSynthVoice(freq);
-  }
-}
-
-function handleKeyup(e) {
-  const note = keyboardMap[e.key.toLowerCase()];
-  if (note && activeVoices[note]) {
-    const keyEl = document.querySelector(`.key[data-note="${note}"]`);
-    if (keyEl) keyEl.classList.remove('active');
-    
-    activeVoices[note].stop();
-    delete activeVoices[note];
-  }
-}
-
-document.addEventListener('keydown', handleKeydown);
-document.addEventListener('keyup', handleKeyup);
-
-// Build Keyboard DOM
+// Remove Keyboard since this plays itself!
 if (keyboardContainer) {
-  const startNote = 48; // C3
-  const endNote = 76; // E5
-  
-  for(let i = startNote; i <= endNote; i++) {
-    const key = document.createElement('div');
-    const isBlack = [1, 3, 6, 8, 10].includes(i % 12);
-    key.className = `key ${isBlack ? 'key-black' : 'key-white'}`;
-    key.dataset.note = i;
-    
-    key.addEventListener('mousedown', () => {
-      if(!isPowerOn) return;
-      const note = parseInt(key.dataset.note);
-      if(!activeVoices[note]) {
-        key.classList.add('active');
-        activeVoices[note] = new FMSynthVoice(noteToFreq(note));
-      }
-    });
-    
-    key.addEventListener('mouseup', () => {
-      const note = parseInt(key.dataset.note);
-      if(activeVoices[note]) {
-        key.classList.remove('active');
-        activeVoices[note].stop();
-        delete activeVoices[note];
-      }
-    });
-    
-    key.addEventListener('mouseleave', () => {
-      const note = parseInt(key.dataset.note);
-      if(activeVoices[note]) {
-        key.classList.remove('active');
-        activeVoices[note].stop();
-        delete activeVoices[note];
-      }
-    });
-    
-    keyboardContainer.appendChild(key);
-  }
+  keyboardContainer.style.opacity = '0.2';
+  keyboardContainer.style.pointerEvents = 'none';
 }
