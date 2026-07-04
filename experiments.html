@@ -11,6 +11,15 @@
   <link rel="stylesheet" href="synth.css">
 </head>
 <body>
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+    <filter id="scribble-filter" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
+        <animate attributeName="seed" values="1;2;3;4;5" dur="0.5s" calcMode="discrete" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+  
   
   <nav class="main-nav">
     <div class="nav-brand">
@@ -34,21 +43,11 @@
         <section class="experiment-section fade-in">
           
           <!-- SVG Filter for Boiling Effect -->
-          <svg width="0" height="0" style="position:absolute;">
-            <filter id="boil">
-              <feTurbulence id="boil-turbulence" type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="1"/>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-          </svg>
+          
 
           <div class="generative-card">
             <!-- SVG Pink Scribble Overlay -->
-            <svg class="pink-scribble" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M-50,150 Q100,-50 250,120 T500,50 T750,180 T900,20" stroke="#ec4899" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M-20,170 Q120,10 270,140 T520,70 T770,160 T920,40" stroke="#f472b6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <!-- Swirl -->
-              <path d="M700,50 C 720,20 780,20 780,60 C 780,100 700,100 700,140 C 700,180 760,180 770,150" stroke="#ec4899" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <svg class="scribble-outline"><rect /></svg>
 
             <div class="card-header">
               <h2 class="card-title">Generative Automata</h2>

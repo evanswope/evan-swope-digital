@@ -69,7 +69,7 @@ async function initAudio() {
   masterGain = audioCtx.createGain();
   masterGain.gain.value = 0.5;
   
-  buildFXRack();
+  const fxBus = buildFXRack();
   
   // Limiter to prevent clipping from heavy FX stacking
   masterLimiter = audioCtx.createDynamicsCompressor();
@@ -83,6 +83,7 @@ async function initAudio() {
   masterGain.connect(masterLimiter);
   
   masterLimiter.connect(audioCtx.destination);
+  fxBus.connect(masterLimiter);
 
   if (audioCtx.state === 'suspended') {
     await audioCtx.resume();
@@ -158,16 +159,11 @@ function buildFXRack() {
   
   // We will connect fxBus to limiter in initAudio, so we must expose fxBus or bind it late.
   // Actually, we can just defer the connection in initAudio:
-  window._fxBus = fxBus;
+  return fxBus;
 }
 
 // Ensure fxBus is connected after limiter is created
-const _originalInitAudio = initAudio;
-initAudio = async function() {
-  await _originalInitAudio();
-  if (window._fxBus && masterLimiter) {
-    window._fxBus.connect(masterLimiter);
-  }
+
 }
 
 // --------------------------------------------------------------------------
@@ -201,7 +197,7 @@ class PluckVoice {
     this.gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
     
     // Fast attack, exponential decay for pluck
-    this.gainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.02);
+    this.gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.02);
     this.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
     
     this.panNode = audioCtx.createStereoPanner();
@@ -340,12 +336,6 @@ function handleGridUp() {
 }
 
 function drawGrid(time) {
-  // Boil the SVG scribble (10 frames per second roughly)
-  if (time - lastBoilTime > 100 && turbulence) {
-    turbulence.setAttribute('seed', Math.floor(Math.random() * 1000));
-    lastBoilTime = time;
-  }
-
   if (isSimPlaying && time - lastTickTime > simSpeed) {
     tick();
     lastTickTime = time;
