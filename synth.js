@@ -321,15 +321,6 @@ class FractalSynth {
           this.zoomTargetY = 0.12960730527906075;
           this.zoomLevel = 100.0;
         }
-      } else if (this.type === 'burning') {
-          this.zoomTargetX = -1.749204;
-          this.zoomTargetY = -0.027732;
-          this.zoomLevel = 100.0;
-        } else {
-          this.zoomTargetX = -0.738012624328;
-          this.zoomTargetY = 0.170669229045;
-          this.zoomLevel = 50.0;
-        }
       }
       const tuneEl = document.getElementById('fractal-tuning');
       if (tuneEl) {
