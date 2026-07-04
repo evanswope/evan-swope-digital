@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
-   GENERATIVE AUTOMATA SEQUENCER v2 (Light Mode & New FX)
+   GENERATIVE AUTOMATA SEQUENCER (Dark Mode, Limiter & Lo-Fi)
    -------------------------------------------------------------------------- */
 
 let audioCtx;
@@ -14,9 +14,9 @@ let nextGrid = new Array(COLS).fill(0).map(() => new Array(ROWS).fill(0));
 let isSimPlaying = false;
 let simSpeed = 150; // ms per tick
 let lastTickTime = 0;
+let lastBoilTime = 0;
 
 // Musical Scale (C Minor Pentatonic)
-// Row 0 (top) = highest pitch, Row 15 (bottom) = lowest
 const scaleNotes = [
   84, 82, 79, 77, 75, // C6, Bb5, G5, F5, Eb5
   72, 70, 67, 65, 63, // C5, Bb4, G4, F4, Eb4
@@ -26,13 +26,14 @@ const scaleNotes = [
 
 // Custom FX Nodes
 let chorusLfo, chorusDelay, chorusMix;
-let phaserFilters = [], phaserLfo, phaserMix;
+let distNode, distMix;
 let granDelays = [], granMix;
+let masterLimiter;
 
 // FX State
 let fxLevels = {
   chorus: 0,
-  phaser: 0,
+  dist: 0,
   granular: 0
 };
 
@@ -40,11 +41,24 @@ let fxLevels = {
 const btnStart = document.getElementById('btn-start-audio');
 const overlay = document.getElementById('audio-start-overlay');
 const powerLight = document.getElementById('power-indicator');
+const turbulence = document.getElementById('boil-turbulence');
 
 // --------------------------------------------------------------------------
 // Initialization & FX Routing
 // --------------------------------------------------------------------------
 btnStart.addEventListener('click', initAudio);
+
+function makeDistortionCurve(amount) {
+  const k = amount * 100; // Map 0-1 to 0-100 distortion
+  const n_samples = 44100;
+  const curve = new Float32Array(n_samples);
+  const deg = Math.PI / 180;
+  for (let i = 0; i < n_samples; ++i) {
+    const x = (i * 2) / n_samples - 1;
+    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+  }
+  return curve;
+}
 
 async function initAudio() {
   if (audioCtx) return;
@@ -57,15 +71,18 @@ async function initAudio() {
   
   buildFXRack();
   
-  // Compressor to keep things from exploding
-  const compressor = audioCtx.createDynamicsCompressor();
-  compressor.threshold.setValueAtTime(-20, audioCtx.currentTime);
-  compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+  // Limiter to prevent clipping from heavy FX stacking
+  masterLimiter = audioCtx.createDynamicsCompressor();
+  masterLimiter.threshold.setValueAtTime(-5, audioCtx.currentTime); // Hard clamp at -5dB
+  masterLimiter.knee.setValueAtTime(0, audioCtx.currentTime); // Hard knee
+  masterLimiter.ratio.setValueAtTime(20, audioCtx.currentTime); // 20:1 ratio
+  masterLimiter.attack.setValueAtTime(0.005, audioCtx.currentTime); // Fast attack
+  masterLimiter.release.setValueAtTime(0.05, audioCtx.currentTime); // Fast release
   
   // Dry routing
-  masterGain.connect(compressor);
+  masterGain.connect(masterLimiter);
   
-  compressor.connect(audioCtx.destination);
+  masterLimiter.connect(audioCtx.destination);
 
   if (audioCtx.state === 'suspended') {
     await audioCtx.resume();
@@ -79,80 +96,78 @@ async function initAudio() {
 }
 
 function buildFXRack() {
-  // 1. Chorus (Delay modulated by LFO)
+  const fxBus = audioCtx.createGain();
+  fxBus.gain.value = 1.0;
+  // Route ALL FX through the limiter
+  // NOTE: masterLimiter is defined in initAudio. 
+  // Wait, buildFXRack is called before masterLimiter connects. That's fine, we will connect it after.
+  
+  // 1. Chorus
   chorusMix = audioCtx.createGain();
   chorusMix.gain.value = fxLevels.chorus;
   
   chorusDelay = audioCtx.createDelay(0.1);
-  chorusDelay.delayTime.value = 0.03; // 30ms
+  chorusDelay.delayTime.value = 0.03;
   
   chorusLfo = audioCtx.createOscillator();
   chorusLfo.type = 'sine';
-  chorusLfo.frequency.value = 1.5; // 1.5Hz sweep
+  chorusLfo.frequency.value = 1.5;
   const chorusDepth = audioCtx.createGain();
-  chorusDepth.gain.value = 0.005; // 5ms modulation
+  chorusDepth.gain.value = 0.005;
   
   chorusLfo.connect(chorusDepth);
   chorusDepth.connect(chorusDelay.delayTime);
   chorusLfo.start();
   
-  // Route master into chorus, chorus into master output
   masterGain.connect(chorusDelay);
   chorusDelay.connect(chorusMix);
-  chorusMix.connect(audioCtx.destination); // Bypass master compressor for FX wet? No, route back to master?
-  // Let's create an FX Bus
-  
-  const fxBus = audioCtx.createGain();
-  fxBus.gain.value = 1.0;
-  fxBus.connect(audioCtx.destination); // Direct out
   chorusMix.connect(fxBus);
   
-  // 2. Phaser (Series of Allpass filters modulated by LFO)
-  phaserMix = audioCtx.createGain();
-  phaserMix.gain.value = fxLevels.phaser;
+  // 2. Lo-Fi Distortion
+  distMix = audioCtx.createGain();
+  distMix.gain.value = fxLevels.dist;
   
-  phaserLfo = audioCtx.createOscillator();
-  phaserLfo.type = 'triangle';
-  phaserLfo.frequency.value = 0.5;
-  const phaserDepth = audioCtx.createGain();
-  phaserDepth.gain.value = 1000;
-  phaserLfo.connect(phaserDepth);
+  distNode = audioCtx.createWaveShaper();
+  distNode.curve = makeDistortionCurve(0.8);
+  distNode.oversample = 'none'; // Lo-Fi Aliasing
   
-  let lastNode = masterGain; // Source
-  for (let i = 0; i < 4; i++) {
-    const apf = audioCtx.createBiquadFilter();
-    apf.type = 'allpass';
-    apf.frequency.value = 1000;
-    phaserDepth.connect(apf.frequency);
-    lastNode.connect(apf);
-    lastNode = apf;
-    phaserFilters.push(apf);
-  }
-  phaserLfo.start();
+  masterGain.connect(distNode);
+  distNode.connect(distMix);
+  distMix.connect(fxBus);
   
-  lastNode.connect(phaserMix);
-  phaserMix.connect(fxBus);
-  
-  // 3. Granular Cloud (Approximation via multi-tap ping-pong delays with long feedback)
+  // 3. Granular Cloud (Multi-tap feedback network)
   granMix = audioCtx.createGain();
   granMix.gain.value = fxLevels.granular;
   
   for(let i=0; i<3; i++) {
     const delay = audioCtx.createDelay(2.0);
-    delay.delayTime.value = 0.15 + (i * 0.13); // Staggered 150ms, 280ms, 410ms
+    delay.delayTime.value = 0.15 + (i * 0.13); 
     const fb = audioCtx.createGain();
-    fb.gain.value = 0.6 + (Math.random() * 0.2); // Heavy feedback
+    fb.gain.value = 0.6 + (Math.random() * 0.2);
     const pan = audioCtx.createStereoPanner();
-    pan.pan.value = -0.8 + (i * 0.8); // Spread LR
+    pan.pan.value = -0.8 + (i * 0.8); 
     
     masterGain.connect(delay);
     delay.connect(fb);
-    fb.connect(delay); // Loop
+    fb.connect(delay); 
     delay.connect(pan);
     pan.connect(granMix);
     granDelays.push(delay);
   }
   granMix.connect(fxBus);
+  
+  // We will connect fxBus to limiter in initAudio, so we must expose fxBus or bind it late.
+  // Actually, we can just defer the connection in initAudio:
+  window._fxBus = fxBus;
+}
+
+// Ensure fxBus is connected after limiter is created
+const _originalInitAudio = initAudio;
+initAudio = async function() {
+  await _originalInitAudio();
+  if (window._fxBus && masterLimiter) {
+    window._fxBus.connect(masterLimiter);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -166,23 +181,20 @@ class PluckVoice {
   constructor(row, col) {
     if (!audioCtx) return;
     
-    // Pitch based on Row (Y-axis)
+    // Pitch based on Row
     const midiNote = scaleNotes[row % scaleNotes.length];
     const freq = noteToFreq(midiNote);
     
     // X-Axis maps to Filter Cutoff (Brightness)
-    // Left (col=0) = Muffled/Dark (300Hz), Right (col=31) = Bright/Snappy (3000Hz)
     const filterFreq = 300 + ((col / (COLS - 1)) * 2700);
     
     this.osc = audioCtx.createOscillator();
     this.osc.type = 'triangle'; 
     this.osc.frequency.value = freq;
     
-    // Lowpass Filter for the Pluck character
     this.filter = audioCtx.createBiquadFilter();
     this.filter.type = 'lowpass';
     this.filter.frequency.setValueAtTime(filterFreq, audioCtx.currentTime);
-    // Envelope on the filter for a sharp transient
     this.filter.frequency.exponentialRampToValueAtTime(Math.max(100, filterFreq - 1000), audioCtx.currentTime + 0.3);
     
     this.gainNode = audioCtx.createGain();
@@ -192,7 +204,6 @@ class PluckVoice {
     this.gainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.02);
     this.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
     
-    // Random subtle panning for stereo width on individual plucks
     this.panNode = audioCtx.createStereoPanner();
     this.panNode.pan.value = (Math.random() * 0.6) - 0.3;
     
@@ -204,7 +215,7 @@ class PluckVoice {
     
     this.osc.start();
     
-    // Auto kill after decay
+    // Auto kill
     setTimeout(() => {
       this.osc.stop();
       this.osc.disconnect();
@@ -222,7 +233,7 @@ function countNeighbors(x, y) {
   let sum = 0;
   for (let i = -1; i < 2; i++) {
     for (let j = -1; j < 2; j++) {
-      let col = (x + i + COLS) % COLS; // Wrap around edges
+      let col = (x + i + COLS) % COLS;
       let row = (y + j + ROWS) % ROWS;
       sum += grid[col][row];
     }
@@ -257,7 +268,7 @@ function tick() {
   grid = nextGrid;
   nextGrid = temp;
   
-  // Trigger synths for newly born cells
+  // Trigger synths
   if (isPowerOn) {
     for(const cell of newlyBorn) {
       new PluckVoice(cell.r, cell.c);
@@ -266,7 +277,7 @@ function tick() {
 }
 
 // --------------------------------------------------------------------------
-// Grid Canvas Rendering & Interaction (Light Mode)
+// Grid Canvas Rendering & Interaction
 // --------------------------------------------------------------------------
 let canvas, ctx;
 let isDrawing = false;
@@ -329,6 +340,12 @@ function handleGridUp() {
 }
 
 function drawGrid(time) {
+  // Boil the SVG scribble (10 frames per second roughly)
+  if (time - lastBoilTime > 100 && turbulence) {
+    turbulence.setAttribute('seed', Math.floor(Math.random() * 1000));
+    lastBoilTime = time;
+  }
+
   if (isSimPlaying && time - lastTickTime > simSpeed) {
     tick();
     lastTickTime = time;
@@ -342,8 +359,8 @@ function drawGrid(time) {
   // Clear background
   ctx.clearRect(0, 0, w, h);
   
-  // Draw Grid Lines (Subtle light grey)
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+  // Faint dark grid lines
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   for(let i=0; i<=COLS; i++) { ctx.moveTo(i*cellW, 0); ctx.lineTo(i*cellW, h); }
@@ -354,11 +371,9 @@ function drawGrid(time) {
   for (let i = 0; i < COLS; i++) {
     for (let j = 0; j < ROWS; j++) {
       if (grid[i][j] === 1) {
-        ctx.fillStyle = '#ec4899'; // Signature pink
-        // Create a slight glowing effect around the cell
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(236, 72, 153, 0.4)';
-        // Draw the square slightly smaller than the cell for a gap
+        ctx.fillStyle = '#ec4899';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ec4899';
         ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2);
         ctx.shadowBlur = 0;
       }
@@ -405,9 +420,9 @@ document.getElementById('fx-chorus')?.addEventListener('input', (e) => {
   fxLevels.chorus = parseFloat(e.target.value);
   if(chorusMix) chorusMix.gain.value = fxLevels.chorus;
 });
-document.getElementById('fx-phaser')?.addEventListener('input', (e) => {
-  fxLevels.phaser = parseFloat(e.target.value);
-  if(phaserMix) phaserMix.gain.value = fxLevels.phaser;
+document.getElementById('fx-dist')?.addEventListener('input', (e) => {
+  fxLevels.dist = parseFloat(e.target.value);
+  if(distMix) distMix.gain.value = fxLevels.dist;
 });
 document.getElementById('fx-granular')?.addEventListener('input', (e) => {
   fxLevels.granular = parseFloat(e.target.value);

@@ -33,6 +33,14 @@
       <div class="experiments-grid">
         <section class="experiment-section fade-in">
           
+          <!-- SVG Filter for Boiling Effect -->
+          <svg width="0" height="0" style="position:absolute;">
+            <filter id="boil">
+              <feTurbulence id="boil-turbulence" type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="1"/>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </svg>
+
           <div class="generative-card">
             <!-- SVG Pink Scribble Overlay -->
             <svg class="pink-scribble" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -74,9 +82,10 @@
                   <i class="fa-solid fa-water fx-icon" title="Chorus"></i>
                   <input type="range" id="fx-chorus" class="line-slider" min="0" max="1" step="0.01" value="0">
                 </div>
+                <!-- Swapped Phaser for Distortion -->
                 <div class="fx-knob-group">
-                  <i class="fa-solid fa-satellite-dish fx-icon" title="Phaser"></i>
-                  <input type="range" id="fx-phaser" class="line-slider" min="0" max="1" step="0.01" value="0">
+                  <i class="fa-solid fa-bolt fx-icon" title="Lo-Fi Distortion"></i>
+                  <input type="range" id="fx-dist" class="line-slider" min="0" max="1" step="0.01" value="0">
                 </div>
                 <div class="fx-knob-group">
                   <i class="fa-solid fa-hurricane fx-icon" title="Granular Cloud"></i>
