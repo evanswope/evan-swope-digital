@@ -278,10 +278,10 @@ class FractalSynth {
     this.type = 'mandelbrot';
     this.tuning = 'harmonic';
     
-    this.zoomLevel = 1.0;
+    this.zoomLevel = 50.0;
     this.zoomSpeed = 1.01;
-    this.zoomTargetX = -0.7436438870371587; 
-    this.zoomTargetY = 0.13182590420531197;
+    this.zoomTargetX = -0.738012624328; 
+    this.zoomTargetY = 0.170669229045;
     
     this.resolutionX = 256;
     this.resolutionY = 64;
@@ -309,9 +309,19 @@ class FractalSynth {
       if (typeEl) {
         this.type = typeEl.value;
         if (this.type === 'julia') {
-          this.zoomTargetX = 0.0;
-          this.zoomTargetY = 0.0;
+          zx = cx; zy = cy;
+          // Cool spiral Julia set constant
+          cx = -0.74543; cy = 0.11301;
         } else if (this.type === 'burning') {
+          this.zoomTargetX = -1.749204;
+          this.zoomTargetY = -0.027732;
+          this.zoomLevel = 100.0;
+        } else {
+          this.zoomTargetX = -0.738012624328;
+          this.zoomTargetY = 0.170669229045;
+          this.zoomLevel = 50.0;
+        }
+      } else if (this.type === 'burning') {
           this.zoomTargetX = -1.75;
           this.zoomTargetY = -0.05;
         }
@@ -438,7 +448,8 @@ class FractalSynth {
         
         if (this.type === 'julia') {
           zx = cx; zy = cy;
-          cx = -0.4; cy = 0.6;
+          // Cool spiral Julia set constant
+          cx = -0.74543; cy = 0.11301;
         }
         
         while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
@@ -552,17 +563,19 @@ class FractalSynth {
     
     document.getElementById('fractal-type')?.addEventListener('change', (e) => {
       this.type = e.target.value;
-      this.zoomLevel = 1.0;
       
       if (this.type === 'julia') {
-        this.zoomTargetX = 0.0;
-        this.zoomTargetY = 0.0;
+        this.zoomTargetX = -0.5855;
+        this.zoomTargetY = 0.4464;
+        this.zoomLevel = 50.0;
       } else if (this.type === 'burning') {
-        this.zoomTargetX = -1.75;
-        this.zoomTargetY = -0.05;
+        this.zoomTargetX = -1.749204;
+        this.zoomTargetY = -0.027732;
+        this.zoomLevel = 100.0;
       } else {
-        this.zoomTargetX = -0.7436438870371587;
-        this.zoomTargetY = 0.13182590420531197;
+        this.zoomTargetX = -0.738012624328;
+        this.zoomTargetY = 0.170669229045;
+        this.zoomLevel = 50.0;
       }
     });
     
