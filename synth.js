@@ -315,7 +315,7 @@ class FractalSynth {
         } else if (this.type === 'burning') {
           this.zoomTargetX = -1.6;
           this.zoomTargetY = 0.0;
-          this.zoomLevel = 500.0;
+          this.zoomLevel = 5000.0;
         } else {
           this.zoomTargetX = -0.745;
           this.zoomTargetY = 0.15;
@@ -529,8 +529,10 @@ class FractalSynth {
     this.computeFractal();
     
     this.zoomLevel *= this.zoomSpeed;
-    if (this.zoomLevel > 500000) { 
-      this.zoomLevel = 1.0;
+    if (this.zoomLevel > 5000000) { 
+      if (this.type === 'julia') this.zoomLevel = 2.0;
+      else if (this.type === 'burning') this.zoomLevel = 5000.0;
+      else this.zoomLevel = 2.0;
     }
     
     if (this.imagePixels) {
@@ -580,7 +582,7 @@ class FractalSynth {
       } else if (this.type === 'burning') {
         this.zoomTargetX = -1.6;
         this.zoomTargetY = 0.0;
-        this.zoomLevel = 500.0;
+        this.zoomLevel = 5000.0;
       } else {
         this.zoomTargetX = -0.745;
         this.zoomTargetY = 0.15;
