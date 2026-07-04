@@ -274,9 +274,14 @@ class FractalSynth {
   constructor() {
     this.isActive = false;
     this.audioInit = false;
-    this.iterations = 50;
+    this.iterations = 80;
     this.type = 'mandelbrot';
     this.tuning = 'harmonic';
+    
+    this.zoomLevel = 1.0;
+    this.zoomSpeed = 1.01; // controlled by slider
+    this.zoomTargetX = -0.7436438870371587; // Seahorse valley
+    this.zoomTargetY = 0.13182590420531197;
     
     this.resolutionX = 256; // Time segments
     this.resolutionY = 64;  // Frequency bands
@@ -298,7 +303,6 @@ class FractalSynth {
       this.buildFilterBank(ctx);
       this.initCanvas();
       this.bindUI();
-      this.computeFractal();
       this.audioInit = true;
     }
     
@@ -323,7 +327,8 @@ class FractalSynth {
     document.getElementById('fractal-overlay').classList.remove('hidden');
     document.getElementById('fractal-power-indicator').classList.remove('is-on');
     this.isPlaying = false;
-    document.getElementById('btn-play-fractal').innerHTML = '<i class="fa-solid fa-wave-square"></i>';
+    const btn = document.getElementById('btn-play-fractal');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
   }
   
   buildFilterBank(ctx) {
@@ -342,12 +347,11 @@ class FractalSynth {
     for (let i = 0; i < this.resolutionY; i++) {
       const f = ctx.createBiquadFilter();
       f.type = 'bandpass';
-      f.Q.value = 40; // Very high resonance for whistling
+      f.Q.value = 40; 
       
       const g = ctx.createGain();
       g.gain.value = 0;
       
-      // Stereo spread for thick choral effect
       const pan = ctx.createStereoPanner();
       pan.pan.value = (Math.random() * 0.8) - 0.4;
       
@@ -369,22 +373,18 @@ class FractalSynth {
     let freqs = [];
     
     if (this.tuning === 'harmonic') {
-      for (let i = 1; i <= this.resolutionY; i++) {
-        freqs.push(baseFreq * i);
-      }
+      for (let i = 1; i <= this.resolutionY; i++) freqs.push(baseFreq * i);
     } else if (this.tuning === 'pentatonic') {
-      const notes = [36, 39, 41, 43, 46]; // C2 Minor Pentatonic
+      const notes = [36, 39, 41, 43, 46];
       for (let i = 0; i < this.resolutionY; i++) {
-        const octave = Math.floor(i / 5);
-        const note = notes[i % 5] + (octave * 12);
-        freqs.push(440 * Math.pow(2, (note - 69) / 12));
+        const oct = Math.floor(i / 5);
+        freqs.push(440 * Math.pow(2, (notes[i % 5] + (oct * 12) - 69) / 12));
       }
     } else if (this.tuning === 'lydian') {
-      const notes = [36, 38, 40, 42, 43, 45, 46]; // C2 Lydian Dominant
+      const notes = [36, 38, 40, 42, 43, 45, 46];
       for (let i = 0; i < this.resolutionY; i++) {
-        const octave = Math.floor(i / 7);
-        const note = notes[i % 7] + (octave * 12);
-        freqs.push(440 * Math.pow(2, (note - 69) / 12));
+        const oct = Math.floor(i / 7);
+        freqs.push(440 * Math.pow(2, (notes[i % 7] + (oct * 12) - 69) / 12));
       }
     }
     
@@ -398,12 +398,17 @@ class FractalSynth {
     this.fractalData = [];
     this.imagePixels = new Uint8ClampedArray(this.resolutionX * this.resolutionY * 4);
     
+    let viewWidth = 3.0 / this.zoomLevel;
+    let viewHeight = 2.0 / this.zoomLevel;
+    let startX = this.zoomTargetX - viewWidth / 2;
+    let startY = this.zoomTargetY - viewHeight / 2;
+    
     for(let x = 0; x < this.resolutionX; x++) {
       let col = [];
       for(let y = 0; y < this.resolutionY; y++) {
         
-        let cx = -2.0 + (x / this.resolutionX) * 3.0;
-        let cy = -1.0 + (y / this.resolutionY) * 2.0;
+        let cx = startX + (x / this.resolutionX) * viewWidth;
+        let cy = startY + (y / this.resolutionY) * viewHeight;
         let zx = 0.0, zy = 0.0;
         let iteration = 0;
         
@@ -411,11 +416,13 @@ class FractalSynth {
           zx = cx; zy = cy;
           cx = -0.4; cy = 0.6;
         } else if (this.type === 'burning') {
-          cx = -1.8 + (x / this.resolutionX) * 1.7;
-          cy = -0.1 + (y / this.resolutionY) * 1.0;
-        } else {
-          cx = -1.5 + (x / this.resolutionX) * 1.5;
-          cy = -0.5 + (y / this.resolutionY) * 1.0;
+          // Adjust target offsets so it centers on a cool spot for burning ship
+          let bsTargetX = -1.75;
+          let bsTargetY = -0.05;
+          let bsStartX = bsTargetX - viewWidth/2;
+          let bsStartY = bsTargetY - viewHeight/2;
+          cx = bsStartX + (x / this.resolutionX) * viewWidth;
+          cy = bsStartY + (y / this.resolutionY) * viewHeight;
         }
         
         while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
@@ -440,14 +447,12 @@ class FractalSynth {
         
         col.push(val);
         
-        // Write to Image Data (Pink scale)
-        // Note: Y is flipped so low frequencies are at bottom of canvas
         let drawY = this.resolutionY - 1 - y;
         let pxIndex = (drawY * this.resolutionX + x) * 4;
-        this.imagePixels[pxIndex] = 236 * val;     // R
-        this.imagePixels[pxIndex+1] = 72 * val;    // G
-        this.imagePixels[pxIndex+2] = 153 * val;   // B
-        this.imagePixels[pxIndex+3] = 255;         // A
+        this.imagePixels[pxIndex] = 236 * val;
+        this.imagePixels[pxIndex+1] = 72 * val;
+        this.imagePixels[pxIndex+2] = 153 * val;
+        this.imagePixels[pxIndex+3] = 255;
       }
       this.fractalData.push(col);
     }
@@ -460,7 +465,6 @@ class FractalSynth {
     const btn = document.getElementById('btn-play-fractal');
     if (this.isPlaying) {
       btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      this.scheduleNextLoop();
     } else {
       btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
       for (let y = 0; y < this.resolutionY; y++) {
@@ -468,31 +472,6 @@ class FractalSynth {
         this.filterGains[y].gain.linearRampToValueAtTime(0, globalAudioCtx.currentTime + 0.1);
       }
     }
-  }
-  
-  scheduleNextLoop() {
-    if(!this.isPlaying || !this.isActive) return;
-    const ctx = globalAudioCtx;
-    const now = ctx.currentTime;
-    const duration = 2.0; 
-    const stepTime = duration / this.resolutionX;
-    
-    for (let y = 0; y < this.resolutionY; y++) {
-      this.filterGains[y].gain.cancelScheduledValues(now);
-      this.filterGains[y].gain.setValueAtTime(this.filterGains[y].gain.value, now);
-    }
-    
-    for(let x = 0; x < this.resolutionX; x++) {
-      let time = now + (x * stepTime);
-      for (let y = 0; y < this.resolutionY; y++) {
-        let val = this.fractalData[x][y];
-        this.filterGains[y].gain.linearRampToValueAtTime(val * 0.15, time);
-      }
-    }
-    
-    setTimeout(() => {
-      if(this.isPlaying) this.scheduleNextLoop();
-    }, duration * 1000);
   }
   
   initCanvas() {
@@ -506,12 +485,22 @@ class FractalSynth {
   drawFractal(time) {
     if (!this.isActive) return;
     
+    // Always compute the new zooming fractal frame
+    this.computeFractal();
+    
+    // Increment zoom
+    this.zoomLevel *= this.zoomSpeed;
+    if (this.zoomLevel > 1000000) { // Reset before floating point breaks
+      this.zoomLevel = 1.0;
+    }
+    
     if (this.imagePixels) {
       let idata = new ImageData(this.imagePixels, this.resolutionX, this.resolutionY);
       this.ctx.putImageData(idata, 0, 0);
     }
     
     if (this.isPlaying) {
+      // Loop is 2 seconds (2000ms)
       let progress = (performance.now() % 2000) / 2000;
       let cursorX = progress * this.resolutionX;
       
@@ -521,6 +510,21 @@ class FractalSynth {
       this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
       this.ctx.lineWidth = 1;
       this.ctx.stroke();
+      
+      // Update Audio!
+      // Because we are zooming continuously, scheduleNextLoop is outdated. 
+      // We apply the slice of fractal data directly in the animation loop for instant feedback!
+      const ctx = globalAudioCtx;
+      const now = ctx.currentTime;
+      let xIndex = Math.floor(cursorX);
+      if (xIndex >= 0 && xIndex < this.resolutionX && this.fractalData[xIndex]) {
+        for (let y = 0; y < this.resolutionY; y++) {
+          let val = this.fractalData[xIndex][y];
+          // Adding a tiny bit of attack/release smooths out the frame-by-frame jumpiness
+          this.filterGains[y].gain.cancelScheduledValues(now);
+          this.filterGains[y].gain.setTargetAtTime(val * 0.15, now, 0.02); 
+        }
+      }
     }
     
     requestAnimationFrame((t) => this.drawFractal(t));
@@ -532,19 +536,19 @@ class FractalSynth {
     });
     document.getElementById('fractal-type')?.addEventListener('change', (e) => {
       this.type = e.target.value;
-      this.computeFractal();
+      this.zoomLevel = 1.0; // Reset zoom on type change
     });
     document.getElementById('fractal-tuning')?.addEventListener('change', (e) => {
       this.tuning = e.target.value;
       this.applyTuning();
     });
-    document.getElementById('fractal-iters')?.addEventListener('input', (e) => {
-      this.iterations = parseInt(e.target.value);
-      this.computeFractal();
+    document.getElementById('fractal-zoom')?.addEventListener('input', (e) => {
+      // slider is 1 to 100. Map to 1.001 to 1.05
+      let val = parseInt(e.target.value);
+      this.zoomSpeed = 1.0 + (val / 1000.0);
     });
   }
 }
-
 
 /* --------------------------------------------------------------------------
    CAROUSEL CONTROLLER
