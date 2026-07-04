@@ -313,9 +313,9 @@ class FractalSynth {
           this.zoomTargetY = 0.0;
           this.zoomLevel = 1.2;
         } else if (this.type === 'burning') {
-          this.zoomTargetX = -1.75;
-          this.zoomTargetY = -0.05;
-          this.zoomLevel = 4.0;
+          this.zoomTargetX = -1.6;
+          this.zoomTargetY = 0.0;
+          this.zoomLevel = 2.0;
         } else {
           this.zoomTargetX = -0.745;
           this.zoomTargetY = 0.15;
@@ -451,7 +451,7 @@ class FractalSynth {
         
         if (this.type === 'julia') {
           zx = cx; zy = cy;
-          cx = -0.8; cy = 0.156;
+          cx = -0.5251993; cy = 0.0;
         }
         
         while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
@@ -571,9 +571,9 @@ class FractalSynth {
         this.zoomTargetY = 0.0;
         this.zoomLevel = 1.2;
       } else if (this.type === 'burning') {
-        this.zoomTargetX = -1.75;
-        this.zoomTargetY = -0.05;
-        this.zoomLevel = 4.0;
+        this.zoomTargetX = -1.6;
+        this.zoomTargetY = 0.0;
+        this.zoomLevel = 2.0;
       } else {
         this.zoomTargetX = -0.745;
         this.zoomTargetY = 0.15;
