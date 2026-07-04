@@ -438,19 +438,25 @@ class ReactionDiffusionSynth {
   }
   
   laplacian(grid, x, y) {
-    const idx = y * this.width + x;
-    const left = x === 0 ? idx : idx - 1;
-    const right = x === this.width - 1 ? idx : idx + 1;
-    const up = y === 0 ? idx : idx - this.width;
-    const down = y === this.height - 1 ? idx : idx + this.width;
+    let sum = 0;
+    sum += grid[y * this.width + x] * -1.0;
     
-    return (
-      grid[idx] * -4.0 +
-      grid[left] * 1.0 +
-      grid[right] * 1.0 +
-      grid[up] * 1.0 +
-      grid[down] * 1.0
-    );
+    const left = x === 0 ? this.width - 1 : x - 1;
+    const right = x === this.width - 1 ? 0 : x + 1;
+    const up = y === 0 ? this.height - 1 : y - 1;
+    const down = y === this.height - 1 ? 0 : y + 1;
+    
+    sum += grid[y * this.width + left] * 0.2;
+    sum += grid[y * this.width + right] * 0.2;
+    sum += grid[up * this.width + x] * 0.2;
+    sum += grid[down * this.width + x] * 0.2;
+    
+    sum += grid[up * this.width + left] * 0.05;
+    sum += grid[up * this.width + right] * 0.05;
+    sum += grid[down * this.width + left] * 0.05;
+    sum += grid[down * this.width + right] * 0.05;
+    
+    return sum;
   }
   
   step() {
@@ -496,10 +502,13 @@ class ReactionDiffusionSynth {
       const val = Math.floor(b * 255);
       
       const pxIndex = i * 4;
-      // Emerald / Bio coloring
-      this.imagePixels[pxIndex] = Math.floor(16 * b);
-      this.imagePixels[pxIndex+1] = Math.floor(185 * b);
-      this.imagePixels[pxIndex+2] = Math.floor(129 * b);
+      // Boost the brightness since b usually peaks around 0.3 to 0.5
+      let val = b * 2.5; 
+      
+      // Gradient from Black -> Dark Emerald -> Bright Emerald -> White
+      this.imagePixels[pxIndex] = Math.min(255, Math.floor(16 * val + (val > 1 ? (val-1)*255 : 0)));
+      this.imagePixels[pxIndex+1] = Math.min(255, Math.floor(185 * val + (val > 1 ? (val-1)*255 : 0)));
+      this.imagePixels[pxIndex+2] = Math.min(255, Math.floor(129 * val + (val > 1 ? (val-1)*255 : 0)));
       this.imagePixels[pxIndex+3] = 255;
     }
     
