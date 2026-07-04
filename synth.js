@@ -270,25 +270,55 @@ class GenerativeAutomata {
 /* --------------------------------------------------------------------------
    MODULE 2: FRACTAL SUBTRACTIVE SYNTH
    -------------------------------------------------------------------------- */
-class FractalSynth {
+class ReactionDiffusionSynth {
   constructor() {
     this.isActive = false;
     this.audioInit = false;
-    this.iterations = 120;
-    this.type = 'mandelbrot';
-    this.tuning = 'harmonic';
     
-    this.zoomLevel = 2.0;
-    this.zoomSpeed = 1.01;
-    this.zoomTargetX = -0.745; 
-    this.zoomTargetY = 0.15;
+    // Grid resolution (keep small for real-time 60fps)
+    this.width = 128;
+    this.height = 64;
     
-    this.resolutionX = 256;
-    this.resolutionY = 64;
-    this.fractalData = [];
-    this.imagePixels = null;
+    // Gray-Scott parameters
+    this.feed = 0.0367;
+    this.kill = 0.0649;
+    this.dA = 1.0;
+    this.dB = 0.5;
+    this.dt = 1.0;
+    this.simSpeed = 5; // steps per frame
+    
+    this.gridA = new Float32Array(this.width * this.height);
+    this.gridB = new Float32Array(this.width * this.height);
+    this.nextA = new Float32Array(this.width * this.height);
+    this.nextB = new Float32Array(this.width * this.height);
+    
+    this.imagePixels = new Uint8ClampedArray(this.width * this.height * 4);
     
     this.isPlaying = false;
+    this.type = 'mitosis';
+    this.seedGrid();
+  }
+  
+  seedGrid() {
+    for (let i = 0; i < this.width * this.height; i++) {
+      this.gridA[i] = 1.0;
+      this.gridB[i] = 0.0;
+    }
+    
+    // Seed center with B
+    const cx = Math.floor(this.width / 2);
+    const cy = Math.floor(this.height / 2);
+    const radius = 10;
+    
+    for (let x = cx - radius; x < cx + radius; x++) {
+      for (let y = cy - radius; y < cy + radius; y++) {
+        if ((x-cx)*(x-cx) + (y-cy)*(y-cy) < radius*radius) {
+          if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+            this.gridB[y * this.width + x] = 1.0;
+          }
+        }
+      }
+    }
   }
   
   async start() {
@@ -304,30 +334,10 @@ class FractalSynth {
       this.initCanvas();
       this.bindUI();
       
-      // SYNC INITIAL STATE FROM DOM IN CASE USER CHANGED BEFORE POWER ON
-      const typeEl = document.getElementById('fractal-type');
+      const typeEl = document.getElementById('rd-type');
       if (typeEl) {
-        this.type = typeEl.value;
-        if (this.type === 'julia') {
-          this.zoomTargetX = 0.0;
-          this.zoomTargetY = 0.0;
-          this.zoomLevel = 2.0;
-        } else if (this.type === 'burning') {
-          this.zoomTargetX = -1.6;
-          this.zoomTargetY = 0.0;
-          this.zoomLevel = 5000.0;
-        } else {
-          this.zoomTargetX = -0.745;
-          this.zoomTargetY = 0.15;
-          this.zoomLevel = 2.0;
-        }
+        this.setType(typeEl.value);
       }
-      const tuneEl = document.getElementById('fractal-tuning');
-      if (tuneEl) {
-        this.tuning = tuneEl.value;
-        this.applyTuning();
-      }
-      
       this.audioInit = true;
     }
     
@@ -336,9 +346,9 @@ class FractalSynth {
     this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, ctx.currentTime);
     this.masterGain.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.1);
     
-    document.getElementById('fractal-overlay').classList.add('hidden');
-    document.getElementById('fractal-power-indicator').classList.add('is-on');
-    requestAnimationFrame((t) => this.drawFractal(t));
+    document.getElementById('rd-overlay').classList.add('hidden');
+    document.getElementById('rd-power-indicator').classList.add('is-on');
+    requestAnimationFrame(() => this.simulateAndDraw());
   }
   
   stop() {
@@ -349,10 +359,10 @@ class FractalSynth {
       this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, ct);
       this.masterGain.gain.exponentialRampToValueAtTime(0.001, ct + 2.0);
     }
-    document.getElementById('fractal-overlay').classList.remove('hidden');
-    document.getElementById('fractal-power-indicator').classList.remove('is-on');
+    document.getElementById('rd-overlay').classList.remove('hidden');
+    document.getElementById('rd-power-indicator').classList.remove('is-on');
     this.isPlaying = false;
-    const btn = document.getElementById('btn-play-fractal');
+    const btn = document.getElementById('btn-play-rd');
     if (btn) btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
   }
   
@@ -369,10 +379,16 @@ class FractalSynth {
     this.filters = [];
     this.filterGains = [];
     
-    for (let i = 0; i < this.resolutionY; i++) {
+    const baseFreq = 55.0; // Low A
+    
+    for (let i = 0; i < this.height; i++) {
       const f = ctx.createBiquadFilter();
       f.type = 'bandpass';
-      f.Q.value = 40; 
+      f.Q.value = 30; 
+      
+      // Harmonic series
+      let freq = baseFreq * (i + 1);
+      f.frequency.value = Math.min(freq, 22000);
       
       const g = ctx.createGain();
       g.gain.value = 0;
@@ -389,126 +405,24 @@ class FractalSynth {
       this.filterGains.push(g);
     }
     
-    this.applyTuning();
     this.noiseSource.start();
-  }
-  
-  applyTuning() {
-    const baseFreq = 65.41; 
-    let freqs = [];
-    
-    if (this.tuning === 'harmonic') {
-      for (let i = 1; i <= this.resolutionY; i++) {
-        let freq = baseFreq * i;
-        freqs.push(Math.min(freq, 22000));
-      }
-    } else if (this.tuning === 'pentatonic') {
-      const notes = [36, 39, 41, 43, 46];
-      for (let i = 0; i < this.resolutionY; i++) {
-        const oct = Math.floor(i / 5);
-        let freq = 440 * Math.pow(2, (notes[i % 5] + (oct * 12) - 69) / 12);
-        freqs.push(Math.min(freq, 22000));
-      }
-    } else if (this.tuning === 'lydian') {
-      const notes = [36, 38, 40, 42, 43, 45, 46];
-      for (let i = 0; i < this.resolutionY; i++) {
-        const oct = Math.floor(i / 7);
-        let freq = 440 * Math.pow(2, (notes[i % 7] + (oct * 12) - 69) / 12);
-        freqs.push(Math.min(freq, 22000));
-      }
-    }
-    
-    const ctx = globalAudioCtx;
-    for (let i = 0; i < this.resolutionY; i++) {
-      if(ctx) this.filters[i].frequency.setValueAtTime(freqs[i], ctx.currentTime);
-    }
-  }
-
-  computeFractal() {
-    this.fractalData = [];
-    this.imagePixels = new Uint8ClampedArray(this.resolutionX * this.resolutionY * 4);
-    
-    let viewWidth = 3.0 / this.zoomLevel;
-    let viewHeight = 2.0 / this.zoomLevel;
-    
-    // Orbital drift to prevent the fractal from becoming static!
-    let t = performance.now() * 0.0002; 
-    let driftRadius = 0.5 / this.zoomLevel; 
-    let currentTargetX = this.zoomTargetX + Math.sin(t * 1.3) * driftRadius;
-    let currentTargetY = this.zoomTargetY + Math.cos(t * 0.8) * driftRadius;
-    
-    let startX = currentTargetX - viewWidth / 2;
-    let startY = currentTargetY - viewHeight / 2;
-    
-    for(let x = 0; x < this.resolutionX; x++) {
-      let col = [];
-      for(let y = 0; y < this.resolutionY; y++) {
-        
-        let cx = startX + (x / this.resolutionX) * viewWidth;
-        let cy = startY + (y / this.resolutionY) * viewHeight;
-        let zx = 0.0, zy = 0.0;
-        let iteration = 0;
-        
-        if (this.type === 'julia') {
-          zx = cx; zy = cy;
-          cx = -0.5251993; cy = 0.0;
-        }
-        
-        let minDist = 1000.0;
-        while (zx*zx + zy*zy <= 4 && iteration < this.iterations) {
-          let xtemp = zx*zx - zy*zy + cx;
-          zy = 2*zx*zy + cy;
-          if (this.type === 'burning') {
-            zy = Math.abs(2*zx*zy) + cy;
-            zx = Math.abs(xtemp);
-          } else {
-            zx = xtemp;
-          }
-          iteration++;
-          let dist = zx*zx + zy*zy;
-          if (dist < minDist) minDist = dist;
-        }
-        
-        let val = 0;
-        if (iteration < this.iterations) {
-          val = (Math.sin(iteration * 0.7) + 1.0) / 2.0; 
-          val = Math.pow(val, 3);
-        } else {
-          // MIN-DISTANCE ORBIT TRAP FOR INTERIOR POINTS (e.g. The Julia Temple at 0,0)
-          val = (Math.sin(minDist * 150.0) + 1.0) / 2.0;
-          val = Math.pow(val, 2.0);
-        }
-        if (isNaN(val)) val = 0;
-        
-        col.push(val);
-        
-        let drawY = this.resolutionY - 1 - y;
-        let pxIndex = (drawY * this.resolutionX + x) * 4;
-        this.imagePixels[pxIndex] = 236 * val;
-        this.imagePixels[pxIndex+1] = 72 * val;
-        this.imagePixels[pxIndex+2] = 153 * val;
-        this.imagePixels[pxIndex+3] = 255;
-      }
-      this.fractalData.push(col);
-    }
   }
   
   triggerEnvelope() {
     if(!this.audioInit || !this.isActive) return;
     
     this.isPlaying = !this.isPlaying;
-    const btn = document.getElementById('btn-play-fractal');
+    const btn = document.getElementById('btn-play-rd');
     const ctx = globalAudioCtx;
     
     if (this.isPlaying) {
       btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      // CLEAR ANY PREVIOUS RAMPS TO 0!
-      for (let y = 0; y < this.resolutionY; y++) {
+      for (let y = 0; y < this.height; y++) {
         this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
       }
     } else {
       btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
-      for (let y = 0; y < this.resolutionY; y++) {
+      for (let y = 0; y < this.height; y++) {
         this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
         this.filterGains[y].gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
       }
@@ -516,37 +430,91 @@ class FractalSynth {
   }
   
   initCanvas() {
-    this.canvas = document.getElementById('fractal-canvas');
+    this.canvas = document.getElementById('rd-canvas');
     if(!this.canvas) return;
-    this.canvas.width = this.resolutionX; 
-    this.canvas.height = this.resolutionY;
+    this.canvas.width = this.width; 
+    this.canvas.height = this.height;
     this.ctx = this.canvas.getContext('2d');
   }
   
-  drawFractal(time) {
+  laplacian(grid, x, y) {
+    const idx = y * this.width + x;
+    const left = x === 0 ? idx : idx - 1;
+    const right = x === this.width - 1 ? idx : idx + 1;
+    const up = y === 0 ? idx : idx - this.width;
+    const down = y === this.height - 1 ? idx : idx + this.width;
+    
+    return (
+      grid[idx] * -4.0 +
+      grid[left] * 1.0 +
+      grid[right] * 1.0 +
+      grid[up] * 1.0 +
+      grid[down] * 1.0
+    );
+  }
+  
+  step() {
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        const idx = y * this.width + x;
+        const a = this.gridA[idx];
+        const b = this.gridB[idx];
+        
+        const lapA = this.laplacian(this.gridA, x, y);
+        const lapB = this.laplacian(this.gridB, x, y);
+        
+        const abb = a * b * b;
+        
+        this.nextA[idx] = a + (this.dA * lapA - abb + this.feed * (1 - a)) * this.dt;
+        this.nextB[idx] = b + (this.dB * lapB + abb - (this.kill + this.feed) * b) * this.dt;
+        
+        // Constrain
+        this.nextA[idx] = Math.max(0, Math.min(1, this.nextA[idx]));
+        this.nextB[idx] = Math.max(0, Math.min(1, this.nextB[idx]));
+      }
+    }
+    
+    // Swap buffers
+    const tempA = this.gridA;
+    this.gridA = this.nextA;
+    this.nextA = tempA;
+    
+    const tempB = this.gridB;
+    this.gridB = this.nextB;
+    this.nextB = tempB;
+  }
+  
+  simulateAndDraw() {
     if (!this.isActive) return;
     
-    this.computeFractal();
+    for (let i = 0; i < this.simSpeed; i++) {
+      this.step();
+    }
     
-    this.zoomLevel *= this.zoomSpeed;
-    if (this.zoomLevel > 5000000) { 
-      if (this.type === 'julia') this.zoomLevel = 2.0;
-      else if (this.type === 'burning') this.zoomLevel = 5000.0;
-      else this.zoomLevel = 2.0;
+    for (let i = 0; i < this.width * this.height; i++) {
+      const b = this.gridB[i];
+      const val = Math.floor(b * 255);
+      
+      const pxIndex = i * 4;
+      // Emerald / Bio coloring
+      this.imagePixels[pxIndex] = Math.floor(16 * b);
+      this.imagePixels[pxIndex+1] = Math.floor(185 * b);
+      this.imagePixels[pxIndex+2] = Math.floor(129 * b);
+      this.imagePixels[pxIndex+3] = 255;
     }
     
     if (this.imagePixels) {
-      let idata = new ImageData(this.imagePixels, this.resolutionX, this.resolutionY);
+      let idata = new ImageData(this.imagePixels, this.width, this.height);
       this.ctx.putImageData(idata, 0, 0);
     }
     
     if (this.isPlaying) {
-      let progress = (performance.now() % 2000) / 2000;
-      let cursorX = progress * this.resolutionX;
+      let progress = (performance.now() % 4000) / 4000;
+      let cursorX = progress * this.width;
       
       this.ctx.beginPath();
       this.ctx.moveTo(cursorX, 0);
-      this.ctx.lineTo(cursorX, this.resolutionY);
+      this.ctx.lineTo(cursorX, this.height);
       this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
       this.ctx.lineWidth = 1;
       this.ctx.stroke();
@@ -554,54 +522,46 @@ class FractalSynth {
       const ctx = globalAudioCtx;
       const now = ctx.currentTime;
       let xIndex = Math.floor(cursorX);
-      if (xIndex >= 0 && xIndex < this.resolutionX && this.fractalData[xIndex]) {
-        for (let y = 0; y < this.resolutionY; y++) {
-          let val = this.fractalData[xIndex][y];
-          // Use setTargetAtTime for smooth, glitch-free continuous changes
-          // Multiply by 0.6 to compensate for tight Q=40 filters
-          this.filterGains[y].gain.setTargetAtTime(val * 0.6, now, 0.015);
+      if (xIndex >= 0 && xIndex < this.width) {
+        for (let y = 0; y < this.height; y++) {
+          let b = this.gridB[y * this.width + xIndex];
+          // b is typically 0 to 0.5. Scale it up for volume.
+          let vol = b * 1.5;
+          this.filterGains[this.height - 1 - y].gain.setTargetAtTime(vol, now, 0.015);
         }
       }
     }
     
-    requestAnimationFrame((t) => this.drawFractal(t));
+    requestAnimationFrame(() => this.simulateAndDraw());
+  }
+  
+  setType(val) {
+    this.type = val;
+    if (val === 'mitosis') {
+      this.feed = 0.0367;
+      this.kill = 0.0649;
+    } else if (val === 'coral') {
+      this.feed = 0.0545;
+      this.kill = 0.0620;
+    } else if (val === 'labyrinth') {
+      this.feed = 0.029;
+      this.kill = 0.057;
+    }
+    this.seedGrid(); // Reset with new parameters
   }
   
   bindUI() {
-    document.getElementById('btn-play-fractal')?.addEventListener('click', () => {
+    document.getElementById('btn-play-rd')?.addEventListener('click', () => {
       this.triggerEnvelope();
     });
     
-    document.getElementById('fractal-type')?.addEventListener('change', (e) => {
-      this.type = e.target.value;
-      
-      if (this.type === 'julia') {
-        this.zoomTargetX = 0.0;
-        this.zoomTargetY = 0.0;
-        this.zoomLevel = 2.0;
-      } else if (this.type === 'burning') {
-        this.zoomTargetX = -1.6;
-        this.zoomTargetY = 0.0;
-        this.zoomLevel = 5000.0;
-      } else {
-        this.zoomTargetX = -0.745;
-        this.zoomTargetY = 0.15;
-        this.zoomLevel = 2.0;
-      }
+    document.getElementById('rd-type')?.addEventListener('change', (e) => {
+      this.setType(e.target.value);
     });
     
-    document.getElementById('fractal-tuning')?.addEventListener('change', (e) => {
-      this.tuning = e.target.value;
-      this.applyTuning();
-    });
-    
-    document.getElementById('fractal-zoom')?.addEventListener('input', (e) => {
-      let val = parseInt(e.target.value);
-      if (val === 1) {
-        this.zoomSpeed = 1.0; 
-      } else {
-        this.zoomSpeed = 1.0 + (val / 1500.0);
-      }
+    document.getElementById('rd-speed')?.addEventListener('input', (e) => {
+      let val = parseInt(e.target.value); // 1 to 100
+      this.simSpeed = Math.floor(val / 10) + 1; // 1 to 10 steps per frame
     });
   }
 }
@@ -611,7 +571,7 @@ class FractalSynth {
    -------------------------------------------------------------------------- */
 const modules = [
   new GenerativeAutomata(),
-  new FractalSynth()
+  new ReactionDiffusionSynth()
 ];
 let currentIndex = 0;
 
