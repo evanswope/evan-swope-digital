@@ -309,13 +309,13 @@ class FractalSynth {
       if (typeEl) {
         this.type = typeEl.value;
         if (this.type === 'julia') {
-          this.zoomTargetX = 0.0;
-          this.zoomTargetY = 0.0;
-          this.zoomLevel = 1.2;
+          this.zoomTargetX = -0.4812;
+          this.zoomTargetY = 0.5228;
+          this.zoomLevel = 100.0;
         } else if (this.type === 'burning') {
           this.zoomTargetX = -1.6;
           this.zoomTargetY = 0.0;
-          this.zoomLevel = 2.0;
+          this.zoomLevel = 500.0;
         } else {
           this.zoomTargetX = -0.745;
           this.zoomTargetY = 0.15;
@@ -522,7 +522,7 @@ class FractalSynth {
     this.computeFractal();
     
     this.zoomLevel *= this.zoomSpeed;
-    if (this.zoomLevel > 500) { 
+    if (this.zoomLevel > 500000) { 
       this.zoomLevel = 1.0;
     }
     
