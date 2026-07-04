@@ -594,7 +594,7 @@ if (keyboardContainer) {
   for(let i = startNote; i <= endNote; i++) {
     const key = document.createElement('div');
     const isBlack = [1, 3, 6, 8, 10].includes(i % 12);
-    key.className = `key ${isBlack ? 'black' : 'white'}`;
+    key.className = `key ${isBlack ? 'key-black' : 'key-white'}`;
     key.dataset.note = i;
     
     // Play on click (one-shot 1 second)
