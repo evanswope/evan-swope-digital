@@ -392,18 +392,23 @@ class FractalSynth {
     let freqs = [];
     
     if (this.tuning === 'harmonic') {
-      for (let i = 1; i <= this.resolutionY; i++) freqs.push(baseFreq * i);
+      for (let i = 1; i <= this.resolutionY; i++) {
+        let freq = baseFreq * i;
+        freqs.push(Math.min(freq, 22000));
+      }
     } else if (this.tuning === 'pentatonic') {
       const notes = [36, 39, 41, 43, 46];
       for (let i = 0; i < this.resolutionY; i++) {
         const oct = Math.floor(i / 5);
-        freqs.push(440 * Math.pow(2, (notes[i % 5] + (oct * 12) - 69) / 12));
+        let freq = 440 * Math.pow(2, (notes[i % 5] + (oct * 12) - 69) / 12);
+        freqs.push(Math.min(freq, 22000));
       }
     } else if (this.tuning === 'lydian') {
       const notes = [36, 38, 40, 42, 43, 45, 46];
       for (let i = 0; i < this.resolutionY; i++) {
         const oct = Math.floor(i / 7);
-        freqs.push(440 * Math.pow(2, (notes[i % 7] + (oct * 12) - 69) / 12));
+        let freq = 440 * Math.pow(2, (notes[i % 7] + (oct * 12) - 69) / 12);
+        freqs.push(Math.min(freq, 22000));
       }
     }
     
@@ -412,7 +417,7 @@ class FractalSynth {
       if(ctx) this.filters[i].frequency.setValueAtTime(freqs[i], ctx.currentTime);
     }
   }
-  
+
   computeFractal() {
     this.fractalData = [];
     this.imagePixels = new Uint8ClampedArray(this.resolutionX * this.resolutionY * 4);
