@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
-   SAMPLER & FFT MUTATION ENGINE (synth.js)
+   FM NEURAL MATRIX ENGINE (synth.js)
    -------------------------------------------------------------------------- */
 
 let audioCtx;
@@ -7,12 +7,15 @@ let masterGain;
 let isPowerOn = false;
 let activeVoices = {}; // Tracks currently playing notes
 
-// Sample Data
-let recordedBuffer = null;
-let extractedEnvelope = null; // Float32Array of volume contour
-let baseFftReal = null;
-let baseFftImag = null;
-let activePeriodicWave = null; // The mutated wave
+// Matrix State
+const fmNodes = [
+  { id: 0, x: 0.5, y: 0.5, type: 'sine', ratio: 1.0, isCarrier: true, color: '#ff7e5f' }, // Carrier (Node 1)
+  { id: 1, x: 0.2, y: 0.2, type: 'sine', ratio: 2.0, isCarrier: false, color: '#a855f7' }, // Modulator (Node 2)
+  { id: 2, x: 0.8, y: 0.2, type: 'sine', ratio: 0.5, isCarrier: false, color: '#39ff14' }, // Modulator (Node 3)
+  { id: 3, x: 0.5, y: 0.8, type: 'sine', ratio: 3.0, isCarrier: false, color: '#21d4fd' }  // Modulator (Node 4)
+];
+let selectedNode = null;
+let draggedNode = null;
 
 // Synth State
 const synthState = {
@@ -32,7 +35,6 @@ const synthState = {
 // Global FX Nodes
 let globalFilter, delayNode, delayFeedbackNode, delayMixWet, delayMixDry;
 let lfoOsc, lfoGain;
-let analyserNode;
 
 // Key mapping (QWERTY)
 const keyboardMap = {
@@ -89,10 +91,6 @@ async function initAudio() {
   compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
   compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
 
-  // Analyser Node for Oscilloscope
-  analyserNode = audioCtx.createAnalyser();
-  analyserNode.fftSize = 2048;
-
   // 4. LFO
   lfoOsc = audioCtx.createOscillator();
   lfoOsc.type = 'sine';
@@ -111,8 +109,7 @@ async function initAudio() {
   delayNode.connect(delayMixWet);
   delayMixDry.connect(compressor);
   delayMixWet.connect(compressor);
-  compressor.connect(analyserNode);
-  analyserNode.connect(audioCtx.destination);
+  compressor.connect(audioCtx.destination);
 
   if (audioCtx.state === 'suspended') {
     await audioCtx.resume();
@@ -122,391 +119,334 @@ async function initAudio() {
   overlay.classList.add('hidden');
   powerLight.classList.add('is-on');
 
-  requestAnimationFrame(updateMeter);
+  initMatrixCanvas();
 }
 
 // --------------------------------------------------------------------------
-// Sampler / Recording Logic
+// FM Synth Voice (Polyphonic 4-Operator)
 // --------------------------------------------------------------------------
-const btnRecord = document.getElementById('btn-record-sample');
-const samplerStatus = document.getElementById('sampler-status');
-let mediaRecorder;
-let chunks = [];
-
-if (btnRecord) {
-  btnRecord.addEventListener('click', async () => {
-    if (!audioCtx) await initAudio();
+class FMSynthVoice {
+  constructor(baseFreq) {
+    this.baseFreq = baseFreq;
     
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      mediaRecorder = new MediaRecorder(stream);
-      chunks = [];
+    // Create 4 Oscillators
+    this.oscs = [];
+    this.gains = []; // Output gains (only Carrier is audible, Modulators go into freq)
+    
+    for(let i = 0; i < 4; i++) {
+      const osc = audioCtx.createOscillator();
+      const nodeDef = fmNodes[i];
       
-      mediaRecorder.ondataavailable = e => chunks.push(e.data);
-      mediaRecorder.onstop = processRecording;
+      osc.type = nodeDef.type;
+      osc.frequency.value = baseFreq * nodeDef.ratio;
       
-      samplerStatus.style.display = 'block';
-      samplerStatus.innerText = "RECORDING...";
-      btnRecord.style.background = "#b91c1c";
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0; // Starts at 0
       
-      mediaRecorder.start();
+      osc.connect(gain);
+      osc.start();
       
-      // Stop after 1 second
-      setTimeout(() => {
-        mediaRecorder.stop();
-        stream.getTracks().forEach(track => track.stop());
-        samplerStatus.style.display = 'none';
-        btnRecord.style.background = "#ef4444";
-      }, 1000);
-      
-    } catch (err) {
-      console.error("Mic access denied:", err);
-      alert("Microphone access is required to use the sampler.");
-    }
-  });
-}
-
-async function processRecording() {
-  const blob = new Blob(chunks, { type: 'audio/webm;codecs=opus' }); // WebM is common, AudioContext can decode it
-  const arrayBuffer = await blob.arrayBuffer();
-  
-  audioCtx.decodeAudioData(arrayBuffer, (buffer) => {
-    recordedBuffer = buffer;
-    
-    // Extract Envelope (Amplitude over time)
-    extractEnvelope(buffer);
-    
-    // Extract FFT (Harmonic fingerprint)
-    extractFFT(buffer);
-    
-    // Build initial Wavetable
-    activePeriodicWave = audioCtx.createPeriodicWave(baseFftReal, baseFftImag);
-    
-    // Draw
-    drawSampleWaveform(buffer);
-    
-    // Show Wavetable Dashboard
-    document.getElementById('wavetable-dashboard').style.display = 'block';
-    
-  }, (e) => console.error("Error decoding audio data", e));
-}
-
-function extractEnvelope(buffer) {
-  const data = buffer.getChannelData(0);
-  // We want an envelope array to feed to setValueCurveAtTime. Let's make it 256 points long.
-  const points = 256;
-  extractedEnvelope = new Float32Array(points);
-  
-  const step = Math.floor(data.length / points);
-  
-  // Create a smoothed amplitude curve
-  for (let i = 0; i < points; i++) {
-    let sum = 0;
-    for (let j = 0; j < step; j++) {
-      let idx = i * step + j;
-      if (idx < data.length) {
-        sum += Math.abs(data[idx]);
-      }
-    }
-    let avg = sum / step;
-    extractedEnvelope[i] = Math.min(1.0, avg * 5.0); // Boost gain slightly
-  }
-  
-  // Ensure the envelope ends exactly at 0 to avoid clicks
-  extractedEnvelope[points - 1] = 0;
-  extractedEnvelope[0] = 0; // fade in slightly too
-}
-
-function extractFFT(buffer) {
-  const data = buffer.getChannelData(0);
-  const fftSize = 2048; // A window in the middle of the sample
-  const numHarmonics = 64; // Keep to 64 for periodic wave
-  
-  baseFftReal = new Float32Array(numHarmonics);
-  baseFftImag = new Float32Array(numHarmonics);
-  
-  // Find the peak energy spot in the sample
-  let maxEnergy = 0;
-  let peakIndex = 0;
-  for(let i=0; i < data.length - fftSize; i += 512) {
-    let energy = 0;
-    for(let j=0; j<fftSize; j++) energy += Math.abs(data[i+j]);
-    if(energy > maxEnergy) { maxEnergy = energy; peakIndex = i; }
-  }
-  
-  const windowData = data.slice(peakIndex, peakIndex + fftSize);
-  
-  // Extremely naive DFT for the first 64 harmonics (since we don't have a fast FFT library imported)
-  for (let k = 1; k < numHarmonics; k++) {
-    let sumReal = 0;
-    let sumImag = 0;
-    for (let n = 0; n < fftSize; n++) {
-      // Hanning window
-      let windowMult = 0.5 * (1 - Math.cos((2 * Math.PI * n) / (fftSize - 1)));
-      let val = windowData[n] * windowMult;
-      
-      let angle = (2 * Math.PI * k * n) / fftSize;
-      sumReal += val * Math.cos(angle);
-      sumImag -= val * Math.sin(angle);
-    }
-    baseFftReal[k] = sumReal / fftSize;
-    baseFftImag[k] = sumImag / fftSize;
-  }
-  
-  baseFftReal[0] = 0; // DC offset
-  baseFftImag[0] = 0;
-}
-
-function drawSampleWaveform(buffer) {
-  const canvas = document.getElementById('sample-canvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width;
-  const h = canvas.height;
-  
-  ctx.fillStyle = '#050510';
-  ctx.fillRect(0, 0, w, h);
-  
-  const data = buffer.getChannelData(0);
-  const step = Math.ceil(data.length / w);
-  
-  ctx.fillStyle = 'rgba(33, 212, 253, 0.4)'; // neon blue wave
-  for (let i = 0; i < w; i++) {
-    let min = 1.0;
-    let max = -1.0;
-    for (let j = 0; j < step; j++) {
-      let datum = data[(i * step) + j];
-      if (datum < min) min = datum;
-      if (datum > max) max = datum;
-    }
-    const y1 = (1 + min) * h / 2;
-    const y2 = (1 + max) * h / 2;
-    ctx.fillRect(i, y1, 1, Math.max(1, y2 - y1));
-  }
-  
-  // Overlay Envelope
-  if(extractedEnvelope) {
-    ctx.strokeStyle = '#ef4444'; // red envelope line
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let i = 0; i < extractedEnvelope.length; i++) {
-      const x = (i / extractedEnvelope.length) * w;
-      const y = h - (extractedEnvelope[i] * h); // inverted y
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-}
-
-// --------------------------------------------------------------------------
-// FFT Mutations
-// --------------------------------------------------------------------------
-document.getElementById('btn-mutate-scramble')?.addEventListener('click', () => mutateFFT('scramble'));
-document.getElementById('btn-mutate-phase')?.addEventListener('click', () => mutateFFT('phase'));
-document.getElementById('btn-mutate-octave')?.addEventListener('click', () => mutateFFT('octave'));
-
-function mutateFFT(type) {
-  if (!baseFftReal || !baseFftImag) return;
-  
-  const numHarmonics = baseFftReal.length;
-  const newReal = new Float32Array(numHarmonics);
-  const newImag = new Float32Array(numHarmonics);
-  
-  if (type === 'scramble') {
-    // Randomly shuffle magnitudes to different bins
-    let mags = [];
-    for(let i=1; i<numHarmonics; i++) mags.push({r: baseFftReal[i], i: baseFftImag[i]});
-    mags.sort(() => Math.random() - 0.5);
-    for(let i=1; i<numHarmonics; i++) {
-      newReal[i] = mags[i-1].r;
-      newImag[i] = mags[i-1].i;
-    }
-  } 
-  else if (type === 'phase') {
-    // Invert phases randomly
-    for(let i=1; i<numHarmonics; i++) {
-      if(Math.random() > 0.5) {
-        newReal[i] = -baseFftReal[i];
-        newImag[i] = -baseFftImag[i];
-      } else {
-        newReal[i] = baseFftReal[i];
-        newImag[i] = baseFftImag[i];
-      }
-    }
-  }
-  else if (type === 'octave') {
-    // Force energy into octaves (bin 1, 2, 4, 8, 16, 32)
-    for(let i=1; i<numHarmonics; i++) {
-      // is i a power of 2?
-      if ((i & (i - 1)) === 0) {
-        newReal[i] = baseFftReal[i] * 2.0; // Boost octaves
-        newImag[i] = baseFftImag[i] * 2.0;
-      } else {
-        newReal[i] = 0; // Mute non-octaves
-        newImag[i] = 0;
-      }
-    }
-  }
-  
-  // Save mutations as the new base so they can be stacked
-  baseFftReal = newReal;
-  baseFftImag = newImag;
-  activePeriodicWave = audioCtx.createPeriodicWave(baseFftReal, baseFftImag);
-}
-
-// --------------------------------------------------------------------------
-// SynthVoice Class
-// --------------------------------------------------------------------------
-class SynthVoice {
-  constructor(freq) {
-    this.osc = audioCtx.createOscillator();
-    
-    // We only play if we have a recorded custom wavetable
-    if (activePeriodicWave) {
-      this.osc.setPeriodicWave(activePeriodicWave);
-    } else {
-      this.osc.type = 'sine'; // Fallback beep if they somehow play without recording
+      this.oscs.push(osc);
+      this.gains.push(gain);
     }
     
-    this.osc.frequency.value = freq;
+    // Routing: Modulators -> Carrier Frequency
+    // (In a true matrix, they could modulate each other, but for this demo, 2,3,4 modulate 1)
+    this.gains[1].connect(this.oscs[0].frequency);
+    this.gains[2].connect(this.oscs[0].frequency);
+    this.gains[3].connect(this.oscs[0].frequency);
     
-    // Main Gain Node (controlled by the extracted volume envelope)
-    this.gainNode = audioCtx.createGain();
-    this.gainNode.gain.value = 0;
+    // Main Envelope for the Carrier
+    this.envGain = audioCtx.createGain();
+    this.envGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    this.envGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05); // Attack
+    
+    this.gains[0].connect(this.envGain);
     
     // LFO Modulation routing
-    this.pitchMod = audioCtx.createGain();
-    this.pitchMod.gain.value = 0;
-    this.osc.connect(this.pitchMod);
-    this.pitchMod.connect(this.gainNode);
-    
-    // Default straight connection
-    this.osc.connect(this.gainNode);
-
-    // Apply Routing based on LFO target
+    this.panNode = audioCtx.createStereoPanner();
     const target = synthState.fx.lfoTarget;
     if (target === 'pitch') {
-      lfoGain.connect(this.osc.detune);
+      lfoGain.connect(this.oscs[0].detune);
       this.lfoConnectedDetune = true;
     } else if (target === 'volume') {
-      lfoGain.connect(this.gainNode.gain);
+      lfoGain.connect(this.envGain.gain);
       this.lfoConnectedGain = true;
-    }
-    
-    // Pan Node for LFO Pan Target
-    this.panNode = audioCtx.createStereoPanner();
-    if (target === 'pan') {
+    } else if (target === 'pan') {
       lfoGain.connect(this.panNode.pan);
       this.lfoConnectedPan = true;
     }
     
-    this.gainNode.connect(this.panNode);
+    this.envGain.connect(this.panNode);
     this.panNode.connect(masterGain);
     
-    this.osc.start();
+    // Set initial modulation depths
+    this.updateModulationDepths();
+  }
+
+  updateModulationDepths() {
+    // Carrier is always on
+    this.gains[0].gain.setTargetAtTime(1.0, audioCtx.currentTime, 0.01);
     
-    // Apply Envelope
-    if (extractedEnvelope && extractedEnvelope.length > 0) {
-      // The sample is exactly 1 second long. We scale the curve over 1 second.
-      const duration = 1.0; 
-      // Need to normalize the curve maximum to 1.0 before applying (or whatever volume)
-      this.gainNode.gain.setValueCurveAtTime(extractedEnvelope, audioCtx.currentTime, duration);
+    const carrier = fmNodes[0];
+    
+    // Modulators (1, 2, 3) distance to Carrier (0)
+    for(let i = 1; i < 4; i++) {
+      const mod = fmNodes[i];
+      const dx = mod.x - carrier.x;
+      const dy = mod.y - carrier.y;
+      const dist = Math.sqrt(dx*dx + dy*dy); // 0.0 to 1.414
       
-      // Auto-release the voice after 1 second
-      setTimeout(() => {
-        this.stop();
-      }, duration * 1000);
-    } else {
-      // Fallback simple ADSR if no sample recorded
-      this.gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      this.gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.1);
-      this.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
-      setTimeout(() => this.stop(), 1000);
+      // The closer it is, the higher the modulation index.
+      // Max distance = 1.0 (corners). Let's clamp at 0.8
+      const proximity = Math.max(0, 1.0 - (dist / 0.8)); // 1.0 when touching, 0.0 when far
+      
+      // FM Depth formula: BaseFreq * Ratio * ModIndex
+      // For wild sounds, ModIndex can go up to 10 or 20.
+      const modDepth = this.baseFreq * mod.ratio * (proximity * proximity * 15);
+      
+      // Update the gain node smoothly
+      this.gains[i].gain.setTargetAtTime(modDepth, audioCtx.currentTime, 0.02);
     }
   }
 
   stop() {
     try {
-      this.osc.stop();
-      if (this.lfoConnectedDetune) lfoGain.disconnect(this.osc.detune);
-      if (this.lfoConnectedGain) lfoGain.disconnect(this.gainNode.gain);
-      if (this.lfoConnectedPan) lfoGain.disconnect(this.panNode.pan);
-      this.osc.disconnect();
-      this.gainNode.disconnect();
-      this.panNode.disconnect();
+      // Release
+      this.envGain.gain.cancelScheduledValues(audioCtx.currentTime);
+      this.envGain.gain.setValueAtTime(this.envGain.gain.value, audioCtx.currentTime);
+      this.envGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      
+      setTimeout(() => {
+        for(let i=0; i<4; i++) {
+          this.oscs[i].stop();
+          this.oscs[i].disconnect();
+          this.gains[i].disconnect();
+        }
+        if (this.lfoConnectedDetune) lfoGain.disconnect(this.oscs[0].detune);
+        if (this.lfoConnectedGain) lfoGain.disconnect(this.envGain.gain);
+        if (this.lfoConnectedPan) lfoGain.disconnect(this.panNode.pan);
+        this.envGain.disconnect();
+        this.panNode.disconnect();
+      }, 350);
     } catch (e) {}
   }
 }
 
 // --------------------------------------------------------------------------
-// Visualizers (FFT and Oscilloscope)
+// Neural Matrix Canvas Rendering & Interaction
 // --------------------------------------------------------------------------
-function updateMeter() {
-  if (!isPowerOn || !analyserNode) return requestAnimationFrame(updateMeter);
-  
-  // Oscilloscope
-  const oscCanvas = document.getElementById('osc-canvas');
-  if (oscCanvas) {
-    const oscCtx = oscCanvas.getContext('2d');
-    const w = oscCanvas.width;
-    const h = oscCanvas.height;
-    
-    const dataArray = new Float32Array(analyserNode.fftSize);
-    analyserNode.getFloatTimeDomainData(dataArray);
-    
-    oscCtx.fillStyle = '#050510';
-    oscCtx.fillRect(0, 0, w, h);
-    
-    oscCtx.lineWidth = 2;
-    oscCtx.strokeStyle = '#39ff14'; // neon-green
-    oscCtx.beginPath();
-    
-    const sliceWidth = w * 1.0 / dataArray.length;
-    let x = 0;
-    
-    for(let i = 0; i < dataArray.length; i++) {
-      const v = dataArray[i];
-      const y = (v * 0.5 + 0.5) * h;
-      if(i === 0) oscCtx.moveTo(x, y);
-      else oscCtx.lineTo(x, y);
-      x += sliceWidth;
-    }
-    oscCtx.stroke();
-  }
+let canvas, ctx;
 
-  // Draw Spectral Editor (Static representation of our custom Wavetable)
-  const fftCanvas = document.getElementById('fft-canvas');
-  if (fftCanvas && baseFftReal && baseFftImag) {
-    const fCtx = fftCanvas.getContext('2d');
-    const w = fftCanvas.width;
-    const h = fftCanvas.height;
-    
-    fCtx.fillStyle = '#050510';
-    fCtx.fillRect(0, 0, w, h);
-
-    const numHarmonics = baseFftReal.length;
-    const barWidth = w / numHarmonics;
-    
-    // Normalize display height
-    let maxMag = 0.001;
-    for(let i=1; i<numHarmonics; i++) {
-      let m = Math.sqrt(baseFftReal[i]*baseFftReal[i] + baseFftImag[i]*baseFftImag[i]);
-      if(m > maxMag) maxMag = m;
-    }
-    
-    for(let i=1; i<numHarmonics; i++) {
-      let mag = Math.sqrt(baseFftReal[i]*baseFftReal[i] + baseFftImag[i]*baseFftImag[i]);
-      let normalized = mag / maxMag;
-      
-      const barHeight = Math.min(normalized * h, h);
-      fCtx.fillStyle = i === 1 ? '#ff7e5f' : '#a855f7'; // neon-orange / neon-purple
-      fCtx.fillRect(i * barWidth, h - barHeight, barWidth - 1, barHeight);
-    }
-  }
+function initMatrixCanvas() {
+  canvas = document.getElementById('fm-canvas');
+  if(!canvas) return;
   
-  requestAnimationFrame(updateMeter);
+  // High DPI canvas setup
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentNode.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  
+  canvas.addEventListener('mousedown', handleMatrixDown);
+  canvas.addEventListener('mousemove', handleMatrixMove);
+  window.addEventListener('mouseup', handleMatrixUp);
+  
+  requestAnimationFrame(drawMatrix);
 }
+
+function handleMatrixDown(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = (e.clientX - rect.left) / rect.width;
+  const mouseY = (e.clientY - rect.top) / rect.height;
+  
+  // Find clicked node (radius is ~0.05 in normalized coords)
+  for(let i = fmNodes.length - 1; i >= 0; i--) {
+    const node = fmNodes[i];
+    const dx = node.x - mouseX;
+    const dy = node.y - mouseY;
+    if (Math.hypot(dx, dy) < 0.05) {
+      selectedNode = node;
+      if (!node.isCarrier) {
+        draggedNode = node;
+      }
+      updateInspectorUI();
+      return;
+    }
+  }
+  
+  // Clicked empty space
+  selectedNode = null;
+  updateInspectorUI();
+}
+
+function handleMatrixMove(e) {
+  if (!draggedNode) return;
+  
+  const rect = canvas.getBoundingClientRect();
+  let mouseX = (e.clientX - rect.left) / rect.width;
+  let mouseY = (e.clientY - rect.top) / rect.height;
+  
+  // Clamp to canvas bounds
+  draggedNode.x = Math.max(0.05, Math.min(0.95, mouseX));
+  draggedNode.y = Math.max(0.05, Math.min(0.95, mouseY));
+  
+  // Update audio engine modulations in real-time
+  Object.values(activeVoices).forEach(voice => voice.updateModulationDepths());
+}
+
+function handleMatrixUp() {
+  draggedNode = null;
+}
+
+function drawMatrix(time) {
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+  
+  ctx.fillStyle = '#050510';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Draw Synapses (Lines to Carrier)
+  const carrier = fmNodes[0];
+  for(let i = 1; i < 4; i++) {
+    const mod = fmNodes[i];
+    const dx = mod.x - carrier.x;
+    const dy = mod.y - carrier.y;
+    const dist = Math.hypot(dx, dy);
+    
+    // Closer = thicker and brighter
+    const proximity = Math.max(0, 1.0 - (dist / 0.8)); 
+    const thickness = proximity * 6 + 1;
+    const alpha = proximity * 0.8 + 0.1;
+    
+    ctx.beginPath();
+    ctx.moveTo(mod.x * w, mod.y * h);
+    ctx.lineTo(carrier.x * w, carrier.y * h);
+    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.lineWidth = thickness;
+    ctx.stroke();
+    
+    // Draw flowing energy on active synapse
+    if (proximity > 0.1 && Object.keys(activeVoices).length > 0) {
+      const flowPos = (time / 500) % 1;
+      const energyX = mod.x + (carrier.x - mod.x) * flowPos;
+      const energyY = mod.y + (carrier.y - mod.y) * flowPos;
+      
+      ctx.beginPath();
+      ctx.arc(energyX * w, energyY * h, 3 + (proximity * 3), 0, Math.PI*2);
+      ctx.fillStyle = mod.color;
+      ctx.fill();
+    }
+  }
+  
+  // Draw Nodes
+  for(let i = 0; i < 4; i++) {
+    const node = fmNodes[i];
+    const x = node.x * w;
+    const y = node.y * h;
+    const radius = node.isCarrier ? 24 : 18;
+    
+    // Glow effect
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
+    grad.addColorStop(0, node.color);
+    grad.addColorStop(1, 'transparent');
+    
+    ctx.beginPath();
+    ctx.arc(x, y, radius * 2, 0, Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.globalAlpha = 0.6;
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+    
+    // Core
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI*2);
+    ctx.fillStyle = '#111';
+    ctx.fill();
+    ctx.lineWidth = selectedNode === node ? 3 : 1;
+    ctx.strokeStyle = node.color;
+    ctx.stroke();
+    
+    // Label
+    ctx.fillStyle = node.color;
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(node.isCarrier ? 'OUT' : `M${i}`, x, y);
+  }
+  
+  requestAnimationFrame(drawMatrix);
+}
+
+// --------------------------------------------------------------------------
+// Node Inspector UI
+// --------------------------------------------------------------------------
+const inspectorContent = document.getElementById('inspector-content');
+const inspectorEmpty = document.getElementById('inspector-empty');
+const inspectorTitle = document.getElementById('inspector-title');
+const inspectorRatio = document.getElementById('inspector-ratio');
+const ratioDisplay = document.getElementById('ratio-display');
+const waveBtns = document.querySelectorAll('#inspector-wave-toggles .wave-btn');
+
+function updateInspectorUI() {
+  if (!selectedNode) {
+    inspectorContent.style.display = 'none';
+    inspectorEmpty.style.display = 'flex';
+    inspectorTitle.innerText = "NODE INSPECTOR";
+    inspectorTitle.style.color = "var(--text-primary)";
+    return;
+  }
+  
+  inspectorContent.style.display = 'flex';
+  inspectorEmpty.style.display = 'none';
+  
+  inspectorTitle.innerText = selectedNode.isCarrier ? "CARRIER NODE" : `MODULATOR ${selectedNode.id}`;
+  inspectorTitle.style.color = selectedNode.color;
+  
+  // Set Waveform toggle
+  waveBtns.forEach(btn => {
+    if (btn.dataset.val === selectedNode.type) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  
+  // Set Ratio slider
+  inspectorRatio.value = selectedNode.ratio;
+  ratioDisplay.innerText = selectedNode.ratio.toFixed(2) + 'x';
+}
+
+// Bind Waveform toggles
+waveBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(!selectedNode) return;
+    
+    // update UI
+    waveBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // update state
+    selectedNode.type = btn.dataset.val;
+    
+    // update active voices
+    Object.values(activeVoices).forEach(voice => {
+      voice.oscs[selectedNode.id].type = selectedNode.type;
+    });
+  });
+});
+
+// Bind Ratio slider
+inspectorRatio.addEventListener('input', (e) => {
+  if(!selectedNode) return;
+  const ratio = parseFloat(e.target.value);
+  selectedNode.ratio = ratio;
+  ratioDisplay.innerText = ratio.toFixed(2) + 'x';
+  
+  // update active voices
+  Object.values(activeVoices).forEach(voice => {
+    voice.oscs[selectedNode.id].frequency.value = voice.baseFreq * ratio;
+  });
+});
 
 // --------------------------------------------------------------------------
 // UI Listeners (FX and Master)
@@ -526,11 +466,7 @@ document.getElementById('lfo-depth').addEventListener('input', (e) => {
 });
 document.getElementById('lfo-target').addEventListener('change', (e) => {
   synthState.fx.lfoTarget = e.target.value;
-  // Disconnect existing LFO routing
-  if(lfoGain) {
-    lfoGain.disconnect();
-    // It reconnects on next note triggered
-  }
+  if(lfoGain) lfoGain.disconnect();
 });
 document.getElementById('delay-time').addEventListener('input', (e) => {
   synthState.fx.delayTime = parseFloat(e.target.value);
@@ -565,26 +501,29 @@ function handleKeydown(e) {
   if (!isPowerOn) return;
   if (e.repeat) return;
   
-  // Note: keyup logic is removed because the synth voice self-terminates after 1s (the envelope length).
-  // But we still track activeVoices to prevent multi-triggering the same key.
-  
   const note = keyboardMap[e.key.toLowerCase()];
   if (note && !activeVoices[note]) {
     const keyEl = document.querySelector(`.key[data-note="${note}"]`);
     if (keyEl) keyEl.classList.add('active');
     
     const freq = noteToFreq(note);
-    activeVoices[note] = new SynthVoice(freq);
+    activeVoices[note] = new FMSynthVoice(freq);
+  }
+}
+
+function handleKeyup(e) {
+  const note = keyboardMap[e.key.toLowerCase()];
+  if (note && activeVoices[note]) {
+    const keyEl = document.querySelector(`.key[data-note="${note}"]`);
+    if (keyEl) keyEl.classList.remove('active');
     
-    // Clear the active voice tracker after 1s so it can be re-triggered
-    setTimeout(() => {
-      delete activeVoices[note];
-      if (keyEl) keyEl.classList.remove('active');
-    }, 1000);
+    activeVoices[note].stop();
+    delete activeVoices[note];
   }
 }
 
 document.addEventListener('keydown', handleKeydown);
+document.addEventListener('keyup', handleKeyup);
 
 // Build Keyboard DOM
 if (keyboardContainer) {
@@ -597,18 +536,30 @@ if (keyboardContainer) {
     key.className = `key ${isBlack ? 'key-black' : 'key-white'}`;
     key.dataset.note = i;
     
-    // Play on click (one-shot 1 second)
     key.addEventListener('mousedown', () => {
       if(!isPowerOn) return;
       const note = parseInt(key.dataset.note);
       if(!activeVoices[note]) {
         key.classList.add('active');
-        activeVoices[note] = new SynthVoice(noteToFreq(note));
-        
-        setTimeout(() => {
-          delete activeVoices[note];
-          key.classList.remove('active');
-        }, 1000);
+        activeVoices[note] = new FMSynthVoice(noteToFreq(note));
+      }
+    });
+    
+    key.addEventListener('mouseup', () => {
+      const note = parseInt(key.dataset.note);
+      if(activeVoices[note]) {
+        key.classList.remove('active');
+        activeVoices[note].stop();
+        delete activeVoices[note];
+      }
+    });
+    
+    key.addEventListener('mouseleave', () => {
+      const note = parseInt(key.dataset.note);
+      if(activeVoices[note]) {
+        key.classList.remove('active');
+        activeVoices[note].stop();
+        delete activeVoices[note];
       }
     });
     
