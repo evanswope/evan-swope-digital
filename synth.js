@@ -280,7 +280,7 @@ class FractalSynth {
     
     this.zoomLevel = 1.0;
     this.zoomSpeed = 1.01;
-    this.zoomTargetX = -0.7436438870371587; // Seahorse valley
+    this.zoomTargetX = -0.7436438870371587; 
     this.zoomTargetY = 0.13182590420531197;
     
     this.resolutionX = 256;
@@ -303,6 +303,25 @@ class FractalSynth {
       this.buildFilterBank(ctx);
       this.initCanvas();
       this.bindUI();
+      
+      // SYNC INITIAL STATE FROM DOM IN CASE USER CHANGED BEFORE POWER ON
+      const typeEl = document.getElementById('fractal-type');
+      if (typeEl) {
+        this.type = typeEl.value;
+        if (this.type === 'julia') {
+          this.zoomTargetX = 0.0;
+          this.zoomTargetY = 0.0;
+        } else if (this.type === 'burning') {
+          this.zoomTargetX = -1.75;
+          this.zoomTargetY = -0.05;
+        }
+      }
+      const tuneEl = document.getElementById('fractal-tuning');
+      if (tuneEl) {
+        this.tuning = tuneEl.value;
+        this.applyTuning();
+      }
+      
       this.audioInit = true;
     }
     
@@ -431,7 +450,6 @@ class FractalSynth {
         
         let val = 0;
         if (iteration < this.iterations) {
-          // Safe calculation to avoid NaN
           val = (Math.sin(iteration * 0.7) + 1.0) / 2.0; 
           val = Math.pow(val, 3);
           if (isNaN(val)) val = 0;
@@ -455,11 +473,16 @@ class FractalSynth {
     
     this.isPlaying = !this.isPlaying;
     const btn = document.getElementById('btn-play-fractal');
+    const ctx = globalAudioCtx;
+    
     if (this.isPlaying) {
       btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+      // CLEAR ANY PREVIOUS RAMPS TO 0!
+      for (let y = 0; y < this.resolutionY; y++) {
+        this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
+      }
     } else {
       btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
-      const ctx = globalAudioCtx;
       for (let y = 0; y < this.resolutionY; y++) {
         this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
         this.filterGains[y].gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
@@ -507,8 +530,9 @@ class FractalSynth {
       if (xIndex >= 0 && xIndex < this.resolutionX && this.fractalData[xIndex]) {
         for (let y = 0; y < this.resolutionY; y++) {
           let val = this.fractalData[xIndex][y];
-          // Use setValueAtTime directly to avoid web audio queue clogs!
-          this.filterGains[y].gain.setValueAtTime(val * 0.15, now);
+          // Use setTargetAtTime for smooth, glitch-free continuous changes
+          // Multiply by 0.6 to compensate for tight Q=40 filters
+          this.filterGains[y].gain.setTargetAtTime(val * 0.6, now, 0.015);
         }
       }
     }
@@ -525,7 +549,6 @@ class FractalSynth {
       this.type = e.target.value;
       this.zoomLevel = 1.0;
       
-      // Select interesting targets for each fractal
       if (this.type === 'julia') {
         this.zoomTargetX = 0.0;
         this.zoomTargetY = 0.0;
@@ -546,7 +569,7 @@ class FractalSynth {
     document.getElementById('fractal-zoom')?.addEventListener('input', (e) => {
       let val = parseInt(e.target.value);
       if (val === 1) {
-        this.zoomSpeed = 1.0; // Stop zooming entirely
+        this.zoomSpeed = 1.0; 
       } else {
         this.zoomSpeed = 1.0 + (val / 1500.0);
       }
