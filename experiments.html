@@ -75,18 +75,17 @@
                   <canvas id="grid-canvas"></canvas>
                 </div>
                 <div class="card-controls">
-                                    <div class="playback-controls">
-                    <button id="btn-play-fractal" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
+                  <div class="playback-controls">
+                    <button id="btn-play-sim" class="icon-btn" title="Play/Pause"><i id="play-icon" class="fa-solid fa-play"></i></button>
+                    <button id="btn-clear-sim" class="icon-btn" title="Clear Grid"><i class="fa-solid fa-trash"></i></button>
+                    <button id="btn-random-sim" class="icon-btn" title="Randomize"><i class="fa-solid fa-dice"></i></button>
                     <div class="fractal-select-wrapper">
-                      <select id="fractal-type" class="minimal-select">
-                        <option value="mandelbrot">Mandelbrot</option>
-                        <option value="julia">Julia</option>
-                        <option value="burning">Burning Ship</option>
-                      </select>
-                      <select id="fractal-tuning" class="minimal-select">
-                        <option value="harmonic">Harmonic Series</option>
-                        <option value="pentatonic">C Minor Pentatonic</option>
-                        <option value="lydian">C Lydian Dominant</option>
+                      <select id="sim-tuning" class="minimal-select">
+                        <option value="pentatonic">Minor Pentatonic</option>
+                        <option value="major">Major</option>
+                        <option value="minor">Natural Minor</option>
+                        <option value="lydian">Lydian</option>
+                        <option value="mixolydian">Mixolydian</option>
                       </select>
                     </div>
                   </div>
