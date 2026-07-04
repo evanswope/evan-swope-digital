@@ -107,42 +107,37 @@
               </div>
             </div>
 
-            <!-- SLIDE 2: Fractal Subtractive Synth -->
+            <!-- SLIDE 2: Reaction-Diffusion Morphogenesis -->
             <div class="carousel-slide">
               <div class="generative-card fractal-card">
                 <svg class="scribble-outline"><rect /></svg>
-                <div id="fractal-overlay" class="card-overlay">
+                <div id="rd-overlay" class="card-overlay">
                   <button id="btn-start-fractal" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
                 </div>
                 <div class="card-header">
-                  <h2 class="card-title">Fractal Subtractive</h2>
+                  <h2 class="card-title">Morphogenesis</h2>
                   <div class="power-container">
-                    <div id="fractal-power-indicator" class="power-light"></div>
+                    <div id="rd-power-indicator" class="power-light"></div>
                   </div>
                 </div>
                 <div class="grid-container" style="background:#0a0a1a;">
-                  <canvas id="fractal-canvas"></canvas>
+                  <canvas id="rd-canvas"></canvas>
                 </div>
                 <div class="card-controls">
-                                    <div class="playback-controls">
-                    <button id="btn-play-fractal" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
+                  <div class="playback-controls">
+                    <button id="btn-play-rd" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
                     <div class="fractal-select-wrapper">
-                      <select id="fractal-type" class="minimal-select">
-                        <option value="mandelbrot">Mandelbrot</option>
-                        <option value="julia">Julia</option>
-                        <option value="burning">Burning Ship</option>
-                      </select>
-                      <select id="fractal-tuning" class="minimal-select">
-                        <option value="harmonic">Harmonic Series</option>
-                        <option value="pentatonic">C Minor Pentatonic</option>
-                        <option value="lydian">C Lydian Dominant</option>
+                      <select id="rd-type" class="minimal-select">
+                        <option value="mitosis">Mitosis</option>
+                        <option value="coral">Brain Coral</option>
+                        <option value="labyrinth">Labyrinth</option>
                       </select>
                     </div>
                   </div>
                   <div class="fx-controls">
                     <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">ZOOM SPEED</span>
-                      <input type="range" id="fractal-zoom" class="line-slider" min="1" max="100" step="1" value="10">
+                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">SIM SPEED</span>
+                      <input type="range" id="rd-speed" class="line-slider" min="1" max="100" step="1" value="20">
                     </div>
                   </div>
                 </div>
