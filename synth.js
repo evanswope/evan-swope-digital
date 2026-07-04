@@ -278,10 +278,10 @@ class FractalSynth {
     this.type = 'mandelbrot';
     this.tuning = 'harmonic';
     
-    this.zoomLevel = 50.0;
+    this.zoomLevel = 100.0;
     this.zoomSpeed = 1.01;
-    this.zoomTargetX = -0.738012624328; 
-    this.zoomTargetY = 0.170669229045;
+    this.zoomTargetX = -0.740711186330862; 
+    this.zoomTargetY = 0.12960730527906075;
     
     this.resolutionX = 256;
     this.resolutionY = 64;
@@ -309,10 +309,19 @@ class FractalSynth {
       if (typeEl) {
         this.type = typeEl.value;
         if (this.type === 'julia') {
-          this.zoomTargetX = -0.5855;
-          this.zoomTargetY = 0.4464;
-          this.zoomLevel = 50.0;
+          this.zoomTargetX = -0.08895336433458778;
+          this.zoomTargetY = 0.10784395071051045;
+          this.zoomLevel = 100.0;
         } else if (this.type === 'burning') {
+          this.zoomTargetX = -1.737678058675311;
+          this.zoomTargetY = -0.028887125530744587;
+          this.zoomLevel = 100.0;
+        } else {
+          this.zoomTargetX = -0.740711186330862;
+          this.zoomTargetY = 0.12960730527906075;
+          this.zoomLevel = 100.0;
+        }
+      } else if (this.type === 'burning') {
           this.zoomTargetX = -1.749204;
           this.zoomTargetY = -0.027732;
           this.zoomLevel = 100.0;
@@ -560,17 +569,17 @@ class FractalSynth {
       this.type = e.target.value;
       
       if (this.type === 'julia') {
-        this.zoomTargetX = -0.5855;
-        this.zoomTargetY = 0.4464;
-        this.zoomLevel = 50.0;
+        this.zoomTargetX = -0.08895336433458778;
+        this.zoomTargetY = 0.10784395071051045;
+        this.zoomLevel = 100.0;
       } else if (this.type === 'burning') {
-        this.zoomTargetX = -1.749204;
-        this.zoomTargetY = -0.027732;
+        this.zoomTargetX = -1.737678058675311;
+        this.zoomTargetY = -0.028887125530744587;
         this.zoomLevel = 100.0;
       } else {
-        this.zoomTargetX = -0.738012624328;
-        this.zoomTargetY = 0.170669229045;
-        this.zoomLevel = 50.0;
+        this.zoomTargetX = -0.740711186330862;
+        this.zoomTargetY = 0.12960730527906075;
+        this.zoomLevel = 100.0;
       }
     });
     
