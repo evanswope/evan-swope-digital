@@ -274,7 +274,7 @@ class FractalSynth {
   constructor() {
     this.isActive = false;
     this.audioInit = false;
-    this.iterations = 80;
+    this.iterations = 120;
     this.type = 'mandelbrot';
     this.tuning = 'harmonic';
     
@@ -430,8 +430,15 @@ class FractalSynth {
     
     let viewWidth = 3.0 / this.zoomLevel;
     let viewHeight = 2.0 / this.zoomLevel;
-    let startX = this.zoomTargetX - viewWidth / 2;
-    let startY = this.zoomTargetY - viewHeight / 2;
+    
+    // Orbital drift to prevent the fractal from becoming static!
+    let t = performance.now() * 0.0002; 
+    let driftRadius = 0.5 / this.zoomLevel; 
+    let currentTargetX = this.zoomTargetX + Math.sin(t * 1.3) * driftRadius;
+    let currentTargetY = this.zoomTargetY + Math.cos(t * 0.8) * driftRadius;
+    
+    let startX = currentTargetX - viewWidth / 2;
+    let startY = currentTargetY - viewHeight / 2;
     
     for(let x = 0; x < this.resolutionX; x++) {
       let col = [];
