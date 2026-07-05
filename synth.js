@@ -296,6 +296,7 @@ class ReactionDiffusionSynth {
     
     this.isPlaying = false;
     this.type = 'mitosis';
+    this.frameCount = 0;
     this.seedGrid();
   }
   
@@ -493,6 +494,20 @@ class ReactionDiffusionSynth {
   simulateAndDraw() {
     if (!this.isActive) return;
     
+    this.frameCount++;
+    // Drop a new seed every 120 frames to keep the ecosystem alive and dynamic
+    if (this.frameCount % 120 === 0) {
+      let rx = Math.floor(Math.random() * this.width);
+      let ry = Math.floor(Math.random() * this.height);
+      for (let x = rx - 5; x < rx + 5; x++) {
+        for (let y = ry - 5; y < ry + 5; y++) {
+          if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+            this.gridB[y * this.width + x] = 1.0;
+          }
+        }
+      }
+    }
+    
     for (let i = 0; i < this.simSpeed; i++) {
       this.step();
     }
@@ -502,13 +517,18 @@ class ReactionDiffusionSynth {
       
       
       const pxIndex = i * 4;
-      // Boost the brightness since b usually peaks around 0.3 to 0.5
-      let val = b * 2.5; 
+      // Chemical A is the "ocean", Chemical B is the "organism"
+      let valB = Math.min(1.0, b * 3.0); // Boost B
+      let valA = Math.max(0.0, a);       // A is usually 0 to 1
       
-      // Gradient from Black -> Dark Emerald -> Bright Emerald -> White
-      this.imagePixels[pxIndex] = Math.min(255, Math.floor(16 * val + (val > 1 ? (val-1)*255 : 0)));
-      this.imagePixels[pxIndex+1] = Math.min(255, Math.floor(185 * val + (val > 1 ? (val-1)*255 : 0)));
-      this.imagePixels[pxIndex+2] = Math.min(255, Math.floor(129 * val + (val > 1 ? (val-1)*255 : 0)));
+      // B = Green/Teal. A = Deep Blue
+      let r = valB * 30 + valA * 10;
+      let g = valB * 200 + valA * 30;
+      let bl = valB * 150 + valA * 150;
+      
+      this.imagePixels[pxIndex] = Math.min(255, r);
+      this.imagePixels[pxIndex+1] = Math.min(255, g);
+      this.imagePixels[pxIndex+2] = Math.min(255, bl);
       this.imagePixels[pxIndex+3] = 255;
     }
     
