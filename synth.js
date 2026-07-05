@@ -368,45 +368,55 @@ class ReactionDiffusionSynth {
   }
   
   buildFilterBank(ctx) {
-    const bufferSize = ctx.sampleRate * 2;
-    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+    // We are hijacking the name buildFilterBank so we don't have to rename it everywhere.
+    // Instead of a filter bank, we build a Wavetable Oscillator.
     
-    this.noiseSource = ctx.createBufferSource();
-    this.noiseSource.buffer = noiseBuffer;
-    this.noiseSource.loop = true;
+    this.osc = ctx.createOscillator();
+    this.osc.frequency.value = 55.0; // Low A
     
-    this.filters = [];
-    this.filterGains = [];
+    // Add a lowpass filter to tame the harsh digital grit
+    this.lowpass = ctx.createBiquadFilter();
+    this.lowpass.type = 'lowpass';
+    this.lowpass.frequency.value = 2500;
     
-    const baseFreq = 55.0; // Low A
+    // Add a sub oscillator for body
+    this.sub = ctx.createOscillator();
+    this.sub.type = 'sine';
+    this.sub.frequency.value = 27.5; // Sub A
+    this.subGain = ctx.createGain();
+    this.subGain.value = 0.5;
     
-    for (let i = 0; i < this.height; i++) {
-      const f = ctx.createBiquadFilter();
-      f.type = 'bandpass';
-      f.Q.value = 30; 
-      
-      // Harmonic series
-      let freq = baseFreq * (i + 1);
-      f.frequency.value = Math.min(freq, 22000);
-      
-      const g = ctx.createGain();
-      g.gain.value = 0;
-      
-      const pan = ctx.createStereoPanner();
-      pan.pan.value = (Math.random() * 0.8) - 0.4;
-      
-      this.noiseSource.connect(f);
-      f.connect(g);
-      g.connect(pan);
-      pan.connect(this.masterGain);
-      
-      this.filters.push(f);
-      this.filterGains.push(g);
+    this.oscGain = ctx.createGain();
+    this.oscGain.gain.value = 0;
+    
+    this.osc.connect(this.oscGain);
+    this.sub.connect(this.subGain);
+    this.subGain.connect(this.oscGain);
+    this.oscGain.connect(this.lowpass);
+    this.lowpass.connect(this.masterGain);
+    
+    this.osc.start();
+    this.sub.start();
+  }
+  
+  // Custom Discrete Fourier Transform for 64 points
+  computeDFT(timeDomain) {
+    const N = timeDomain.length;
+    const real = new Float32Array(N / 2 + 1);
+    const imag = new Float32Array(N / 2 + 1);
+    
+    for (let k = 0; k <= N / 2; k++) {
+      let r = 0;
+      let i = 0;
+      for (let n = 0; n < N; n++) {
+        const angle = (2 * Math.PI * k * n) / N;
+        r += timeDomain[n] * Math.cos(angle);
+        i -= timeDomain[n] * Math.sin(angle);
+      }
+      real[k] = r / N;
+      imag[k] = i / N;
     }
-    
-    this.noiseSource.start();
+    return { real, imag };
   }
   
   triggerEnvelope() {
@@ -418,15 +428,12 @@ class ReactionDiffusionSynth {
     
     if (this.isPlaying) {
       btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      for (let y = 0; y < this.height; y++) {
-        this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
-      }
+      this.oscGain.gain.cancelScheduledValues(ctx.currentTime);
+      this.oscGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.05);
     } else {
       btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
-      for (let y = 0; y < this.height; y++) {
-        this.filterGains[y].gain.cancelScheduledValues(ctx.currentTime);
-        this.filterGains[y].gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
-      }
+      this.oscGain.gain.cancelScheduledValues(ctx.currentTime);
+      this.oscGain.gain.setTargetAtTime(0.0, ctx.currentTime, 0.1);
     }
   }
   
@@ -549,14 +556,33 @@ class ReactionDiffusionSynth {
       this.ctx.stroke();
       
       const ctx = globalAudioCtx;
-      const now = ctx.currentTime;
       let xIndex = Math.floor(cursorX);
-      if (xIndex >= 0 && xIndex < this.width) {
+      if (xIndex >= 0 && xIndex < this.width && this.isPlaying) {
+        // Extract 64-sample waveform from the current vertical column
+        let waveform = new Float32Array(this.height);
+        let hasSignal = false;
+        
         for (let y = 0; y < this.height; y++) {
           let b = this.gridB[y * this.width + xIndex];
-          // b is typically 0 to 0.5. Scale it up for volume.
-          let vol = b * 1.5;
-          this.filterGains[this.height - 1 - y].gain.setTargetAtTime(vol, now, 0.015);
+          // Map B concentration to waveform amplitude [-1.0, 1.0]
+          waveform[y] = (b * 2.0) - 1.0;
+          if (b > 0.01) hasSignal = true;
+        }
+        
+        // If there's no pattern here, just stay silent
+        if (hasSignal) {
+          // Perform Discrete Fourier Transform to get harmonics
+          let { real, imag } = this.computeDFT(waveform);
+          // Set DC offset to 0
+          real[0] = 0; 
+          imag[0] = 0;
+          
+          try {
+            let wave = ctx.createPeriodicWave(real, imag, {disableNormalization: false});
+            this.osc.setPeriodicWave(wave);
+          } catch(e) {
+            console.error(e);
+          }
         }
       }
     }
@@ -567,11 +593,11 @@ class ReactionDiffusionSynth {
   setType(val) {
     this.type = val;
     if (val === 'mitosis') {
-      this.feed = 0.0367;
-      this.kill = 0.0649;
+      this.feed = 0.03;
+      this.kill = 0.062;
     } else if (val === 'coral') {
-      this.feed = 0.0545;
-      this.kill = 0.0620;
+      this.feed = 0.045;
+      this.kill = 0.06;
     } else if (val === 'labyrinth') {
       this.feed = 0.029;
       this.kill = 0.057;
