@@ -287,6 +287,7 @@ class ReactionDiffusionSynth {
     this.dt = 1.0;
     this.simSpeed = 5;
     this.wavefold = 5.0;
+    this.foldLfo = false;
     
     this.gridA = new Float32Array(this.width * this.height);
     this.gridB = new Float32Array(this.width * this.height);
@@ -369,32 +370,47 @@ class ReactionDiffusionSynth {
   }
   
   buildFilterBank(ctx) {
-    // We are hijacking the name buildFilterBank so we don't have to rename it everywhere.
-    // Instead of a filter bank, we build a Wavetable Oscillator.
-    
     this.osc = ctx.createOscillator();
-    this.osc.frequency.value = 55.0; // Low A
+    this.osc.frequency.value = 55.0; 
     
-    // Add a lowpass filter to tame the harsh digital grit
-    this.lowpass = ctx.createBiquadFilter();
-    this.lowpass.type = 'lowpass';
-    this.lowpass.frequency.value = 2500;
-    
-    // Add a sub oscillator for body
     this.sub = ctx.createOscillator();
     this.sub.type = 'sine';
-    this.sub.frequency.value = 27.5; // Sub A
-    this.subGain = ctx.createGain();
-    this.subGain.value = 0.5;
+    this.sub.frequency.value = 27.5;
     
     this.oscGain = ctx.createGain();
     this.oscGain.gain.value = 0;
     
+    this.subGain = ctx.createGain();
+    this.subGain.gain.value = 0.5;
+    
+    this.lowpass = ctx.createBiquadFilter();
+    this.lowpass.type = 'lowpass';
+    this.lowpass.frequency.value = 2500;
+    this.lowpass.Q.value = 1.0;
+    
+    this.delay = ctx.createDelay(5.0);
+    this.delay.delayTime.value = 0.35; // 350ms ping-pong vibe
+    this.delayFeedback = ctx.createGain();
+    this.delayFeedback.gain.value = 0.5;
+    this.delayMix = ctx.createGain();
+    this.delayMix.gain.value = 0.2;
+    
+    // Routing
     this.osc.connect(this.oscGain);
     this.sub.connect(this.subGain);
     this.subGain.connect(this.oscGain);
+    
     this.oscGain.connect(this.lowpass);
+    
+    // Dry path
     this.lowpass.connect(this.masterGain);
+    
+    // Delay path
+    this.lowpass.connect(this.delay);
+    this.delay.connect(this.delayFeedback);
+    this.delayFeedback.connect(this.delay);
+    this.delay.connect(this.delayMix);
+    this.delayMix.connect(this.masterGain);
     
     this.osc.start();
     this.sub.start();
@@ -575,6 +591,11 @@ class ReactionDiffusionSynth {
           // then wrap it back around using Math.sin. This forces smooth gradients 
           // to ripple wildly, generating extreme high-end harmonic complexity!
           let drive = this.wavefold;
+          if (this.foldLfo) {
+            // Sweep wavefold up and down by 15.0 to create breathing PWM grit
+            drive += Math.sin(this.frameCount * 0.03) * 15.0;
+            drive = Math.max(1.0, drive); 
+          }
           waveform[y] = Math.sin(b * drive * Math.PI);
           
           if (b > 0.01) hasSignal = true;
@@ -632,6 +653,38 @@ class ReactionDiffusionSynth {
     
     document.getElementById('rd-fold')?.addEventListener('input', (e) => {
       this.wavefold = parseFloat(e.target.value);
+    });
+    
+    document.getElementById('rd-sub')?.addEventListener('input', (e) => {
+      if(this.subGain) this.subGain.gain.setTargetAtTime(parseFloat(e.target.value), globalAudioCtx.currentTime, 0.05);
+    });
+    
+    document.getElementById('rd-cutoff')?.addEventListener('input', (e) => {
+      if(this.lowpass) this.lowpass.frequency.setTargetAtTime(parseFloat(e.target.value), globalAudioCtx.currentTime, 0.05);
+    });
+    
+    document.getElementById('rd-res')?.addEventListener('input', (e) => {
+      if(this.lowpass) this.lowpass.Q.setTargetAtTime(parseFloat(e.target.value), globalAudioCtx.currentTime, 0.05);
+    });
+    
+    document.getElementById('rd-delay')?.addEventListener('input', (e) => {
+      if(this.delayMix) this.delayMix.gain.setTargetAtTime(parseFloat(e.target.value), globalAudioCtx.currentTime, 0.05);
+    });
+    
+    document.getElementById('rd-lfo')?.addEventListener('change', (e) => {
+      this.foldLfo = e.target.checked;
+    });
+    
+    // Theremin Pitch Tracking
+    document.getElementById('canvas-rd')?.addEventListener('mousemove', (e) => {
+      if(!this.isPlaying || !this.osc) return;
+      let rect = e.target.getBoundingClientRect();
+      let mouseY = (e.clientY - rect.top) / rect.height; // 0 to 1
+      // Map to pitch: Bottom = 27.5Hz (Low A), Top = 220Hz (A3)
+      let basePitch = 27.5 * Math.pow(2, (1.0 - mouseY) * 3); 
+      let now = globalAudioCtx.currentTime;
+      this.osc.frequency.setTargetAtTime(basePitch, now, 0.05);
+      this.sub.frequency.setTargetAtTime(basePitch / 2, now, 0.05);
     });
   }
 }
