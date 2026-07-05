@@ -134,35 +134,43 @@
                       </select>
                     </div>
                   </div>
-                  <div class="fx-controls" style="gap:1rem; justify-content:center;">
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">SIM SPEED</span>
-                      <input type="range" id="rd-speed" class="line-slider" min="1" max="100" step="1" value="20">
+                  <div class="fx-controls" style="display:flex; flex-wrap:wrap; gap:1.2rem; justify-content:center; align-items:center; width:100%; padding-top:1rem;">
+                    
+                    <div class="fx-knob-group" title="Simulation Speed" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-gauge" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="range" id="rd-speed" class="line-slider" min="1" max="100" step="1" value="20" style="width: 50px;">
                     </div>
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">WAVEFOLD</span>
-                      <input type="range" id="rd-fold" class="line-slider" min="1" max="30" step="0.1" value="5.0">
+                    
+                    <div class="fx-knob-group" title="Wavefold Amount" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-wave-square" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="range" id="rd-fold" class="line-slider" min="1" max="30" step="0.1" value="5.0" style="width: 50px;">
                     </div>
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">SUB MIX</span>
-                      <input type="range" id="rd-sub" class="line-slider" min="0" max="1" step="0.01" value="0.5">
+                    
+                    <div class="fx-knob-group" title="Sub-Oscillator Mix" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-layer-group" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="range" id="rd-sub" class="line-slider" min="0" max="1" step="0.01" value="0.5" style="width: 50px;">
                     </div>
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">CUTOFF</span>
-                      <input type="range" id="rd-cutoff" class="line-slider" min="100" max="10000" step="1" value="2500">
+                    
+                    <div class="fx-knob-group" title="Filter Cutoff" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-filter" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="range" id="rd-cutoff" class="line-slider" min="100" max="10000" step="1" value="2500" style="width: 50px;">
                     </div>
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">RESONANCE</span>
-                      <input type="range" id="rd-res" class="line-slider" min="0" max="20" step="0.1" value="1.0">
+                    
+                    <div class="fx-knob-group" title="Filter Resonance" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-bolt" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="range" id="rd-res" class="line-slider" min="0" max="20" step="0.1" value="1.0" style="width: 50px;">
                     </div>
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">DELAY</span>
-                      <input type="range" id="rd-delay" class="line-slider" min="0" max="1" step="0.01" value="0.2">
+                    
+                    <div class="fx-knob-group" title="Delay Echo Mix" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-mountain" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="range" id="rd-delay" class="line-slider" min="0" max="1" step="0.01" value="0.2" style="width: 50px;">
                     </div>
-                    <div class="fx-knob-group">
-                      <span style="color:#64748b; font-size:0.8rem; font-family:var(--font-mono)">FOLD LFO</span>
-                      <input type="checkbox" id="rd-lfo" style="margin-top:0.5rem; accent-color: var(--emerald-400); width:1.2rem; height:1.2rem; cursor:pointer;">
+                    
+                    <div class="fx-knob-group" title="Auto-Wavefold LFO" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+                      <i class="fa-solid fa-arrows-spin" style="color:#64748b; font-size:0.9rem;"></i>
+                      <input type="checkbox" id="rd-lfo" style="accent-color: var(--emerald-400); width:1.1rem; height:1.1rem; cursor:pointer; margin:0;">
                     </div>
+                    
                   </div>
                 </div>
               </div>
