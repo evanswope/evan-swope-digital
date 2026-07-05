@@ -499,7 +499,7 @@ class ReactionDiffusionSynth {
     
     for (let i = 0; i < this.width * this.height; i++) {
       const b = this.gridB[i];
-      const val = Math.floor(b * 255);
+      
       
       const pxIndex = i * 4;
       // Boost the brightness since b usually peaks around 0.3 to 0.5
