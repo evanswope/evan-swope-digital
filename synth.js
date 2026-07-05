@@ -300,6 +300,7 @@ class ReactionDiffusionSynth {
     this.type = 'mitosis';
     this.frameCount = 0;
     this.seedGrid();
+    this.buildDynamicKeyboard();
   }
   
   seedGrid() {
@@ -369,6 +370,96 @@ class ReactionDiffusionSynth {
     if (btn) btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
   }
   
+
+  buildDynamicKeyboard() {
+    const container = document.getElementById('rd-keyboard');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Determine how many white keys fit
+    let numWhiteKeys = window.innerWidth < 600 ? 10 : 15;
+    
+    // Base pitch C2 = 65.41 Hz
+    const baseFreq = 65.41;
+    const notesPattern = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    let whiteIndex = 0;
+    let currentNoteIdx = 0;
+    
+    let keyElements = [];
+    let blackKeys = [];
+    
+    for (let i = 0; whiteIndex < numWhiteKeys; i++) {
+      let isBlack = notesPattern[currentNoteIdx % 12].includes('#');
+      let pitch = baseFreq * Math.pow(2, i / 12);
+      
+      let key = document.createElement('div');
+      key.dataset.pitch = pitch;
+      
+      if (isBlack) {
+        key.className = 'key black-key';
+        key.style.position = 'absolute';
+        key.style.width = `calc((100% / ${numWhiteKeys}) * 0.6)`;
+        key.style.height = '60%';
+        key.style.background = '#1e293b';
+        key.style.zIndex = '2';
+        key.style.left = `calc((100% / ${numWhiteKeys}) * ${whiteIndex} - ((100% / ${numWhiteKeys}) * 0.3))`;
+        blackKeys.push(key);
+      } else {
+        key.className = 'key white-key';
+        key.style.flex = '1';
+        key.style.background = '#e2e8f0';
+        key.style.borderRight = '1px solid #cbd5e1';
+        key.style.zIndex = '1';
+        keyElements.push(key);
+        whiteIndex++;
+      }
+      
+      // Bind interactions
+      const trigger = (e) => {
+        if(e.type !== 'mouseenter' || e.buttons > 0) {
+          if(!this.isPlaying) return;
+          const now = globalAudioCtx.currentTime;
+          if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
+          if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
+          
+          key.style.background = isBlack ? 'var(--emerald-400)' : '#94a3b8';
+          setTimeout(() => {
+            key.style.background = isBlack ? '#1e293b' : '#e2e8f0';
+          }, 150);
+        }
+      };
+      
+      key.addEventListener('mousedown', trigger);
+      key.addEventListener('mouseenter', trigger);
+      key.addEventListener('touchstart', (e) => { e.preventDefault(); trigger(e); }, {passive: false});
+      
+      currentNoteIdx++;
+    }
+    
+    // Append white keys
+    keyElements.forEach(k => container.appendChild(k));
+    // Append black keys on top
+    blackKeys.forEach(k => container.appendChild(k));
+    
+    // Bind computer keyboard (Z to M for bottom row white keys)
+    const keyMap = {
+      'z': 0, 's': 1, 'x': 2, 'd': 3, 'c': 4, 'v': 5, 'g': 6, 'b': 7, 'h': 8, 'n': 9, 'j': 10, 'm': 11
+    };
+    
+    window.addEventListener('keydown', (e) => {
+      if(!this.isPlaying || !this.isActive) return;
+      let noteOffset = keyMap[e.key.toLowerCase()];
+      if (noteOffset !== undefined) {
+        let pitch = baseFreq * Math.pow(2, noteOffset / 12);
+        const now = globalAudioCtx.currentTime;
+        if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
+        if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
+      }
+    });
+  }
+
   buildFilterBank(ctx) {
     this.osc = ctx.createOscillator();
     this.osc.frequency.value = 55.0; 
@@ -634,7 +725,8 @@ class ReactionDiffusionSynth {
       this.feed = 0.029;
       this.kill = 0.057;
     }
-    this.seedGrid(); // Reset with new parameters
+    this.seedGrid();
+    this.buildDynamicKeyboard(); // Reset with new parameters
   }
   
   bindUI() {
@@ -673,6 +765,12 @@ class ReactionDiffusionSynth {
     
     document.getElementById('rd-lfo')?.addEventListener('change', (e) => {
       this.foldLfo = e.target.checked;
+    });
+    
+    window.addEventListener('resize', () => {
+      if (this.isActive) {
+        this.buildDynamicKeyboard();
+      }
     });
     
     // Theremin Pitch Tracking
