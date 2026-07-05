@@ -485,6 +485,11 @@ class ReactionDiffusionSynth {
     this.subGain.connect(this.oscGain);
     
     this.oscGain.connect(this.lowpass);
+    
+    this.masterGain = ctx.createGain();
+    this.masterGain.gain.value = 0.8;
+    this.masterGain.connect(ctx.destination);
+    
     this.lowpass.connect(this.masterGain);
     
     this.osc.start();
