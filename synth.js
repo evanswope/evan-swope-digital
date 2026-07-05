@@ -519,7 +519,7 @@ class ReactionDiffusionSynth {
       const pxIndex = i * 4;
       // Chemical A is the "ocean", Chemical B is the "organism"
       let valB = Math.min(1.0, b * 3.0); // Boost B
-      let valA = Math.max(0.0, a);       // A is usually 0 to 1
+      let valA = Math.max(0.0, this.gridA[i]);       // A is usually 0 to 1
       
       // B = Green/Teal. A = Deep Blue
       let r = valB * 30 + valA * 10;
