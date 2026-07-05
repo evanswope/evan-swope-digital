@@ -469,7 +469,7 @@ class ReactionDiffusionSynth {
     this.sub.frequency.value = 27.5;
     
     this.oscGain = ctx.createGain();
-    this.oscGain.gain.value = 0;
+    this.oscGain.gain.value = 1.0; // Start unmuted
     
     this.subGain = ctx.createGain();
     this.subGain.gain.value = 0.5;
@@ -479,29 +479,13 @@ class ReactionDiffusionSynth {
     this.lowpass.frequency.value = 2500;
     this.lowpass.Q.value = 1.0;
     
-    this.delay = ctx.createDelay(5.0);
-    this.delay.delayTime.value = 0.35; // 350ms ping-pong vibe
-    this.delayFeedback = ctx.createGain();
-    this.delayFeedback.gain.value = 0.5;
-    this.delayMix = ctx.createGain();
-    this.delayMix.gain.value = 0.2;
-    
     // Routing
     this.osc.connect(this.oscGain);
     this.sub.connect(this.subGain);
     this.subGain.connect(this.oscGain);
     
     this.oscGain.connect(this.lowpass);
-    
-    // Dry path
     this.lowpass.connect(this.masterGain);
-    
-    // Delay path
-    this.lowpass.connect(this.delay);
-    this.delay.connect(this.delayFeedback);
-    this.delayFeedback.connect(this.delay);
-    this.delay.connect(this.delayMix);
-    this.delayMix.connect(this.masterGain);
     
     this.osc.start();
     this.sub.start();
@@ -535,11 +519,11 @@ class ReactionDiffusionSynth {
     const ctx = globalAudioCtx;
     
     if (this.isPlaying) {
-      btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+      btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
       this.oscGain.gain.cancelScheduledValues(ctx.currentTime);
       this.oscGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.05);
     } else {
-      btn.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
+      btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
       this.oscGain.gain.cancelScheduledValues(ctx.currentTime);
       this.oscGain.gain.setTargetAtTime(0.0, ctx.currentTime, 0.1);
     }
@@ -759,9 +743,7 @@ class ReactionDiffusionSynth {
       if(this.lowpass) this.lowpass.Q.setTargetAtTime(parseFloat(e.target.value), globalAudioCtx.currentTime, 0.05);
     });
     
-    document.getElementById('rd-delay')?.addEventListener('input', (e) => {
-      if(this.delayMix) this.delayMix.gain.setTargetAtTime(parseFloat(e.target.value), globalAudioCtx.currentTime, 0.05);
-    });
+
     
     document.getElementById('rd-lfo')?.addEventListener('change', (e) => {
       this.foldLfo = e.target.checked;
