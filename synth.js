@@ -480,8 +480,13 @@ class ReactionDiffusionSynth {
         
         const abb = a * b * b;
         
-        this.nextA[idx] = a + (this.dA * lapA - abb + this.feed * (1 - a)) * this.dt;
-        this.nextB[idx] = b + (this.dB * lapB + abb - (this.kill + this.feed) * b) * this.dt;
+        // Add a slow, traveling sine-wave LFO to the feed rate.
+        // This causes "waves of fertility" to travel across the grid, 
+        // forcing stable patterns to endlessly expand, contract, and break apart!
+        let currentFeed = this.feed + Math.sin(this.frameCount * 0.01 + (x * 0.1) + (y * 0.05)) * 0.003;
+        
+        this.nextA[idx] = a + (this.dA * lapA - abb + currentFeed * (1 - a)) * this.dt;
+        this.nextB[idx] = b + (this.dB * lapB + abb - (this.kill + currentFeed) * b) * this.dt;
         
         // Constrain
         this.nextA[idx] = Math.max(0, Math.min(1, this.nextA[idx]));
