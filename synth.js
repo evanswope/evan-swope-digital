@@ -285,7 +285,8 @@ class ReactionDiffusionSynth {
     this.dA = 1.0;
     this.dB = 0.5;
     this.dt = 1.0;
-    this.simSpeed = 5; // steps per frame
+    this.simSpeed = 5;
+    this.wavefold = 5.0;
     
     this.gridA = new Float32Array(this.width * this.height);
     this.gridB = new Float32Array(this.width * this.height);
@@ -564,8 +565,13 @@ class ReactionDiffusionSynth {
         
         for (let y = 0; y < this.height; y++) {
           let b = this.gridB[y * this.width + xIndex];
-          // Map B concentration to waveform amplitude [-1.0, 1.0]
-          waveform[y] = (b * 2.0) - 1.0;
+          
+          // WAVEFOLDING: We amplify the soft biological blob by the wavefold amount, 
+          // then wrap it back around using Math.sin. This forces smooth gradients 
+          // to ripple wildly, generating extreme high-end harmonic complexity!
+          let drive = this.wavefold;
+          waveform[y] = Math.sin(b * drive * Math.PI);
+          
           if (b > 0.01) hasSignal = true;
         }
         
@@ -617,6 +623,10 @@ class ReactionDiffusionSynth {
     document.getElementById('rd-speed')?.addEventListener('input', (e) => {
       let val = parseInt(e.target.value); // 1 to 100
       this.simSpeed = Math.floor(val / 10) + 1; // 1 to 10 steps per frame
+    });
+    
+    document.getElementById('rd-fold')?.addEventListener('input', (e) => {
+      this.wavefold = parseFloat(e.target.value);
     });
   }
 }
