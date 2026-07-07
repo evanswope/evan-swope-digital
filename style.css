@@ -188,7 +188,7 @@ ul {
 .logo-text {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 2.25rem !important;
   letter-spacing: 0.05em;
   color: var(--text-primary);
 }
@@ -349,7 +349,7 @@ body.lens-hybrid .font-hybrid {
    6. HERO SECTION
    -------------------------------------------------------------------------- */
 .hero-section {
-  padding: 8rem 2rem 4rem 2rem;
+  padding: 9.5rem 2rem 4rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -1588,7 +1588,7 @@ body.lens-hybrid .font-hybrid {
 }
 
 .philosophy-card h3 {
-  font-size: 1.25rem;
+  font-size: 2.25rem !important;
   margin-bottom: 0.75rem;
   text-transform: uppercase;
   font-weight: 700;
@@ -2192,7 +2192,10 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
 @media (max-width: 768px) {
   /* 1. Reclaim Horizontal & Vertical Real Estate */
-  .hero-section,
+  /* Give Hero card 184px of top padding so it stays completely below the stacked mobile menu! */
+  .hero-section {
+    padding: 11.5rem 1rem 3.5rem 1rem !important;
+  }
   .work-section,
   .philosophy-section,
   .resume-section,
@@ -2253,9 +2256,27 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   .contact-section p:not([style*="italic"]),
   .job-bullets li,
   .project-card-face ul li {
-    font-size: 0.82rem !important; /* ~13px on mobile/tablets! */
-    line-height: 1.32 !important; /* Super compact line height! */
-    margin-bottom: 0.55rem !important; /* Small, clean paragraph gaps! */
+    font-size: 0.75rem !important; /* ~13px on mobile/tablets! */
+    line-height: 1.28 !important; /* Super compact line height! */
+    margin-bottom: 0.45rem !important; /* Small, clean paragraph gaps! */
+  }
+
+  
+  /* Shrink eyebrow text hiding in ::before call to be quite small on mobile */
+  .section-header-container::before {
+    font-size: 0.65rem !important; /* ~10.5px */
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Shrink MFS image on back of hero card */
+  .project-card-back img[src*="MFS_white-w-cities"] {
+    max-width: 80px !important;
+    margin-top: 0.75rem !important;
+  }
+
+  /* Bring up size of EVAN SWOPE logo text on mobile by 1rem (~2.1rem) */
+  .logo-text {
+    font-size: 2.1rem !important;
   }
 
   /* 5. Typography Clamping Fixes */
