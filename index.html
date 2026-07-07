@@ -260,62 +260,151 @@
       </div>
     </section>
     
-    <!-- 3. REALLY MAKES YOU THINK (Philosophy) --><!-- 3. REALLY MAKES YOU THINK (Philosophy) -->
+    <!-- 3. REALLY MAKES YOU THINK (Philosophy) -->
     <section id="philosophy" class="philosophy-section" style="padding: 6rem 0;">
       <div class="section-header-container" style="text-align: center; margin-bottom: 4rem;">
-        <h2 class="section-title">My Philosophy</h2>
-        <p class="section-subtitle">The frameworks and beliefs that drive my work.</p>
+        <h2 class="section-title">How I Operate</h2>
+        <p class="section-subtitle">My perspective on learning, building, and leadership. Click any card to flip for the punchline.</p>
       </div>
 
-      <div class="philosophy-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto;">
-        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
-          <svg class="icon-unravel" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
-            <path class="unravel-path" d="M16 16 C16 10, 32 10, 32 16 C32 24, 24 24, 24 30 L24 40" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round"/>
-            <circle class="unravel-dot" cx="24" cy="46" r="2" fill="var(--accent-color)"/>
-          </svg>
-          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Relentless Curiosity</h3>
-          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Active listening first. Strategy begins by understanding what is left unsaid.</p>
-          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"The best questions are the ones you didn't know you needed to ask."</p>
-        </div>
+      <div class="philosophy-grid flip-grid v3-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2.5rem; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        
+        <!-- Value 1: The Zero-Knowledge Perspective -->
+        <article class="project-card-container tilt-right" style="min-height: 420px;">
+          <div class="project-card-inner">
+            <div class="project-card-front card-strategy project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <svg class="scribble-outline"><rect /></svg>
+              <div>
+                <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">// Value 01</span>
+                <h3 class="project-title" style="color: var(--accent-color); font-size: 1.6rem; margin: 0.5rem 0 1rem; font-weight: 800;">The Zero-Knowledge Perspective</h3>
+                <p style="color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 1.05rem; margin-bottom: 1.5rem;">Imagine no one has ever heard of your product. In fact, I probably haven't either. I happen to think this is great. It's a really key part of how I empathetically investigate sales cycles, which customers we think we're talking to, and what they think they know about us.</p>
+              </div>
+              <p style="font-size:0.9rem; font-style:italic; opacity: 0.8; color: var(--neon-orange); margin-bottom: 0;">// Click to flip for the punchline</p>
+            </div>
+            <div class="project-card-back card-creative project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
+              <svg class="scribble-outline"><rect /></svg>
+              <!-- Animated SVG: Zero/Void Ring -->
+              <svg class="icon-zero" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
+                <circle cx="24" cy="24" r="16" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-dasharray="8 4" stroke-linecap="round">
+                  <animateTransform attributeName="transform" type="rotate" from="0 24 24" to="360 24 24" dur="12s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="24" cy="24" r="8" fill="none" stroke="var(--neon-orange)" stroke-width="2"/>
+                <circle cx="24" cy="24" r="2" fill="var(--accent-color)">
+                  <animate attributeName="r" values="2;4;2" dur="3s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+              <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">// The Punchline</span>
+              <h3 class="project-title" style="color: #fff; font-size: 1.6rem; margin-bottom: 1.5rem;">The Zero-Knowledge Perspective</h3>
+              <blockquote style="font-size: 1.25rem; line-height: 1.6; color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--neon-orange); padding-left: 1.25rem; margin: 0; font-style: italic;">
+                "Sometimes I don't know shit about shit. That's a great starting point."
+              </blockquote>
+            </div>
+          </div>
+        </article>
 
-        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
-          <svg class="icon-lift" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
-            <rect class="lift-block" x="12" y="10" width="24" height="8" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
-            <path class="lift-hands" d="M16 38 L16 26 L20 26 M32 38 L32 26 L28 26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="square"/>
-          </svg>
-          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Service Leadership</h3>
-          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Caring for others, stewardship, and leaving the world a little better than I found it.</p>
-          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"Lead by supporting the people who actually do the heavy lifting."</p>
-        </div>
+        <!-- Value 2: Friction is the Job -->
+        <article class="project-card-container tilt-left" style="min-height: 420px;">
+          <div class="project-card-inner">
+            <div class="project-card-front card-strategy project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <svg class="scribble-outline"><rect /></svg>
+              <div>
+                <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">// Value 02</span>
+                <h3 class="project-title" style="color: var(--accent-color); font-size: 1.6rem; margin: 0.5rem 0 1rem; font-weight: 800;">Friction is the Job</h3>
+                <p style="color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 1.05rem; margin-bottom: 1.5rem;">One time a friend of mine called his mom to ask about how long his pothos (house plant) would get. She said, "plants either grow, or they die." Huh. Sometimes I feel like if I don't grow, I will die.</p>
+              </div>
+              <p style="font-size:0.9rem; font-style:italic; opacity: 0.8; color: var(--neon-orange); margin-bottom: 0;">// Click to flip for the punchline</p>
+            </div>
+            <div class="project-card-back card-creative project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
+              <svg class="scribble-outline"><rect /></svg>
+              <!-- Animated SVG: Sprouting Pothos -->
+              <svg class="icon-pothos" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
+                <path d="M12 40 Q 24 28, 20 16 T 36 8" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round">
+                  <animate attributeName="d" values="M12 40 Q 24 28, 20 16 T 36 8; M12 40 Q 22 26, 24 16 T 36 8; M12 40 Q 24 28, 20 16 T 36 8" dur="5s" repeatCount="indefinite"/>
+                </path>
+                <path d="M20 16 Q 10 16, 12 24 Q 20 22, 20 16 Z" fill="var(--neon-orange)" opacity="0.8"/>
+                <path d="M30 12 Q 38 12, 36 20 Q 28 18, 30 12 Z" fill="var(--accent-color)"/>
+                <path d="M36 8 Q 44 4, 42 12 Q 34 10, 36 8 Z" fill="var(--accent-color)"/>
+              </svg>
+              <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">// The Punchline</span>
+              <h3 class="project-title" style="color: #fff; font-size: 1.6rem; margin-bottom: 1.5rem;">Friction is the Job</h3>
+              <blockquote style="font-size: 1.25rem; line-height: 1.6; color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--neon-orange); padding-left: 1.25rem; margin: 0; font-style: italic;">
+                "Everything is hard. But try anyway."
+              </blockquote>
+            </div>
+          </div>
+        </article>
 
-        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
-          <svg class="icon-spark" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
-            <polygon class="spark-anvil" points="14,38 34,38 30,26 36,26 36,22 12,22 12,26 18,26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="miter"/>
-            <path class="spark-hammer" d="M38 16 L44 16 L44 10 L38 10 Z M41 16 L34 26" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="miter"/>
-            <circle class="spark-particle p1" cx="32" cy="18" r="1.5" fill="var(--accent-color)"/>
-            <circle class="spark-particle p2" cx="38" cy="22" r="1.5" fill="var(--accent-color)"/>
-          </svg>
-          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Challenge & Grit</h3>
-          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Doing the hard things, failing forward, and having fun while doing it.</p>
-          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"If it was easy, everyone would do it. And that's boring."</p>
-        </div>
+        <!-- Value 3: Velocity Over Vanity -->
+        <article class="project-card-container tilt-right" style="min-height: 420px;">
+          <div class="project-card-inner">
+            <div class="project-card-front card-strategy project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <svg class="scribble-outline"><rect /></svg>
+              <div>
+                <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">// Value 03</span>
+                <h3 class="project-title" style="color: var(--accent-color); font-size: 1.6rem; margin: 0.5rem 0 1rem; font-weight: 800;">Velocity Over Vanity</h3>
+                <p style="color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 1.05rem; margin-bottom: 1.5rem;">Beautiful work that never gets published is worthless. Worse than worthless. It's a dead weight on the ability to pivot to time-sensitive content. Agility in leadership means removing obstacles, equipping the team with the right tech, upskilling them where necessary, and getting beautiful shit into the world for those sparkling hungry eyes.</p>
+              </div>
+              <p style="font-size:0.9rem; font-style:italic; opacity: 0.8; color: var(--neon-orange); margin-bottom: 0;">// Click to flip for the punchline</p>
+            </div>
+            <div class="project-card-back card-creative project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
+              <svg class="scribble-outline"><rect /></svg>
+              <!-- Animated SVG: Sparkling Eye -->
+              <svg class="icon-sparkle-eye" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
+                <path d="M6 24 Q 24 8, 42 24 Q 24 40, 6 24 Z" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round"/>
+                <circle cx="24" cy="24" r="6" fill="none" stroke="var(--neon-orange)" stroke-width="2"/>
+                <circle cx="24" cy="24" r="3" fill="var(--accent-color)"/>
+                <polygon points="24,34 26,38 24,42 22,38" fill="var(--neon-blue)">
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+                  <animateTransform attributeName="transform" type="translate" values="0 0; 0 4; 0 0" dur="2s" repeatCount="indefinite"/>
+                </polygon>
+                <circle cx="36" cy="14" r="1.5" fill="var(--accent-color)">
+                  <animate attributeName="opacity" values="1;0.2;1" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+              <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">// The Punchline</span>
+              <h3 class="project-title" style="color: #fff; font-size: 1.6rem; margin-bottom: 1.5rem;">Velocity Over Vanity</h3>
+              <blockquote style="font-size: 1.25rem; line-height: 1.6; color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--neon-orange); padding-left: 1.25rem; margin: 0; font-style: italic;">
+                "My eyes only sparkle when I'm crying, but that could be a good sign if the content was beautiful."
+              </blockquote>
+            </div>
+          </div>
+        </article>
 
-        <div class="philosophy-simple-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display:flex; flex-direction:column; align-items:center; transition: transform 0.3s ease;">
-          <svg class="icon-shifter" viewBox="0 0 48 48" width="48" height="48" style="margin-bottom: 1rem;">
-            <rect class="shifter-square" x="14" y="14" width="20" height="20" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
-            <path class="shifter-scribble" d="M12 24 Q 18 10, 24 24 T 36 24 Q 28 36, 20 24" fill="none" stroke="var(--accent-color)" stroke-width="3"/>
-          </svg>
-          <h3 style="color: var(--text-primary); text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Unapologetic Authenticity</h3>
-          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Being unapologetically myself in an unyielding world.</p>
-          <p style="text-align:center; font-style:italic; font-size: 0.85rem; color: var(--accent-color); opacity: 0.8;">"No filters. Well, maybe an SVG fractalNoise filter."</p>
-        </div>
+        <!-- Value 4: Radical Candor -->
+        <article class="project-card-container tilt-left" style="min-height: 420px;">
+          <div class="project-card-inner">
+            <div class="project-card-front card-strategy project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <svg class="scribble-outline"><rect /></svg>
+              <div>
+                <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">// Value 04</span>
+                <h3 class="project-title" style="color: var(--accent-color); font-size: 1.6rem; margin: 0.5rem 0 1rem; font-weight: 800;">Radical Candor</h3>
+                <p style="color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 1.05rem; margin-bottom: 1.5rem;">The truth will set you free, but sometimes it's ugly. Ugly freedom! What a thought. Sometimes I do think freedom is really ugly. But that's sort of the deal we struck, huh?<br><br>Anyway, design-by-committee snarls and broken web flows (enough with the popups already) hate to see me coming with my gnarled, outstretched finger.</p>
+              </div>
+              <p style="font-size:0.9rem; font-style:italic; opacity: 0.8; color: var(--neon-orange); margin-bottom: 0;">// Click to flip for the punchline</p>
+            </div>
+            <div class="project-card-back card-creative project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
+              <svg class="scribble-outline"><rect /></svg>
+              <!-- Animated SVG: Outstretched Finger / Truth Lightning -->
+              <svg class="icon-candor" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
+                <path d="M10 28 h14 v-4 l8 -4 v8 h-22 z" fill="none" stroke="var(--accent-color)" stroke-width="2"/>
+                <path d="M24 20 l14 -8 l-4 6 l8 -2 l-14 10" fill="none" stroke="var(--neon-orange)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <animate attributeName="stroke-opacity" values="1;0.4;1" dur="1s" repeatCount="indefinite"/>
+                  <animateTransform attributeName="transform" type="translate" values="0 0; 2 -1; 0 0" dur="0.5s" repeatCount="indefinite"/>
+                </path>
+              </svg>
+              <span style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">// The Punchline</span>
+              <h3 class="project-title" style="color: #fff; font-size: 1.6rem; margin-bottom: 1.5rem;">Radical Candor</h3>
+              <blockquote style="font-size: 1.25rem; line-height: 1.6; color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--neon-orange); padding-left: 1.25rem; margin: 0; font-style: italic;">
+                "I've been the dumper in every relationship I've been in. Unfortunately this means I'm still single, but it does define a way I operate: I don't shy away from difficult truths."
+              </blockquote>
+            </div>
+          </div>
+        </article>
 
       </div>
     </section>
-
-
-
-    <!-- 4. RESUME -->
+    
+    <!-- 4. RESUME --><!-- 4. RESUME -->
     <section id="resume" class="resume-section" style="padding: 6rem 0;">
       <div class="section-header-container" style="text-align: center; margin-bottom: 4rem;">
         <h2 class="section-title">Resume</h2>
