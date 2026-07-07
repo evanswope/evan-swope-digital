@@ -290,9 +290,10 @@
                 <!-- Crosshairs -->
                 <line x1="4" y1="24" x2="44" y2="24" stroke="var(--accent-color)" stroke-width="2" opacity="0.6"/>
                 <line x1="24" y1="4" x2="24" y2="44" stroke="var(--accent-color)" stroke-width="2" opacity="0.6"/>
-                <!-- Bright glowing data dot -->
+                <!-- Bright glowing data dot synchronized with 3s sweeping arm (flashes at t=0.125 when arm hits 45 deg) -->
                 <circle cx="34" cy="14" r="4" fill="var(--accent-color)">
-                  <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.15; 0.15; 1; 0.5; 0.15; 0.15" keyTimes="0; 0.1; 0.125; 0.35; 0.7; 1" dur="3s" repeatCount="indefinite"/>
+                  <animate attributeName="r" values="3.5; 3.5; 5; 3.5; 3.5" keyTimes="0; 0.1; 0.125; 0.35; 1" dur="3s" repeatCount="indefinite"/>
                 </circle>
                 <!-- OBVIOUS Sweeping Radar Arm with Trailing Sector -->
                 <g>
