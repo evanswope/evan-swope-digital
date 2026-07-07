@@ -126,8 +126,8 @@
     <!-- 2. LOOK AT MY WORK (Case Studies) -->
     <section id="work" class="work-section" style="padding: 6rem 0;">
       <div class="section-header-container" style="text-align: center; margin-bottom: 4rem;">
-        <h2 class="section-title">The Work & The Strategy</h2>
-        <p class="section-subtitle">Click any card to flip and read the strategist notes behind the creative execution.</p>
+        <h2 class="section-title">Case Studies</h2>
+        <p class="section-subtitle">Click a card, any card.</p>
       </div>
 
       <div class="projects-grid flip-grid v3-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2.5rem; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
@@ -177,13 +177,20 @@
             <div class="project-card-back card-strategy project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center;">
               <svg class="scribble-outline"><rect /></svg>
               <!-- SVG Steak Icon -->
-              <svg class="icon-steak" viewBox="0 0 24 24" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
-                <path d="M4 14 c-2 -4 1 -9 6 -10 c4 -1 9 2 10 7 c1 5 -3 9 -8 10 c-4 1 -6 -3 -8 -7 z" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M10 7 v8 c0 1 1 2 2 2" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round"/>
-                <line x1="8" y1="10" x2="13" y2="10" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="15" cy="14" r="1" fill="var(--accent-color)"/>
-                <circle cx="16" cy="10" r="1" fill="var(--accent-color)"/>
-                <circle cx="12" cy="15" r="1" fill="var(--accent-color)"/>
+              <svg class="icon-steak" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter); overflow:visible;">
+                <!-- Meat silhouette (thick Porterhouse / T-bone shape) -->
+                <path d="M 14 8 C 28 6, 40 10, 42 22 C 44 32, 38 42, 26 42 C 14 42, 6 34, 6 22 C 6 12, 10 9, 14 8 Z" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round"/>
+                <!-- T-Bone in the center -->
+                <path d="M 16 16 H 34 M 25 16 V 34" stroke="var(--accent-color)" stroke-width="4" stroke-linecap="round"/>
+                <!-- Little bone knob at the bottom of the T -->
+                <circle cx="25" cy="35" r="2.5" fill="var(--accent-color)"/>
+                <!-- Optional sizzle / heat waves rising off the steak -->
+                <path d="M 18 3 Q 20 0, 18 -3" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round">
+                  <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/>
+                </path>
+                <path d="M 30 3 Q 32 0, 30 -3" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round">
+                  <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+                </path>
               </svg>
               <div class="project-info">
                 <h2 class="project-title" style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff;">6 Specialty Beef Programs</h2>
@@ -211,11 +218,18 @@
             <div class="project-card-back card-strategy project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center;">
               <svg class="scribble-outline"><rect /></svg>
               <!-- SVG Knife Icon -->
-              <svg class="icon-knife" viewBox="0 0 24 24" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
-                <path d="M3 18 h13 c4 0 6 -4 5 -10 c-8 0 -15 2 -18 10 z" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M16 18 l4 4 c0.5 0.5 1.5 -0.5 1 -1 l-4 -4" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round"/>
-                <circle cx="17.5" cy="18.5" r="0.5" fill="var(--accent-color)"/>
-                <circle cx="19" cy="20" r="0.5" fill="var(--accent-color)"/>
+              <svg class="icon-knife" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter); overflow:visible;">
+                <!-- Chef Knife Handle (Thick diagonal grip) -->
+                <line x1="8" y1="40" x2="18" y2="30" stroke="var(--accent-color)" stroke-width="7" stroke-linecap="round"/>
+                <!-- Handle Rivets -->
+                <circle cx="11" cy="37" r="1.5" fill="#111"/>
+                <circle cx="15" cy="33" r="1.5" fill="#111"/>
+                <!-- Chef Knife Blade (Flat spine to sharp tip, curved belly cutting edge) -->
+                <path d="M 17 29 L 42 4 C 38 18, 30 28, 21 33 Z" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round"/>
+                <!-- Blade Gleam / Edge Highlight -->
+                <line x1="22" y1="26" x2="36" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round">
+                  <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+                </line>
               </svg>
               <div class="project-info">
                 <h2 class="project-title" style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff;">Test Kitchen Operations</h2>

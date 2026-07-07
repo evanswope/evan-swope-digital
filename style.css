@@ -1520,7 +1520,7 @@ body.lens-hybrid .font-hybrid {
   position: relative;
 }
 .section-header-container::before {
-  content: 'Case Studies';
+  content: 'The work';
   font-family: var(--font-body);
   font-size: 1.1rem;
   
