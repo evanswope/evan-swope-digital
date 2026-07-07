@@ -2186,6 +2186,42 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   margin-bottom: 0.4rem !important;
 }
 
+
+/* Tucked header menu: EVAN SWOPE down slightly, subtext tucked under like a bug escaping rain */
+.brand-logo {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+.logo-text {
+  font-size: 1.75rem !important;
+  line-height: 0.9 !important;
+  margin-bottom: 2px !important;
+}
+.logo-subtext {
+  font-size: 0.65rem !important;
+  letter-spacing: 0.22em !important;
+  line-height: 1 !important;
+  margin-top: 0 !important;
+  padding-left: 2px !important;
+}
+
+/* 2-Column Values & Lessons grid on desktop so they aren't skinny 4-column towers! */
+.philosophy-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 2.5rem !important;
+  margin-top: 2rem !important;
+}
+
+/* Shrunk spacing between Resume cards */
+.timeline {
+  gap: 1.25rem !important;
+}
+.timeline .project-card-container {
+  margin-bottom: 0 !important;
+}
+
 /* ==========================================================================
    MOBILE OPTIMIZATION & RESPONSIVE DESIGN OVERRIDES (<= 768px & <= 480px)
    ========================================================================== */
@@ -2225,6 +2261,9 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
     overflow: visible !important;
   }
 
+  .philosophy-grid {
+    grid-template-columns: 1fr !important;
+  }
   /* 3. Fix Grids (1 Column on Mobile without horizontal overflow!) */
   .projects-grid,
   .philosophy-grid,
@@ -2276,7 +2315,8 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
   /* Bring up size of EVAN SWOPE logo text on mobile by 1rem (~2.1rem) */
   .logo-text {
-    font-size: 2.1rem !important;
+    font-size: 1.5rem !important;
+    line-height: 0.9 !important;
   }
 
   /* 5. Typography Clamping Fixes */
