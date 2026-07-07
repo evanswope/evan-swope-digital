@@ -2149,6 +2149,43 @@ img, video, .front-media-background {
 }
 
 
+
+/* ==========================================================================
+   GLOBAL TYPOGRAPHY TIGHTENING (Shrink <p> font sizes & line-heights)
+   ========================================================================== */
+
+/* Target all paragraphs and card list items across the site */
+p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):not(.hero-subtitle),
+.project-card-face p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt),
+.project-info p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt),
+.about-text p,
+.contact-section p:not([style*="italic"]),
+.job-bullets li,
+.project-card-face ul li {
+  font-size: 0.88rem !important; /* Down a couple font sizes (~14px) */
+  line-height: 1.38 !important; /* Pulled together line-height from 1.6/1.7 down to 1.38 */
+  margin-bottom: 0.65rem !important; /* Tightened paragraph spacing */
+}
+
+/* Make section subtitles crisp and compact too */
+.section-subtitle {
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Tighten Strategic Takeaways subtitle */
+.project-excerpt {
+  font-size: 0.78rem !important;
+  margin-bottom: 0.6rem !important;
+}
+
+/* Tighten card titles */
+.project-card-face .project-title,
+.project-card-face .job-title {
+  margin-bottom: 0.4rem !important;
+}
+
 /* ==========================================================================
    MOBILE OPTIMIZATION & RESPONSIVE DESIGN OVERRIDES (<= 768px & <= 480px)
    ========================================================================== */
@@ -2205,6 +2242,20 @@ img, video, .front-media-background {
     width: 36px !important;
     height: 36px !important;
     opacity: 0.85;
+  }
+
+  
+  /* Mobile typography tightening: bring font sizes down further & pull line-height tight! */
+  p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):not(.hero-subtitle),
+  .project-card-face p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt),
+  .project-info p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt),
+  .about-text p,
+  .contact-section p:not([style*="italic"]),
+  .job-bullets li,
+  .project-card-face ul li {
+    font-size: 0.82rem !important; /* ~13px on mobile/tablets! */
+    line-height: 1.32 !important; /* Super compact line height! */
+    margin-bottom: 0.55rem !important; /* Small, clean paragraph gaps! */
   }
 
   /* 5. Typography Clamping Fixes */
