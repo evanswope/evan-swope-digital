@@ -379,17 +379,27 @@
             <div class="project-card-back card-creative project-card-face" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
               <svg class="scribble-outline"><rect /></svg>
               <!-- Animated SVG: Sparkling Eye -->
-              <svg class="icon-sparkle-eye" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter);">
-                <path d="M6 24 Q 24 8, 42 24 Q 24 40, 6 24 Z" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round"/>
-                <circle cx="24" cy="24" r="6" fill="none" stroke="var(--neon-orange)" stroke-width="2"/>
-                <circle cx="24" cy="24" r="3" fill="var(--accent-color)"/>
-                <polygon points="24,34 26,38 24,42 22,38" fill="var(--neon-blue)">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
-                  <animateTransform attributeName="transform" type="translate" values="0 0; 0 4; 0 0" dur="2s" repeatCount="indefinite"/>
-                </polygon>
-                <circle cx="36" cy="14" r="1.5" fill="var(--accent-color)">
-                  <animate attributeName="opacity" values="1;0.2;1" dur="1.5s" repeatCount="indefinite"/>
-                </circle>
+              <svg class="icon-sparkle-eye" viewBox="0 0 48 48" width="48" height="48" style="position:absolute; top:2rem; right:2rem; filter:url(#scribble-filter); overflow:visible;">
+                <!-- Eye Outline & Pupil -->
+                <path d="M 4 22 C 16 8, 32 8, 44 22 C 32 36, 16 36, 4 22 Z" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round"/>
+                <circle cx="24" cy="22" r="6" fill="none" stroke="var(--neon-orange)" stroke-width="2.5"/>
+                <circle cx="24" cy="22" r="3" fill="var(--accent-color)"/>
+                <!-- BIG 4-Point Anime Diamond Sparkle (Top Right) -->
+                <path d="M 38 2 Q 38 10, 46 10 Q 38 10, 38 18 Q 38 10, 30 10 Q 38 10, 38 2 Z" fill="#fff">
+                  <animateTransform attributeName="transform" type="scale" values="0.9; 1.2; 0.9" dur="1.5s" repeatCount="indefinite" transform-origin="38 10"/>
+                  <animate attributeName="opacity" values="0.7; 1; 0.7" dur="1.5s" repeatCount="indefinite"/>
+                </path>
+                <!-- Medium 4-Point Diamond Sparkle (Top Left) -->
+                <path d="M 10 2 Q 10 8, 16 8 Q 10 8, 10 14 Q 10 8, 4 8 Q 10 8, 10 2 Z" fill="var(--accent-color)">
+                  <animateTransform attributeName="transform" type="scale" values="0.8; 1.15; 0.8" dur="2s" begin="0.5s" repeatCount="indefinite" transform-origin="10 8"/>
+                  <animate attributeName="opacity" values="0.6; 1; 0.6" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+                </path>
+                <!-- Glistening Crying Tear -->
+                <g>
+                  <path d="M 24 30 C 19 36, 19 42, 24 45 C 29 42, 29 36, 24 30 Z" fill="#00ffff" stroke="#fff" stroke-width="1.5"/>
+                  <animateTransform attributeName="transform" type="translate" values="0 0; 0 5; 0 0" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.5; 1; 0.5" dur="2s" repeatCount="indefinite"/>
+                </g>
               </svg>
               <p style="font-family: 'Permanent Marker', cursive; font-size: clamp(1.3rem, 2.4vw, 2.1rem); line-height: 1.4; color: #ff7eb3; margin: 0; transform: rotate(-2deg);">
                 My eyes only sparkle when I'm crying, but that could be a good sign if the content was beautiful.
