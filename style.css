@@ -2395,3 +2395,10 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
     padding: 0.75rem 1rem !important;
   }
 }
+
+/* Ensure 'Hi!' on contact card back is never overridden by paragraph clamping */
+.contact-section .project-card-back p[style*="Permanent Marker"],
+.project-card-face p[style*="Permanent Marker"] {
+  font-size: clamp(4rem, 10vw, 7rem) !important;
+  line-height: 1.1 !important;
+}
