@@ -590,20 +590,34 @@
         <h2 class="section-title">Okay But Who Is Evan?</h2>
       </div>
       
-      <article class="about-card" style="max-width: 1000px; margin: 0 auto; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: clamp(1.25rem, 3vw, 3rem); display:flex; gap: 2rem; align-items:center; flex-wrap: wrap;">
-        <div class="about-image" style="flex: 1; min-width: 250px;">
-          <img src="assets/images/headshot.jpg" alt="Evan Swope Headshot" style="width: 100%; border-radius: 12px;">
-        </div>
-        <div class="about-text" style="flex: 2; min-width: 240px; flex-basis: 100%;">
-          <p style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-primary);">I believe that the best creative solutions are backed by rigorous systems design, and the best business strategies are brought to life through beautiful visual storytelling.</p>
-          <p style="margin-bottom: 1rem; color: var(--text-secondary);">Over my 15-year career, I have made 8 original brands from scratch, written their guidelines, scaled email campaigns, and worked in formats ranging from documentaries to scoring audio for contemporary dance and robotics.</p>
-          <p style="margin-bottom: 1rem; color: var(--text-secondary);">I graduated from the University of Washington with a BFA in Digital Art & Experimental Media (DXARTS) and a BA in Communication.</p>
+            <article class="project-card-container tilt-left" style="max-width: 900px; margin: 0 auto; min-height: 380px;">
+        <div class="project-card-inner" style="min-height: 380px;">
           
-          <div class="about-extras" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
-            <h3 style="color: var(--neon-blue); margin-bottom: 1rem; font-size: 1.1rem;">Beyond the desk</h3>
-            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1rem;">In my off time, you can find me tackling home improvement projects, doing stand-up comedy, or relying on my retired drag persona to remind me not to take myself too seriously.</p>
-            <p style="font-size: 0.95rem; color: var(--text-secondary);">And yes—I currently work two full-time jobs while serving as the VP of my condo board (and acting as the sole eligible defendant in a lawsuit against said board). I thrive in the chaos.</p>
+          <!-- FRONT: Shrunk headshot + Creative Direction & UW -->
+          <div class="project-card-front card-strategy project-card-face" style="padding: 2.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <svg class="scribble-outline"><rect /></svg>
+            <div style="display:flex; gap: 2rem; align-items:center; flex-wrap: wrap;">
+              <div class="about-image-shrunk" style="flex-shrink: 0; margin: 0 auto;">
+                <img src="assets/images/headshot.jpg" alt="Evan Swope Headshot" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border-color); box-shadow: 4px 4px 0 var(--accent-color);">
+              </div>
+              <div class="about-text" style="flex: 1; min-width: 250px;">
+                <p style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--text-primary); line-height: 1.5;">Creative Direction is a process I've done my whole life from stand-up comedy, drag, videography, and now leading teams to talk to their customers like humans do. It's cool to like your job.</p>
+                <p style="margin-bottom: 0; color: var(--text-secondary); line-height: 1.5;">I graduated from the University of Washington with a BFA in Digital Art & Experimental Media (DXARTS) and a BA in Communication.</p>
+              </div>
+            </div>
+            <p style="font-size:1.3rem; font-weight:800; color: var(--neon-orange); margin-top: 1.5rem; margin-bottom: 0; text-align: right;">&rarr;</p>
           </div>
+
+          <!-- BACK: Off time & home improvement -->
+          <div class="project-card-back card-creative project-card-face" style="padding: 2.5rem; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+            <svg class="scribble-outline"><rect /></svg>
+            <div style="max-width: 650px; margin: 0 auto;">
+              <h3 style="color: var(--neon-orange); font-family: var(--font-mono); font-size: 1.1rem; text-transform: uppercase; margin-bottom: 1.5rem;">BEYOND THE DESK</h3>
+              <p style="font-size: 1.1rem; color: var(--text-primary); line-height: 1.6; margin-bottom: 2rem;">In my off time, I am slowly ticking off my home improvement projects, hosting brunch on Sundays at my place, or relying on my retired drag persona to remind me not to take myself too seriously.</p>
+            </div>
+            <p style="font-size:1.3rem; font-weight:800; color: var(--neon-orange); margin-bottom: 0; position:absolute; bottom:2rem; right:2.5rem;">&larr;</p>
+          </div>
+
         </div>
       </article>
     </section>

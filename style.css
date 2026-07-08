@@ -1547,7 +1547,7 @@ body.lens-hybrid .font-hybrid {
 }
 
 .resume-section .section-header-container::before {
-  content: 'You can stalk me in the past\A if you had a time machine';
+  content: 'You could stalk me in the past\A if you had a time machine';
   white-space: pre;
 }
 
