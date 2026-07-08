@@ -2396,9 +2396,12 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   }
 }
 
-/* Ensure 'Hi!' on contact card back is never overridden by paragraph clamping */
-.contact-section .project-card-back p[style*="Permanent Marker"],
-.project-card-face p[style*="Permanent Marker"] {
+/* Ensure ONLY 'Hi!' on contact card back gets the massive clamp size */
+#contact .say-hello-hi {
   font-size: clamp(4rem, 10vw, 7rem) !important;
   line-height: 1.1 !important;
+  font-family: 'Permanent Marker', cursive !important;
+  color: #ff7eb3 !important;
+  margin-bottom: 1rem !important;
+  transform: rotate(-2deg) !important;
 }
