@@ -129,19 +129,9 @@ ul {
   opacity: 0.7;
 }
 
-.orb-1 {
-  top: -15%;
-  left: -10%;
-  background: var(--orb-1-color);
-  animation: floatOrb1 25s infinite alternate;
-}
 
-.orb-2 {
-  bottom: -15%;
-  right: -10%;
-  background: var(--orb-2-color);
-  animation: floatOrb2 30s infinite alternate;
-}
+
+
 
 @keyframes floatOrb1 {
   0% { transform: translate(0, 0) scale(1); }

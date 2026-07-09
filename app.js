@@ -67,16 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(initIndicator, 200);
 
   // Individual Card Flipping Logic
-  const flipCards = document.querySelectorAll('.project-card-container');
-  flipCards.forEach(card => {
-    const flipCues = card.querySelectorAll('.flip-cue');
-    flipCues.forEach(cue => {
-      cue.addEventListener('click', (e) => {
-        e.stopPropagation();
-        card.classList.toggle('is-flipped');
-      });
-    });
-  });
+// (.flip-cue verbal instruction loop pruned - using card click & arrow navigation)
 
   // --------------------------------------------------------------------------
   // 2. VECTOR TRIANGLE MATRIX (VELOCITY RESPONSIVE BACKGROUND)
@@ -376,9 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, observerOptions);
   
-  document.querySelectorAll('.stat-number').forEach(stat => {
-    observer.observe(stat);
-  });
+// (.stat-number observer loop pruned - .metric-number observed directly above)
   
   // --------------------------------------------------------------------------
   // 5. LIGHTBOX GALLERY
@@ -497,6 +486,18 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.toggle('is-flipped');
       });
     });
+
+    // WCAG 2.1 AA Keyboard Accessibility: Flip cards on Enter / Space keydown
+    document.querySelectorAll('.project-card-container').forEach(card => {
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target.closest('button') || e.target.closest('a')) return;
+          e.preventDefault();
+          card.classList.toggle('is-flipped');
+        }
+      });
+    });
+
 
   }
 });
