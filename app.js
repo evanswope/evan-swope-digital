@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.setAttribute('aria-expanded', 'false');
     
     const toggleFlip = (e) => {
-      if (e.target.closest('button, a') && e.target !== card) return;
+      if (e.target.closest('a[href]')) return;
       card.classList.toggle('is-flipped');
       const isFlipped = card.classList.contains('is-flipped');
       card.setAttribute('aria-expanded', isFlipped);
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.addEventListener('click', toggleFlip);
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        if (e.target.closest('button, a')) return;
+        if (e.target.closest('a[href]')) return;
         e.preventDefault();
         toggleFlip(e);
       }
