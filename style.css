@@ -160,7 +160,14 @@ ul {
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding: 1rem 2rem;
-  transition: var(--transition-smooth);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, background 0.3s ease;
+}
+
+/* Smart Sticky Navbar: elegant upward slide & subtle fade when scrolling down */
+.site-header.is-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .header-container {
@@ -342,7 +349,7 @@ body.lens-hybrid .font-hybrid {
    6. HERO SECTION
    -------------------------------------------------------------------------- */
 .hero-section {
-  padding: 9.5rem 2rem 4rem 2rem;
+  padding: 6.75rem 2rem 4rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -2139,7 +2146,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   /* 1. Reclaim Horizontal & Vertical Real Estate */
   /* Give Hero card 184px of top padding so it stays completely below the stacked mobile menu! */
   .hero-section {
-    padding: 11.5rem 1rem 3.5rem 1rem !important;
+    padding: 8.5rem 1rem 3.5rem 1rem !important;
   }
   .work-section,
   .philosophy-section,

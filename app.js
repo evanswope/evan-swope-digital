@@ -137,4 +137,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
+  // --------------------------------------------------------------------------
+  // 3. SMART STICKY NAVBAR (Elegant Auto-Hide on Scroll Down)
+  // --------------------------------------------------------------------------
+  const header = document.querySelector('.site-header');
+  if (header) {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          // Hide when scrolling down past 70px; reveal immediately when scrolling up or at top
+          if (currentScrollY > lastScrollY && currentScrollY > 70) {
+            header.classList.add('is-hidden');
+          } else {
+            header.classList.remove('is-hidden');
+          }
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
 });
