@@ -7,8 +7,7 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Missing Root Fallbacks for WCAG Contrast Robustness */
-  --neon-orange: #ff6b4a;
-  --neon-blue: #00f2fe;
+    --neon-blue: #00f2fe;
   --font-mono: 'Space Mono', monospace;
   /* Fonts */
   --font-heading: 'Space Mono', monospace;
