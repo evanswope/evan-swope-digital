@@ -164,4 +164,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
+
+  // --------------------------------------------------------------------------
+  // 4. ANTI-SCRAPE SECURE EMAIL ASSEMBLER
+  // --------------------------------------------------------------------------
+  document.querySelectorAll('.js-secure-email').forEach(link => {
+    const u = link.dataset.u;
+    const d = link.dataset.d;
+    if (u && d) {
+      const addr = `${u}@${d}`;
+      link.href = `mailto:${addr}`;
+      const span = link.querySelector('span');
+      if (span) span.textContent = addr;
+    }
+  });
+
 });
