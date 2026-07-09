@@ -6,6 +6,10 @@
    1. ROOT CONSTANTS & VARIABLES
    -------------------------------------------------------------------------- */
 :root {
+  /* Missing Root Fallbacks for WCAG Contrast Robustness */
+  --neon-orange: #ff6b4a;
+  --neon-blue: #00f2fe;
+  --font-mono: 'Space Mono', monospace;
   /* Fonts */
   --font-heading: 'Space Mono', monospace;
   --font-body: 'Space Mono', monospace;
@@ -2396,4 +2400,32 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   color: #ff7eb3 !important;
   margin-bottom: 1rem !important;
   transform: rotate(-2deg) !important;
+}
+
+/* ==========================================================================
+   WCAG 2.1 AA ACCESSIBILITY ENHANCEMENTS (100% Visual Parity)
+   ========================================================================== */
+/* High-contrast focus outline during keyboard navigation only (invisible to mouse clicks) */
+:focus-visible {
+  outline: 2px solid #00ffff !important;
+  outline-offset: 4px !important;
+}
+
+/* Allow active/flipped card face to scroll vertically if text overflows during 200% browser text scaling */
+.project-card-container.is-flipped .project-card-back,
+.project-card-container:not(.is-flipped) .project-card-front {
+  overflow-y: auto;
+}
+
+/* WCAG 2.2.2 Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .tutorial-card:not(.is-flipped) {
+    animation: none !important;
+  }
 }
