@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Dark Slate Background -->
+  <rect width="1200" height="630" fill="#111111" />
+  
+  <!-- Outer Neon Card Border -->
+  <rect x="40" y="40" width="1120" height="550" rx="32" fill="none" stroke="#21d4fd" stroke-width="3" opacity="0.4" />
+  <rect x="46" y="46" width="1108" height="538" rx="28" fill="none" stroke="#ff7eb3" stroke-width="2" opacity="0.3" />
+  
+  <!-- Glowing Pink Inchworm Centerpiece -->
+  <g transform="translate(360, 160) scale(2.4)">
+    <!-- Shadow glow -->
+    <path d="M 30 70 C 60 70, 60 15, 100 15 C 140 15, 140 70, 170 70" fill="none" stroke="#ff7eb3" stroke-width="24" stroke-linecap="round" opacity="0.15" />
+    <!-- Main inchworm body -->
+    <path d="M 30 70 C 60 70, 60 15, 100 15 C 140 15, 140 70, 170 70" fill="none" stroke="#ff7eb3" stroke-width="14" stroke-linecap="round" />
+    <!-- Cute little inchworm head dot -->
+    <circle cx="170" cy="70" r="8" fill="#ffffff" />
+  </g>
+  
+  <!-- Typography -->
+  <text x="600" y="420" text-anchor="middle" font-family="'Space Mono', 'Courier New', monospace" font-weight="700" font-size="52" fill="#ffffff" letter-spacing="4">EVAN SWOPE</text>
+  <text x="600" y="475" text-anchor="middle" font-family="'Space Mono', 'Courier New', monospace" font-weight="700" font-size="26" fill="#0ea5e9" letter-spacing="3">CREATIVE OPERATIONS &amp; GROWTH DIRECTOR</text>
+  
+  <!-- Handwritten Motto -->
+  <text x="600" y="550" text-anchor="middle" font-family="'Permanent Marker', 'Comic Sans MS', cursive" font-size="38" fill="#ff7eb3" transform="rotate(-1, 600, 550)">Everything is hard. But try anyway.</text>
+</svg>
