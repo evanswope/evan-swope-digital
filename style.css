@@ -411,7 +411,8 @@ body.lens-hybrid .font-hybrid {
   background: var(--accent-grad);
   color: #fff;
   padding: 0.8rem 2rem;
-  border-radius: 0;
+  border: none;
+  border-radius: 50px;
   font-family: var(--font-heading);
   font-weight: 600;
   box-shadow: var(--glow-shadow);
