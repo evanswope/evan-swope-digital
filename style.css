@@ -1012,7 +1012,7 @@ body.lens-hybrid .font-hybrid {
 }
 
 .project-info {
-  padding: 2rem;
+  padding: .5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1409,7 +1409,7 @@ body.lens-hybrid .font-hybrid {
   }
   
   .project-info {
-    padding: 2rem;
+    padding: .5rem;
   }
   
   .timeline {
@@ -2163,7 +2163,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   .project-card-back,
   .front-title-container,
   .project-info {
-    padding: 1.5rem !important;
+    padding: .5rem !important;
   }
   
   .project-card-container,
