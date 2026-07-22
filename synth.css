@@ -27,7 +27,14 @@
   fill: none;
   stroke: #ff7eb3;
   stroke-width: 3;
+  stroke-dasharray: 15 15;
   filter: url(#scribble-filter);
+  animation: dash 30s linear infinite;
+}
+@keyframes dash {
+  to {
+    stroke-dashoffset: 1000;
+  }
 }
 
 .card-header {
@@ -263,23 +270,6 @@ canvas#grid-canvas {
   .playback-controls, .fx-controls {
     justify-content: center;
   }
-}
-
-.large-start {
-  font-size: 1.5rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  background: transparent;
-  border: 2px solid #ff7eb3;
-  color: #ff7eb3;
-  box-shadow: 0 0 20px rgba(236,72,153,0.2), inset 0 0 20px rgba(236,72,153,0.1);
-  text-shadow: 0 0 10px rgba(236,72,153,0.5);
-  transition: all 0.3s;
-}
-.large-start:hover {
-  background: rgba(236,72,153,0.1);
-  box-shadow: 0 0 30px rgba(236,72,153,0.4), inset 0 0 30px rgba(236,72,153,0.2);
-  transform: scale(1.05);
 }
 
 /* --------------------------------------------------------------------------
