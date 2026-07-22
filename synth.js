@@ -1009,7 +1009,13 @@ class ReactionDiffusionSynth {
             drive += Math.sin(this.frameCount * 0.03) * 15.0;
             drive = Math.max(1.0, drive); 
           }
-          waveform[y] = Math.sin(b * drive * Math.PI);
+          
+          let a = this.gridA[y * this.width + xIndex];
+          // Chemical Phase Distortion (Asymmetrical Overdrive)
+          // As Chemical A (food) increases, it shifts the phase of the wavefolder,
+          // morphing the distortion from perfectly symmetrical fuzz (odd harmonics)
+          // into an asymmetrical tube-like warmth (even harmonics).
+          waveform[y] = Math.sin((b * drive + (a * 0.75)) * Math.PI);
           
           if (b > 0.01) hasSignal = true;
         }
