@@ -406,17 +406,21 @@ class ReactionDiffusionSynth {
       if (isBlack) {
         key.className = 'key black-key';
         key.style.position = 'absolute';
-        key.style.width = `calc((100% / ${numWhiteKeys}) * 0.6)`;
+        key.style.width = `calc((100% / ${numWhiteKeys}) * 0.7)`;
         key.style.height = '60%';
-        key.style.background = '#1e293b';
+        key.style.background = '#ff7eb3';
+        key.style.border = 'none';
+        key.style.borderRadius = '0 0 6px 6px';
         key.style.zIndex = '2';
-        key.style.left = `calc((100% / ${numWhiteKeys}) * ${whiteIndex} - ((100% / ${numWhiteKeys}) * 0.3))`;
+        key.style.left = `calc((100% / ${numWhiteKeys}) * ${whiteIndex} - ((100% / ${numWhiteKeys}) * 0.35))`;
         blackKeys.push(key);
       } else {
         key.className = 'key white-key';
         key.style.flex = '1';
-        key.style.background = '#e2e8f0';
-        key.style.borderRight = '1px solid #cbd5e1';
+        key.style.background = '#1a1a1a';
+        key.style.border = '1px solid #333';
+        key.style.borderTop = 'none';
+        key.style.borderRadius = '0 0 6px 6px';
         key.style.zIndex = '1';
         keyElements.push(key);
         whiteIndex++;
@@ -430,9 +434,9 @@ class ReactionDiffusionSynth {
           if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
           if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
           
-          key.style.background = isBlack ? 'var(--emerald-400)' : '#94a3b8';
+          key.style.background = isBlack ? '#ffb3d9' : '#333';
           setTimeout(() => {
-            key.style.background = isBlack ? '#1e293b' : '#e2e8f0';
+            key.style.background = isBlack ? '#ff7eb3' : '#1a1a1a';
           }, 150);
         }
       };

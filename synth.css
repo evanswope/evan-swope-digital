@@ -180,8 +180,8 @@ canvas#grid-canvas {
 }
 .icon-btn:hover {
   background: #334155;
-  color: #ec4899;
-  border-color: #ec4899;
+  color: #ff7eb3;
+  border-color: #ff7eb3;
   transform: translateY(-2px);
 }
 .icon-btn i.fa-play {
@@ -215,7 +215,7 @@ canvas#grid-canvas {
 }
 
 .fx-icon {
-  color: #ec4899;
+  color: #ff7eb3;
   font-size: 1.2rem;
 }
 
@@ -239,7 +239,7 @@ canvas#grid-canvas {
   height: 16px;
   width: 16px;
   border-radius: 50%;
-  background: #ec4899;
+  background: #ff7eb3;
   cursor: pointer;
   -webkit-appearance: none;
   margin-top: -6px;
@@ -261,8 +261,8 @@ canvas#grid-canvas {
   padding: 1rem 2rem;
   border-radius: 12px;
   background: transparent;
-  border: 2px solid #ec4899;
-  color: #ec4899;
+  border: 2px solid #ff7eb3;
+  color: #ff7eb3;
   box-shadow: 0 0 20px rgba(236,72,153,0.2), inset 0 0 20px rgba(236,72,153,0.1);
   text-shadow: 0 0 10px rgba(236,72,153,0.5);
   transition: all 0.3s;
@@ -299,8 +299,8 @@ canvas#grid-canvas {
 }
 .carousel-nav-btn:hover {
   background: rgba(236,72,153,0.1);
-  color: #ec4899;
-  border-color: #ec4899;
+  color: #ff7eb3;
+  border-color: #ff7eb3;
 }
 
 .carousel-viewport {
@@ -329,7 +329,7 @@ canvas#grid-canvas {
   padding: 0.5rem;
   outline: none;
   cursor: pointer;
-  border-bottom: 1px solid #ec4899;
+  border-bottom: 1px solid #ff7eb3;
 }
 .minimal-select option {
   background: #141414;
