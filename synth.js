@@ -496,37 +496,105 @@ class ReactionDiffusionSynth {
   
 
   setupGroovebox() {
-    this.patterns = {
-      rock: {
-        bpm: 110,
-        bass:  [ 32.7, 0, 32.7, 0,  32.7, 36.7, 0, 0,  32.7, 0, 32.7, 0,  32.7, 36.7, 0, 0],
-        kick:  [ 1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0 ],
-        snare: [ 0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0 ],
-        hat:   [ 1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 1 ]
-      },
-      pop: {
-        bpm: 125,
-        bass:  [ 41.2, 0, 0, 41.2,  0, 41.2, 0, 0,  32.7, 0, 0, 32.7,  0, 32.7, 0, 0 ],
-        kick:  [ 1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0 ],
-        snare: [ 0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0 ],
-        hat:   [ 0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0 ]
-      },
-      blues: {
-        bpm: 90,
-        bass:  [ 43.65, 0, 55.0, 0,  65.41, 0, 55.0, 0,  43.65, 0, 55.0, 0,  65.41, 0, 55.0, 0 ],
-        kick:  [ 1, 0, 0, 1,  0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0 ],
-        snare: [ 0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 1 ],
-        hat:   [ 1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 0 ],
-        ride:  [ 1, 0, 1, 1,  1, 0, 1, 1,  1, 0, 1, 1,  1, 0, 1, 1 ]
-      },
-      bossa: {
-        bpm: 130,
-        bass:  [ 36.7, 0, 0, 0,  0, 0, 36.7, 0,  49.0, 0, 0, 0,  0, 0, 36.7, 0 ],
-        kick:  [ 1, 0, 0, 0,  0, 0, 1, 0,  1, 0, 0, 0,  0, 0, 1, 0 ],
-        snare: [ 1, 0, 0, 1,  0, 0, 1, 0,  0, 1, 0, 0,  1, 0, 0, 0 ],
-        hat:   [ 1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1 ],
-        tom:   [ 0, 0, 0, 0,  0, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 ]
+    const buildPattern = (bpm, bassFunc, kickFunc, snareFunc, hatFunc, extraFunc) => {
+      const p = { bpm, bass: new Array(256).fill(0), kick: new Array(256).fill(0), snare: new Array(256).fill(0), hat: new Array(256).fill(0) };
+      for (let i = 0; i < 256; i++) {
+        p.bass[i] = bassFunc(i);
+        p.kick[i] = kickFunc(i);
+        p.snare[i] = snareFunc(i);
+        p.hat[i] = hatFunc(i);
+        if (extraFunc) extraFunc(i, p);
       }
+      return p;
+    };
+
+    this.patterns = {
+      rock: buildPattern(110, 
+        (i) => {
+          let bar = Math.floor(i / 16);
+          let note = (bar < 8) ? 32.7 : ((bar < 12) ? 43.65 : 49.0); // C minor, F minor, G minor
+          if (bar === 7 && i % 16 >= 8) return (i % 2 === 0) ? note * 1.5 : 0; // Fill
+          if (bar === 15 && i % 16 >= 12) return note * 2; // High fill
+          if (i % 4 === 0) return note; // Root
+          if (i % 4 === 2) return note * 2; // Octave up
+          return 0;
+        },
+        (i) => {
+          let bar = Math.floor(i / 16);
+          if (bar === 7 || bar === 15) return (i % 16 === 0 || i % 16 === 8 || i % 16 === 14) ? 1 : 0; // Fill kick
+          return (i % 16 === 0 || i % 16 === 8) ? 1 : (i % 16 === 14 && Math.floor(i/16)%2===1 ? 1 : 0);
+        },
+        (i) => {
+          let bar = Math.floor(i / 16);
+          if (bar === 7 && i % 16 >= 12) return (i % 2 === 0) ? 1 : 0; // Snare roll
+          if (bar === 15 && i % 16 >= 8) return (i % 2 === 0) ? 1 : 0; // Big snare fill
+          return (i % 16 === 4 || i % 16 === 12) ? 1 : 0;
+        },
+        (i) => (i % 2 === 0) ? 1 : 0,
+        (i, p) => {
+          if (!p.ride) p.ride = new Array(256).fill(0);
+          if (i % 64 === 0) p.ride[i] = 1; // Crash on the 1!
+        }
+      ),
+      pop: buildPattern(120, 
+        (i) => {
+          let bar = Math.floor(i / 16);
+          // Pop progression: vi - IV - I - V (A min, F, C, G)
+          let note = (bar % 4 === 0) ? 55.0 : ((bar % 4 === 1) ? 43.65 : ((bar % 4 === 2) ? 32.7 : 49.0));
+          if (bar === 7 && i % 16 === 8) return note * 1.5; // Slide up
+          if (bar === 15 && i % 16 === 0) return note / 2; // Big drop
+          if (i % 16 === 0 || i % 16 === 3 || i % 16 === 8) return note;
+          return 0;
+        },
+        (i) => (i % 16 === 0 || i % 16 === 10) ? 1 : 0,
+        (i) => (i % 16 === 4 || i % 16 === 12) ? 1 : 0,
+        (i) => (i % 4 === 2) ? 1 : 0
+      ),
+      blues: buildPattern(75, 
+        (i) => {
+          let bar = Math.floor(i / 16);
+          // 12 bar blues in A (55.0): I, I, I, I, IV, IV, I, I, V, IV, I, V
+          let root = 55.0; // A
+          if (bar === 4 || bar === 5 || bar === 9) root = 73.42; // D
+          if (bar === 8 || bar === 11) root = 82.41; // E
+          // Turnaround in bar 11-12
+          if (bar === 11 && i % 16 >= 8) return 55.0; 
+          let walk = [root, 0, root * 1.2, 0, root * 1.25, 0, root * 1.2, 0, root, 0, root * 1.2, 0, root * 1.25, 0, root * 1.2, 0];
+          return walk[i % 16];
+        },
+        (i) => (i % 16 === 0 || i % 16 === 11) ? 1 : 0,
+        (i) => (i % 16 === 4 || i % 16 === 12) ? 1 : 0,
+        (i) => 0,
+        (i, p) => {
+          if (!p.ride) p.ride = new Array(256).fill(0);
+          p.ride[i] = (i % 4 === 0 || i % 4 === 3) ? 1 : 0; // Swing ride
+        }
+      ),
+      bossa: buildPattern(130, 
+        (i) => {
+          let bar = Math.floor(i / 16);
+          let root = (bar % 2 === 0) ? 41.2 : 49.0; // E to G
+          if (bar === 7 || bar === 15) {
+             // Syncopated change
+             if (i % 16 === 0 || i % 16 === 6 || i % 16 === 12) return root * 1.5;
+             return 0;
+          }
+          if (i % 16 === 0) return root;
+          if (i % 16 === 8) return root * 1.5; // Fifth
+          return 0;
+        },
+        (i) => (i % 16 === 0 || i % 16 === 8) ? 1 : 0, // Kick on 1 and 3
+        (i) => {
+          let bar = Math.floor(i / 16);
+          if (bar === 7 || bar === 15) return (i % 16 === 0 || i % 16 === 6 || i % 16 === 12) ? 1 : 0; // Fill
+          return (i % 16 === 3 || i % 16 === 6 || i % 16 === 10 || i % 16 === 14) ? 1 : 0; // Clave snare
+        },
+        (i) => (i % 2 === 0) ? 1 : 0,
+        (i, p) => {
+          if (!p.tom) p.tom = new Array(256).fill(0);
+          if (i % 32 === 30 || i % 32 === 28) p.tom[i] = 1;
+        }
+      )
     };
     
     // Bind buttons
@@ -553,7 +621,7 @@ class ReactionDiffusionSynth {
     const runStep = () => {
       if(!this.isPlaying) return;
       this.playStep();
-      this.currentStep = (this.currentStep + 1) % 16;
+      this.currentStep = (this.currentStep + 1) % 256;
       
       const stepTime = (60 / this.bpm) / 4; 
       this.sequencerInterval = setTimeout(runStep, stepTime * 1000);
