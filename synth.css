@@ -225,7 +225,7 @@ canvas#grid-canvas {
   gap: 1.5rem;
   background: rgba(255,255,255,0.03);
   padding: 0.5rem 1.5rem;
-  border-radius: 50px;
+  border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.05);
 }
 
@@ -244,6 +244,7 @@ canvas#grid-canvas {
 .line-slider {
   -webkit-appearance: none;
   width: 100%;
+  min-width: 0; /* Fixes browser default min-width preventing it from shrinking */
   background: transparent;
 }
 .line-slider:focus {
