@@ -413,8 +413,12 @@ class ReactionDiffusionSynth {
     this.isPlaying = false;
     this.type = 'mitosis';
     this.frameCount = 0;
+    this.currentStyle = 'rock';
+    this.currentStep = 0;
+    this.bpm = 120;
+    this.sequencerInterval = null;
     this.seedGrid();
-    this.buildDynamicKeyboard();
+    this.setupGroovebox();
   }
   
   seedGrid() {
@@ -491,135 +495,239 @@ class ReactionDiffusionSynth {
   }
   
 
-  buildDynamicKeyboard() {
-    const container = document.getElementById('rd-keyboard');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    // Base pitch C2 = 65.41 Hz
-    const baseFreq = 65.41;
-    
-    // Match Waveshaper exactly (1 octave, C to C)
-    const keysDef = [
-      { noteOffset: 0, type: 'natural', label: 'A' },
-      { noteOffset: 1, type: 'accidental', label: 'W' },
-      { noteOffset: 2, type: 'natural', label: 'S' },
-      { noteOffset: 3, type: 'accidental', label: 'E' },
-      { noteOffset: 4, type: 'natural', label: 'D' },
-      { noteOffset: 5, type: 'natural', label: 'F' },
-      { noteOffset: 6, type: 'accidental', label: 'T' },
-      { noteOffset: 7, type: 'natural', label: 'G' },
-      { noteOffset: 8, type: 'accidental', label: 'Y' },
-      { noteOffset: 9, type: 'natural', label: 'H' },
-      { noteOffset: 10, type: 'accidental', label: 'U' },
-      { noteOffset: 11, type: 'natural', label: 'J' },
-      { noteOffset: 12, type: 'natural', label: 'K' }
-    ];
-    
-    const numWhiteKeys = keysDef.filter(k => k.type === 'natural').length; // 8
-    let naturalIndex = 0;
-    
-    let keyElements = [];
-    let blackKeys = [];
-    
-    const keyMap = {};
-    
-    keysDef.forEach((keyDef) => {
-      keyMap[keyDef.label.toLowerCase()] = keyDef.noteOffset;
-      let pitch = baseFreq * Math.pow(2, keyDef.noteOffset / 12);
-      
-      let key = document.createElement('div');
-      key.dataset.pitch = pitch;
-      
-      let label = document.createElement('div');
-      label.className = 'key-label';
-      label.innerText = keyDef.label;
-      label.style.position = 'absolute';
-      label.style.bottom = '10px';
-      label.style.width = '100%';
-      label.style.textAlign = 'center';
-      label.style.fontSize = '0.7rem';
-      label.style.pointerEvents = 'none';
-      
-      if (keyDef.type === 'accidental') {
-        key.className = 'key black-key';
-        key.style.position = 'absolute';
-        key.style.width = `calc((100% / ${numWhiteKeys}) * 0.7)`;
-        key.style.height = '60%';
-        key.style.background = '#ff7eb3';
-        key.style.border = 'none';
-        key.style.borderRadius = '0 0 4px 4px';
-        key.style.zIndex = '2';
-        key.style.left = `calc((100% / ${numWhiteKeys}) * ${naturalIndex} - ((100% / ${numWhiteKeys}) * 0.35))`;
-        label.style.color = 'rgba(0,0,0,0.5)';
-        key.appendChild(label);
-        blackKeys.push(key);
-      } else {
-        key.className = 'key white-key';
-        key.style.position = 'relative';
-        key.style.display = 'inline-block';
-        key.style.width = `calc(100% / ${numWhiteKeys})`;
-        key.style.height = '100%';
-        key.style.background = '#1a1a1a';
-        key.style.border = '1px solid #333';
-        key.style.borderTop = 'none';
-        key.style.borderRadius = '0 0 6px 6px';
-        key.style.zIndex = '1';
-        label.style.color = '#666';
-        key.appendChild(label);
-        keyElements.push(key);
-        naturalIndex++;
+  setupGroovebox() {
+    this.patterns = {
+      rock: {
+        bpm: 110,
+        bass:  [ 32.7, 0, 32.7, 0,  32.7, 36.7, 0, 0,  32.7, 0, 32.7, 0,  32.7, 36.7, 0, 0],
+        kick:  [ 1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0 ],
+        snare: [ 0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0 ],
+        hat:   [ 1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 1 ]
+      },
+      pop: {
+        bpm: 125,
+        bass:  [ 41.2, 0, 0, 41.2,  0, 41.2, 0, 0,  32.7, 0, 0, 32.7,  0, 32.7, 0, 0 ],
+        kick:  [ 1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0 ],
+        snare: [ 0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0 ],
+        hat:   [ 0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0 ]
+      },
+      blues: {
+        bpm: 90,
+        bass:  [ 43.65, 0, 55.0, 0,  65.41, 0, 55.0, 0,  43.65, 0, 55.0, 0,  65.41, 0, 55.0, 0 ],
+        kick:  [ 1, 0, 0, 1,  0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0 ],
+        snare: [ 0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 1 ],
+        hat:   [ 1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 0,  1, 0, 1, 0 ],
+        ride:  [ 1, 0, 1, 1,  1, 0, 1, 1,  1, 0, 1, 1,  1, 0, 1, 1 ]
+      },
+      bossa: {
+        bpm: 130,
+        bass:  [ 36.7, 0, 0, 0,  0, 0, 36.7, 0,  49.0, 0, 0, 0,  0, 0, 36.7, 0 ],
+        kick:  [ 1, 0, 0, 0,  0, 0, 1, 0,  1, 0, 0, 0,  0, 0, 1, 0 ],
+        snare: [ 1, 0, 0, 1,  0, 0, 1, 0,  0, 1, 0, 0,  1, 0, 0, 0 ],
+        hat:   [ 1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1 ],
+        tom:   [ 0, 0, 0, 0,  0, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 ]
       }
-      
-      // Bind interactions
-      const trigger = (e) => {
-        if(e.type !== 'mouseenter' || e.buttons > 0) {
-          if(!this.isPlaying) return;
-          const now = globalAudioCtx.currentTime;
-          if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
-          if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
-          
-          key.style.background = keyDef.type === 'accidental' ? '#ffb3d9' : '#333';
-          setTimeout(() => {
-            key.style.background = keyDef.type === 'accidental' ? '#ff7eb3' : '#1a1a1a';
-          }, 150);
+    };
+    
+    // Bind buttons
+    const btns = document.querySelectorAll('.style-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        btns.forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        this.currentStyle = e.target.dataset.style;
+        this.bpm = this.patterns[this.currentStyle].bpm;
+        if(this.isPlaying) {
+          this.stopSequencer();
+          this.startSequencer();
         }
-      };
+      });
+    });
+  }
+
+  startSequencer() {
+    this.currentStep = 0;
+    this.bpm = this.patterns[this.currentStyle].bpm;
+    
+    // We use a simple JS interval for the prototype. In production, use Web Audio lookahead.
+    const runStep = () => {
+      if(!this.isPlaying) return;
+      this.playStep();
+      this.currentStep = (this.currentStep + 1) % 16;
       
-      key.addEventListener('mousedown', trigger);
-      key.addEventListener('mouseenter', trigger);
-      key.addEventListener('touchstart', (e) => { e.preventDefault(); trigger(e); }, {passive: false});
-    });
+      const stepTime = (60 / this.bpm) / 4; 
+      this.sequencerInterval = setTimeout(runStep, stepTime * 1000);
+    };
+    runStep();
+  }
+
+  stopSequencer() {
+    if(this.sequencerInterval) {
+      clearTimeout(this.sequencerInterval);
+      this.sequencerInterval = null;
+    }
+  }
+
+  playStep() {
+    if (!this.audioInit || !globalAudioCtx) return;
+    const now = globalAudioCtx.currentTime;
+    const pattern = this.patterns[this.currentStyle];
     
-    // Append white keys
-    keyElements.forEach(k => container.appendChild(k));
-    // Append black keys on top
-    blackKeys.forEach(k => container.appendChild(k));
+    const b = pattern.bass[this.currentStep];
+    if (b > 0) {
+      if(this.osc) this.osc.frequency.setValueAtTime(b, now);
+      if(this.sub) this.sub.frequency.setValueAtTime(b / 2, now);
+      this.triggerEnvelope();
+    }
     
-    // Bind computer keyboard
-    window.addEventListener('keydown', (e) => {
-      if(!this.isPlaying || !this.isActive) return;
-      let noteOffset = keyMap[e.key.toLowerCase()];
-      if (noteOffset !== undefined) {
-        let pitch = baseFreq * Math.pow(2, noteOffset / 12);
-        const now = globalAudioCtx.currentTime;
-        if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
-        if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
-        
-        // Find matching key and highlight it
-        const keys = container.querySelectorAll('.key');
-        keys.forEach(k => {
-          if (Math.abs(parseFloat(k.dataset.pitch) - pitch) < 0.1) {
-            const isBlack = k.classList.contains('black-key');
-            k.style.background = isBlack ? '#ffb3d9' : '#333';
-            setTimeout(() => {
-              k.style.background = isBlack ? '#ff7eb3' : '#1a1a1a';
-            }, 150);
-          }
-        });
-      }
-    });
+    if (pattern.kick[this.currentStep]) this.playKick(now);
+    if (pattern.snare[this.currentStep]) this.playSnare(now);
+    if (pattern.hat[this.currentStep]) this.playHat(now);
+    if (pattern.ride && pattern.ride[this.currentStep]) this.playRide(now);
+    if (pattern.tom && pattern.tom[this.currentStep]) this.playTom(now);
+  }
+
+  // --- DRUM SYNTHESIS ---
+  playKick(time) {
+    const ctx = globalAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    
+    osc.frequency.setValueAtTime(150, time);
+    osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+    
+    gain.gain.setValueAtTime(1.2, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+    
+    osc.start(time);
+    osc.stop(time + 0.5);
+  }
+
+  playSnare(time) {
+    const ctx = globalAudioCtx;
+    // Noise burst
+    const noiseSize = ctx.sampleRate * 0.2; // 200ms
+    const buffer = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < noiseSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 1000;
+    
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.6, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+    
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(this.masterGain);
+    
+    // Tone
+    const osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(250, time);
+    
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.5, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+    
+    osc.connect(oscGain);
+    oscGain.connect(this.masterGain);
+    
+    noise.start(time);
+    osc.start(time);
+    osc.stop(time + 0.2);
+  }
+
+  playHat(time) {
+    const ctx = globalAudioCtx;
+    const ratio = 1.2;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    osc1.type = 'square';
+    osc2.type = 'square';
+    osc1.frequency.value = 400 * ratio;
+    osc2.frequency.value = 520 * ratio;
+
+    const gain = ctx.createGain();
+    const bandpass = ctx.createBiquadFilter();
+    const highpass = ctx.createBiquadFilter();
+
+    bandpass.type = 'bandpass';
+    bandpass.frequency.value = 10000;
+    highpass.type = 'highpass';
+    highpass.frequency.value = 7000;
+
+    osc1.connect(bandpass);
+    osc2.connect(bandpass);
+    bandpass.connect(highpass);
+    highpass.connect(gain);
+    gain.connect(this.masterGain);
+
+    gain.gain.setValueAtTime(0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+
+    osc1.start(time);
+    osc2.start(time);
+    osc1.stop(time + 0.05);
+    osc2.stop(time + 0.05);
+  }
+
+  playRide(time) {
+    const ctx = globalAudioCtx;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    osc1.type = 'square';
+    osc2.type = 'square';
+    osc1.frequency.value = 600;
+    osc2.frequency.value = 850;
+
+    const gain = ctx.createGain();
+    const bandpass = ctx.createBiquadFilter();
+    const highpass = ctx.createBiquadFilter();
+
+    bandpass.type = 'bandpass';
+    bandpass.frequency.value = 8000;
+    highpass.type = 'highpass';
+    highpass.frequency.value = 5000;
+
+    osc1.connect(bandpass);
+    osc2.connect(bandpass);
+    bandpass.connect(highpass);
+    highpass.connect(gain);
+    gain.connect(this.masterGain);
+
+    gain.gain.setValueAtTime(0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.8);
+
+    osc1.start(time);
+    osc2.start(time);
+    osc1.stop(time + 0.8);
+    osc2.stop(time + 0.8);
+  }
+
+  playTom(time) {
+    const ctx = globalAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    
+    osc.frequency.setValueAtTime(100, time);
+    osc.frequency.exponentialRampToValueAtTime(50, time + 0.3);
+    
+    gain.gain.setValueAtTime(0.8, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+    
+    osc.start(time);
+    osc.stop(time + 0.3);
   }
 
   buildFilterBank(ctx) {
@@ -876,13 +984,24 @@ class ReactionDiffusionSynth {
       this.feed = 0.029;
       this.kill = 0.057;
     }
+    }
     this.seedGrid();
-    this.buildDynamicKeyboard(); // Reset with new parameters
   }
   
   bindUI() {
-    document.getElementById('btn-play-rd')?.addEventListener('click', () => {
-      this.triggerEnvelope();
+    const playBtn = document.getElementById('btn-play-rd');
+    playBtn?.addEventListener('click', () => {
+      if (this.isPlaying) {
+        this.isPlaying = false;
+        this.stopSequencer();
+        playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        playBtn.style.color = '#cbd5e1';
+      } else {
+        this.isPlaying = true;
+        this.startSequencer();
+        playBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        playBtn.style.color = '#ef4444';
+      }
     });
     
     document.getElementById('rd-type')?.addEventListener('change', (e) => {
@@ -914,24 +1033,6 @@ class ReactionDiffusionSynth {
     
     document.getElementById('rd-lfo')?.addEventListener('change', (e) => {
       this.foldLfo = e.target.checked;
-    });
-    
-    window.addEventListener('resize', () => {
-      if (this.isActive) {
-        this.buildDynamicKeyboard();
-      }
-    });
-    
-    // Theremin Pitch Tracking
-    document.getElementById('canvas-rd')?.addEventListener('mousemove', (e) => {
-      if(!this.isPlaying || !this.osc) return;
-      let rect = e.target.getBoundingClientRect();
-      let mouseY = (e.clientY - rect.top) / rect.height; // 0 to 1
-      // Map to pitch: Bottom = 27.5Hz (Low A), Top = 220Hz (A3)
-      let basePitch = 27.5 * Math.pow(2, (1.0 - mouseY) * 3); 
-      let now = globalAudioCtx.currentTime;
-      this.osc.frequency.setTargetAtTime(basePitch, now, 0.05);
-      this.sub.frequency.setTargetAtTime(basePitch / 2, now, 0.05);
     });
   }
 }
