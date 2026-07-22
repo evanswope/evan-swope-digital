@@ -880,6 +880,15 @@ function updateCarousel() {
   });
 }
 
+dots.forEach((dot, index) => {
+  dot.addEventListener('click', () => {
+    if (index === currentIndex) return;
+    modules[currentIndex].stop();
+    currentIndex = index;
+    updateCarousel();
+  });
+});
+
 document.getElementById('carousel-prev').addEventListener('click', () => {
   modules[currentIndex].stop();
   currentIndex = (currentIndex - 1 + modules.length) % modules.length;
@@ -919,6 +928,21 @@ function handleSwipe() {
     updateCarousel();
   }
 }
+
+// Handle swipe messages from iframe
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SWIPE') {
+    if (e.data.direction === 'left') {
+      modules[currentIndex].stop();
+      currentIndex = (currentIndex + 1) % modules.length;
+      updateCarousel();
+    } else if (e.data.direction === 'right') {
+      modules[currentIndex].stop();
+      currentIndex = (currentIndex - 1 + modules.length) % modules.length;
+      updateCarousel();
+    }
+  }
+});
 
 // --------------------------------------------------------------------------
 // HEADER AUTO-HIDE LOGIC

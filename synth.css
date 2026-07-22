@@ -287,8 +287,8 @@ canvas#grid-canvas {
   }
   
   .carousel-slide {
-    flex: 0 0 85%; /* Let 15% of the next card peek */
-    padding: 0 10px; /* Space between peeking cards */
+    flex: 0 0 92%; /* Let 8% of the next card peek */
+    padding: 0 5px; /* Space between peeking cards */
   }
   
   .generative-card {
@@ -304,7 +304,11 @@ canvas#grid-canvas {
   }
   
   .carousel-track {
-    padding-left: 7.5%; /* Center the 85% width slide */
+    padding-left: 4%; /* Center the 92% width slide */
+  }
+  
+  .section-header {
+    display: none !important; /* Reclaim space occupied by Lab Audio / Visual on mobile */
   }
 }
 
