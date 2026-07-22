@@ -26,14 +26,8 @@
 .scribble-outline rect {
   fill: none;
   stroke: #ff7eb3;
-  stroke-width: 2;
-  stroke-dasharray: 10 10;
-  animation: dash 20s linear infinite;
-}
-@keyframes dash {
-  to {
-    stroke-dashoffset: 1000;
-  }
+  stroke-width: 3;
+  filter: url(#scribble-filter);
 }
 
 .card-header {
@@ -61,14 +55,14 @@
 }
 
 .start-btn {
-  background-color: #ff7eb3;
-  color: #0d0d0d;
+  background-color: rgba(255, 126, 179, 0.1);
+  color: #ff7eb3;
+  border: 2px solid #ff7eb3;
   font-family: 'Space Mono', monospace;
   font-weight: 700;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  font-size: 1.2rem;
-  border-radius: 8px;
+  padding: 1.5rem 3rem;
+  font-size: 1.5rem;
+  border-radius: 50px;
   cursor: pointer;
   display: flex;
   align-items: center;
