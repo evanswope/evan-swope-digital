@@ -3,7 +3,7 @@
    -------------------------------------------------------------------------- */
 
 .generative-card {
-  background: #050510;
+  background: #141414;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.05);
   padding: 2rem;
@@ -222,7 +222,7 @@ canvas#grid-canvas {
 /* Custom minimal range slider */
 .line-slider {
   -webkit-appearance: none;
-  width: 100px;
+  width: 100%;
   background: transparent;
 }
 .line-slider:focus {
@@ -332,7 +332,7 @@ canvas#grid-canvas {
   border-bottom: 1px solid #ec4899;
 }
 .minimal-select option {
-  background: #050510;
+  background: #141414;
   color: #fff;
 }
 .fractal-card .grid-container {
