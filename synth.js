@@ -994,30 +994,30 @@ class ReactionDiffusionSynth {
       let xIndex = Math.floor(cursorX);
       if (xIndex >= 0 && xIndex < this.width && this.isPlaying) {
         // Extract 64-sample waveform from the current vertical column
-        let waveform = new Float32Array(this.height);
+        // Extract a 32-sample waveform. The vertical column is split in half!
+        let waveform = new Float32Array(this.height / 2);
         let hasSignal = false;
         
-        for (let y = 0; y < this.height; y++) {
-          let b = this.gridB[y * this.width + xIndex];
+        for (let i = 0; i < this.height / 2; i++) {
+          let y_m = i;                      // Top 32 pixels (Modulator)
+          let y_c = i + (this.height / 2);  // Bottom 32 pixels (Carrier)
           
-          // WAVEFOLDING: We amplify the soft biological blob by the wavefold amount, 
-          // then wrap it back around using Math.sin. This forces smooth gradients 
-          // to ripple wildly, generating extreme high-end harmonic complexity!
+          let b_m = this.gridB[y_m * this.width + xIndex];
+          let b_c = this.gridB[y_c * this.width + xIndex];
+          
           let drive = this.wavefold;
           if (this.foldLfo) {
-            // Sweep wavefold up and down by 15.0 to create breathing PWM grit
+            // Sweep FM depth up and down to create breathing grit
             drive += Math.sin(this.frameCount * 0.03) * 15.0;
             drive = Math.max(1.0, drive); 
           }
           
-          let a = this.gridA[y * this.width + xIndex];
-          // Chemical Phase Distortion (Asymmetrical Overdrive)
-          // As Chemical A (food) increases, it shifts the phase of the wavefolder,
-          // morphing the distortion from perfectly symmetrical fuzz (odd harmonics)
-          // into an asymmetrical tube-like warmth (even harmonics).
-          waveform[y] = Math.sin((b * drive + (a * 0.75)) * Math.PI);
+          // Spatial FM Synthesis (Phase Modulation)
+          // The carrier (bottom half) is phase-modulated by the modulator (top half).
+          // As the microbes bridge across the equator, the FM rips open!
+          waveform[i] = Math.sin(b_c * Math.PI + (b_m * drive * 2.0 * Math.PI));
           
-          if (b > 0.01) hasSignal = true;
+          if (b_c > 0.01 || b_m > 0.01) hasSignal = true;
         }
         
         // If there's no pattern here, just stay silent
