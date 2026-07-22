@@ -796,16 +796,12 @@ document.getElementById('btn-start-fractal').addEventListener('click', () => mod
 
 const track = document.getElementById('carousel-track');
 document.getElementById('carousel-prev').addEventListener('click', () => {
-  if (currentIndex > 0) {
-    modules[currentIndex].stop();
-    currentIndex--;
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-  }
+  modules[currentIndex].stop();
+  currentIndex = (currentIndex - 1 + modules.length) % modules.length;
+  track.style.transform = `translateX(-${currentIndex * 100}%)`;
 });
 document.getElementById('carousel-next').addEventListener('click', () => {
-  if (currentIndex < modules.length - 1) {
-    modules[currentIndex].stop();
-    currentIndex++;
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-  }
+  modules[currentIndex].stop();
+  currentIndex = (currentIndex + 1) % modules.length;
+  track.style.transform = `translateX(-${currentIndex * 100}%)`;
 });
