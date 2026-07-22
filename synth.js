@@ -871,13 +871,77 @@ document.getElementById('btn-start-audio').addEventListener('click', () => modul
 document.getElementById('btn-start-fractal').addEventListener('click', () => modules[2].start());
 
 const track = document.getElementById('carousel-track');
+const dots = document.querySelectorAll('.carousel-dots .dot');
+
+function updateCarousel() {
+  track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentIndex);
+  });
+}
+
 document.getElementById('carousel-prev').addEventListener('click', () => {
   modules[currentIndex].stop();
   currentIndex = (currentIndex - 1 + modules.length) % modules.length;
-  track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  updateCarousel();
 });
 document.getElementById('carousel-next').addEventListener('click', () => {
   modules[currentIndex].stop();
   currentIndex = (currentIndex + 1) % modules.length;
-  track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  updateCarousel();
 });
+
+// Swipe Logic for Mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+track.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+
+track.addEventListener('touchend', e => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+}, {passive: true});
+
+function handleSwipe() {
+  const threshold = 50; // minimum distance to be considered a swipe
+  if (touchEndX < touchStartX - threshold) {
+    // Swipe Left (Next)
+    modules[currentIndex].stop();
+    currentIndex = (currentIndex + 1) % modules.length;
+    updateCarousel();
+  }
+  if (touchEndX > touchStartX + threshold) {
+    // Swipe Right (Prev)
+    modules[currentIndex].stop();
+    currentIndex = (currentIndex - 1 + modules.length) % modules.length;
+    updateCarousel();
+  }
+}
+
+// --------------------------------------------------------------------------
+// HEADER AUTO-HIDE LOGIC
+// --------------------------------------------------------------------------
+const header = document.querySelector('.site-header');
+let hideTimeout;
+if (header) {
+  function showHeader() {
+    header.classList.remove('is-hidden');
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      // Only auto-hide if scrolled down a bit to prevent hiding at the very top if desired,
+      // but the user requested it to just hide after 2 seconds.
+      header.classList.add('is-hidden');
+    }, 2000);
+  }
+
+  // Initial trigger
+  showHeader();
+
+  // Show header on scroll, touch, or mouse movement
+  window.addEventListener('scroll', showHeader, {passive: true});
+  window.addEventListener('mousemove', showHeader, {passive: true});
+  window.addEventListener('touchstart', showHeader, {passive: true});
+}
+
