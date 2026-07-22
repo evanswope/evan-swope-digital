@@ -131,7 +131,25 @@ class GenerativeAutomata {
       "   #          #   "
     ];
 
-    const patterns = [pulsar, acorn, gliderFleet, alien];
+    const rpentomino = [
+      " ##",
+      "## ",
+      " # "
+    ];
+
+    const diehard = [
+      "      # ",
+      "##      ",
+      " #   ###"
+    ];
+
+    const glider = [
+      " # ",
+      "  #",
+      "###"
+    ];
+
+    const patterns = [pulsar, acorn, gliderFleet, alien, rpentomino, diehard, glider];
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
     const w = pattern[0].length;
@@ -909,12 +927,21 @@ document.getElementById('carousel-next').addEventListener('click', () => {
 // Swipe Logic for Mobile
 let touchStartX = 0;
 let touchEndX = 0;
+let isSwipeAllowed = true;
 
 track.addEventListener('touchstart', e => {
+  const target = e.target;
+  // If user touches a slider or canvas, disable swiping so they can interact!
+  if (target.tagName.toLowerCase() === 'input' || target.tagName.toLowerCase() === 'canvas') {
+    isSwipeAllowed = false;
+    return;
+  }
+  isSwipeAllowed = true;
   touchStartX = e.changedTouches[0].screenX;
 }, {passive: true});
 
 track.addEventListener('touchend', e => {
+  if (!isSwipeAllowed) return;
   touchEndX = e.changedTouches[0].screenX;
   handleSwipe();
 }, {passive: true});
