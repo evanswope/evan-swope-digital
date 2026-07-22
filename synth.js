@@ -473,7 +473,7 @@ class ReactionDiffusionSynth {
     
     // Automatically trigger the sound/scan-line on power-up
     if (!this.isPlaying) {
-        this.triggerEnvelope();
+        // Just start visualizer, don't play sound yet
     }
     
     requestAnimationFrame(() => this.simulateAndDraw());
@@ -789,19 +789,14 @@ class ReactionDiffusionSynth {
   triggerEnvelope() {
     if(!this.audioInit || !this.isActive) return;
     
-    this.isPlaying = !this.isPlaying;
-    const btn = document.getElementById('btn-play-rd');
     const ctx = globalAudioCtx;
+    const now = ctx.currentTime;
     
-    if (this.isPlaying) {
-      btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-      this.oscGain.gain.cancelScheduledValues(ctx.currentTime);
-      this.oscGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.05);
-    } else {
-      btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-      this.oscGain.gain.cancelScheduledValues(ctx.currentTime);
-      this.oscGain.gain.setTargetAtTime(0.0, ctx.currentTime, 0.1);
-    }
+    // Simple plucked bass envelope
+    this.oscGain.gain.cancelScheduledValues(now);
+    this.oscGain.gain.setValueAtTime(0, now);
+    this.oscGain.gain.linearRampToValueAtTime(1.0, now + 0.02);
+    this.oscGain.gain.exponentialRampToValueAtTime(0.01, now + (60 / this.bpm) * 0.8);
   }
   
   initCanvas() {
