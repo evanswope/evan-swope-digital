@@ -984,7 +984,6 @@ class ReactionDiffusionSynth {
       this.feed = 0.029;
       this.kill = 0.057;
     }
-    }
     this.seedGrid();
   }
   
