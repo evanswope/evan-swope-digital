@@ -852,9 +852,17 @@ class ReactionDiffusionSynth {
    CAROUSEL CONTROLLER
    -------------------------------------------------------------------------- */
 const modules = [
-  { start: () => {}, stop: () => {} }, // Slide 1: Wavetable Synth (Iframe handles itself)
-  new GenerativeAutomata(),            // Slide 2
-  new ReactionDiffusionSynth()         // Slide 3
+  { 
+    start: () => {}, 
+    stop: () => {
+      const iframe = document.querySelector('iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage('suspend', '*');
+      }
+    } 
+  },
+  new GenerativeAutomata(),
+  new ReactionDiffusionSynth()
 ];
 let currentIndex = 0;
 
