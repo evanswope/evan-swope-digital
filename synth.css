@@ -322,12 +322,26 @@ canvas#grid-canvas {
   }
   
   .playback-controls {
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem 0.5rem;
+    gap: 0.5rem;
   }
   
   .fx-controls {
-    padding: 0.25rem 1rem;
-    gap: 1rem;
+    padding: 0.25rem 0.5rem;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .fx-knob-group {
+    flex: 1;
+    min-width: 0;
+    gap: 0.4rem;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
   }
   
   .carousel-track {
