@@ -497,47 +497,79 @@ class ReactionDiffusionSynth {
     
     container.innerHTML = '';
     
-    // Determine how many white keys fit
-    let numWhiteKeys = window.innerWidth < 600 ? 10 : 15;
-    
     // Base pitch C2 = 65.41 Hz
     const baseFreq = 65.41;
-    const notesPattern = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     
-    let whiteIndex = 0;
-    let currentNoteIdx = 0;
+    // Match Waveshaper exactly (1 octave, C to C)
+    const keysDef = [
+      { noteOffset: 0, type: 'natural', label: 'A' },
+      { noteOffset: 1, type: 'accidental', label: 'W' },
+      { noteOffset: 2, type: 'natural', label: 'S' },
+      { noteOffset: 3, type: 'accidental', label: 'E' },
+      { noteOffset: 4, type: 'natural', label: 'D' },
+      { noteOffset: 5, type: 'natural', label: 'F' },
+      { noteOffset: 6, type: 'accidental', label: 'T' },
+      { noteOffset: 7, type: 'natural', label: 'G' },
+      { noteOffset: 8, type: 'accidental', label: 'Y' },
+      { noteOffset: 9, type: 'natural', label: 'H' },
+      { noteOffset: 10, type: 'accidental', label: 'U' },
+      { noteOffset: 11, type: 'natural', label: 'J' },
+      { noteOffset: 12, type: 'natural', label: 'K' }
+    ];
+    
+    const numWhiteKeys = keysDef.filter(k => k.type === 'natural').length; // 8
+    let naturalIndex = 0;
     
     let keyElements = [];
     let blackKeys = [];
     
-    for (let i = 0; whiteIndex < numWhiteKeys; i++) {
-      let isBlack = notesPattern[currentNoteIdx % 12].includes('#');
-      let pitch = baseFreq * Math.pow(2, i / 12);
+    const keyMap = {};
+    
+    keysDef.forEach((keyDef) => {
+      keyMap[keyDef.label.toLowerCase()] = keyDef.noteOffset;
+      let pitch = baseFreq * Math.pow(2, keyDef.noteOffset / 12);
       
       let key = document.createElement('div');
       key.dataset.pitch = pitch;
       
-      if (isBlack) {
+      let label = document.createElement('div');
+      label.className = 'key-label';
+      label.innerText = keyDef.label;
+      label.style.position = 'absolute';
+      label.style.bottom = '10px';
+      label.style.width = '100%';
+      label.style.textAlign = 'center';
+      label.style.fontSize = '0.7rem';
+      label.style.pointerEvents = 'none';
+      
+      if (keyDef.type === 'accidental') {
         key.className = 'key black-key';
         key.style.position = 'absolute';
         key.style.width = `calc((100% / ${numWhiteKeys}) * 0.7)`;
         key.style.height = '60%';
         key.style.background = '#ff7eb3';
         key.style.border = 'none';
-        key.style.borderRadius = '0 0 6px 6px';
+        key.style.borderRadius = '0 0 4px 4px';
         key.style.zIndex = '2';
-        key.style.left = `calc((100% / ${numWhiteKeys}) * ${whiteIndex} - ((100% / ${numWhiteKeys}) * 0.35))`;
+        key.style.left = `calc((100% / ${numWhiteKeys}) * ${naturalIndex} - ((100% / ${numWhiteKeys}) * 0.35))`;
+        label.style.color = 'rgba(0,0,0,0.5)';
+        key.appendChild(label);
         blackKeys.push(key);
       } else {
         key.className = 'key white-key';
-        key.style.flex = '1';
+        key.style.position = 'relative';
+        key.style.display = 'inline-block';
+        key.style.width = `calc(100% / ${numWhiteKeys})`;
+        key.style.height = '100%';
         key.style.background = '#1a1a1a';
         key.style.border = '1px solid #333';
         key.style.borderTop = 'none';
         key.style.borderRadius = '0 0 6px 6px';
         key.style.zIndex = '1';
+        label.style.color = '#666';
+        key.appendChild(label);
         keyElements.push(key);
-        whiteIndex++;
+        naturalIndex++;
       }
       
       // Bind interactions
@@ -548,9 +580,9 @@ class ReactionDiffusionSynth {
           if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
           if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
           
-          key.style.background = isBlack ? '#ffb3d9' : '#333';
+          key.style.background = keyDef.type === 'accidental' ? '#ffb3d9' : '#333';
           setTimeout(() => {
-            key.style.background = isBlack ? '#ff7eb3' : '#1a1a1a';
+            key.style.background = keyDef.type === 'accidental' ? '#ff7eb3' : '#1a1a1a';
           }, 150);
         }
       };
@@ -558,20 +590,14 @@ class ReactionDiffusionSynth {
       key.addEventListener('mousedown', trigger);
       key.addEventListener('mouseenter', trigger);
       key.addEventListener('touchstart', (e) => { e.preventDefault(); trigger(e); }, {passive: false});
-      
-      currentNoteIdx++;
-    }
+    });
     
     // Append white keys
     keyElements.forEach(k => container.appendChild(k));
     // Append black keys on top
     blackKeys.forEach(k => container.appendChild(k));
     
-    // Bind computer keyboard (Z to M for bottom row white keys)
-    const keyMap = {
-      'z': 0, 's': 1, 'x': 2, 'd': 3, 'c': 4, 'v': 5, 'g': 6, 'b': 7, 'h': 8, 'n': 9, 'j': 10, 'm': 11
-    };
-    
+    // Bind computer keyboard
     window.addEventListener('keydown', (e) => {
       if(!this.isPlaying || !this.isActive) return;
       let noteOffset = keyMap[e.key.toLowerCase()];
@@ -580,6 +606,18 @@ class ReactionDiffusionSynth {
         const now = globalAudioCtx.currentTime;
         if(this.osc) this.osc.frequency.setTargetAtTime(pitch, now, 0.02);
         if(this.sub) this.sub.frequency.setTargetAtTime(pitch / 2, now, 0.02);
+        
+        // Find matching key and highlight it
+        const keys = container.querySelectorAll('.key');
+        keys.forEach(k => {
+          if (Math.abs(parseFloat(k.dataset.pitch) - pitch) < 0.1) {
+            const isBlack = k.classList.contains('black-key');
+            k.style.background = isBlack ? '#ffb3d9' : '#333';
+            setTimeout(() => {
+              k.style.background = isBlack ? '#ff7eb3' : '#1a1a1a';
+            }, 150);
+          }
+        });
       }
     });
   }
