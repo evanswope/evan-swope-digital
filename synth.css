@@ -267,6 +267,10 @@ canvas#grid-canvas {
   box-shadow: 0 2px 5px rgba(236,72,153,0.5);
 }
 
+.waveshaper-iframe {
+  height: 850px;
+}
+
 @media (max-width: 768px) {
   .card-controls {
     flex-direction: column;
@@ -331,6 +335,25 @@ canvas#grid-canvas {
   
   .section-header {
     display: none !important; /* Reclaim space occupied by Lab Audio / Visual on mobile */
+  }
+
+  .waveshaper-iframe {
+    height: 520px;
+  }
+
+  .line-slider::-webkit-slider-thumb {
+    height: 12px;
+    width: 12px;
+    margin-top: -5px;
+  }
+
+  .line-slider::-webkit-slider-runnable-track {
+    height: 3px;
+  }
+  
+  .minimal-select {
+    font-size: 0.7rem;
+    padding: 0.2rem;
   }
 }
 

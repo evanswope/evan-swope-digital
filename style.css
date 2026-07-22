@@ -343,6 +343,7 @@ body.lens-hybrid .font-hybrid {
 .main-content {
   position: relative;
   z-index: 2;
+  padding-top: 100px; /* Prevent fixed header from overlapping cards on desktop */
 }
 
 /* --------------------------------------------------------------------------

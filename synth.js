@@ -962,11 +962,19 @@ const track = document.getElementById('carousel-track');
 const dots = document.querySelectorAll('.carousel-dots .dot');
 
 function updateCarousel() {
-  track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  const slides = document.querySelectorAll('.carousel-slide');
+  if (slides.length > 0) {
+    const slideWidth = slides[0].clientWidth;
+    track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+  }
   dots.forEach((dot, index) => {
     dot.classList.toggle('active', index === currentIndex);
   });
 }
+
+window.addEventListener('resize', () => {
+  updateCarousel();
+});
 
 dots.forEach((dot, index) => {
   dot.addEventListener('click', () => {
