@@ -114,20 +114,18 @@ class GenerativeAutomata {
       "   ################   "
     ];
 
-    const thumbsup = [
-      "       ##     ",
-      "      #  #    ",
-      "      #  #    ",
-      "      #  #    ",
-      " ######  #    ",
-      " #       #    ",
-      " #      ##    ",
-      " #     ##     ",
-      " #    ##      ",
-      " ######       "
+    const invader = [
+      "  #     #  ",
+      "   #   #   ",
+      "  #######  ",
+      " ## ### ## ",
+      "###########",
+      "# ####### #",
+      "# #     # #",
+      "   ## ##   "
     ];
 
-    const patterns = [iguana, inchworm, hat, thumbsup];
+    const patterns = [iguana, inchworm, hat, invader];
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
     const w = pattern[0].length;

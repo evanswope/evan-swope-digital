@@ -32,12 +32,13 @@
 
 .card-header {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-bottom: 1.5rem;
   position: relative;
   z-index: 110;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .card-title {
@@ -45,8 +46,18 @@
   font-size: 2.2rem;
   color: #ff7eb3;
   margin: 0;
+  transform: rotate(-3deg);
   text-transform: uppercase;
   letter-spacing: 2px;
+}
+
+.card-desc {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  text-align: center;
+  max-width: 85%;
+  margin: 0;
 }
 
 .power-container {
