@@ -55,6 +55,7 @@ class GenerativeAutomata {
       
       this.initCanvas();
       this.bindUI();
+      this.drawRandomPattern();
       this.audioInit = true;
     }
     
@@ -78,6 +79,71 @@ class GenerativeAutomata {
     }
     document.getElementById('audio-start-overlay').classList.remove('hidden');
     document.getElementById('power-indicator').classList.remove('is-on');
+  }
+
+  drawRandomPattern() {
+    const iguana = [
+      "          ###    ",
+      "         # #     ",
+      "         ###     ",
+      "        ##       ",
+      "  ###### ###     ",
+      "  #        #     ",
+      "  #        ####  ",
+      "  #####       #  ",
+      "      #       #  ",
+      "      #       #  "
+    ];
+
+    const inchworm = [
+      "      ##          ##     ",
+      "     #  #        #  #    ",
+      "    #    #      #    #   ",
+      "  ##      ######      ## ",
+      " #                      #",
+      "##                      ##"
+    ];
+
+    const hat = [
+      "       ######       ",
+      "      #      #      ",
+      "      #      #      ",
+      "      #      #      ",
+      "      #      #      ",
+      "   ################   ",
+      "   ################   "
+    ];
+
+    const thumbsup = [
+      "       ##     ",
+      "      #  #    ",
+      "      #  #    ",
+      "      #  #    ",
+      " ######  #    ",
+      " #       #    ",
+      " #      ##    ",
+      " #     ##     ",
+      " #    ##      ",
+      " ######       "
+    ];
+
+    const patterns = [iguana, inchworm, hat, thumbsup];
+    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+    
+    const w = pattern[0].length;
+    const h = pattern.length;
+    const startX = Math.floor((this.COLS - w) / 2);
+    const startY = Math.floor((this.ROWS - h) / 2);
+    
+    for (let j = 0; j < h; j++) {
+      for (let i = 0; i < w; i++) {
+        if (pattern[j][i] === '#') {
+          const x = (startX + i + this.COLS) % this.COLS;
+          const y = (startY + j + this.ROWS) % this.ROWS;
+          this.grid[x][y] = 1;
+        }
+      }
+    }
   }
 
   buildFXRack(ctx) {
