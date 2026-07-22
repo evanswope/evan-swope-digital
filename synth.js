@@ -82,50 +82,56 @@ class GenerativeAutomata {
   }
 
   drawRandomPattern() {
-    const iguana = [
-      "          ###    ",
-      "         # #     ",
-      "         ###     ",
-      "        ##       ",
-      "  ###### ###     ",
-      "  #        #     ",
-      "  #        ####  ",
-      "  #####       #  ",
-      "      #       #  ",
-      "      #       #  "
+    const pulsar = [
+      "  ###   ###  ",
+      "             ",
+      "#    # #    #",
+      "#    # #    #",
+      "#    # #    #",
+      "  ###   ###  ",
+      "             ",
+      "  ###   ###  ",
+      "#    # #    #",
+      "#    # #    #",
+      "#    # #    #",
+      "             ",
+      "  ###   ###  "
     ];
 
-    const inchworm = [
-      "      ##          ##     ",
-      "     #  #        #  #    ",
-      "    #    #      #    #   ",
-      "  ##      ######      ## ",
-      " #                      #",
-      "##                      ##"
+    // The Acorn is a famous "Methuselah" pattern. 
+    // Just 7 active cells that run for over 5000 generations!
+    const acorn = [
+      " #     ",
+      "   #   ",
+      "##  ###"
     ];
 
-    const hat = [
-      "       ######       ",
-      "      #      #      ",
-      "      #      #      ",
-      "      #      #      ",
-      "      #      #      ",
-      "   ################   ",
-      "   ################   "
+    const gliderFleet = [
+      " #     #     ",
+      "  #     #    ",
+      "###   ###    ",
+      "             ",
+      "    #     #  ",
+      "     #     # ",
+      "   ###   ### ",
+      "             ",
+      "       #     ",
+      "        #    ",
+      "      ###    "
     ];
 
-    const invader = [
-      "  #     #  ",
-      "   #   #   ",
-      "  #######  ",
-      " ## ### ## ",
-      "###########",
-      "# ####### #",
-      "# #     # #",
-      "   ## ##   "
+    const alien = [
+      "   ##        ##   ",
+      "    ##      ##    ",
+      "  ##############  ",
+      " ###  ######  ### ",
+      "##################",
+      " # ###### ###### #",
+      " # #          #  #",
+      "   #          #   "
     ];
 
-    const patterns = [iguana, inchworm, hat, invader];
+    const patterns = [pulsar, acorn, gliderFleet, alien];
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
     const w = pattern[0].length;
