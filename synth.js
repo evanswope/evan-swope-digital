@@ -189,14 +189,17 @@ class GenerativeAutomata {
     this.chorusDelay.connect(this.chorusMix);
     this.chorusMix.connect(this.fxBus);
     
-    // Dist
+    // 8-Bit Bitcrusher
     this.distMix = ctx.createGain();
     this.distMix.gain.value = this.fxLevels.dist;
     this.distNode = ctx.createWaveShaper();
-    const k = 80; const n = 44100; const curve = new Float32Array(n); const deg = Math.PI / 180;
+    const bits = 4; // 4-bit depth for that crunchy NES sound!
+    const steps = Math.pow(2, bits);
+    const n = 44100; 
+    const curve = new Float32Array(n);
     for (let i = 0; i < n; ++i) {
       const x = (i * 2) / n - 1;
-      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+      curve[i] = Math.round(x * steps) / steps; // Quantize the wave
     }
     this.distNode.curve = curve;
     this.masterGain.connect(this.distNode);
@@ -271,19 +274,42 @@ class GenerativeAutomata {
     
     let isDrawing = false; let drawMode = 1;
     const getCell = (e) => {
+      // Support touch events
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       const r = this.canvas.getBoundingClientRect();
-      return { c: Math.floor((e.clientX - r.left) / (r.width / this.COLS)), r: Math.floor((e.clientY - r.top) / (r.height / this.ROWS)) };
+      return { c: Math.floor((clientX - r.left) / (r.width / this.COLS)), r: Math.floor((clientY - r.top) / (r.height / this.ROWS)) };
     };
-    this.canvas.addEventListener('mousedown', (e) => {
-      if(!this.isActive) return; isDrawing = true;
+
+    const startDraw = (e) => {
+      if(!this.isActive) return; 
+      isDrawing = true;
       const {c, r} = getCell(e);
-      if(c>=0 && c<this.COLS && r>=0 && r<this.ROWS) { drawMode = this.grid[c][r] ? 0 : 1; this.grid[c][r] = drawMode; if(drawMode) this.playVoice(r,c); }
-    });
-    this.canvas.addEventListener('mousemove', (e) => {
-      if(!isDrawing) return; const {c, r} = getCell(e);
-      if(c>=0 && c<this.COLS && r>=0 && r<this.ROWS && this.grid[c][r] !== drawMode) { this.grid[c][r] = drawMode; if(drawMode) this.playVoice(r,c); }
-    });
-    window.addEventListener('mouseup', () => isDrawing = false);
+      if(c>=0 && c<this.COLS && r>=0 && r<this.ROWS) { 
+        drawMode = this.grid[c][r] ? 0 : 1; 
+        this.grid[c][r] = drawMode; 
+        if(drawMode) this.playVoice(r,c); 
+      }
+    };
+
+    const doDraw = (e) => {
+      if(!isDrawing) return; 
+      const {c, r} = getCell(e);
+      if(c>=0 && c<this.COLS && r>=0 && r<this.ROWS && this.grid[c][r] !== drawMode) { 
+        this.grid[c][r] = drawMode; 
+        if(drawMode) this.playVoice(r,c); 
+      }
+    };
+
+    const stopDraw = () => isDrawing = false;
+
+    this.canvas.addEventListener('mousedown', startDraw);
+    this.canvas.addEventListener('mousemove', doDraw);
+    window.addEventListener('mouseup', stopDraw);
+
+    this.canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, {passive: false});
+    this.canvas.addEventListener('touchmove', (e) => { e.preventDefault(); doDraw(e); }, {passive: false});
+    window.addEventListener('touchend', stopDraw);
   }
   
   drawGrid(time) {

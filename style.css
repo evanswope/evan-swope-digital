@@ -2260,15 +2260,12 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
     padding: 0.5rem 1rem !important;
   }
   .header-container {
-    flex-direction: column;
-    gap: 0.75rem !important;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0 !important;
   }
   .nav-links {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap !important;
-    gap: 0.75rem !important;
-    font-size: 0.8rem;
+    display: none !important;
   }
   .btn-contact {
     padding: 0.35rem 0.75rem !important;
