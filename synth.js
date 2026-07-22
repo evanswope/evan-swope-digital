@@ -352,6 +352,12 @@ class ReactionDiffusionSynth {
     
     document.getElementById('rd-overlay').classList.add('hidden');
     document.getElementById('rd-power-indicator').classList.add('is-on');
+    
+    // Automatically trigger the sound/scan-line on power-up
+    if (!this.isPlaying) {
+        this.triggerEnvelope();
+    }
+    
     requestAnimationFrame(() => this.simulateAndDraw());
   }
   
@@ -778,13 +784,15 @@ class ReactionDiffusionSynth {
    CAROUSEL CONTROLLER
    -------------------------------------------------------------------------- */
 const modules = [
-  new GenerativeAutomata(),
-  new ReactionDiffusionSynth()
+  { start: () => {}, stop: () => {} }, // Slide 1: Wavetable Synth (Iframe handles itself)
+  new GenerativeAutomata(),            // Slide 2
+  new ReactionDiffusionSynth()         // Slide 3
 ];
 let currentIndex = 0;
 
-document.getElementById('btn-start-audio').addEventListener('click', () => modules[0].start());
-document.getElementById('btn-start-fractal').addEventListener('click', () => modules[1].start());
+// The UI buttons correspond to modules[1] and modules[2] now
+document.getElementById('btn-start-audio').addEventListener('click', () => modules[1].start());
+document.getElementById('btn-start-fractal').addEventListener('click', () => modules[2].start());
 
 const track = document.getElementById('carousel-track');
 document.getElementById('carousel-prev').addEventListener('click', () => {

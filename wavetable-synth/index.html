@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wavetable Synth</title>
+    <!-- Use similar fonts as portfolio -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="./assets/index-BpRlw-fK.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BCDCReIb.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="synth-card">
+        <!-- Audio Init Overlay -->
+        <div id="audioOverlay" class="audio-overlay">
+          <button id="initAudioBtn" class="pulse-btn">Start Synth</button>
+        </div>
+
+        <!-- SVG Scribble Border -->
+        <svg class="scribble-outline" preserveAspectRatio="none">
+          <rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" />
+        </svg>
+
+        <header class="synth-header">
+          <h1>Waveshaper Synth</h1>
+          <p>Distort this sine wave with simple math sliders to discover new harmonics. Select between an arpeggiator, chords, or manual play.</p>
+        </header>
+
+        <div class="canvas-container">
+          <canvas id="waveCanvas" width="800" height="200" style="cursor: default; pointer-events: none;"></canvas>
+        </div>
+
+        <div class="controls">
+          <div class="sliders">
+            <!-- Column 1 -->
+            <div class="slider-group">
+                <span title="Tension (Amp Skew)">🏹</span>
+                <input type="range" id="modTension" min="0" max="100" value="50">
+            </div>
+            <div class="slider-group">
+                <span title="Phase Skew (Sine to Saw)">📐</span>
+                <input type="range" id="modSaw" min="0" max="100" value="50">
+            </div>
+            <div class="slider-group">
+                <span title="Phase Modulation (FM)">✨</span>
+                <input type="range" id="modPM" min="0" max="100" value="0">
+            </div>
+            <div class="slider-group">
+                <span title="Hard Sync (Formant)">🌀</span>
+                <input type="range" id="modSync" min="0" max="100" value="0">
+            </div>
+            
+            <!-- Column 2 -->
+            <div class="slider-group">
+                <span title="Wavefolding">➰</span>
+                <input type="range" id="modFold" min="0" max="100" value="0">
+            </div>
+            <div class="slider-group">
+                <span title="Harmonic (Octave)">🌟</span>
+                <input type="range" id="modHarmonic" min="0" max="100" value="0">
+            </div>
+            <div class="slider-group">
+                <span title="Decimation (Bitcrush)">👾</span>
+                <input type="range" id="modCrush" min="0" max="100" value="0">
+            </div>
+            <div class="slider-group">
+                <span title="Noise">📻</span>
+                <input type="range" id="modNoise" min="0" max="100" value="0">
+            </div>
+          </div>
+        </div>
+        
+        <div class="mode-selector">
+           <button id="btnModeManual" class="mode-btn">🎹 Manual</button>
+           <button id="btnModeArp" class="mode-btn active-toggle">🎶 Auto Arp</button>
+           <button id="btnModeChords" class="mode-btn">🌌 Chords</button>
+        </div>
+
+        <div class="keyboard-container" id="keyboard">
+          <!-- Keys will be injected here via JS based on screen width -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- SVG Filter for the scribble effect -->
+    <svg style="width:0; height:0; position:absolute;" aria-hidden="true">
+      <defs>
+        <filter id="scribble-filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <linearGradient id="gradient-pink" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff3366" />
+          <stop offset="100%" stop-color="#ff00cc" />
+        </linearGradient>
+      </defs>
+    </svg>
+  </body>
+</html>

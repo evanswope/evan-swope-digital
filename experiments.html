@@ -58,7 +58,12 @@
         <div class="carousel-viewport">
           <div class="carousel-track" id="carousel-track">
             
-            <!-- SLIDE 1: Generative Automata -->
+            <!-- SLIDE 1: Wavetable Synth -->
+            <div class="carousel-slide">
+              <iframe src="./wavetable-synth/index.html" style="width: 100%; min-height: 900px; border: none; background: transparent; border-radius: 12px;"></iframe>
+            </div>
+            
+            <!-- SLIDE 2: Generative Automata -->
             <div class="carousel-slide">
               <div class="generative-card">
                 <svg class="scribble-outline"><rect /></svg>
@@ -107,7 +112,7 @@
               </div>
             </div>
 
-            <!-- SLIDE 2: Reaction-Diffusion Morphogenesis -->
+            <!-- SLIDE 3: Reaction-Diffusion Morphogenesis -->
             <div class="carousel-slide">
               <div class="generative-card fractal-card">
                 <svg class="scribble-outline"><rect /></svg>
@@ -125,7 +130,7 @@
                 </div>
                 <div class="card-controls">
                   <div class="playback-controls">
-                    <button id="btn-play-rd" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-wave-square"></i></button>
+                    <button id="btn-play-rd" class="icon-btn" title="Trigger Sound"><i class="fa-solid fa-volume-xmark"></i></button>
                     <div class="fractal-select-wrapper">
                       <select id="rd-type" class="minimal-select">
                         <option value="mitosis">Mitosis</option>
@@ -176,7 +181,7 @@
                 </div>
               </div>
             </div>
-
+            
           </div>
         </div>
         
