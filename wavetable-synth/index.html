@@ -8,6 +8,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+      // Intercept AudioContext to allow external suspension
+      let globalAudioCtx = null;
+      const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+      if (OriginalAudioContext) {
+        window.AudioContext = function(...args) {
+          globalAudioCtx = new OriginalAudioContext(...args);
+          return globalAudioCtx;
+        };
+        window.webkitAudioContext = window.AudioContext;
+      }
+
+      // Listen for suspend/resume from parent carousel
+      window.addEventListener('message', (e) => {
+        if (e.data === 'suspend' && globalAudioCtx && globalAudioCtx.state === 'running') {
+          globalAudioCtx.suspend();
+        } else if (e.data === 'resume' && globalAudioCtx && globalAudioCtx.state === 'suspended') {
+          globalAudioCtx.resume();
+        }
+      });
+
+      // Also suspend if user switches tabs
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && globalAudioCtx && globalAudioCtx.state === 'running') {
+          globalAudioCtx.suspend();
+        }
+      });
+    </script>
+    
     <script type="module" crossorigin src="../wavetable-synth/assets/index-BpRlw-fK.js"></script>
     <link rel="stylesheet" crossorigin href="../wavetable-synth/assets/index-BCDCReIb.css">
     <style>
