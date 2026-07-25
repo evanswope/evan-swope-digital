@@ -1949,8 +1949,8 @@ const modules = [
     start: () => {}, 
     stop: () => {
       const iframe = document.querySelector('iframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage('suspend', '*');
+      if (iframe) {
+        iframe.src = iframe.src; // Reload iframe to fully kill Tone.js audio context and reset Power On button
       }
     } 
   },
