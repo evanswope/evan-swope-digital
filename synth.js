@@ -2041,7 +2041,7 @@ function handleSwipe() {
 
 // Handle swipe messages from iframe
 window.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'SWIPE') {
+  if (e.data && e.data.type && e.data.type.toUpperCase() === 'SWIPE') {
     if (e.data.direction === 'left') {
       modules[currentIndex].stop();
       currentIndex = (currentIndex + 1) % modules.length;

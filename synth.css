@@ -432,8 +432,8 @@ canvas#grid-canvas {
   }
   
   .carousel-slide {
-    flex: 0 0 92%; /* Let 8% of the next card peek */
-    padding: 0 5px; /* Space between peeking cards */
+    flex: 0 0 96%; /* Let 4% of the next card peek */
+    padding: 0 4px; /* Space between peeking cards */
   }
   
   .generative-card {

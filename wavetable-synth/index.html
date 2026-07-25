@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/wavetable-synth/assets/index-BpRlw-fK.js"></script>
-    <link rel="stylesheet" crossorigin href="/wavetable-synth/assets/index-BCDCReIb.css">
+    <script type="module" crossorigin src="../wavetable-synth/assets/index-BpRlw-fK.js"></script>
+    <link rel="stylesheet" crossorigin href="../wavetable-synth/assets/index-BCDCReIb.css">
   </head>
   <body>
     <div id="app">
@@ -97,5 +97,24 @@
         </linearGradient>
       </defs>
     </svg>
+    <script>
+      // Swipe Logic for Iframe
+      let touchStartX = 0;
+      let touchEndX = 0;
+      document.addEventListener('touchstart', e => {
+        if (e.target.tagName.toLowerCase() === 'input') return;
+        touchStartX = e.changedTouches[0].screenX;
+      }, {passive: true});
+      document.addEventListener('touchend', e => {
+        if (e.target.tagName.toLowerCase() === 'input') return;
+        touchEndX = e.changedTouches[0].screenX;
+        const threshold = 50;
+        if (touchEndX < touchStartX - threshold) {
+          window.parent.postMessage({ type: 'swipe', direction: 'left' }, '*');
+        } else if (touchEndX > touchStartX + threshold) {
+          window.parent.postMessage({ type: 'swipe', direction: 'right' }, '*');
+        }
+      }, {passive: true});
+    </script>
   </body>
 </html>
