@@ -36,8 +36,32 @@
           globalAudioCtx.suspend();
         }
       });
+
+      // Swipe Detection to send to parent
+      let touchStartX = 0;
+      let touchEndX = 0;
+      document.addEventListener('touchstart', e => {
+        // Disable swipe if interacting with input or canvas
+        if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'canvas') return;
+        touchStartX = e.changedTouches[0].screenX;
+      }, {passive: true});
+
+      document.addEventListener('touchend', e => {
+        if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'canvas') return;
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      }, {passive: true});
+
+      function handleSwipe() {
+        const threshold = 50;
+        if (touchEndX < touchStartX - threshold) {
+          window.parent.postMessage({ type: 'SWIPE', direction: 'left' }, '*');
+        }
+        if (touchEndX > touchStartX + threshold) {
+          window.parent.postMessage({ type: 'SWIPE', direction: 'right' }, '*');
+        }
+      }
     </script>
-    
     <script type="module" crossorigin src="../wavetable-synth/assets/index-BpRlw-fK.js"></script>
     <link rel="stylesheet" crossorigin href="../wavetable-synth/assets/index-BCDCReIb.css">
     <style>
