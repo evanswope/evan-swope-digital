@@ -10,6 +10,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script type="module" crossorigin src="../wavetable-synth/assets/index-BpRlw-fK.js"></script>
     <link rel="stylesheet" crossorigin href="../wavetable-synth/assets/index-BCDCReIb.css">
+    <style>
+      .synth-header {
+        position: relative;
+        z-index: 999;
+      }
+      .audio-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 998;
+        background: rgba(10, 10, 26, 0.95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+    </style>
   </head>
   <body>
     <div id="app">
