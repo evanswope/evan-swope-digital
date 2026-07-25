@@ -2268,6 +2268,201 @@ document.querySelectorAll('.wheel-selector').forEach(wheel => {
     }
   }, { passive: false });
 });
+// Show header on scroll, touch, or mouse movement
+  window.addEventListener('scroll', showHeader, {passive: true});
+  window.addEventListener('mousemove', showHeader, {passive: true});
+  window.addEventListener('touchstart', showHeader, {passive: true});
+}
+
+// --------------------------------------------------------------------------
+// WHEEL SELECTORS & DRUM PADS LOGIC
+// --------------------------------------------------------------------------
+document.getElementById('toggle-drum-pads')?.addEventListener('click', () => {
+  const container = document.getElementById('drum-pads-container');
+  const btn = document.getElementById('toggle-drum-pads');
+  if (container.classList.contains('open')) {
+    container.classList.remove('open');
+    btn.classList.remove('open');
+  } else {
+    container.classList.add('open');
+    btn.classList.add('open');
+  }
+});
+
+document.querySelectorAll('.drum-pad-btn').forEach(btn => {
+  btn.addEventListener('mousedown', (e) => {
+    const idx = parseInt(e.target.dataset.index);
+    if (modules[2] && modules[2].audioInit && globalAudioCtx) {
+      modules[2].playDrum(idx, globalAudioCtx.currentTime, 0);
+      btn.classList.add('active-hit');
+      setTimeout(() => btn.classList.remove('active-hit'), 100);
+    }
+  });
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key >= '0' && e.key <= '9') {
+    if (modules[2] && modules[2].audioInit && globalAudioCtx) {
+      const idx = parseInt(e.key);
+      modules[2].playDrum(idx, globalAudioCtx.currentTime, 0);
+      const btn = document.querySelector(`.drum-pad-btn[data-index="${idx}"]`);
+      if (btn) {
+        btn.classList.add('active-hit');
+        setTimeout(() => btn.classList.remove('active-hit'), 100);
+      }
+    }
+  }
+});
+
+document.querySelectorAll('.wheel-selector').forEach(wheel => {
+  // Clone ALL items to the front and back for seamless infinite scrolling
+  const originalItems = Array.from(wheel.querySelectorAll('.wheel-item'));
+  const len = originalItems.length;
+  if (len > 0) {
+    originalItems.forEach(item => {
+      const clone = item.cloneNode(true);
+      clone.classList.add('clone');
+      wheel.insertBefore(clone, originalItems[0]);
+    });
+    originalItems.forEach(item => {
+      const clone = item.cloneNode(true);
+      clone.classList.add('clone');
+      wheel.appendChild(clone);
+    });
+  }
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+  let items = wheel.querySelectorAll('.wheel-item');
+  let currentIndex = len; // Start on the first real item in the middle section
+  
+  items[currentIndex].classList.add('active');
+  // Initialize position instantly
+  setTimeout(() => {
+    wheel.style.scrollBehavior = 'auto';
+    wheel.scrollLeft = items[currentIndex].offsetLeft - (wheel.clientWidth/2) + (items[currentIndex].clientWidth/2);
+    setTimeout(() => { wheel.style.scrollBehavior = 'smooth'; }, 10);
+  }, 10);
+
+  const updateSelect = () => {
+    const val = items[currentIndex].dataset.value;
+    const selectId = wheel.dataset.target;
+    const select = document.getElementById(selectId);
+    if(select) {
+      select.value = val;
+      select.dispatchEvent(new Event('change'));
+    }
+  };
+
+  const snapToReal = (index) => {
+    // Disable transitions so the color doesn't fade during the swap
+    items.forEach(item => item.style.transition = 'none');
+    
+    items[currentIndex].classList.remove('active');
+    currentIndex = index;
+    items[currentIndex].classList.add('active');
+    
+    wheel.style.scrollBehavior = 'auto';
+    wheel.scrollTo({
+      left: items[currentIndex].offsetLeft - (wheel.clientWidth/2) + (items[currentIndex].clientWidth/2),
+      behavior: 'auto'
+    });
+    
+    // Force a browser repaint so the color swap happens instantly without animation
+    void wheel.offsetHeight;
+    
+    setTimeout(() => { 
+      wheel.style.scrollBehavior = 'smooth'; 
+      items.forEach(item => item.style.transition = '');
+    }, 50);
+  };
+
+  const spinNext = () => {
+    items[currentIndex].classList.remove('active');
+    currentIndex = currentIndex + 1;
+    items[currentIndex].classList.add('active');
+    wheel.scrollTo({
+      left: items[currentIndex].offsetLeft - (wheel.clientWidth/2) + (items[currentIndex].clientWidth/2),
+      behavior: 'smooth'
+    });
+    updateSelect();
+  };
+
+  // NATIVE SCROLL HANDLER: Handles both trackpad scrolling and momentum scrolling after drag
+  wheel.addEventListener('scroll', () => {
+    clearTimeout(wheel.snapTimeout);
+    wheel.snapTimeout = setTimeout(() => {
+      if (isDown) return; // Don't snap update while dragging
+      
+      let closest = 0;
+      let minDiff = Infinity;
+      const center = wheel.scrollLeft + wheel.clientWidth / 2;
+      items.forEach((item, i) => {
+        const itemCenter = item.offsetLeft + item.clientWidth / 2;
+        const diff = Math.abs(center - itemCenter);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = i;
+        }
+      });
+      
+      if (currentIndex !== closest) {
+        items[currentIndex].classList.remove('active');
+        currentIndex = closest;
+        items[currentIndex].classList.add('active');
+        updateSelect();
+      }
+      
+      // If we landed in the clone zones, instantly and invisibly snap back to the real middle zone
+      if (currentIndex >= 2 * len || currentIndex < len) {
+        const realIndex = len + (currentIndex % len);
+        snapToReal(realIndex);
+      }
+    }, 150);
+  }, { passive: true });
+
+  // MOUSE DRAG HANDLERS
+  wheel.addEventListener('mousedown', (e) => {
+    isDown = true;
+    wheel.style.cursor = 'grabbing';
+    wheel.style.scrollSnapType = 'none'; // Disable snapping during drag
+    startX = e.pageX - wheel.offsetLeft;
+    scrollLeft = wheel.scrollLeft;
+  });
+  wheel.addEventListener('mouseleave', () => {
+    isDown = false;
+    wheel.style.cursor = 'pointer';
+    wheel.style.scrollSnapType = 'x mandatory';
+  });
+  wheel.addEventListener('mouseup', (e) => {
+    isDown = false;
+    wheel.style.cursor = 'pointer';
+    wheel.style.scrollSnapType = 'x mandatory'; // Restore snapping
+    const endX = e.pageX - wheel.offsetLeft;
+    
+    // If it was just a click, spin to next
+    if (Math.abs(startX - endX) < 5) {
+      spinNext();
+    }
+    // Otherwise, let native scroll-snap handle centering, which will trigger the scroll listener
+  });
+  wheel.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - wheel.offsetLeft;
+    const walk = (x - startX) * 2; 
+    wheel.scrollLeft = scrollLeft - walk;
+  });
+
+  // Intercept trackpad/mousewheel scrolling to prevent page scroll and map to horizontal
+  wheel.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      wheel.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+});
 
 // Auto-play Rhythm Grid on start
 document.getElementById('btn-start-fractal')?.addEventListener('click', () => {
@@ -2280,3 +2475,11 @@ document.getElementById('btn-start-fractal')?.addEventListener('click', () => {
   }
 });
 
+// Stop audio/animation when tab is hidden
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (modules[currentIndex] && typeof modules[currentIndex].stop === 'function') {
+      modules[currentIndex].stop();
+    }
+  }
+});
