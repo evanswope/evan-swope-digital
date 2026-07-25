@@ -7,10 +7,10 @@
   
   <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="synth.css">
+  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="synth.css?v=2">
 </head>
-<body>
+<body class="lens-hybrid">
   <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
     <filter id="scribble-filter" x="-50%" y="-50%" width="200%" height="200%">
       <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
@@ -55,7 +55,7 @@
             
             <!-- SLIDE 1: Wavetable Synth -->
             <div class="carousel-slide">
-              <iframe class="waveshaper-iframe" src="./wavetable-synth/index.html" scrolling="no" style="width: 100%; border: none; background: transparent; overflow: hidden; border-radius: 12px;"></iframe>
+              <iframe class="waveshaper-iframe" src="./wavetable-synth/index.html" scrolling="no" style="width: 100%; height: 1000px; border: none; background: transparent; overflow: hidden; border-radius: 12px;"></iframe>
             </div>
             
             <!-- SLIDE 2: Generative Automata -->
@@ -119,24 +119,41 @@
                 </div>
                 <div class="card-header">
                   <div class="title-row" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                    <h2 class="card-title">Morphogenesis</h2>
+                    <h2 class="card-title">Microbe Beats</h2>
                     <div class="power-container">
                       <div id="rd-power-indicator" class="power-light"></div>
                     </div>
                   </div>
-                  <p class="card-desc">Evolving microbial groovebox with four preset styles.</p>
+                  <p class="card-desc">Simulated organisms are scanned by a playhead. Choose how fast they move, the drumkit sounds, and the BPM.</p>
                 </div>
                 <div class="grid-container" style="background:#0a0a1a;">
                   <canvas id="rd-canvas" style="width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated;"></canvas>
                 </div>
                 <div class="card-controls">
                   <div class="playback-controls">
-                    <button id="btn-play-rd" class="icon-btn" title="Play Groovebox"><i class="fa-solid fa-play"></i></button>
-                    <div class="fractal-select-wrapper">
-                      <select id="rd-type" class="minimal-select">
+                    <button id="btn-play-rd" class="icon-btn" title="Play/Pause Rhythm Grid"><i class="fa-solid fa-play"></i></button>
+                    <div class="wheel-selector-container">
+                      <div class="wheel-selector" id="rd-type-wheel" data-target="rd-type">
+                        <div class="wheel-item" data-value="mitosis">Mitosis</div>
+                        <div class="wheel-item" data-value="coral">Brain Coral</div>
+                        <div class="wheel-item" data-value="labyrinth">Labyrinth</div>
+                      </div>
+                      <select id="rd-type" style="display:none;">
                         <option value="mitosis">Mitosis</option>
                         <option value="coral">Brain Coral</option>
                         <option value="labyrinth">Labyrinth</option>
+                      </select>
+                    </div>
+                    <div class="wheel-selector-container" style="width: 220px;">
+                      <div class="wheel-selector" id="rd-kit-wheel" data-target="rd-kit">
+                        <div class="wheel-item" data-value="bus_stop">Kit: Bus Stop</div>
+                        <div class="wheel-item" data-value="disco">Kit: Glitchcore</div>
+                        <div class="wheel-item" data-value="foley">Kit: Forest</div>
+                      </div>
+                      <select id="rd-kit" style="display:none;">
+                        <option value="bus_stop">Kit: Bus Stop (90s)</option>
+                        <option value="disco">Kit: Glitchcore</option>
+                        <option value="foley">Kit: Midnight Forest</option>
                       </select>
                     </div>
                   </div>
@@ -147,41 +164,34 @@
                       <input type="range" id="rd-speed" class="line-slider" min="1" max="100" step="1" value="20" >
                     </div>
                     
-                    <div class="fx-knob-group" title="Wavefold Amount" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
-                      <i class="fa-solid fa-wave-square" style="color:#ff7eb3; font-size:0.9rem;"></i>
-                      <input type="range" id="rd-fold" class="line-slider" min="1" max="30" step="0.1" value="5.0" >
-                    </div>
-                    
-                    <div class="fx-knob-group" title="Sub-Oscillator Mix" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
-                      <i class="fa-solid fa-layer-group" style="color:#ff7eb3; font-size:0.9rem;"></i>
-                      <input type="range" id="rd-sub" class="line-slider" min="0" max="1" step="0.01" value="0.5" >
-                    </div>
-                    
-                    <div class="fx-knob-group" title="Filter Cutoff" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
-                      <i class="fa-solid fa-filter" style="color:#ff7eb3; font-size:0.9rem;"></i>
-                      <input type="range" id="rd-cutoff" class="line-slider" min="100" max="10000" step="1" value="2500" >
-                    </div>
-                    
-                    <div class="fx-knob-group" title="Filter Resonance" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
-                      <i class="fa-solid fa-bolt" style="color:#ff7eb3; font-size:0.9rem;"></i>
-                      <input type="range" id="rd-res" class="line-slider" min="0" max="20" step="0.1" value="1.0" >
-                    </div>
-                    
-
-                    
-                    <div class="fx-knob-group" title="Auto-Wavefold LFO" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
-                      <i class="fa-solid fa-arrows-spin" style="color:#ff7eb3; font-size:0.9rem;"></i>
-                      <input type="checkbox" id="rd-lfo" style="accent-color: #ff7eb3; width:1.1rem; height:1.1rem; cursor:pointer; margin:0;">
+                    <div class="fx-knob-group" title="Tempo (BPM)" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
+                      <div style="display:flex; align-items:center; gap:0.5rem; color:#ff7eb3; font-size:0.9rem; font-weight:bold;">
+                        <i class="fa-solid fa-metronome"></i>
+                        <span id="bpm-readout">112 BPM</span>
+                      </div>
+                      <input type="range" id="rd-bpm" class="line-slider" min="70" max="180" step="1" value="112" oninput="document.getElementById('bpm-readout').innerText = this.value + ' BPM'">
                     </div>
                     
                   </div>
                   
-                  <div class="style-toggles" id="rd-styles">
-                    <button class="style-btn active" data-style="rock">ROCK</button>
-                    <button class="style-btn" data-style="pop">POP</button>
-                    <button class="style-btn" data-style="blues">BLUES</button>
-                    <button class="style-btn" data-style="bossa">BOSSA</button>
+                  <!-- Drum Pads Drawer -->
+                  <div class="drum-pads-drawer" style="width: 100%; margin-top: 1rem;">
+                    <button id="toggle-drum-pads" style="width: 100%; border: none; color: var(--accent-color); background: transparent; padding: 0.5rem; cursor: pointer; transition: all 0.3s; font-weight: 700; letter-spacing: 2px; font-size: 0.9rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">PADS <i class="fa-solid fa-chevron-down"></i></button>
+                    <div id="drum-pads-container" class="drum-pads-drawer-content">
+                      <!-- 10 pads -->
+                      <button class="drum-pad-btn" data-index="9" style="padding: 1rem; border-radius: 4px;">9</button>
+                      <button class="drum-pad-btn" data-index="8" style="padding: 1rem; border-radius: 4px;">8</button>
+                      <button class="drum-pad-btn" data-index="7" style="padding: 1rem; border-radius: 4px;">7</button>
+                      <button class="drum-pad-btn" data-index="6" style="padding: 1rem; border-radius: 4px;">6</button>
+                      <button class="drum-pad-btn" data-index="5" style="padding: 1rem; border-radius: 4px;">5</button>
+                      <button class="drum-pad-btn" data-index="4" style="padding: 1rem; border-radius: 4px;">4</button>
+                      <button class="drum-pad-btn" data-index="3" style="padding: 1rem; border-radius: 4px;">3</button>
+                      <button class="drum-pad-btn" data-index="2" style="padding: 1rem; border-radius: 4px;">2</button>
+                      <button class="drum-pad-btn" data-index="1" style="padding: 1rem; border-radius: 4px;">1</button>
+                      <button class="drum-pad-btn" data-index="0" style="padding: 1rem; border-radius: 4px;">0</button>
+                    </div>
                   </div>
+                  
                 </div>
               </div>
             </div>
@@ -203,12 +213,21 @@
     </div>
   </main>
 
-  <footer class="main-footer">
-    <div class="footer-content">
-      <p>&copy; 2026 Evan Swope. All rights reserved.</p>
-    </div>
+  <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <p style="margin: 10px;">Copyright © 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
+    <svg viewBox="-20 -20 240 140" class="inchworm-svg" style="width: 50px; height: 35px; overflow: visible; flex-shrink: 0;">
+      <path d="M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80" fill="none" stroke="#ff7eb3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" style="shape-rendering: crispEdges; filter: url(#scribble-filter);">
+        <animate attributeName="d" calcMode="discrete" dur="0.8s" repeatCount="indefinite"
+          values="
+            M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80;
+            M 50 80 C 70 80, 70 40, 100 40 C 130 40, 130 80, 150 80;
+            M 60 80 C 80 80, 80 20, 100 20 C 120 20, 120 80, 140 80;
+            M 50 80 C 70 80, 70 40, 100 40 C 130 40, 130 80, 150 80
+          " />
+      </path>
+    </svg>
   </footer>
 
-  <script src="synth.js"></script>
+  <script src="synth.js?v=2"></script>
 </body>
 </html>

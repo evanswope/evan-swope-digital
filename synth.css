@@ -245,8 +245,111 @@ canvas#grid-canvas {
   display: flex;
   gap: 0.5rem;
   width: 100%;
-  margin-top: 1rem;
-  justify-content: center;
+  margin-top: 2rem;
+}
+
+/* --------------------------------------------------------------------------
+   WHEEL SELECTORS & DRUM PADS
+   -------------------------------------------------------------------------- */
+.wheel-selector-container {
+  position: relative;
+  width: 150px;
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+.wheel-selector {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  width: 100%;
+  gap: 1.5rem;
+  padding: 0 50px; /* Space for peeking */
+  scroll-behavior: smooth;
+  cursor: pointer;
+  touch-action: pan-x; /* Prevent vertical scrolling on touch devices while using wheel */
+  overscroll-behavior: none; /* Prevent scroll chaining to parent card on desktop */
+  border: 1px solid var(--accent-color);
+  border-radius: 20px;
+  background: linear-gradient(to bottom, #050505 0%, #2a2a2a 50%, #050505 100%);
+  box-shadow: inset 0 5px 10px rgba(0,0,0,1), inset 0 -5px 10px rgba(0,0,0,1);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  height: 36px;
+  align-items: center;
+}
+
+.wheel-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.wheel-item {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 60px;
+  scroll-snap-align: center;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.wheel-item.active {
+  color: var(--accent-color);
+  text-shadow: 0 0 5px rgba(255,126,179,0.5);
+  transform: scale(1.1);
+}
+
+.drum-pad-btn {
+  background: rgba(255, 126, 179, 0.1);
+  border: 1px solid rgba(255, 126, 179, 0.3);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.drum-pad-btn:active, .drum-pad-btn.active-hit {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 15px var(--accent-color);
+  transform: scale(0.95);
+}
+
+.drum-pads-drawer-content {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  padding: 0 1rem;
+  background: rgba(0,0,0,0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+.drum-pads-drawer-content.open {
+  max-height: 250px;
+  opacity: 1;
+  margin-top: 0.5rem;
+  padding: 1rem;
+}
+
+#toggle-drum-pads i {
+  transition: transform 0.3s ease;
+}
+
+#toggle-drum-pads.open i {
+  transform: rotate(180deg);
 }
 
 .style-btn {
