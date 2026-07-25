@@ -34,7 +34,11 @@ class GenerativeAutomata {
   
   async start() {
     const ctx = getAudioCtx();
-    if (ctx.state === 'suspended') await ctx.resume();
+    try {
+      if (ctx.state === 'suspended') await ctx.resume();
+    } catch (e) {
+      console.warn("AudioContext resume blocked by browser autoplay policy", e);
+    }
     
     if (!this.audioInit) {
       this.masterGain = ctx.createGain();
@@ -476,7 +480,11 @@ class ReactionDiffusionSynth {
   
   async start() {
     const ctx = getAudioCtx();
-    if (ctx.state === 'suspended') await ctx.resume();
+    try {
+      if (ctx.state === 'suspended') await ctx.resume();
+    } catch (e) {
+      console.warn("AudioContext resume blocked by browser autoplay policy", e);
+    }
     
     if (!this.audioInit) {
       this.masterGain = ctx.createGain();
@@ -813,8 +821,9 @@ class ReactionDiffusionSynth {
         source.connect(shaper); shaper.connect(filter); filter.connect(gain);
         gain.connect(panner);
         
-        gain.gain.setValueAtTime(0.8, time); 
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05); // sharp snap
+        gain.gain.setValueAtTime(0, time); 
+        gain.gain.linearRampToValueAtTime(0.8, time + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.055); // sharp snap
         
         // Mechanical spark plug stutter: 3-5 rapid fire hits
         const numSparks = 3 + Math.floor(Math.random() * 3); // 3 to 5 sparks
@@ -843,8 +852,9 @@ class ReactionDiffusionSynth {
           
           // Tiny zaps
           sparkGain.gain.setValueAtTime(0, time);
-          sparkGain.gain.setValueAtTime(0.8, startTime);
-          sparkGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.03); // super tight
+          sparkGain.gain.setValueAtTime(0, startTime);
+          sparkGain.gain.linearRampToValueAtTime(0.8, startTime + 0.005);
+          sparkGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.035); // super tight
           
           sparkSource.start(startTime);
         }
@@ -866,7 +876,7 @@ class ReactionDiffusionSynth {
         twangDelay.connect(gain);
         
         gain.connect(panner);
-        gain.gain.setValueAtTime(0.01, time);
+        gain.gain.setValueAtTime(0, time);
         gain.gain.linearRampToValueAtTime(1.5, time + 0.02); // louder
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.35); // slightly longer
         break;
@@ -887,7 +897,8 @@ class ReactionDiffusionSynth {
         source.connect(filter); filter.connect(gain);
         gain.connect(panner);
         
-        gain.gain.setValueAtTime(1.5, time); // louder main hit
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(1.5, time + 0.005); // louder main hit
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
         
         // Spawn 3 extra delays of the sample at random times and speeds
