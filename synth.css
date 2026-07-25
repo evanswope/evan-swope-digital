@@ -14,7 +14,7 @@
   margin: 0 auto;
 }
 
-.pink-scribble {
+.scribble-outline {
   position: absolute;
   top: 0;
   left: 0;
@@ -421,10 +421,7 @@ canvas#grid-canvas {
     justify-content: center;
   }
   
-  .carousel-nav-btn {
-    display: none !important;
-  }
-  
+
   .carousel-wrapper {
     gap: 0;
     width: 100vw;
