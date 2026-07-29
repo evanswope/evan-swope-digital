@@ -813,23 +813,33 @@ class ReactionDiffusionSynth {
         metGain.connect(this.pad6ReverbNode); // Send metallic body through the reverb!
         
         // 3. Paulstretched Squeaky Chalk Tail
-        // Create the "chalk squeak" impulse
-        const chalkOsc = ctx.createOscillator();
-        chalkOsc.type = 'sawtooth';
-        chalkOsc.frequency.setValueAtTime(7000, time); 
-        chalkOsc.frequency.linearRampToValueAtTime(12000, time + 0.06); // broader sweep, 7k to 12k
-        
-        const chalkGain = ctx.createGain();
-        chalkGain.gain.setValueAtTime(0, time);
-        chalkGain.gain.linearRampToValueAtTime(0.8, time + 0.04); // Slower attack and much lower volume peak for a softer smear
-        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.06);
-        
-        chalkOsc.connect(chalkGain);
-        // Send ONLY to the reverb, no dry connection. This gives it the "smear/stretch" feel
-        chalkGain.connect(this.pad6ReverbNode); 
-        
-        chalkOsc.start(time);
-        chalkOsc.stop(time + 0.1);
+        // Create two "chalk squeak" impulses to widen and soften
+        for (let i = 0; i < 2; i++) {
+            const chalkOsc = ctx.createOscillator();
+            chalkOsc.type = 'sawtooth';
+            
+            const startFreq = 6000 + (Math.random() * 3000); // 6k-9k
+            const endFreq = startFreq + 3000 + (Math.random() * 2000); // sweep up by 3k-5k
+            chalkOsc.frequency.setValueAtTime(startFreq, time); 
+            chalkOsc.frequency.linearRampToValueAtTime(endFreq, time + 0.06);
+            
+            const chalkGain = ctx.createGain();
+            chalkGain.gain.setValueAtTime(0, time);
+            // Slower attack, even lower peak since there are two of them
+            chalkGain.gain.linearRampToValueAtTime(0.5, time + 0.04); 
+            chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.06);
+            
+            const chalkPanner = ctx.createStereoPanner();
+            chalkPanner.pan.value = (i === 0) ? -0.8 : 0.8; // Hard pan left and right to widen the reverb
+            
+            chalkOsc.connect(chalkGain);
+            chalkGain.connect(chalkPanner);
+            // Send ONLY to the reverb, no dry connection. This gives it the "smear/stretch" feel
+            chalkPanner.connect(this.pad6ReverbNode); 
+            
+            chalkOsc.start(time);
+            chalkOsc.stop(time + 0.1);
+        }
         
         break;
       }
