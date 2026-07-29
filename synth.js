@@ -782,7 +782,7 @@ class ReactionDiffusionSynth {
         thudOsc.frequency.exponentialRampToValueAtTime(150, time + 0.05);
         const thudGain = ctx.createGain();
         thudGain.gain.setValueAtTime(0, time);
-        thudGain.gain.linearRampToValueAtTime(2.0, time + 0.005);
+        thudGain.gain.linearRampToValueAtTime(0.8, time + 0.005); // reduced thud velocity
         thudGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
         thudOsc.connect(thudGain);
         thudGain.connect(panner);
@@ -820,7 +820,7 @@ class ReactionDiffusionSynth {
           this.pad6ReverbNode.buffer = this.pad6ReverbBuffer;
           
           const wetGain = ctx.createGain();
-          wetGain.gain.value = 0.5;
+          wetGain.gain.value = 1.0; // Cranked up the reverb return
           this.pad6ReverbNode.connect(wetGain);
           wetGain.connect(this.busStopBus || this.masterGain);
         }
@@ -828,20 +828,20 @@ class ReactionDiffusionSynth {
         // Create the "chalk squeak" impulse
         const chalkOsc = ctx.createOscillator();
         chalkOsc.type = 'sawtooth';
-        chalkOsc.frequency.setValueAtTime(12000, time);
-        chalkOsc.frequency.linearRampToValueAtTime(14000, time + 0.05); // slight upwards squeak
+        chalkOsc.frequency.setValueAtTime(6000, time); // Lowered so it cuts through better
+        chalkOsc.frequency.linearRampToValueAtTime(8000, time + 0.15); // slight upwards squeak
         
         const chalkGain = ctx.createGain();
         chalkGain.gain.setValueAtTime(0, time);
-        chalkGain.gain.linearRampToValueAtTime(0.6, time + 0.01);
-        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.05); // incredibly short
+        chalkGain.gain.linearRampToValueAtTime(2.0, time + 0.01); // Hit it hard to excite the reverb
+        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15); // Longer envelope to pump more energy in
         
         chalkOsc.connect(chalkGain);
         // Send ONLY to the reverb, no dry connection. This gives it the "smear/stretch" feel
         chalkGain.connect(this.pad6ReverbNode); 
         
         chalkOsc.start(time);
-        chalkOsc.stop(time + 0.1);
+        chalkOsc.stop(time + 0.2);
         
         break;
       }
