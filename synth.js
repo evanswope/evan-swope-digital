@@ -1314,63 +1314,44 @@ class ReactionDiffusionSynth {
         osc.start(time); osc.stop(time + 0.09);
         break;
       }
-      case 6: // VHS Tracking Tear
+      case 6: // Scratched CD / Buffer Underrun
       {
-        // 1. Static noise
-        const noise = makeNoise(0.5);
+        const stutters = 8 + Math.floor(Math.random() * 5); // 8 to 12 stutters
+        const stutterRate = 0.015; // 15ms per stutter (very fast machine-gun)
         
-        // 2. Picture roll (LFO on amplitude)
-        const rollLfo = ctx.createOscillator();
-        rollLfo.type = 'sine';
-        rollLfo.frequency.setValueAtTime(30, time); // 30Hz flutter
-        rollLfo.frequency.exponentialRampToValueAtTime(5, time + 0.3); // slows down
-        
-        const rollGain = ctx.createGain();
-        // Shift LFO up so it modulates amplitude between 0 and 1 instead of -1 and 1
-        const offsetGain = ctx.createGain();
-        offsetGain.gain.value = 0.5;
-        rollLfo.connect(rollGain.gain); // This creates ring modulation (bipolar). We'll leave it bipolar for harsh glitching!
-        
-        noise.connect(rollGain);
-        
-        // 3. Tape motor drag (Pitching down sawtooth)
-        const motorOsc = ctx.createOscillator();
-        motorOsc.type = 'sawtooth';
-        motorOsc.frequency.setValueAtTime(400, time);
-        motorOsc.frequency.exponentialRampToValueAtTime(30, time + 0.3);
-        
-        const sumGain = ctx.createGain();
-        sumGain.gain.value = 0.5;
-        rollGain.connect(sumGain);
-        motorOsc.connect(sumGain);
-        
-        // 4. Magnetic head comb filter (phase cancellation)
-        const combDelay = ctx.createDelay();
-        combDelay.delayTime.setValueAtTime(0.002, time); // 2ms initial delay
-        combDelay.delayTime.linearRampToValueAtTime(0.015, time + 0.3); // stretches as tape slows
-        
-        const combWet = ctx.createGain();
-        combWet.gain.value = 0.8;
-        sumGain.connect(combDelay);
-        combDelay.connect(combWet);
-        
-        const outGain = ctx.createGain();
-        outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(0.7, time + 0.05); // quick fade in like TV turning on
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.35);
-        
-        sumGain.connect(outGain);
-        combWet.connect(outGain);
-        outGain.connect(panner);
-        
-        noise.start(time);
-        rollLfo.start(time);
-        motorOsc.start(time);
-        
-        noise.stop(time + 0.4);
-        rollLfo.stop(time + 0.4);
-        motorOsc.stop(time + 0.4);
-        
+        let tOffset = time;
+        for (let i = 0; i < stutters; i++) {
+            // Generate a complex tone for each stutter
+            const osc = ctx.createOscillator();
+            osc.type = 'square';
+            
+            // The last few stutters dive in pitch as the "laser" fails
+            let baseFreq = 800;
+            if (i > stutters - 4) {
+                baseFreq = 800 * Math.pow(0.5, i - (stutters - 4)); // pitches down by octaves
+            }
+            
+            osc.frequency.setValueAtTime(baseFreq, tOffset);
+            
+            // Heavy highpass filter so it sounds thin and digital
+            const hp = ctx.createBiquadFilter();
+            hp.type = 'highpass';
+            hp.frequency.value = 2000;
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, tOffset);
+            gain.gain.linearRampToValueAtTime(0.8, tOffset + 0.002); // sharp click attack
+            gain.gain.exponentialRampToValueAtTime(0.01, tOffset + stutterRate - 0.002);
+            
+            osc.connect(hp);
+            hp.connect(gain);
+            gain.connect(panner);
+            
+            osc.start(tOffset);
+            osc.stop(tOffset + stutterRate);
+            
+            tOffset += stutterRate;
+        }
         break;
       }
       case 5: // Glitch Stutter
