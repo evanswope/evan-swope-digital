@@ -1420,6 +1420,8 @@ class ReactionDiffusionSynth {
             delay.delayTime.exponentialRampToValueAtTime(targetDelay, time + 1.2);
             
             fb.gain.value = 0.85 + (Math.random() * 0.08); 
+            fb.gain.setValueAtTime(fb.gain.value, time);
+            fb.gain.setValueAtTime(0, time + 1.5); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
             
             shaper.connect(delay);
             delay.connect(fb);
@@ -1511,6 +1513,8 @@ class ReactionDiffusionSynth {
         
         const fbGain = ctx.createGain();
         fbGain.gain.value = 0.95; // almost totally self-oscillating
+        fbGain.gain.setValueAtTime(0.95, time);
+        fbGain.gain.setValueAtTime(0, time + 0.8); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
         
         // The Loop: filter -> overload -> delay -> fbGain -> filter (Using the pad against itself)
         osc.connect(filter);
@@ -1552,6 +1556,8 @@ class ReactionDiffusionSynth {
         
         const fbGain = ctx.createGain();
         fbGain.gain.value = 0.98;
+        fbGain.gain.setValueAtTime(0.98, time);
+        fbGain.gain.setValueAtTime(0, time + 1.0); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
         
         const shaper = ctx.createWaveShaper();
         shaper.curve = this.getDistortionCurve(500);
@@ -1568,8 +1574,8 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.value = 0; // Explicit default
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
-        outGain.gain.setValueAtTime(1.0, time + 0.1);
+        outGain.gain.linearRampToValueAtTime(0.7, time + 0.01); // Pulled velocity back 30%
+        outGain.gain.setValueAtTime(0.7, time + 0.1);
         outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
         outGain.gain.linearRampToValueAtTime(0, time + 0.65);
         
@@ -1595,7 +1601,9 @@ class ReactionDiffusionSynth {
       {
         const osc = ctx.createOscillator();
         osc.type = 'square';
-        osc.frequency.value = 40; // guttural sub
+        // Add Identity: Pitch dives heavily while accelerating
+        osc.frequency.setValueAtTime(80, time);
+        osc.frequency.exponentialRampToValueAtTime(15, time + 0.5);
         
         const noiseBurst = makeNoise(0.05); // 50ms of raw static
         
@@ -1608,6 +1616,8 @@ class ReactionDiffusionSynth {
         
         const fbGain = ctx.createGain();
         fbGain.gain.value = 0.98; // massive feedback
+        fbGain.gain.setValueAtTime(0.98, time);
+        fbGain.gain.setValueAtTime(0, time + 1.0); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
         
         const shaper = ctx.createWaveShaper();
         shaper.curve = this.getDistortionCurve(500); // 500x overdrive in the loop
@@ -1629,6 +1639,13 @@ class ReactionDiffusionSynth {
         outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
         outGain.gain.linearRampToValueAtTime(0, time + 0.65);
         
+        // Add Identity: Vocal Wah filter before quantization
+        const wahFilter = ctx.createBiquadFilter();
+        wahFilter.type = 'bandpass';
+        wahFilter.Q.value = 5.0;
+        wahFilter.frequency.setValueAtTime(200, time);
+        wahFilter.frequency.exponentialRampToValueAtTime(4000, time + 0.5);
+        
         // Quantizer to turn it into a digital rototiller
         const batSteps = 4; // 2-bit
         const batCurve = new Float32Array(4096);
@@ -1640,7 +1657,8 @@ class ReactionDiffusionSynth {
         quantizer.curve = batCurve;
         
         shaper.connect(outGain);
-        outGain.connect(quantizer);
+        outGain.connect(wahFilter);
+        wahFilter.connect(quantizer);
         quantizer.connect(panner);
         
         osc.start(time);
