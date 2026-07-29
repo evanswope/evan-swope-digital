@@ -1292,26 +1292,42 @@ class ReactionDiffusionSynth {
         }
         break;
       }
-      case 7: // Short Data Burst
+      case 7: // Electro-Static Spark & Hiss
       {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle'; 
+        // 1. Massive burst of noise
+        const noise = makeNoise(0.2); // 200ms of noise
+        
+        // 2. Modulating bandpass to make it "spark" and "sizzle"
+        const sparkFilter = ctx.createBiquadFilter();
+        sparkFilter.type = 'bandpass';
+        sparkFilter.Q.value = 5;
         
         let t = time;
-        while (t < time + 0.08) {
-            osc.frequency.setValueAtTime(1000 + Math.random() * 4000, t);
-            t += 0.005 + Math.random() * 0.015; 
+        while (t < time + 0.15) {
+            // Rapidly jump the filter around to create sparks
+            sparkFilter.frequency.setValueAtTime(2000 + Math.random() * 8000, t);
+            t += 0.01 + Math.random() * 0.02; // jump every 10-30ms
         }
         
-        osc.connect(gain); gain.connect(panner);
+        // 3. Stereo width
+        const widthPanner = ctx.createStereoPanner();
+        let pt = time;
+        while (pt < time + 0.15) {
+            widthPanner.pan.setValueAtTime((Math.random() * 2) - 1, pt);
+            pt += 0.02; // jitter stereo field
+        }
         
+        const gain = ctx.createGain();
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.4, time + 0.005);
-        gain.gain.setValueAtTime(0.4, time + 0.05);
-        gain.gain.linearRampToValueAtTime(0.01, time + 0.08); 
+        gain.gain.linearRampToValueAtTime(1.0, time + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.18);
         
-        osc.start(time); osc.stop(time + 0.09);
+        noise.connect(sparkFilter);
+        sparkFilter.connect(gain);
+        gain.connect(widthPanner);
+        widthPanner.connect(panner); // panner connects to master
+        
+        noise.start(time);
         break;
       }
       case 6: // Scratched CD / Buffer Underrun
@@ -1354,25 +1370,37 @@ class ReactionDiffusionSynth {
         }
         break;
       }
-      case 5: // Glitch Stutter
+      case 5: // Data Tape Granular Smear
       {
-        const stutters = 3 + Math.floor(Math.random() * 4);
-        for(let i=0; i<stutters; i++) {
-          const tOffset = time + (i * 0.02);
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          
-          osc.type = 'sine';
-          osc.frequency.value = 1000 + Math.random() * 3000;
-          
-          osc.connect(gain); gain.connect(panner);
-          
-          gain.gain.setValueAtTime(0, tOffset);
-          gain.gain.linearRampToValueAtTime(0.5, tOffset + 0.001);
-          gain.gain.exponentialRampToValueAtTime(0.01, tOffset + 0.015); 
-          
-          osc.start(tOffset); osc.stop(tOffset + 0.02);
-        }
+        // Start with a tiny 10ms click of raw noise
+        const noiseClick = makeNoise(0.01);
+        
+        // Feed it into a heavy feedback delay loop to smear it into a texture
+        const delay = ctx.createDelay();
+        // Delay stretches from 20ms to 60ms to create a groaning, tearing metallic sound
+        delay.delayTime.setValueAtTime(0.02, time);
+        delay.delayTime.exponentialRampToValueAtTime(0.06, time + 0.3);
+        
+        const fb = ctx.createGain();
+        fb.gain.value = 0.85; // heavy feedback to smear
+        
+        const shaper = ctx.createWaveShaper();
+        shaper.curve = this.getDistortionCurve(50); // crush the feedback loop
+        
+        noiseClick.connect(delay);
+        delay.connect(fb);
+        fb.connect(shaper);
+        shaper.connect(delay);
+        
+        const outGain = ctx.createGain();
+        outGain.gain.setValueAtTime(0, time);
+        outGain.gain.linearRampToValueAtTime(0.6, time + 0.02);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4); // long tail
+        
+        delay.connect(outGain);
+        outGain.connect(panner);
+        
+        noiseClick.start(time);
         break;
       }
       case 4: // High-pitched Sine Ping
