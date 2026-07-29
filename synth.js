@@ -1544,8 +1544,10 @@ class ReactionDiffusionSynth {
         const noiseBurst = makeNoise(0.05);
         
         const delay = ctx.createDelay();
-        // Start screaming at 0.5ms and violently decelerate out to 300ms chunks
+        // Set explicit default values to prevent scheduling bugs
+        delay.delayTime.value = 0.0005;
         delay.delayTime.setValueAtTime(0.0005, time);
+        // Ramp up
         delay.delayTime.exponentialRampToValueAtTime(0.3, time + 0.5);
         
         const fbGain = ctx.createGain();
@@ -1564,6 +1566,7 @@ class ReactionDiffusionSynth {
         shaper.connect(delay);
         
         const outGain = ctx.createGain();
+        outGain.gain.value = 0; // Explicit default
         outGain.gain.setValueAtTime(0, time);
         outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
         outGain.gain.setValueAtTime(1.0, time + 0.1);
@@ -1597,8 +1600,10 @@ class ReactionDiffusionSynth {
         const noiseBurst = makeNoise(0.05); // 50ms of raw static
         
         const delay = ctx.createDelay();
-        // Start massively slow (300ms) and violently accelerate to 0.5ms (2000Hz scream)
+        // Set explicit default values to prevent Web Audio scheduling bugs on 'currentTime' manual triggers
+        delay.delayTime.value = 0.3;
         delay.delayTime.setValueAtTime(0.3, time);
+        // Ramp down
         delay.delayTime.exponentialRampToValueAtTime(0.0005, time + 0.5);
         
         const fbGain = ctx.createGain();
@@ -1617,6 +1622,7 @@ class ReactionDiffusionSynth {
         shaper.connect(delay);
         
         const outGain = ctx.createGain();
+        outGain.gain.value = 0; // Explicit default
         outGain.gain.setValueAtTime(0, time);
         outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
         outGain.gain.setValueAtTime(1.0, time + 0.1);
