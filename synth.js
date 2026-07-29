@@ -795,6 +795,7 @@ class ReactionDiffusionSynth {
         shaper.curve = this.getDistortionCurve(100);
         bpSum.connect(shaper); shaper.connect(metGain);
         metGain.connect(panner);
+        metGain.connect(this.pad6ReverbNode); // Send metallic body through the reverb!
         
         // 3. Paulstretched Squeaky Chalk Tail
         if (!this.pad6ReverbNode) {
