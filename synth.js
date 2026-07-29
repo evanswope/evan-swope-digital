@@ -861,7 +861,7 @@ class ReactionDiffusionSynth {
         break;
       }
       case 4: { // Pneumatic Shriek
-        const duration = 0.5 + Math.random() * 1.0; // 0.5s to 1.5s
+        const duration = 0.2 + Math.random() * 0.4; // Shorter: 0.2s to 0.6s
         
         // Pitch bend: down 3-6 semitones, then back up
         const bendAmountSemis = 3 + Math.random() * 3; // 3 to 6
@@ -880,16 +880,16 @@ class ReactionDiffusionSynth {
         noiseSource.buffer = noiseBuffer;
         
         // Clamping Filter
-        const filterAmount = 2000 + Math.random() * 4000; // Random filtering clamp floor
+        const filterAmount = 3000 + Math.random() * 4000; // Random filtering clamp floor
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(10000, time); // start bright
+        filter.frequency.setValueAtTime(12000, time); // start even brighter
         filter.frequency.exponentialRampToValueAtTime(filterAmount, time + (duration * 0.2)); // clamp down quickly
         filter.frequency.linearRampToValueAtTime(500, time + duration); // fade out filter
         filter.Q.value = 5.0; // resonant shriek
         
         const hpFilter = ctx.createBiquadFilter();
         hpFilter.type = 'highpass';
-        hpFilter.frequency.value = 8000; // Thin out the low end more
+        hpFilter.frequency.value = 10000; // Even more highpass
         
         source.connect(filter);
         noiseSource.connect(filter);
@@ -909,6 +909,24 @@ class ReactionDiffusionSynth {
         gain.gain.exponentialRampToValueAtTime(0.01, time + duration); // fade to zero over duration
         
         noiseSource.start(time);
+        
+        // Add tiny screech to the front
+        const screechOsc = ctx.createOscillator();
+        screechOsc.type = 'sawtooth';
+        screechOsc.frequency.setValueAtTime(14000, time); // Extremely high start
+        screechOsc.frequency.exponentialRampToValueAtTime(2000, time + 0.05); // fast dive
+        
+        const screechGain = ctx.createGain();
+        screechGain.gain.setValueAtTime(0, time);
+        screechGain.gain.linearRampToValueAtTime(0.3, time + 0.005);
+        screechGain.gain.exponentialRampToValueAtTime(0.01, time + 0.08); // very short burst
+        
+        screechOsc.connect(screechGain);
+        screechGain.connect(panner);
+        
+        screechOsc.start(time);
+        screechOsc.stop(time + 0.1);
+        
         break;
       }
       case 3: // Shaker Single -> Metallic highpass
@@ -934,7 +952,7 @@ class ReactionDiffusionSynth {
         gain.connect(panner);
         
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.0, time + 0.005); // slightly quieter attack to tame it
+        gain.gain.linearRampToValueAtTime(1.3, time + 0.005); // increased velocity by 30%
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
         
         // Spawn 3 extra delays of the sample at random times and speeds
@@ -965,9 +983,9 @@ class ReactionDiffusionSynth {
           stutterGain.connect(stutterPanner);
           stutterPanner.connect(this.busStopBus || this.masterGain);
           
-          // Give each stutter its own tight volume envelope (tamed velocity)
+          // Give each stutter its own tight volume envelope
           stutterGain.gain.setValueAtTime(0, time);
-          stutterGain.gain.setValueAtTime(0.7, startTime);
+          stutterGain.gain.setValueAtTime(0.9, startTime); // increased by ~30%
           stutterGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
           
           stutterSource.start(startTime);
