@@ -889,7 +889,7 @@ class ReactionDiffusionSynth {
         
         const hpFilter = ctx.createBiquadFilter();
         hpFilter.type = 'highpass';
-        hpFilter.frequency.value = 4000; // Thin out the low end
+        hpFilter.frequency.value = 5000; // Thin out the low end more
         
         source.connect(filter);
         noiseSource.connect(filter);
@@ -903,8 +903,9 @@ class ReactionDiffusionSynth {
         gain.connect(panner);
         
         // Volume Envelope
+        const hitVelocity = 0.1 + (Math.random() * 0.19); // 0.1 to 0.29
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.4, time + 0.05); // strong attack (reduced velocity)
+        gain.gain.linearRampToValueAtTime(hitVelocity, time + 0.05); // strong attack (randomized lower velocity)
         gain.gain.exponentialRampToValueAtTime(0.01, time + duration); // fade to zero over duration
         
         noiseSource.start(time);
