@@ -915,7 +915,7 @@ class ReactionDiffusionSynth {
         filter.connect(hpFilter);
         hpFilter.connect(shaper);
         shaper.connect(gain);
-        gain.connect(panner);
+        // gain.connect(panner); // Removed to make it 100% wet
         
         // Volume Envelope
         const hitVelocity = 0.1 + (Math.random() * 0.19); // 0.1 to 0.29
@@ -967,7 +967,7 @@ class ReactionDiffusionSynth {
         screechGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1); // slightly longer to fit the cluster
         
         trackBp.connect(screechGain);
-        screechGain.connect(panner);
+        // screechGain.connect(panner); // Removed to make it 100% wet
         
         const revSendPanner = ctx.createStereoPanner();
         revSendPanner.pan.value = (Math.random() * 2) - 1; // Random stereo spread
