@@ -925,21 +925,17 @@ class ReactionDiffusionSynth {
         
         noiseSource.start(time);
         
-        // Add tiny screech to the front
-        const screechOsc = ctx.createOscillator();
-        screechOsc.type = 'sawtooth';
-        screechOsc.frequency.setValueAtTime(14000, time); // Extremely high start
-        screechOsc.frequency.exponentialRampToValueAtTime(2000, time + 0.05); // fast dive
+        // Add a scattered cluster of 5-10 tiny screeches to the front
+        const numScreeches = 5 + Math.floor(Math.random() * 6);
         
-        // 1. Distort to all hell
+        // 1. Distort to all hell (Shared processing chain)
         const screechShaper1 = ctx.createWaveShaper();
         screechShaper1.curve = this.getDistortionCurve(1000); 
         
-        // 2. Comb filter (every 3 harmonics) tracking the frequency dive
+        // 2. Comb filter (now sweeping down from 8000Hz to 2000Hz to act as a phaser over the cluster)
         const combDelay = ctx.createDelay();
-        // Spacing = 3 * freq. Delay = 1 / Spacing.
-        combDelay.delayTime.setValueAtTime(1.0 / (3.0 * 14000), time);
-        combDelay.delayTime.exponentialRampToValueAtTime(1.0 / (3.0 * 2000), time + 0.05);
+        combDelay.delayTime.setValueAtTime(1.0 / (3.0 * 8000), time);
+        combDelay.delayTime.exponentialRampToValueAtTime(1.0 / (3.0 * 2000), time + 0.1);
         const combFb = ctx.createGain();
         combFb.gain.value = 0.85; // heavy feedback
         combDelay.connect(combFb);
@@ -950,15 +946,14 @@ class ReactionDiffusionSynth {
         const screechShaper2 = ctx.createWaveShaper();
         screechShaper2.curve = this.getDistortionCurve(500);
         
-        // 4. Tracking bandpass
+        // 4. Sweeping bandpass
         const trackBp = ctx.createBiquadFilter();
         trackBp.type = 'bandpass';
         trackBp.Q.value = 8.0;
-        trackBp.frequency.setValueAtTime(14000, time);
-        trackBp.frequency.exponentialRampToValueAtTime(2000, time + 0.05);
+        trackBp.frequency.setValueAtTime(8000, time);
+        trackBp.frequency.exponentialRampToValueAtTime(2000, time + 0.1);
         
-        // Connect the chain
-        screechOsc.connect(screechShaper1);
+        // Connect the shared chain
         screechShaper1.connect(combSum); // Dry to sum
         screechShaper1.connect(combDelay);
         combDelay.connect(combSum); // Wet to sum
@@ -968,8 +963,8 @@ class ReactionDiffusionSynth {
         
         const screechGain = ctx.createGain();
         screechGain.gain.setValueAtTime(0, time);
-        screechGain.gain.linearRampToValueAtTime(0.5, time + 0.005);
-        screechGain.gain.exponentialRampToValueAtTime(0.01, time + 0.08); // very short burst
+        screechGain.gain.linearRampToValueAtTime(0.4, time + 0.005);
+        screechGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1); // slightly longer to fit the cluster
         
         trackBp.connect(screechGain);
         screechGain.connect(panner);
@@ -980,8 +975,27 @@ class ReactionDiffusionSynth {
         gain.connect(revSendPanner); // Send the main shriek to the reverb too!
         revSendPanner.connect(this.shared2sReverb);
         
-        screechOsc.start(time);
-        screechOsc.stop(time + 0.1);
+        // Generate the 5-10 screeches and route them into the shredder
+        for (let i = 0; i < numScreeches; i++) {
+            const screechOsc = ctx.createOscillator();
+            screechOsc.type = 'sawtooth';
+            screechOsc.frequency.value = 5000 + (Math.random() * 3000); // 5000Hz - 8000Hz
+            
+            const sOffset = Math.random() * 0.05; // Scatter them over the first 50ms
+            const sTime = time + sOffset;
+            const sDur = 0.01 + (Math.random() * 0.03); // super fast 10ms-40ms bursts
+            
+            const sGain = ctx.createGain();
+            sGain.gain.setValueAtTime(0, sTime);
+            sGain.gain.linearRampToValueAtTime(0.15, sTime + 0.005); // very quiet individually
+            sGain.gain.exponentialRampToValueAtTime(0.01, sTime + sDur);
+            
+            screechOsc.connect(sGain);
+            sGain.connect(screechShaper1);
+            
+            screechOsc.start(sTime);
+            screechOsc.stop(sTime + sDur + 0.01);
+        }
         
         break;
       }
