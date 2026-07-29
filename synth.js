@@ -1535,24 +1535,30 @@ class ReactionDiffusionSynth {
         osc.stop(time + 0.5);
         break;
       }
-      case 1: // Granular Time-Vortex (Decelerating)
+      case 1: // Rototiller Time-Vortex (Decelerating)
       {
         const osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.value = 80;
+        osc.type = 'square';
+        osc.frequency.value = 40; 
+        
+        const noiseBurst = makeNoise(0.05);
         
         const delay = ctx.createDelay();
-        // Start screaming at 5ms and violently decelerate out to 200ms stutters
-        delay.delayTime.setValueAtTime(0.005, time);
-        delay.delayTime.exponentialRampToValueAtTime(0.2, time + 0.4);
+        // Start screaming at 0.5ms and violently decelerate out to 300ms chunks
+        delay.delayTime.setValueAtTime(0.0005, time);
+        delay.delayTime.exponentialRampToValueAtTime(0.3, time + 0.5);
         
         const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.9;
+        fbGain.gain.value = 0.98;
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(50);
+        shaper.curve = this.getDistortionCurve(500);
         
-        osc.connect(delay);
+        const inputSum = ctx.createGain();
+        osc.connect(inputSum);
+        noiseBurst.connect(inputSum);
+        
+        inputSum.connect(delay);
         delay.connect(fbGain);
         fbGain.connect(shaper);
         shaper.connect(delay);
@@ -1560,35 +1566,52 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
         outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-        outGain.gain.linearRampToValueAtTime(0, time + 0.55);
+        outGain.gain.setValueAtTime(1.0, time + 0.1);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.65);
+        
+        const batSteps = 4; // 2-bit
+        const batCurve = new Float32Array(4096);
+        for (let j = 0; j < 4096; j++) {
+            let x = (j * 2 / 4096) - 1;
+            batCurve[j] = Math.round(x * batSteps) / batSteps;
+        }
+        const quantizer = ctx.createWaveShaper();
+        quantizer.curve = batCurve;
         
         shaper.connect(outGain);
-        outGain.connect(panner);
+        outGain.connect(quantizer);
+        quantizer.connect(panner);
         
-        // Only a 30ms initial burst to feed the loop
         osc.start(time);
-        osc.stop(time + 0.03);
+        osc.stop(time + 0.05);
+        noiseBurst.start(time);
         break;
       }
-      case 0: // Granular Time-Vortex (Accelerating)
+      case 0: // Rototiller Time-Vortex (Accelerating)
       {
         const osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.value = 60; // low growl
+        osc.type = 'square';
+        osc.frequency.value = 40; // guttural sub
+        
+        const noiseBurst = makeNoise(0.05); // 50ms of raw static
         
         const delay = ctx.createDelay();
-        // Start massive (200ms stutters) and violently accelerate down to 5ms (tearing scream)
-        delay.delayTime.setValueAtTime(0.2, time);
-        delay.delayTime.exponentialRampToValueAtTime(0.005, time + 0.4);
+        // Start massively slow (300ms) and violently accelerate to 0.5ms (2000Hz scream)
+        delay.delayTime.setValueAtTime(0.3, time);
+        delay.delayTime.exponentialRampToValueAtTime(0.0005, time + 0.5);
         
         const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.9;
+        fbGain.gain.value = 0.98; // massive feedback
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(50);
+        shaper.curve = this.getDistortionCurve(500); // 500x overdrive in the loop
         
-        osc.connect(delay);
+        const inputSum = ctx.createGain();
+        osc.connect(inputSum);
+        noiseBurst.connect(inputSum);
+        
+        inputSum.connect(delay);
         delay.connect(fbGain);
         fbGain.connect(shaper);
         shaper.connect(delay);
@@ -1596,15 +1619,27 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
         outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-        outGain.gain.linearRampToValueAtTime(0, time + 0.55);
+        outGain.gain.setValueAtTime(1.0, time + 0.1);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.65);
+        
+        // Quantizer to turn it into a digital rototiller
+        const batSteps = 4; // 2-bit
+        const batCurve = new Float32Array(4096);
+        for (let j = 0; j < 4096; j++) {
+            let x = (j * 2 / 4096) - 1;
+            batCurve[j] = Math.round(x * batSteps) / batSteps;
+        }
+        const quantizer = ctx.createWaveShaper();
+        quantizer.curve = batCurve;
         
         shaper.connect(outGain);
-        outGain.connect(panner);
+        outGain.connect(quantizer);
+        quantizer.connect(panner);
         
-        // Only a 30ms initial burst to feed the loop
         osc.start(time);
-        osc.stop(time + 0.03);
+        osc.stop(time + 0.05);
+        noiseBurst.start(time);
         break;
       }
     }
