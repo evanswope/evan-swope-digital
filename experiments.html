@@ -61,7 +61,7 @@
             <!-- SLIDE 2: Generative Automata -->
             <div class="carousel-slide">
               <div class="generative-card">
-                <svg class="scribble-outline" preserveAspectRatio="none"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" /></svg>
+                <svg class="scribble-outline" preserveAspectRatio="none"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" filter="url(#scribble-filter)" /></svg>
                 <div id="audio-start-overlay" class="card-overlay">
                   <button id="btn-start-audio" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
                 </div>
@@ -113,7 +113,7 @@
             <!-- SLIDE 3: Reaction-Diffusion Morphogenesis -->
             <div class="carousel-slide">
               <div class="generative-card fractal-card">
-                <svg class="scribble-outline" preserveAspectRatio="none"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" /></svg>
+                <svg class="scribble-outline" preserveAspectRatio="none"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" filter="url(#scribble-filter)" /></svg>
                 <div id="rd-overlay" class="card-overlay">
                   <button id="btn-start-fractal" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
                 </div>
@@ -216,7 +216,7 @@
   <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
     <p style="margin: 10px;">Copyright © 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
     <svg viewBox="-20 -20 240 140" class="inchworm-svg" style="width: 50px; height: 35px; overflow: visible; flex-shrink: 0;">
-      <path d="M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80" fill="none" stroke="#ff7eb3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" style="shape-rendering: crispEdges; filter: url(#scribble-filter);">
+      <path d="M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80" fill="none" stroke="#ff7eb3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" style="shape-rendering: crispEdges;" filter="url(#scribble-filter)">
         <animate attributeName="d" calcMode="discrete" dur="0.8s" repeatCount="indefinite"
           values="
             M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80;
