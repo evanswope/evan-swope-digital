@@ -789,7 +789,20 @@ class ReactionDiffusionSynth {
           const wetGain = ctx.createGain();
           wetGain.gain.value = 1.0; // Cranked up the reverb return
           this.pad6ReverbNode.connect(wetGain);
+          
+          // Subtle Feedforward Comb Filter on the reverb tail to scoop out noise
+          const combDelay = ctx.createDelay();
+          combDelay.delayTime.value = 0.015; // 15ms delay creates phase notches
+          
+          const combWetGain = ctx.createGain();
+          combWetGain.gain.value = 0.2; // 20% strength per user request
+          
+          wetGain.connect(combDelay);
+          combDelay.connect(combWetGain);
+          
+          // Sum the dry reverb and the comb-delayed reverb to the master bus
           wetGain.connect(this.busStopBus || this.masterGain);
+          combWetGain.connect(this.busStopBus || this.masterGain);
         }
 
         // 2. Metallic Body (Sample through discordant resonant filters)
