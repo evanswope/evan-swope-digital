@@ -1522,8 +1522,8 @@ class ReactionDiffusionSynth {
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
-        outGain.gain.setValueAtTime(1.0, time + 0.15);
+        outGain.gain.linearRampToValueAtTime(0.5, time + 0.01); // 50% velocity
+        outGain.gain.setValueAtTime(0.5, time + 0.15);
         outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
         outGain.gain.linearRampToValueAtTime(0, time + 0.45);
         
@@ -1535,46 +1535,76 @@ class ReactionDiffusionSynth {
         osc.stop(time + 0.5);
         break;
       }
-      case 1: // Synthetic Click
+      case 1: // Granular Time-Vortex (Decelerating)
       {
         const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(1000, time);
-        osc.frequency.exponentialRampToValueAtTime(100, time + 0.01);
+        osc.type = 'sawtooth';
+        osc.frequency.value = 80;
         
-        osc.connect(gain); gain.connect(panner);
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.0, time + 0.001);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.01);
+        const delay = ctx.createDelay();
+        // Start screaming at 5ms and violently decelerate out to 200ms stutters
+        delay.delayTime.setValueAtTime(0.005, time);
+        delay.delayTime.exponentialRampToValueAtTime(0.2, time + 0.4);
         
-        osc.start(time); osc.stop(time + 0.02);
+        const fbGain = ctx.createGain();
+        fbGain.gain.value = 0.9;
+        
+        const shaper = ctx.createWaveShaper();
+        shaper.curve = this.getDistortionCurve(50);
+        
+        osc.connect(delay);
+        delay.connect(fbGain);
+        fbGain.connect(shaper);
+        shaper.connect(delay);
+        
+        const outGain = ctx.createGain();
+        outGain.gain.setValueAtTime(0, time);
+        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.55);
+        
+        shaper.connect(outGain);
+        outGain.connect(panner);
+        
+        // Only a 30ms initial burst to feed the loop
+        osc.start(time);
+        osc.stop(time + 0.03);
         break;
       }
-      case 0: // Data Bird
+      case 0: // Granular Time-Vortex (Accelerating)
       {
-        const carrier = ctx.createOscillator();
-        const mod = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const vca = ctx.createGain(); 
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = 60; // low growl
         
-        carrier.type = 'triangle';
-        carrier.frequency.value = 12000 + Math.random() * 2000;
+        const delay = ctx.createDelay();
+        // Start massive (200ms stutters) and violently accelerate down to 5ms (tearing scream)
+        delay.delayTime.setValueAtTime(0.2, time);
+        delay.delayTime.exponentialRampToValueAtTime(0.005, time + 0.4);
         
-        mod.type = 'square';
-        mod.frequency.setValueAtTime(50, time);
-        mod.frequency.exponentialRampToValueAtTime(2000, time + 0.1); 
+        const fbGain = ctx.createGain();
+        fbGain.gain.value = 0.9;
         
-        mod.connect(vca.gain); 
-        carrier.connect(vca);
-        vca.connect(gain); gain.connect(panner);
+        const shaper = ctx.createWaveShaper();
+        shaper.curve = this.getDistortionCurve(50);
         
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.4, time + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+        osc.connect(delay);
+        delay.connect(fbGain);
+        fbGain.connect(shaper);
+        shaper.connect(delay);
         
-        carrier.start(time); mod.start(time);
-        carrier.stop(time + 0.2); mod.stop(time + 0.2);
+        const outGain = ctx.createGain();
+        outGain.gain.setValueAtTime(0, time);
+        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.55);
+        
+        shaper.connect(outGain);
+        outGain.connect(panner);
+        
+        // Only a 30ms initial burst to feed the loop
+        osc.start(time);
+        osc.stop(time + 0.03);
         break;
       }
     }
