@@ -2075,9 +2075,9 @@ if (header) {
     header.classList.remove('is-hidden');
     clearTimeout(hideTimeout);
     hideTimeout = setTimeout(() => {
-      // Only auto-hide if scrolled down a bit to prevent hiding at the very top if desired,
-      // but the user requested it to just hide after 2 seconds.
-      header.classList.add('is-hidden');
+      if (window.innerWidth < 768) {
+        header.classList.add('is-hidden');
+      }
     }, 2000);
   }
 
