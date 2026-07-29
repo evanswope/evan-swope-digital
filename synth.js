@@ -1541,7 +1541,7 @@ class ReactionDiffusionSynth {
         osc.type = 'square';
         osc.frequency.value = 40; 
         
-        const noiseBurst = makeNoise(0.05);
+        const noiseBurst = makeNoise(0.5); // Feed the loop for the full 500ms duration so it doesn't drop out when stretching
         
         const delay = ctx.createDelay();
         // Set explicit default values to prevent scheduling bugs
@@ -1587,7 +1587,7 @@ class ReactionDiffusionSynth {
         quantizer.connect(panner);
         
         osc.start(time);
-        osc.stop(time + 0.05);
+        osc.stop(time + 0.5);
         noiseBurst.start(time);
         break;
       }
