@@ -1411,7 +1411,7 @@ class ReactionDiffusionSynth {
         }
         
         // Quantizer to grit it up at the end of the chain
-        const quantizerSteps = 8; // 3-bit audio
+        const quantizerSteps = 4; // 2-bit audio (extremely gritty)
         const qCurve = new Float32Array(4096);
         for (let j = 0; j < 4096; j++) {
             let x = (j * 2 / 4096) - 1;
@@ -1420,10 +1420,10 @@ class ReactionDiffusionSynth {
         const quantizer = ctx.createWaveShaper();
         quantizer.curve = qCurve;
         
-        sumGain.connect(quantizer);
-        quantizer.connect(outGain);
-        
-        outGain.connect(panner);
+        // Put the quantizer AFTER the volume envelope so the fade-out gets crushed into steps
+        sumGain.connect(outGain);
+        outGain.connect(quantizer);
+        quantizer.connect(panner);
         noiseBurst.start(time);
         break;
       }
