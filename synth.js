@@ -916,12 +916,47 @@ class ReactionDiffusionSynth {
         screechOsc.frequency.setValueAtTime(14000, time); // Extremely high start
         screechOsc.frequency.exponentialRampToValueAtTime(2000, time + 0.05); // fast dive
         
+        // 1. Distort to all hell
+        const screechShaper1 = ctx.createWaveShaper();
+        screechShaper1.curve = this.getDistortionCurve(1000); 
+        
+        // 2. Comb filter (every 3 harmonics) tracking the frequency dive
+        const combDelay = ctx.createDelay();
+        // Spacing = 3 * freq. Delay = 1 / Spacing.
+        combDelay.delayTime.setValueAtTime(1.0 / (3.0 * 14000), time);
+        combDelay.delayTime.exponentialRampToValueAtTime(1.0 / (3.0 * 2000), time + 0.05);
+        const combFb = ctx.createGain();
+        combFb.gain.value = 0.85; // heavy feedback
+        combDelay.connect(combFb);
+        combFb.connect(combDelay);
+        const combSum = ctx.createGain();
+        
+        // 3. Distort again
+        const screechShaper2 = ctx.createWaveShaper();
+        screechShaper2.curve = this.getDistortionCurve(500);
+        
+        // 4. Tracking bandpass
+        const trackBp = ctx.createBiquadFilter();
+        trackBp.type = 'bandpass';
+        trackBp.Q.value = 8.0;
+        trackBp.frequency.setValueAtTime(14000, time);
+        trackBp.frequency.exponentialRampToValueAtTime(2000, time + 0.05);
+        
+        // Connect the chain
+        screechOsc.connect(screechShaper1);
+        screechShaper1.connect(combSum); // Dry to sum
+        screechShaper1.connect(combDelay);
+        combDelay.connect(combSum); // Wet to sum
+        
+        combSum.connect(screechShaper2);
+        screechShaper2.connect(trackBp);
+        
         const screechGain = ctx.createGain();
         screechGain.gain.setValueAtTime(0, time);
-        screechGain.gain.linearRampToValueAtTime(0.3, time + 0.005);
+        screechGain.gain.linearRampToValueAtTime(0.5, time + 0.005);
         screechGain.gain.exponentialRampToValueAtTime(0.01, time + 0.08); // very short burst
         
-        screechOsc.connect(screechGain);
+        trackBp.connect(screechGain);
         screechGain.connect(panner);
         
         screechOsc.start(time);
