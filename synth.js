@@ -821,8 +821,8 @@ class ReactionDiffusionSynth {
         
         const chalkGain = ctx.createGain();
         chalkGain.gain.setValueAtTime(0, time);
-        chalkGain.gain.linearRampToValueAtTime(2.0, time + 0.01); // Keep input volume high
-        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.06); // Shorter duration again
+        chalkGain.gain.linearRampToValueAtTime(0.8, time + 0.04); // Slower attack and much lower volume peak for a softer smear
+        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.06);
         
         chalkOsc.connect(chalkGain);
         // Send ONLY to the reverb, no dry connection. This gives it the "smear/stretch" feel
