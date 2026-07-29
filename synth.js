@@ -1372,35 +1372,34 @@ class ReactionDiffusionSynth {
       }
       case 5: // Data Tape Granular Smear
       {
-        // Start with a tiny 10ms click of raw noise
-        const noiseClick = makeNoise(0.01);
+        const noiseBurst = makeNoise(0.15); // longer input burst to pump the delay
         
-        // Feed it into a heavy feedback delay loop to smear it into a texture
         const delay = ctx.createDelay();
-        // Delay stretches from 20ms to 60ms to create a groaning, tearing metallic sound
-        delay.delayTime.setValueAtTime(0.02, time);
-        delay.delayTime.exponentialRampToValueAtTime(0.06, time + 0.3);
+        delay.delayTime.setValueAtTime(0.01, time); // 10ms (metallic ringing)
+        delay.delayTime.exponentialRampToValueAtTime(0.08, time + 0.4); // pitch dive/stretch
         
         const fb = ctx.createGain();
-        fb.gain.value = 0.85; // heavy feedback to smear
+        fb.gain.value = 0.9; // heavier feedback
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(50); // crush the feedback loop
+        shaper.curve = this.getDistortionCurve(200); // massive distortion
         
-        noiseClick.connect(delay);
-        delay.connect(fb);
-        fb.connect(shaper);
+        // Routing: input -> shaper -> delay -> fb -> shaper (feedback loop crushes itself)
+        noiseBurst.connect(shaper);
         shaper.connect(delay);
+        delay.connect(fb);
+        fb.connect(shaper); 
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(0.6, time + 0.02);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4); // long tail
+        outGain.gain.linearRampToValueAtTime(1.0, time + 0.02); // louder peak
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4); 
+        outGain.gain.linearRampToValueAtTime(0, time + 0.45); // Clamp firmly to absolute silence!
         
-        delay.connect(outGain);
+        shaper.connect(outGain); // Read from the shaper so we get the dry burst + the wet crushed feedback
         outGain.connect(panner);
         
-        noiseClick.start(time);
+        noiseBurst.start(time);
         break;
       }
       case 4: // High-pitched Sine Ping
