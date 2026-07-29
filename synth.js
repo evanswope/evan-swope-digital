@@ -860,26 +860,51 @@ class ReactionDiffusionSynth {
         }
         break;
       }
-      case 4: // Detuned Twang -> Fuzzed out rubber snap
-        source.playbackRate.value = 0.7; // Pitched down for a heavy twang
+      case 4: { // Pneumatic Shriek
+        const duration = 0.5 + Math.random() * 1.0; // 0.5s to 1.5s
         
-        shaper.curve = this.getDistortionCurve(30); // Reined in Fuzz to reduce noise
-        filter.type = 'bandpass'; filter.frequency.value = 1500; filter.Q.value = 1.0; 
+        // Pitch bend: down 3-6 semitones, then back up
+        const bendAmountSemis = 3 + Math.random() * 3; // 3 to 6
+        const startRate = 1.0;
+        const lowRate = Math.pow(2, -bendAmountSemis / 12);
         
-        const twangDelay = ctx.createDelay();
-        twangDelay.delayTime.value = 0.166; // 16th note at 90bpm
-        const twangFb = ctx.createGain();
-        twangFb.gain.value = 0.3;
+        source.playbackRate.setValueAtTime(startRate, time);
+        source.playbackRate.exponentialRampToValueAtTime(lowRate, time + (duration / 2));
+        source.playbackRate.exponentialRampToValueAtTime(startRate, time + duration);
         
-        source.connect(shaper); shaper.connect(filter); filter.connect(gain);
-        filter.connect(twangDelay); twangDelay.connect(twangFb); twangFb.connect(twangDelay);
-        twangDelay.connect(gain);
+        // High frequency noise element
+        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate);
+        const noiseData = noiseBuffer.getChannelData(0);
+        for(let i = 0; i < noiseBuffer.length; i++) noiseData[i] = Math.random() * 2 - 1;
+        const noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
         
+        // Clamping Filter
+        const filterAmount = 2000 + Math.random() * 4000; // Random filtering clamp floor
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(10000, time); // start bright
+        filter.frequency.exponentialRampToValueAtTime(filterAmount, time + (duration * 0.2)); // clamp down quickly
+        filter.frequency.linearRampToValueAtTime(500, time + duration); // fade out filter
+        filter.Q.value = 5.0; // resonant shriek
+        
+        source.connect(filter);
+        noiseSource.connect(filter);
+        
+        // Optional Fuzz
+        shaper.curve = this.getDistortionCurve(50);
+        
+        filter.connect(shaper);
+        shaper.connect(gain);
         gain.connect(panner);
+        
+        // Volume Envelope
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.5, time + 0.02); // louder
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.35); // slightly longer
+        gain.gain.linearRampToValueAtTime(1.0, time + 0.05); // strong attack
+        gain.gain.exponentialRampToValueAtTime(0.01, time + duration); // fade to zero over duration
+        
+        noiseSource.start(time);
         break;
+      }
       case 3: // Shaker Single -> Metallic highpass
         source.playbackRate.value = 1.5;
         filter.type = 'highpass'; filter.frequency.value = 5000; filter.Q.value = 5.0;
@@ -1003,7 +1028,7 @@ class ReactionDiffusionSynth {
         
         gain.gain.value = 0;
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.5, time + 0.005); // Prevent instant pop
+        gain.gain.linearRampToValueAtTime(0.7, time + 0.005); // Prevent instant pop, 40% louder
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05); // sharp decay
         
         const source2 = ctx.createBufferSource();
@@ -1023,7 +1048,7 @@ class ReactionDiffusionSynth {
         
         gain2.gain.value = 0;
         gain2.gain.setValueAtTime(0, startTime);
-        gain2.gain.linearRampToValueAtTime(0.5, startTime + 0.005); // Prevent instant pop
+        gain2.gain.linearRampToValueAtTime(0.7, startTime + 0.005); // Prevent instant pop, 40% louder
         gain2.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
         
         source2.connect(filter2); filter2.connect(shaper2); shaper2.connect(gain2); gain2.connect(panner);
