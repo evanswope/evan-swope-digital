@@ -1370,35 +1370,46 @@ class ReactionDiffusionSynth {
         }
         break;
       }
-      case 5: // Data Tape Granular Smear
+      case 5: // The Hivemind Groan (Comb Filter Cluster)
       {
-        const noiseBurst = makeNoise(0.055); // 55ms burst to prevent washing out the granular texture
-        
-        const delay = ctx.createDelay();
-        delay.delayTime.setValueAtTime(0.01, time); // 10ms (metallic ringing)
-        delay.delayTime.exponentialRampToValueAtTime(0.08, time + 0.4); // pitch dive/stretch
-        
-        const fb = ctx.createGain();
-        fb.gain.value = 0.9; // heavier feedback
+        const noiseBurst = makeNoise(0.055); // 55ms burst
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(200); // massive distortion
-        
-        // Routing: input -> shaper -> delay -> fb -> shaper (feedback loop crushes itself)
-        noiseBurst.connect(shaper);
-        shaper.connect(delay);
-        delay.connect(fb);
-        fb.connect(shaper); 
+        shaper.curve = this.getDistortionCurve(100); 
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(1.0, time + 0.02); // louder peak
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4); 
-        outGain.gain.linearRampToValueAtTime(0, time + 0.45); // Clamp firmly to absolute silence!
+        outGain.gain.linearRampToValueAtTime(1.0, time + 0.02);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.55); // hard clamp
         
-        shaper.connect(outGain); // Read from the shaper so we get the dry burst + the wet crushed feedback
+        noiseBurst.connect(shaper);
+        
+        // Create 3 parallel comb filters pulling against each other
+        const numCombs = 3;
+        for (let i = 0; i < numCombs; i++) {
+            const delay = ctx.createDelay();
+            const fb = ctx.createGain();
+            
+            // Stagger initial delay times (e.g. 5ms, 8ms, 12ms)
+            const baseDelay = 0.005 + (i * 0.003) + (Math.random() * 0.002);
+            delay.delayTime.setValueAtTime(baseDelay, time);
+            
+            // Sweep them exponentially upwards at slightly different rates to create conflicting pitch dives
+            const targetDelay = baseDelay * (4 + i + Math.random() * 2);
+            delay.delayTime.exponentialRampToValueAtTime(targetDelay, time + 0.5);
+            
+            fb.gain.value = 0.85 + (Math.random() * 0.08); // 0.85 - 0.93 feedback for heavy ringing
+            
+            shaper.connect(delay);
+            delay.connect(fb);
+            fb.connect(delay); // feedback loop
+            
+            // Route each comb to the output
+            delay.connect(outGain);
+        }
+        
         outGain.connect(panner);
-        
         noiseBurst.start(time);
         break;
       }
