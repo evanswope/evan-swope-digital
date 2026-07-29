@@ -28,10 +28,7 @@
   fill: none;
   stroke: #ff7eb3;
   stroke-width: 3;
-  width: calc(100% - 10px);
-  height: calc(100% - 10px);
-  x: 5px;
-  y: 5px;
+  filter: url(#scribble-filter);
 }
 
 .card-header {
