@@ -775,7 +775,22 @@ class ReactionDiffusionSynth {
         break;
       }
       case 6: { // Metallic Thud & Paulstretched Chalk
-        // 1. Mid-frequency Thud (Removed by request)
+        // 1. Initialize Reverb (Must happen before routing)
+        if (!this.pad6ReverbNode) {
+          this.pad6ReverbNode = ctx.createConvolver();
+          const irLen = Math.floor(ctx.sampleRate * 3.0); // 3 seconds for Paulstretch feel
+          this.pad6ReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
+          for (let ch = 0; ch < 2; ch++) {
+            const channel = this.pad6ReverbBuffer.getChannelData(ch);
+            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 1.5); // smoother decay
+          }
+          this.pad6ReverbNode.buffer = this.pad6ReverbBuffer;
+          
+          const wetGain = ctx.createGain();
+          wetGain.gain.value = 1.0; // Cranked up the reverb return
+          this.pad6ReverbNode.connect(wetGain);
+          wetGain.connect(this.busStopBus || this.masterGain);
+        }
 
         // 2. Metallic Body (Sample through discordant resonant filters)
         source.playbackRate.value = 1.8; // pitched up
@@ -798,22 +813,6 @@ class ReactionDiffusionSynth {
         metGain.connect(this.pad6ReverbNode); // Send metallic body through the reverb!
         
         // 3. Paulstretched Squeaky Chalk Tail
-        if (!this.pad6ReverbNode) {
-          this.pad6ReverbNode = ctx.createConvolver();
-          const irLen = Math.floor(ctx.sampleRate * 3.0); // 3 seconds for Paulstretch feel
-          this.pad6ReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
-          for (let ch = 0; ch < 2; ch++) {
-            const channel = this.pad6ReverbBuffer.getChannelData(ch);
-            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 1.5); // smoother decay
-          }
-          this.pad6ReverbNode.buffer = this.pad6ReverbBuffer;
-          
-          const wetGain = ctx.createGain();
-          wetGain.gain.value = 1.0; // Cranked up the reverb return
-          this.pad6ReverbNode.connect(wetGain);
-          wetGain.connect(this.busStopBus || this.masterGain);
-        }
-        
         // Create the "chalk squeak" impulse
         const chalkOsc = ctx.createOscillator();
         chalkOsc.type = 'sawtooth';
