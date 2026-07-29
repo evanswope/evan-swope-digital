@@ -561,6 +561,21 @@ class ReactionDiffusionSynth {
     // --- Bus Stop (Trip-Hop) Master Effects ---
     this.busStopBus = ctx.createGain();
     
+    // Shared 2s Reverb for Pads 2 and 4
+    this.shared2sReverb = ctx.createConvolver();
+    const irLen = Math.floor(ctx.sampleRate * 2.0); 
+    this.shared2sReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const channel = this.shared2sReverbBuffer.getChannelData(ch);
+      for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 3);
+    }
+    this.shared2sReverb.buffer = this.shared2sReverbBuffer;
+    this.shared2sReverbGain = ctx.createGain();
+    this.shared2sReverbGain.gain.value = 0.6;
+    this.shared2sReverb.connect(this.shared2sReverbGain);
+    this.shared2sReverbGain.connect(this.busStopBus);
+
+    
     // Tape Saturation (WaveShaper)
     this.tapeShaper = ctx.createWaveShaper();
     this.tapeShaper.curve = this.getDistortionCurve(10); // Soft clipping
@@ -959,21 +974,6 @@ class ReactionDiffusionSynth {
         trackBp.connect(screechGain);
         screechGain.connect(panner);
         
-        if (!this.shared2sReverb) {
-          this.shared2sReverb = ctx.createConvolver();
-          const irLen = Math.floor(ctx.sampleRate * 2.0); 
-          this.shared2sReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
-          for (let ch = 0; ch < 2; ch++) {
-            const channel = this.shared2sReverbBuffer.getChannelData(ch);
-            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 3);
-          }
-          this.shared2sReverb.buffer = this.shared2sReverbBuffer;
-          this.shared2sReverbGain = ctx.createGain();
-          this.shared2sReverbGain.gain.value = 0.6;
-          this.shared2sReverb.connect(this.shared2sReverbGain);
-          this.shared2sReverbGain.connect(this.busStopBus || this.masterGain);
-        }
-        
         const revSendPanner = ctx.createStereoPanner();
         revSendPanner.pan.value = (Math.random() * 2) - 1; // Random stereo spread
         screechGain.connect(revSendPanner);
@@ -1005,21 +1005,6 @@ class ReactionDiffusionSynth {
         
         source.connect(filter); filter.connect(gain);
         gain.connect(panner);
-        
-        if (!this.shared2sReverb) {
-          this.shared2sReverb = ctx.createConvolver();
-          const irLen = Math.floor(ctx.sampleRate * 2.0); 
-          this.shared2sReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
-          for (let ch = 0; ch < 2; ch++) {
-            const channel = this.shared2sReverbBuffer.getChannelData(ch);
-            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 3);
-          }
-          this.shared2sReverb.buffer = this.shared2sReverbBuffer;
-          this.shared2sReverbGain = ctx.createGain();
-          this.shared2sReverbGain.gain.value = 0.6;
-          this.shared2sReverb.connect(this.shared2sReverbGain);
-          this.shared2sReverbGain.connect(this.busStopBus || this.masterGain);
-        }
         
         const mainRevSendPanner = ctx.createStereoPanner();
         mainRevSendPanner.pan.value = (Math.random() * 2) - 1;
