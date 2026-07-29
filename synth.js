@@ -1379,11 +1379,13 @@ class ReactionDiffusionSynth {
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(1.0, time + 0.02);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-        outGain.gain.linearRampToValueAtTime(0, time + 0.55); // hard clamp
+        outGain.gain.linearRampToValueAtTime(1.2, time + 0.02);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 1.2); // Pulled apart much longer
+        outGain.gain.linearRampToValueAtTime(0, time + 1.25); 
         
         noiseBurst.connect(shaper);
+        
+        const sumGain = ctx.createGain();
         
         // Create 3 parallel comb filters pulling against each other
         const numCombs = 3;
@@ -1395,19 +1397,31 @@ class ReactionDiffusionSynth {
             const baseDelay = 0.005 + (i * 0.003) + (Math.random() * 0.002);
             delay.delayTime.setValueAtTime(baseDelay, time);
             
-            // Sweep them exponentially upwards at slightly different rates to create conflicting pitch dives
-            const targetDelay = baseDelay * (4 + i + Math.random() * 2);
-            delay.delayTime.exponentialRampToValueAtTime(targetDelay, time + 0.5);
+            // Sweep them exponentially upwards MUCH further and slower to pull the texture apart
+            const targetDelay = baseDelay * (15 + i * 4 + Math.random() * 5);
+            delay.delayTime.exponentialRampToValueAtTime(targetDelay, time + 1.2);
             
-            fb.gain.value = 0.85 + (Math.random() * 0.08); // 0.85 - 0.93 feedback for heavy ringing
+            fb.gain.value = 0.85 + (Math.random() * 0.08); 
             
             shaper.connect(delay);
             delay.connect(fb);
-            fb.connect(delay); // feedback loop
+            fb.connect(delay); 
             
-            // Route each comb to the output
-            delay.connect(outGain);
+            delay.connect(sumGain);
         }
+        
+        // Quantizer to grit it up at the end of the chain
+        const quantizerSteps = 8; // 3-bit audio
+        const qCurve = new Float32Array(4096);
+        for (let j = 0; j < 4096; j++) {
+            let x = (j * 2 / 4096) - 1;
+            qCurve[j] = Math.round(x * quantizerSteps) / quantizerSteps;
+        }
+        const quantizer = ctx.createWaveShaper();
+        quantizer.curve = qCurve;
+        
+        sumGain.connect(quantizer);
+        quantizer.connect(outGain);
         
         outGain.connect(panner);
         noiseBurst.start(time);
