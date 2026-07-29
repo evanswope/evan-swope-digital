@@ -1574,8 +1574,8 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.value = 0; // Explicit default
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(0.7, time + 0.01); // Pulled velocity back 30%
-        outGain.gain.setValueAtTime(0.7, time + 0.1);
+        outGain.gain.linearRampToValueAtTime(0.4, time + 0.01); // Pulled velocity way back
+        outGain.gain.setValueAtTime(0.4, time + 0.1);
         outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
         outGain.gain.linearRampToValueAtTime(0, time + 0.65);
         
@@ -1605,7 +1605,7 @@ class ReactionDiffusionSynth {
         osc.frequency.setValueAtTime(80, time);
         osc.frequency.exponentialRampToValueAtTime(15, time + 0.5);
         
-        const noiseBurst = makeNoise(0.05); // 50ms of raw static
+        const noiseBurst = makeNoise(0.5); // 500ms of raw static to continuously feed the shrinking loop
         
         const delay = ctx.createDelay();
         // Set explicit default values to prevent Web Audio scheduling bugs on 'currentTime' manual triggers
@@ -1662,7 +1662,7 @@ class ReactionDiffusionSynth {
         quantizer.connect(panner);
         
         osc.start(time);
-        osc.stop(time + 0.05);
+        osc.stop(time + 0.5); // Feed the square wave longer too
         noiseBurst.start(time);
         break;
       }
