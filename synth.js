@@ -959,6 +959,26 @@ class ReactionDiffusionSynth {
         trackBp.connect(screechGain);
         screechGain.connect(panner);
         
+        if (!this.shared2sReverb) {
+          this.shared2sReverb = ctx.createConvolver();
+          const irLen = Math.floor(ctx.sampleRate * 2.0); 
+          this.shared2sReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
+          for (let ch = 0; ch < 2; ch++) {
+            const channel = this.shared2sReverbBuffer.getChannelData(ch);
+            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 3);
+          }
+          this.shared2sReverb.buffer = this.shared2sReverbBuffer;
+          this.shared2sReverbGain = ctx.createGain();
+          this.shared2sReverbGain.gain.value = 0.6;
+          this.shared2sReverb.connect(this.shared2sReverbGain);
+          this.shared2sReverbGain.connect(this.busStopBus || this.masterGain);
+        }
+        
+        const revSendPanner = ctx.createStereoPanner();
+        revSendPanner.pan.value = (Math.random() * 2) - 1; // Random stereo spread
+        screechGain.connect(revSendPanner);
+        revSendPanner.connect(this.shared2sReverb);
+        
         screechOsc.start(time);
         screechOsc.stop(time + 0.1);
         
@@ -986,8 +1006,28 @@ class ReactionDiffusionSynth {
         source.connect(filter); filter.connect(gain);
         gain.connect(panner);
         
+        if (!this.shared2sReverb) {
+          this.shared2sReverb = ctx.createConvolver();
+          const irLen = Math.floor(ctx.sampleRate * 2.0); 
+          this.shared2sReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
+          for (let ch = 0; ch < 2; ch++) {
+            const channel = this.shared2sReverbBuffer.getChannelData(ch);
+            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 3);
+          }
+          this.shared2sReverb.buffer = this.shared2sReverbBuffer;
+          this.shared2sReverbGain = ctx.createGain();
+          this.shared2sReverbGain.gain.value = 0.6;
+          this.shared2sReverb.connect(this.shared2sReverbGain);
+          this.shared2sReverbGain.connect(this.busStopBus || this.masterGain);
+        }
+        
+        const mainRevSendPanner = ctx.createStereoPanner();
+        mainRevSendPanner.pan.value = (Math.random() * 2) - 1;
+        gain.connect(mainRevSendPanner);
+        mainRevSendPanner.connect(this.shared2sReverb);
+        
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.95, time + 0.005); // increased velocity by 50%
+        gain.gain.linearRampToValueAtTime(2.925, time + 0.005); // increased velocity by 50% AGAIN
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
         
         // Spawn 3 extra delays of the sample at random times and speeds
@@ -1018,9 +1058,14 @@ class ReactionDiffusionSynth {
           stutterGain.connect(stutterPanner);
           stutterPanner.connect(this.busStopBus || this.masterGain);
           
+          const stutterRevPanner = ctx.createStereoPanner();
+          stutterRevPanner.pan.value = (Math.random() * 2) - 1;
+          stutterGain.connect(stutterRevPanner);
+          stutterRevPanner.connect(this.shared2sReverb);
+          
           // Give each stutter its own tight volume envelope
           stutterGain.gain.setValueAtTime(0, time);
-          stutterGain.gain.setValueAtTime(1.35, startTime); // increased by 50%
+          stutterGain.gain.setValueAtTime(2.025, startTime); // increased by 50% AGAIN
           stutterGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
           
           stutterSource.start(startTime);
@@ -1093,7 +1138,7 @@ class ReactionDiffusionSynth {
         
         gain.gain.value = 0;
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.05, time + 0.005); // Prevent instant pop, 50% louder
+        gain.gain.linearRampToValueAtTime(1.575, time + 0.005); // Prevent instant pop, 50% louder AGAIN
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05); // sharp decay
         
         const source2 = ctx.createBufferSource();
@@ -1113,7 +1158,7 @@ class ReactionDiffusionSynth {
         
         gain2.gain.value = 0;
         gain2.gain.setValueAtTime(0, startTime);
-        gain2.gain.linearRampToValueAtTime(1.05, startTime + 0.005); // Prevent instant pop, 50% louder
+        gain2.gain.linearRampToValueAtTime(1.575, startTime + 0.005); // Prevent instant pop, 50% louder AGAIN
         gain2.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
         
         source2.connect(filter2); filter2.connect(shaper2); shaper2.connect(gain2); gain2.connect(panner);
