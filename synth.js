@@ -987,7 +987,7 @@ class ReactionDiffusionSynth {
         gain.connect(panner);
         
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.3, time + 0.005); // increased velocity by 30%
+        gain.gain.linearRampToValueAtTime(1.95, time + 0.005); // increased velocity by 50%
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
         
         // Spawn 3 extra delays of the sample at random times and speeds
@@ -1020,7 +1020,7 @@ class ReactionDiffusionSynth {
           
           // Give each stutter its own tight volume envelope
           stutterGain.gain.setValueAtTime(0, time);
-          stutterGain.gain.setValueAtTime(0.9, startTime); // increased by ~30%
+          stutterGain.gain.setValueAtTime(1.35, startTime); // increased by 50%
           stutterGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
           
           stutterSource.start(startTime);
@@ -1093,7 +1093,7 @@ class ReactionDiffusionSynth {
         
         gain.gain.value = 0;
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.7, time + 0.005); // Prevent instant pop, 40% louder
+        gain.gain.linearRampToValueAtTime(1.05, time + 0.005); // Prevent instant pop, 50% louder
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05); // sharp decay
         
         const source2 = ctx.createBufferSource();
@@ -1113,7 +1113,7 @@ class ReactionDiffusionSynth {
         
         gain2.gain.value = 0;
         gain2.gain.setValueAtTime(0, startTime);
-        gain2.gain.linearRampToValueAtTime(0.7, startTime + 0.005); // Prevent instant pop, 40% louder
+        gain2.gain.linearRampToValueAtTime(1.05, startTime + 0.005); // Prevent instant pop, 50% louder
         gain2.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
         
         source2.connect(filter2); filter2.connect(shaper2); shaper2.connect(gain2); gain2.connect(panner);
