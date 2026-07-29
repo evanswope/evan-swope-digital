@@ -922,14 +922,19 @@ class ReactionDiffusionSynth {
         gain.gain.linearRampToValueAtTime(0.8, time + 0.005);
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
         break;
-      case 2: { // Left Panned Rumble -> Muffled Tom with 3 random delayed stutters
-        source.playbackRate.value = 0.85 * (1.25 + Math.random() * 0.25); // Randomly sped up 25-50%
-        filter.type = 'lowpass'; filter.frequency.value = 600; 
+      case 2: { // Bandpassed High Texture with stutters
+        source.playbackRate.value = 3.0 + (Math.random() * 2.0); // Pitched way up
+        const baseFreq = 3000 + Math.random() * 5000; // 3000Hz - 8000Hz
+        
+        filter.type = 'bandpass'; 
+        filter.frequency.value = baseFreq;
+        filter.Q.value = 2.0; // Tame the noise with a gentle resonant peak
+        
         source.connect(filter); filter.connect(gain);
         gain.connect(panner);
         
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.5, time + 0.005); // louder main hit
+        gain.gain.linearRampToValueAtTime(1.0, time + 0.005); // slightly quieter attack to tame it
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
         
         // Spawn 3 extra delays of the sample at random times and speeds
@@ -937,12 +942,13 @@ class ReactionDiffusionSynth {
           const stutterSource = ctx.createBufferSource();
           stutterSource.buffer = buffer;
           
-          // Random play speed between 80% and 250%
-          stutterSource.playbackRate.value = 0.8 + Math.random() * 1.7;
+          // Random play speed in the high register
+          stutterSource.playbackRate.value = 3.0 + Math.random() * 3.0;
           
           const stutterFilter = ctx.createBiquadFilter();
-          stutterFilter.type = 'lowpass';
-          stutterFilter.frequency.value = 600; // keep it muffled
+          stutterFilter.type = 'bandpass';
+          stutterFilter.frequency.value = 3000 + Math.random() * 5000; // Random bandpass for each stutter
+          stutterFilter.Q.value = 3.0;
           
           const stutterGain = ctx.createGain();
           
@@ -959,9 +965,9 @@ class ReactionDiffusionSynth {
           stutterGain.connect(stutterPanner);
           stutterPanner.connect(this.busStopBus || this.masterGain);
           
-          // Give each stutter its own tight volume envelope
+          // Give each stutter its own tight volume envelope (tamed velocity)
           stutterGain.gain.setValueAtTime(0, time);
-          stutterGain.gain.setValueAtTime(1.2, startTime);
+          stutterGain.gain.setValueAtTime(0.7, startTime);
           stutterGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
           
           stutterSource.start(startTime);
