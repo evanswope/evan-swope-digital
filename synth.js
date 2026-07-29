@@ -1541,24 +1541,24 @@ class ReactionDiffusionSynth {
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
       {
+        const st = Math.max(time, ctx.currentTime + 0.01); // Prevent manual trigger bugs
+        
         const osc = ctx.createOscillator();
         osc.type = 'square';
         osc.frequency.value = 40; 
         
-        const noiseBurst = makeNoise(0.5); // Feed the loop for the full 500ms duration so it doesn't drop out when stretching
+        const noiseBurst = makeNoise(0.5); 
         
         const delay = ctx.createDelay();
-        // Set explicit default values to prevent scheduling bugs
         delay.delayTime.value = 0.0005;
-        delay.delayTime.setValueAtTime(0.0005, time);
-        // Ramp up
-        delay.delayTime.exponentialRampToValueAtTime(0.3, time + 0.5);
+        delay.delayTime.setValueAtTime(0.0005, st);
+        delay.delayTime.exponentialRampToValueAtTime(0.3, st + 0.5);
         
         const fbGain = ctx.createGain();
         fbGain.gain.value = 0.98;
-        fbGain.gain.setValueAtTime(0.98, time);
-        fbGain.gain.setValueAtTime(0, time + 1.0); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
-        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); // Break the cyclic reference for GC
+        fbGain.gain.setValueAtTime(0.98, st);
+        fbGain.gain.setValueAtTime(0, st + 1.0); 
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500);
         
         const shaper = ctx.createWaveShaper();
         shaper.curve = this.getDistortionCurve(500);
@@ -1573,12 +1573,12 @@ class ReactionDiffusionSynth {
         shaper.connect(delay);
         
         const outGain = ctx.createGain();
-        outGain.gain.value = 0; // Explicit default
-        outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(0.4, time + 0.01); // Pulled velocity way back
-        outGain.gain.setValueAtTime(0.4, time + 0.1);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
-        outGain.gain.linearRampToValueAtTime(0, time + 0.65);
+        outGain.gain.value = 0; 
+        outGain.gain.setValueAtTime(0, st);
+        outGain.gain.linearRampToValueAtTime(0.4, st + 0.01); 
+        outGain.gain.setValueAtTime(0.4, st + 0.1);
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.6);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.65);
         
         const batSteps = 4; // 2-bit
         const batCurve = new Float32Array(4096);
@@ -1593,36 +1593,36 @@ class ReactionDiffusionSynth {
         outGain.connect(quantizer);
         quantizer.connect(panner);
         
-        osc.start(time);
-        osc.stop(time + 0.5);
-        noiseBurst.start(time);
+        osc.start(st);
+        osc.stop(st + 0.5);
+        noiseBurst.start(st);
         break;
       }
       case 0: // Rototiller Time-Vortex (Accelerating)
       {
+        const st = Math.max(time, ctx.currentTime + 0.01); // Prevent manual trigger bugs
+        
         const osc = ctx.createOscillator();
         osc.type = 'square';
-        // Add Identity: Pitch dives heavily while accelerating
-        osc.frequency.setValueAtTime(80, time);
-        osc.frequency.exponentialRampToValueAtTime(15, time + 0.5);
+        osc.frequency.setValueAtTime(80, st);
+        osc.frequency.exponentialRampToValueAtTime(15, st + 0.5);
         
-        const noiseBurst = makeNoise(0.5); // 500ms of raw static to continuously feed the shrinking loop
+        const noiseBurst = makeNoise(0.5); 
         
         const delay = ctx.createDelay();
-        // Set explicit default values to prevent Web Audio scheduling bugs on 'currentTime' manual triggers
         delay.delayTime.value = 0.3;
-        delay.delayTime.setValueAtTime(0.3, time);
-        // Ramp down
-        delay.delayTime.exponentialRampToValueAtTime(0.0005, time + 0.5);
+        delay.delayTime.setValueAtTime(0.3, st);
+        // Ramp down to 0.003 (333Hz) instead of 0.0005 (2000Hz) so it growls instead of beeping!
+        delay.delayTime.exponentialRampToValueAtTime(0.003, st + 0.5);
         
         const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.98; // massive feedback
-        fbGain.gain.setValueAtTime(0.98, time);
-        fbGain.gain.setValueAtTime(0, time + 1.0); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
-        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); // Break the cyclic reference for GC
+        fbGain.gain.value = 0.98;
+        fbGain.gain.setValueAtTime(0.98, st);
+        fbGain.gain.setValueAtTime(0, st + 1.0); 
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(500); // 500x overdrive in the loop
+        shaper.curve = this.getDistortionCurve(500); 
         
         const inputSum = ctx.createGain();
         osc.connect(inputSum);
@@ -1634,21 +1634,19 @@ class ReactionDiffusionSynth {
         shaper.connect(delay);
         
         const outGain = ctx.createGain();
-        outGain.gain.value = 0; // Explicit default
-        outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
-        outGain.gain.setValueAtTime(1.0, time + 0.1);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
-        outGain.gain.linearRampToValueAtTime(0, time + 0.65);
+        outGain.gain.value = 0; 
+        outGain.gain.setValueAtTime(0, st);
+        outGain.gain.linearRampToValueAtTime(1.0, st + 0.01);
+        outGain.gain.setValueAtTime(1.0, st + 0.1);
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.6);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.65);
         
-        // Add Identity: Vocal Wah filter before quantization
         const wahFilter = ctx.createBiquadFilter();
         wahFilter.type = 'bandpass';
         wahFilter.Q.value = 5.0;
-        wahFilter.frequency.setValueAtTime(200, time);
-        wahFilter.frequency.exponentialRampToValueAtTime(4000, time + 0.5);
+        wahFilter.frequency.setValueAtTime(200, st);
+        wahFilter.frequency.exponentialRampToValueAtTime(4000, st + 0.5);
         
-        // Quantizer to turn it into a digital rototiller
         const batSteps = 4; // 2-bit
         const batCurve = new Float32Array(4096);
         for (let j = 0; j < 4096; j++) {
@@ -1663,9 +1661,9 @@ class ReactionDiffusionSynth {
         wahFilter.connect(quantizer);
         quantizer.connect(panner);
         
-        osc.start(time);
-        osc.stop(time + 0.5); // Feed the square wave longer too
-        noiseBurst.start(time);
+        osc.start(st);
+        osc.stop(st + 0.5); 
+        noiseBurst.start(st);
         break;
       }
     }
