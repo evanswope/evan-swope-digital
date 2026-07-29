@@ -1353,36 +1353,34 @@ class ReactionDiffusionSynth {
         const stutters = 8 + Math.floor(Math.random() * 5); // 8 to 12 stutters
         const stutterRate = 0.015; // 15ms per stutter (very fast machine-gun)
         
+        // Generate a single tiny buffer of noise/static to represent the "stuck" audio
+        const glitchBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * stutterRate), ctx.sampleRate);
+        const data = glitchBuf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.8;
+        
         let tOffset = time;
         for (let i = 0; i < stutters; i++) {
-            // Generate a complex tone for each stutter
-            const osc = ctx.createOscillator();
-            osc.type = 'square';
+            const noiseSrc = ctx.createBufferSource();
+            noiseSrc.buffer = glitchBuf;
             
-            // The last few stutters dive in pitch as the "laser" fails
-            let baseFreq = 800;
             if (i > stutters - 4) {
-                baseFreq = 800 * Math.pow(0.5, i - (stutters - 4)); // pitches down by octaves
+                noiseSrc.playbackRate.value = Math.pow(0.5, i - (stutters - 4));
             }
             
-            osc.frequency.setValueAtTime(baseFreq, tOffset);
-            
-            // Heavy highpass filter so it sounds thin and digital
             const hp = ctx.createBiquadFilter();
             hp.type = 'highpass';
             hp.frequency.value = 2000;
             
             const gain = ctx.createGain();
             gain.gain.setValueAtTime(0, tOffset);
-            gain.gain.linearRampToValueAtTime(0.8, tOffset + 0.002); // sharp click attack
+            gain.gain.linearRampToValueAtTime(0.8, tOffset + 0.002);
             gain.gain.exponentialRampToValueAtTime(0.01, tOffset + stutterRate - 0.002);
             
-            osc.connect(hp);
+            noiseSrc.connect(hp);
             hp.connect(gain);
             gain.connect(panner);
             
-            osc.start(tOffset);
-            osc.stop(tOffset + stutterRate);
+            noiseSrc.start(tOffset);
             
             tOffset += stutterRate;
         }
@@ -1422,6 +1420,7 @@ class ReactionDiffusionSynth {
             fb.gain.value = 0.85 + (Math.random() * 0.08); 
             fb.gain.setValueAtTime(fb.gain.value, time);
             fb.gain.setValueAtTime(0, time + 1.5); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
+            setTimeout(() => { try { fb.disconnect(); } catch(e) {} }, 2000); // Break the cyclic reference for GC
             
             shaper.connect(delay);
             delay.connect(fb);
@@ -1515,6 +1514,7 @@ class ReactionDiffusionSynth {
         fbGain.gain.value = 0.95; // almost totally self-oscillating
         fbGain.gain.setValueAtTime(0.95, time);
         fbGain.gain.setValueAtTime(0, time + 0.8); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); // Break the cyclic reference for GC
         
         // The Loop: filter -> overload -> delay -> fbGain -> filter (Using the pad against itself)
         osc.connect(filter);
@@ -1558,6 +1558,7 @@ class ReactionDiffusionSynth {
         fbGain.gain.value = 0.98;
         fbGain.gain.setValueAtTime(0.98, time);
         fbGain.gain.setValueAtTime(0, time + 1.0); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); // Break the cyclic reference for GC
         
         const shaper = ctx.createWaveShaper();
         shaper.curve = this.getDistortionCurve(500);
@@ -1618,6 +1619,7 @@ class ReactionDiffusionSynth {
         fbGain.gain.value = 0.98; // massive feedback
         fbGain.gain.setValueAtTime(0.98, time);
         fbGain.gain.setValueAtTime(0, time + 1.0); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); // Break the cyclic reference for GC
         
         const shaper = ctx.createWaveShaper();
         shaper.curve = this.getDistortionCurve(500); // 500x overdrive in the loop
