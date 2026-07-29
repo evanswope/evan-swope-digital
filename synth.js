@@ -774,55 +774,75 @@ class ReactionDiffusionSynth {
         }
         break;
       }
-      case 6: { // Distant Side Stick -> Pitched up, long reverb
-        source.playbackRate.value = 1.5; 
-        filter.type = 'highpass'; filter.frequency.value = 600; 
-        shaper.curve = this.getDistortionCurve(50); 
+      case 6: { // Metallic Thud & Paulstretched Chalk
+        // 1. Mid-frequency Thud
+        const thudOsc = ctx.createOscillator();
+        thudOsc.type = 'triangle';
+        thudOsc.frequency.setValueAtTime(800, time);
+        thudOsc.frequency.exponentialRampToValueAtTime(150, time + 0.05);
+        const thudGain = ctx.createGain();
+        thudGain.gain.setValueAtTime(0, time);
+        thudGain.gain.linearRampToValueAtTime(2.0, time + 0.005);
+        thudGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+        thudOsc.connect(thudGain);
+        thudGain.connect(panner);
+        thudOsc.start(time);
+        thudOsc.stop(time + 0.15);
+
+        // 2. Metallic Body (Sample through discordant resonant filters)
+        source.playbackRate.value = 1.8; // pitched up
+        const metGain = ctx.createGain();
+        metGain.gain.setValueAtTime(0, time);
+        metGain.gain.linearRampToValueAtTime(2.5, time + 0.005);
+        metGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
         
+        // 3 parallel bandpass filters for metallic ringing
+        const freqs = [1200, 2550, 4100];
+        const bpSum = ctx.createGain();
+        for (let f of freqs) {
+            const bp = ctx.createBiquadFilter();
+            bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 25; // highly resonant
+            source.connect(bp); bp.connect(bpSum);
+        }
+        shaper.curve = this.getDistortionCurve(100);
+        bpSum.connect(shaper); shaper.connect(metGain);
+        metGain.connect(panner);
+        
+        // 3. Paulstretched Squeaky Chalk Tail
         if (!this.pad6ReverbNode) {
           this.pad6ReverbNode = ctx.createConvolver();
-          const irLen = Math.floor(ctx.sampleRate * 2.0); 
+          const irLen = Math.floor(ctx.sampleRate * 3.0); // 3 seconds for Paulstretch feel
           this.pad6ReverbBuffer = ctx.createBuffer(2, irLen, ctx.sampleRate);
           for (let ch = 0; ch < 2; ch++) {
             const channel = this.pad6ReverbBuffer.getChannelData(ch);
-            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 3);
+            for (let i = 0; i < irLen; i++) channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i / irLen), 1.5); // smoother decay
           }
           this.pad6ReverbNode.buffer = this.pad6ReverbBuffer;
           
           const wetGain = ctx.createGain();
-          wetGain.gain.value = 0.4;
+          wetGain.gain.value = 0.5;
           this.pad6ReverbNode.connect(wetGain);
           wetGain.connect(this.busStopBus || this.masterGain);
         }
         
-        source.connect(filter); filter.connect(shaper); shaper.connect(gain);
+        // Create the "chalk squeak" impulse
+        const chalkOsc = ctx.createOscillator();
+        chalkOsc.type = 'sawtooth';
+        chalkOsc.frequency.setValueAtTime(12000, time);
+        chalkOsc.frequency.linearRampToValueAtTime(14000, time + 0.05); // slight upwards squeak
         
-        gain.connect(panner); // Dry
-        gain.connect(this.pad6ReverbNode); // Send to global reverb
+        const chalkGain = ctx.createGain();
+        chalkGain.gain.setValueAtTime(0, time);
+        chalkGain.gain.linearRampToValueAtTime(0.6, time + 0.01);
+        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.05); // incredibly short
         
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(3.0, time + 0.005); 
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15); 
-        gain.gain.linearRampToValueAtTime(0, time + 0.16); 
+        chalkOsc.connect(chalkGain);
+        // Send ONLY to the reverb, no dry connection. This gives it the "smear/stretch" feel
+        chalkGain.connect(this.pad6ReverbNode); 
         
-        // --- Delayed Octave-Up Chorus ---
-        const chorusSource = ctx.createBufferSource();
-        chorusSource.buffer = buffer;
-        chorusSource.playbackRate.value = 1.5 * 2.0; // One octave above
+        chalkOsc.start(time);
+        chalkOsc.stop(time + 0.1);
         
-        const chorusGain = ctx.createGain();
-        chorusSource.connect(chorusGain);
-        chorusGain.connect(panner);
-        chorusGain.connect(this.pad6ReverbNode);
-        
-        const chorusTime = time + 0.033; // 33ms delay
-        chorusGain.gain.setValueAtTime(0, time);
-        chorusGain.gain.setValueAtTime(0, chorusTime);
-        chorusGain.gain.linearRampToValueAtTime(1.5, chorusTime + 0.005); 
-        chorusGain.gain.exponentialRampToValueAtTime(0.01, chorusTime + 0.15);
-        chorusGain.gain.linearRampToValueAtTime(0, chorusTime + 0.16);
-        
-        chorusSource.start(chorusTime);
         break;
       }
       case 5: { // Spark plug mechanical stutter
@@ -918,7 +938,7 @@ class ReactionDiffusionSynth {
         // gain.connect(panner); // Removed to make it 100% wet
         
         // Volume Envelope
-        const hitVelocity = 0.1 + (Math.random() * 0.19); // 0.1 to 0.29
+        const hitVelocity = 0.15 + (Math.random() * 0.285); // increased by 50%
         gain.gain.setValueAtTime(0, time);
         gain.gain.linearRampToValueAtTime(hitVelocity, time + 0.05); // strong attack (randomized lower velocity)
         gain.gain.exponentialRampToValueAtTime(0.01, time + duration); // fade to zero over duration
@@ -963,7 +983,7 @@ class ReactionDiffusionSynth {
         
         const screechGain = ctx.createGain();
         screechGain.gain.setValueAtTime(0, time);
-        screechGain.gain.linearRampToValueAtTime(0.4, time + 0.005);
+        screechGain.gain.linearRampToValueAtTime(0.6, time + 0.005); // 50% louder
         screechGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1); // slightly longer to fit the cluster
         
         trackBp.connect(screechGain);
