@@ -1484,48 +1484,55 @@ class ReactionDiffusionSynth {
         osc.start(time); noise.start(time); osc.stop(time + 0.2);
         break;
       }
-      case 2: // JPEG Macroblock Moshing
+      case 2: // The "Spitfire" Feedback Overload
       {
         const osc = ctx.createOscillator();
-        osc.type = 'sine'; // start smooth
-        osc.frequency.value = 60; // low frequency rumble
+        osc.type = 'sawtooth';
+        osc.frequency.value = 100; // raw initial energy
         
-        // Custom "stepped" waveshaper for bitcrushing
-        const bitcrushShaper = ctx.createWaveShaper();
-        const steps = 4; // very low resolution (2-bit)
-        const curve = new Float32Array(4096);
-        for (let i = 0; i < 4096; i++) {
-          let x = (i * 2 / 4096) - 1;
-          curve[i] = Math.round(x * steps) / steps;
-        }
-        bitcrushShaper.curve = curve;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.Q.value = 20; // highly resonant
         
-        // Highly resonant bandpass that jumps around (the macroblocks shifting)
-        const blockFilter = ctx.createBiquadFilter();
-        blockFilter.type = 'bandpass';
-        blockFilter.Q.value = 30; // incredibly resonant (ringing)
-        
+        // Rapidly jumping filter
         let t = time;
-        while (t < time + 0.3) {
-            // "Jump" to a new random frequency instantly
-            blockFilter.frequency.setValueAtTime(400 + Math.random() * 3000, t);
-            t += 0.015 + Math.random() * 0.03; // wait 15-45ms before next jump
+        while (t < time + 0.4) {
+            filter.frequency.setValueAtTime(400 + Math.random() * 6000, t);
+            t += 0.01 + Math.random() * 0.04; // jump every 10-50ms
         }
         
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.0, time + 0.01);
-        // The data mosh freezes and smears out
-        gain.gain.setValueAtTime(1.0, time + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+        // Massive distortion for the feedback loop
+        const overloadShaper = ctx.createWaveShaper();
+        overloadShaper.curve = this.getDistortionCurve(1000); // 1000x overdrive
         
-        osc.connect(bitcrushShaper);
-        bitcrushShaper.connect(blockFilter);
-        blockFilter.connect(gain);
-        gain.connect(panner);
+        // Feedback delay (1ms) to break the zero-delay loop limit in Web Audio
+        const fbDelay = ctx.createDelay();
+        fbDelay.delayTime.value = 0.001; 
+        
+        const fbGain = ctx.createGain();
+        fbGain.gain.value = 0.95; // almost totally self-oscillating
+        
+        // The Loop: filter -> overload -> delay -> fbGain -> filter (Using the pad against itself)
+        osc.connect(filter);
+        
+        filter.connect(overloadShaper);
+        overloadShaper.connect(fbDelay);
+        fbDelay.connect(fbGain);
+        fbGain.connect(filter); // violent feedback loop
+        
+        const outGain = ctx.createGain();
+        outGain.gain.setValueAtTime(0, time);
+        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
+        outGain.gain.setValueAtTime(1.0, time + 0.15);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.45);
+        
+        // Read output from the overloaded shaper so we hear the sparks
+        overloadShaper.connect(outGain);
+        outGain.connect(panner);
         
         osc.start(time);
-        osc.stop(time + 0.45);
+        osc.stop(time + 0.5);
         break;
       }
       case 1: // Synthetic Click
