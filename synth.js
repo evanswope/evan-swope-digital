@@ -775,19 +775,7 @@ class ReactionDiffusionSynth {
         break;
       }
       case 6: { // Metallic Thud & Paulstretched Chalk
-        // 1. Mid-frequency Thud
-        const thudOsc = ctx.createOscillator();
-        thudOsc.type = 'triangle';
-        thudOsc.frequency.setValueAtTime(800, time);
-        thudOsc.frequency.exponentialRampToValueAtTime(150, time + 0.05);
-        const thudGain = ctx.createGain();
-        thudGain.gain.setValueAtTime(0, time);
-        thudGain.gain.linearRampToValueAtTime(0.8, time + 0.005); // reduced thud velocity
-        thudGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
-        thudOsc.connect(thudGain);
-        thudGain.connect(panner);
-        thudOsc.start(time);
-        thudOsc.stop(time + 0.15);
+        // 1. Mid-frequency Thud (Removed by request)
 
         // 2. Metallic Body (Sample through discordant resonant filters)
         source.playbackRate.value = 1.8; // pitched up
@@ -828,20 +816,20 @@ class ReactionDiffusionSynth {
         // Create the "chalk squeak" impulse
         const chalkOsc = ctx.createOscillator();
         chalkOsc.type = 'sawtooth';
-        chalkOsc.frequency.setValueAtTime(6000, time); // Lowered so it cuts through better
-        chalkOsc.frequency.linearRampToValueAtTime(8000, time + 0.15); // slight upwards squeak
+        chalkOsc.frequency.setValueAtTime(7000, time); 
+        chalkOsc.frequency.linearRampToValueAtTime(12000, time + 0.06); // broader sweep, 7k to 12k
         
         const chalkGain = ctx.createGain();
         chalkGain.gain.setValueAtTime(0, time);
-        chalkGain.gain.linearRampToValueAtTime(2.0, time + 0.01); // Hit it hard to excite the reverb
-        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15); // Longer envelope to pump more energy in
+        chalkGain.gain.linearRampToValueAtTime(2.0, time + 0.01); // Keep input volume high
+        chalkGain.gain.exponentialRampToValueAtTime(0.01, time + 0.06); // Shorter duration again
         
         chalkOsc.connect(chalkGain);
         // Send ONLY to the reverb, no dry connection. This gives it the "smear/stretch" feel
         chalkGain.connect(this.pad6ReverbNode); 
         
         chalkOsc.start(time);
-        chalkOsc.stop(time + 0.2);
+        chalkOsc.stop(time + 0.1);
         
         break;
       }
