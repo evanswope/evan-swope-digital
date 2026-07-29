@@ -1222,14 +1222,26 @@ class ReactionDiffusionSynth {
     };
 
     switch(index) {
-      case 9: // Dead Channel Snow
+      case 9: // Shredded Dead Channel
       {
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(0.8, time + 0.01);
-        outGain.gain.setValueAtTime(0.8, time + 0.2);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
-        outGain.connect(panner);
+        outGain.gain.linearRampToValueAtTime(1.0, time + 0.01);
+        outGain.gain.setValueAtTime(1.0, time + 0.2);
+        outGain.gain.linearRampToValueAtTime(0, time + 0.25); // Hard cutoff
+        
+        // The Baseball Bat (Extreme 2-bit Quantizer placed after volume envelope)
+        const batSteps = 4; // 2-bit
+        const batCurve = new Float32Array(4096);
+        for (let j = 0; j < 4096; j++) {
+            let x = (j * 2 / 4096) - 1;
+            batCurve[j] = Math.round(x * batSteps) / batSteps;
+        }
+        const quantizer = ctx.createWaveShaper();
+        quantizer.curve = batCurve;
+        
+        outGain.connect(quantizer);
+        quantizer.connect(panner);
         
         // 3 Independent ghost signals bleeding through static
         for (let i = 0; i < 3; i++) {
@@ -1238,21 +1250,27 @@ class ReactionDiffusionSynth {
             
             const snow = makeNoise(burstDur + 0.01);
             
+            // Overdrive the snow to destroy the "organic" feel
+            const shredder = ctx.createWaveShaper();
+            shredder.curve = this.getDistortionCurve(1500); // 1500x distortion
+            
             const ghostFilter = ctx.createBiquadFilter();
             ghostFilter.type = 'bandpass';
-            ghostFilter.Q.value = 40; // Intense whistling resonance
+            ghostFilter.Q.value = 10; // Lower Q so it doesn't whistle musically, just focuses the noise block
             
             // Channel surfing jumps
-            ghostFilter.frequency.setValueAtTime(500 + Math.random() * 5000, burstOffset);
-            ghostFilter.frequency.setValueAtTime(500 + Math.random() * 5000, burstOffset + (burstDur * 0.5));
+            ghostFilter.frequency.setValueAtTime(100 + Math.random() * 4000, burstOffset);
+            ghostFilter.frequency.setValueAtTime(100 + Math.random() * 4000, burstOffset + (burstDur * 0.5));
             
             const burstGain = ctx.createGain();
             burstGain.gain.setValueAtTime(0, burstOffset);
-            burstGain.gain.linearRampToValueAtTime(1.0, burstOffset + 0.005);
+            burstGain.gain.linearRampToValueAtTime(2.0, burstOffset + 0.005); // Drive it super hard
             burstGain.gain.exponentialRampToValueAtTime(0.01, burstOffset + burstDur);
             
+            // Routing: Noise -> Filter -> Shredder -> Gain -> Out -> Quantizer
             snow.connect(ghostFilter);
-            ghostFilter.connect(burstGain);
+            ghostFilter.connect(shredder);
+            shredder.connect(burstGain);
             burstGain.connect(outGain);
             
             snow.start(burstOffset);
