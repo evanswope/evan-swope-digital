@@ -1222,28 +1222,42 @@ class ReactionDiffusionSynth {
     };
 
     switch(index) {
-      case 9: // Alien Vocaloid
+      case 9: // Dead Channel Snow
       {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
+        const outGain = ctx.createGain();
+        outGain.gain.setValueAtTime(0, time);
+        outGain.gain.linearRampToValueAtTime(0.8, time + 0.01);
+        outGain.gain.setValueAtTime(0.8, time + 0.2);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
+        outGain.connect(panner);
         
-        osc.type = 'sawtooth';
-        osc.frequency.value = 120 + Math.random() * 50;
+        // 3 Independent ghost signals bleeding through static
+        for (let i = 0; i < 3; i++) {
+            const burstOffset = time + (Math.random() * 0.1);
+            const burstDur = 0.05 + (Math.random() * 0.05);
+            
+            const snow = makeNoise(burstDur + 0.01);
+            
+            const ghostFilter = ctx.createBiquadFilter();
+            ghostFilter.type = 'bandpass';
+            ghostFilter.Q.value = 40; // Intense whistling resonance
+            
+            // Channel surfing jumps
+            ghostFilter.frequency.setValueAtTime(500 + Math.random() * 5000, burstOffset);
+            ghostFilter.frequency.setValueAtTime(500 + Math.random() * 5000, burstOffset + (burstDur * 0.5));
+            
+            const burstGain = ctx.createGain();
+            burstGain.gain.setValueAtTime(0, burstOffset);
+            burstGain.gain.linearRampToValueAtTime(1.0, burstOffset + 0.005);
+            burstGain.gain.exponentialRampToValueAtTime(0.01, burstOffset + burstDur);
+            
+            snow.connect(ghostFilter);
+            ghostFilter.connect(burstGain);
+            burstGain.connect(outGain);
+            
+            snow.start(burstOffset);
+        }
         
-        filter.type = 'bandpass';
-        filter.Q.value = 20; 
-        
-        filter.frequency.setValueAtTime(2000, time);
-        filter.frequency.exponentialRampToValueAtTime(300, time + 0.3);
-        
-        osc.connect(filter); filter.connect(gain); gain.connect(panner);
-        
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.0, time + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
-        
-        osc.start(time); osc.stop(time + 0.5);
         break;
       }
       case 8: // Accelerating Laser Bounces
@@ -1300,29 +1314,63 @@ class ReactionDiffusionSynth {
         osc.start(time); osc.stop(time + 0.09);
         break;
       }
-      case 6: // Digital Noise Burst
+      case 6: // VHS Tracking Tear
       {
-        const noise = makeNoise(0.1);
-        const filter = ctx.createBiquadFilter();
-        const delay = ctx.createDelay();
-        const fb = ctx.createGain();
-        const gain = ctx.createGain();
+        // 1. Static noise
+        const noise = makeNoise(0.5);
         
-        delay.delayTime.value = 0.005 + Math.random() * 0.005; 
-        fb.gain.value = 0.9;
+        // 2. Picture roll (LFO on amplitude)
+        const rollLfo = ctx.createOscillator();
+        rollLfo.type = 'sine';
+        rollLfo.frequency.setValueAtTime(30, time); // 30Hz flutter
+        rollLfo.frequency.exponentialRampToValueAtTime(5, time + 0.3); // slows down
         
-        noise.connect(delay); delay.connect(fb); fb.connect(delay);
-        delay.connect(filter);
+        const rollGain = ctx.createGain();
+        // Shift LFO up so it modulates amplitude between 0 and 1 instead of -1 and 1
+        const offsetGain = ctx.createGain();
+        offsetGain.gain.value = 0.5;
+        rollLfo.connect(rollGain.gain); // This creates ring modulation (bipolar). We'll leave it bipolar for harsh glitching!
         
-        filter.type = 'highpass'; filter.frequency.value = 1000;
+        noise.connect(rollGain);
         
-        filter.connect(gain); gain.connect(panner);
+        // 3. Tape motor drag (Pitching down sawtooth)
+        const motorOsc = ctx.createOscillator();
+        motorOsc.type = 'sawtooth';
+        motorOsc.frequency.setValueAtTime(400, time);
+        motorOsc.frequency.exponentialRampToValueAtTime(30, time + 0.3);
         
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.6, time + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+        const sumGain = ctx.createGain();
+        sumGain.gain.value = 0.5;
+        rollGain.connect(sumGain);
+        motorOsc.connect(sumGain);
+        
+        // 4. Magnetic head comb filter (phase cancellation)
+        const combDelay = ctx.createDelay();
+        combDelay.delayTime.setValueAtTime(0.002, time); // 2ms initial delay
+        combDelay.delayTime.linearRampToValueAtTime(0.015, time + 0.3); // stretches as tape slows
+        
+        const combWet = ctx.createGain();
+        combWet.gain.value = 0.8;
+        sumGain.connect(combDelay);
+        combDelay.connect(combWet);
+        
+        const outGain = ctx.createGain();
+        outGain.gain.setValueAtTime(0, time);
+        outGain.gain.linearRampToValueAtTime(0.7, time + 0.05); // quick fade in like TV turning on
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.35);
+        
+        sumGain.connect(outGain);
+        combWet.connect(outGain);
+        outGain.connect(panner);
         
         noise.start(time);
+        rollLfo.start(time);
+        motorOsc.start(time);
+        
+        noise.stop(time + 0.4);
+        rollLfo.stop(time + 0.4);
+        motorOsc.stop(time + 0.4);
+        
         break;
       }
       case 5: // Glitch Stutter
@@ -1385,36 +1433,48 @@ class ReactionDiffusionSynth {
         osc.start(time); noise.start(time); osc.stop(time + 0.2);
         break;
       }
-      case 2: // Glass Shatter
+      case 2: // JPEG Macroblock Moshing
       {
-        const noise = makeNoise(0.1);
-        const hp = ctx.createBiquadFilter();
-        const shaper = ctx.createWaveShaper();
-        const gain = ctx.createGain();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine'; // start smooth
+        osc.frequency.value = 60; // low frequency rumble
         
-        hp.type = 'highpass'; hp.frequency.value = 6000; hp.Q.value = 10;
-        shaper.curve = this.getDistortionCurve(50);
-        
-        noise.connect(hp); hp.connect(shaper); shaper.connect(gain); gain.connect(panner);
-        
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.0, time + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.08);
-        
-        noise.start(time);
-        
-        for(let i=0; i<3; i++) {
-            const tOffset = time + 0.02 + Math.random() * 0.05;
-            const shard = makeNoise(0.02);
-            const sHp = ctx.createBiquadFilter();
-            const sGain = ctx.createGain();
-            sHp.type = 'highpass'; sHp.frequency.value = 7000 + Math.random() * 2000; sHp.Q.value = 15;
-            shard.connect(sHp); sHp.connect(sGain); sGain.connect(panner);
-            sGain.gain.setValueAtTime(0, tOffset);
-            sGain.gain.linearRampToValueAtTime(0.5, tOffset + 0.001);
-            sGain.gain.exponentialRampToValueAtTime(0.01, tOffset + 0.015);
-            shard.start(tOffset);
+        // Custom "stepped" waveshaper for bitcrushing
+        const bitcrushShaper = ctx.createWaveShaper();
+        const steps = 4; // very low resolution (2-bit)
+        const curve = new Float32Array(4096);
+        for (let i = 0; i < 4096; i++) {
+          let x = (i * 2 / 4096) - 1;
+          curve[i] = Math.round(x * steps) / steps;
         }
+        bitcrushShaper.curve = curve;
+        
+        // Highly resonant bandpass that jumps around (the macroblocks shifting)
+        const blockFilter = ctx.createBiquadFilter();
+        blockFilter.type = 'bandpass';
+        blockFilter.Q.value = 30; // incredibly resonant (ringing)
+        
+        let t = time;
+        while (t < time + 0.3) {
+            // "Jump" to a new random frequency instantly
+            blockFilter.frequency.setValueAtTime(400 + Math.random() * 3000, t);
+            t += 0.015 + Math.random() * 0.03; // wait 15-45ms before next jump
+        }
+        
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(1.0, time + 0.01);
+        // The data mosh freezes and smears out
+        gain.gain.setValueAtTime(1.0, time + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+        
+        osc.connect(bitcrushShaper);
+        bitcrushShaper.connect(blockFilter);
+        blockFilter.connect(gain);
+        gain.connect(panner);
+        
+        osc.start(time);
+        osc.stop(time + 0.45);
         break;
       }
       case 1: // Synthetic Click
