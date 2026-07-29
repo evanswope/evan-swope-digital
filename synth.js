@@ -977,6 +977,7 @@ class ReactionDiffusionSynth {
         const revSendPanner = ctx.createStereoPanner();
         revSendPanner.pan.value = (Math.random() * 2) - 1; // Random stereo spread
         screechGain.connect(revSendPanner);
+        gain.connect(revSendPanner); // Send the main shriek to the reverb too!
         revSendPanner.connect(this.shared2sReverb);
         
         screechOsc.start(time);
