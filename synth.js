@@ -1372,7 +1372,7 @@ class ReactionDiffusionSynth {
       }
       case 5: // Data Tape Granular Smear
       {
-        const noiseBurst = makeNoise(0.15); // longer input burst to pump the delay
+        const noiseBurst = makeNoise(0.055); // 55ms burst to prevent washing out the granular texture
         
         const delay = ctx.createDelay();
         delay.delayTime.setValueAtTime(0.01, time); // 10ms (metallic ringing)
