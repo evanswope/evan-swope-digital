@@ -889,7 +889,7 @@ class ReactionDiffusionSynth {
         
         const hpFilter = ctx.createBiquadFilter();
         hpFilter.type = 'highpass';
-        hpFilter.frequency.value = 5000; // Thin out the low end more
+        hpFilter.frequency.value = 8000; // Thin out the low end more
         
         source.connect(filter);
         noiseSource.connect(filter);
