@@ -887,19 +887,24 @@ class ReactionDiffusionSynth {
         filter.frequency.linearRampToValueAtTime(500, time + duration); // fade out filter
         filter.Q.value = 5.0; // resonant shriek
         
+        const hpFilter = ctx.createBiquadFilter();
+        hpFilter.type = 'highpass';
+        hpFilter.frequency.value = 3000; // Thin out the low end
+        
         source.connect(filter);
         noiseSource.connect(filter);
         
         // Optional Fuzz
         shaper.curve = this.getDistortionCurve(50);
         
-        filter.connect(shaper);
+        filter.connect(hpFilter);
+        hpFilter.connect(shaper);
         shaper.connect(gain);
         gain.connect(panner);
         
         // Volume Envelope
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(1.0, time + 0.05); // strong attack
+        gain.gain.linearRampToValueAtTime(0.5, time + 0.05); // strong attack (reduced velocity by 50%)
         gain.gain.exponentialRampToValueAtTime(0.01, time + duration); // fade to zero over duration
         
         noiseSource.start(time);
