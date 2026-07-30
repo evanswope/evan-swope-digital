@@ -1532,8 +1532,8 @@ class ReactionDiffusionSynth {
         osc.connect(gain); gain.connect(panner);
         
         gain.gain.setValueAtTime(0, st);
-        gain.gain.linearRampToValueAtTime(0.48, st + 0.002);
-        gain.gain.setValueAtTime(0.48, st + 0.05); // Hold volume until the jump!
+        gain.gain.linearRampToValueAtTime(0.336, st + 0.002);
+        gain.gain.setValueAtTime(0.336, st + 0.05); // Hold volume until the jump!
         gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15); // Fade out
         
         osc.start(st); osc.stop(st + 0.2);
@@ -1587,7 +1587,7 @@ class ReactionDiffusionSynth {
         // Delay and morphFilter ringing out for shorter duration
         const delayGain = ctx.createGain();
         delayGain.gain.setValueAtTime(0, st);
-        delayGain.gain.linearRampToValueAtTime(1.0, st + 0.03);
+        delayGain.gain.linearRampToValueAtTime(0.7, st + 0.03); // Reduced 30%
         delayGain.gain.exponentialRampToValueAtTime(0.01, st + 0.2);
         
         const morphFilter = ctx.createBiquadFilter();
@@ -1599,7 +1599,7 @@ class ReactionDiffusionSynth {
         
         delay.connect(morphFilter);
         morphFilter.connect(delayGain); // wet
-        delayGain.connect(panner);
+        // routed to stutterGain below
         
         gain.connect(panner);
         
@@ -1634,8 +1634,8 @@ class ReactionDiffusionSynth {
         // Output Envelope for the tail
         const tailGain = ctx.createGain();
         tailGain.gain.setValueAtTime(0, st);
-        tailGain.gain.setValueAtTime(1.0, st + 0.04);
-        tailGain.gain.exponentialRampToValueAtTime(0.001, st + 0.6); 
+        tailGain.gain.setValueAtTime(0.7, st + 0.04); // Reduced 30%
+        tailGain.gain.exponentialRampToValueAtTime(0.001, st + 0.35); // Shorter tail!
         
         const tailHp = ctx.createBiquadFilter();
         tailHp.type = 'highpass';
@@ -1649,12 +1649,33 @@ class ReactionDiffusionSynth {
         crunchShaper.connect(tailGain);
         tailGain.connect(tailHp);
         tailHp.connect(harshShaper);
-        harshShaper.connect(panner);
+        // routed to stutterGain below
         
         // Shortened dry hit duration!
         gain.gain.setValueAtTime(0, st);
-        gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
+        gain.gain.linearRampToValueAtTime(0.49, st + 0.005); // Reduced 30%
         gain.gain.exponentialRampToValueAtTime(0.01, st + 0.08);
+        
+        // Random Stutter Gate over the ENTIRE Pad 3!
+        const stutterGain = ctx.createGain();
+        stutterGain.gain.value = 0;
+        
+        const numStutters = 5 + Math.floor(Math.random() * 6); // 5 to 10 stutters
+        const stutterLen = 0.35 / (numStutters * 2); // Spread across the shortened 0.35s tail
+        
+        let tOffset = st;
+        for (let i = 0; i < numStutters; i++) {
+            stutterGain.gain.setValueAtTime(1, tOffset);
+            stutterGain.gain.setValueAtTime(1, tOffset + (stutterLen * 0.8));
+            stutterGain.gain.linearRampToValueAtTime(0, tOffset + stutterLen);
+            tOffset += stutterLen * 2;
+        }
+        
+        delayGain.connect(stutterGain);
+        harshShaper.connect(stutterGain);
+        gain.connect(stutterGain);
+        
+        stutterGain.connect(panner);
         
         oscSq.start(st); oscSq.stop(st + 0.12);
         oscSaw.start(st); oscSaw.stop(st + 0.12);
@@ -1712,23 +1733,20 @@ class ReactionDiffusionSynth {
         
         setTimeout(() => { try { fbGain.disconnect(); } catch(e){} }, 1000);
         
-        // 4. Bitcrush the entire assembly
-        const batCurve = new Float32Array(4096);
-        for (let j = 0; j < 4096; j++) {
-            let x = (j * 2 / 4096) - 1;
-            batCurve[j] = Math.round(x * 8) / 8; // 3-bit crush
-        }
-        const quantizer = ctx.createWaveShaper();
-        quantizer.curve = batCurve;
-        sumGain.connect(quantizer);
+        const sweepHp = ctx.createBiquadFilter();
+        sweepHp.type = 'highpass';
+        sweepHp.frequency.setValueAtTime(200, st);
+        sweepHp.frequency.exponentialRampToValueAtTime(10000, st + 0.2);
+        
+        quantizer.connect(sweepHp);
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, st);
-        outGain.gain.linearRampToValueAtTime(0.6, st + 0.01);
-        outGain.gain.setValueAtTime(0.6, st + 0.15);
+        outGain.gain.linearRampToValueAtTime(0.42, st + 0.01); // Reduced 30%
+        outGain.gain.setValueAtTime(0.42, st + 0.15);
         outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.25);
         
-        quantizer.connect(outGain);
+        sweepHp.connect(outGain);
         outGain.connect(panner);
         
         noise.start(st);
