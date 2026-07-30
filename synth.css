@@ -454,7 +454,7 @@ canvas#grid-canvas {
   }
   
   .generative-card {
-    padding: 0.75rem !important; /* Reduce padding to give elements room */
+    padding: 0.9rem !important; /* Reduce padding to give elements room */
   }
   
   .card-header {
@@ -510,7 +510,7 @@ canvas#grid-canvas {
   }
 
   .waveshaper-iframe {
-    height: 520px;
+    height: 420px;
   }
 
   .line-slider::-webkit-slider-thumb {
