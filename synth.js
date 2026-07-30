@@ -1553,9 +1553,8 @@ class ReactionDiffusionSynth {
       {
         const st = Math.max(time, ctx.currentTime + 0.01); // Fix scheduling bug
         
-        const osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.value = 100; 
+        // Use pure noise instead of a sawtooth so it can NEVER have a base pitch!
+        const noiseSrc = makeNoise(0.5);
         
         const filter = ctx.createBiquadFilter();
         filter.type = 'bandpass';
@@ -1565,9 +1564,10 @@ class ReactionDiffusionSynth {
         overloadShaper.curve = this.getDistortionCurve(1000); 
         
         const fbDelay = ctx.createDelay();
-        fbDelay.delayTime.value = 0.001; 
+        // Set default to 10ms (100Hz rumble) so if there is a micro-delay before the first jump, it doesn't default to a 1000Hz beep!
+        fbDelay.delayTime.value = 0.01; 
         
-        // Rapidly jumping filter AND delay to prevent 1000Hz fixed resonance beep!
+        // Rapidly jumping filter AND delay to prevent fixed resonance beep!
         let t = st;
         while (t < st + 0.4) {
             filter.frequency.setValueAtTime(400 + Math.random() * 6000, t);
@@ -1582,7 +1582,7 @@ class ReactionDiffusionSynth {
         fbGain.gain.setValueAtTime(0, st + 0.8); 
         setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
         
-        osc.connect(filter);
+        noiseSrc.connect(filter);
         
         filter.connect(overloadShaper);
         overloadShaper.connect(fbDelay);
@@ -1599,8 +1599,7 @@ class ReactionDiffusionSynth {
         overloadShaper.connect(outGain);
         outGain.connect(panner); 
         
-        osc.start(st);
-        osc.stop(st + 0.5);
+        noiseSrc.start(st);
         break;
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
