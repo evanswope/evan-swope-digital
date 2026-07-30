@@ -1574,16 +1574,37 @@ class ReactionDiffusionSynth {
         
         gain.connect(panner);
         
-        // Blooming Reverb Tail!
+        // Short Metallic Crunch Tail!
         const revSend = ctx.createGain();
         revSend.gain.setValueAtTime(0, st);
-        // Exponential ramp fails from 0, so we use linear ramp to blast the reverb send!
         revSend.gain.setValueAtTime(0, st + 0.12);
-        revSend.gain.linearRampToValueAtTime(5.0, st + 0.2); // massive send right at the tail
+        revSend.gain.linearRampToValueAtTime(5.0, st + 0.2); 
         revSend.gain.setValueAtTime(0, st + 0.25);
         
+        const crunchRev = ctx.createConvolver();
+        const irLen = Math.floor(ctx.sampleRate * 0.15); // 150ms tail
+        const crunchBuf = ctx.createBuffer(2, irLen, ctx.sampleRate);
+        for(let ch=0; ch<2; ch++) {
+           let data = crunchBuf.getChannelData(ch);
+           for(let i=0; i<irLen; i++) {
+               data[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i/irLen), 3);
+           }
+        }
+        crunchRev.buffer = crunchBuf;
+        
+        const crunchFilter = ctx.createBiquadFilter();
+        crunchFilter.type = 'highpass';
+        crunchFilter.frequency.value = 1000;
+        crunchFilter.Q.value = 5;
+        
+        const crunchShaper = ctx.createWaveShaper();
+        crunchShaper.curve = this.getDistortionCurve(200);
+        
         shaper.connect(revSend);
-        revSend.connect(this.shared2sReverb);
+        revSend.connect(crunchRev);
+        crunchRev.connect(crunchFilter);
+        crunchFilter.connect(crunchShaper);
+        crunchShaper.connect(panner);
         
         gain.gain.setValueAtTime(0, st);
         gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
@@ -1769,8 +1790,8 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
-        outGain.gain.linearRampToValueAtTime(0.6, st + 0.01);
-        outGain.gain.setValueAtTime(0.6, st + 0.05); 
+        outGain.gain.linearRampToValueAtTime(0.42, st + 0.01);
+        outGain.gain.setValueAtTime(0.42, st + 0.05); 
         outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.1);
         outGain.gain.linearRampToValueAtTime(0, st + 0.15);
         
