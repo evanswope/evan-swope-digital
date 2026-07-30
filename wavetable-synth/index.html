@@ -95,6 +95,22 @@
         width: calc(100% - 10px);
         height: calc(100% - 10px);
       }
+      
+      @media (max-width: 768px) {
+        .synth-card { padding: 0.5rem !important; }
+        .synth-header { margin-bottom: 0.25rem !important; }
+        .synth-header h1 { font-size: 1.25rem !important; margin-bottom: 0 !important; }
+        .synth-header p { font-size: 0.65rem !important; margin-bottom: 0.25rem !important; line-height: 1.1 !important; }
+        .canvas-container { margin-bottom: 0.25rem !important; }
+        .controls { margin-bottom: 0.25rem !important; }
+        .slider-group { padding: 0.15rem 0.25rem !important; gap: 0.25rem !important; }
+        .slider-group span { font-size: 0.75rem !important; }
+        input[type="range"] { height: 2px !important; margin: 2px 0 !important; }
+        input[type="range"]::-webkit-slider-thumb { width: 12px !important; height: 12px !important; }
+        .keyboard-container { height: 75px !important; }
+        .mode-btn { padding: 0.25rem 0.5rem !important; font-size: 0.7rem !important; border-radius: 4px !important; }
+        .mode-selector { margin-bottom: 0.5rem !important; gap: 0.25rem !important; }
+      }
     </style>
   </head>
   <body style="padding: 0; min-height: 100%; display: block;">
