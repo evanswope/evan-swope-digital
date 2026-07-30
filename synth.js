@@ -1583,7 +1583,17 @@ class ReactionDiffusionSynth {
         
         shaper.connect(delay);
         shaper.connect(gain); // dry
-        delay.connect(gain); // wet
+        
+        // Morphing filter to strain out the organic frequencies from the delay!
+        const morphFilter = ctx.createBiquadFilter();
+        morphFilter.type = 'bandpass';
+        morphFilter.Q.value = 20; // high resonance to isolate non-organic frequencies
+        morphFilter.frequency.setValueAtTime(200, st);
+        morphFilter.frequency.exponentialRampToValueAtTime(8000, st + 0.1);
+        morphFilter.frequency.exponentialRampToValueAtTime(100, st + 0.2);
+        
+        delay.connect(morphFilter);
+        morphFilter.connect(gain); // wet
         
         gain.connect(panner);
         
@@ -1637,15 +1647,16 @@ class ReactionDiffusionSynth {
         
         const noiseSrc = makeNoise(0.5);
         
-        // Use peaking filters instead of bandpass! Bandpass Q=20 forces the noise into a pure sine wave, causing the beep.
-        const filter1 = ctx.createBiquadFilter(); filter1.type = 'peaking'; filter1.Q.value = 5; 
-        const filter2 = ctx.createBiquadFilter(); filter2.type = 'peaking'; filter2.Q.value = 5; 
-        const filter3 = ctx.createBiquadFilter(); filter3.type = 'peaking'; filter3.Q.value = 5; 
+        // Use allpass filters in SERIES! Instead of boosting pitches, this smears the phase 
+        // to create a metallic "JPEG mosaic" texture without competing with Pad 4's random pitches.
+        const filter1 = ctx.createBiquadFilter(); filter1.type = 'allpass';  
+        const filter2 = ctx.createBiquadFilter(); filter2.type = 'allpass';  
+        const filter3 = ctx.createBiquadFilter(); filter3.type = 'allpass';  
         
-        // Fade the chunkiness in! This prevents ANY initial filter overload or beeps while letting the tail stay chunky!
-        filter1.gain.setValueAtTime(0, st); filter1.gain.linearRampToValueAtTime(30, st + 0.1);
-        filter2.gain.setValueAtTime(0, st); filter2.gain.linearRampToValueAtTime(30, st + 0.1);
-        filter3.gain.setValueAtTime(0, st); filter3.gain.linearRampToValueAtTime(30, st + 0.1);
+        // Fade the phase smearing in by sweeping the Q value from 0 to 10!
+        filter1.Q.setValueAtTime(0, st); filter1.Q.linearRampToValueAtTime(10, st + 0.1);
+        filter2.Q.setValueAtTime(0, st); filter2.Q.linearRampToValueAtTime(10, st + 0.1);
+        filter3.Q.setValueAtTime(0, st); filter3.Q.linearRampToValueAtTime(10, st + 0.1);
         
         const overloadShaper = ctx.createWaveShaper();
         overloadShaper.curve = this.getDistortionCurve(1000); 
@@ -1659,17 +1670,16 @@ class ReactionDiffusionSynth {
         filter3.frequency.setValueAtTime(1800, st);
         fbDelay.delayTime.setValueAtTime(0.005, st);
         
-        // Use setValueAtTime to keep the chunkiness, but avoid opening beep by jumping quickly
         while (t < st + 0.4) {
             let f = 400 + Math.random() * 6000;
             
-            // Random harmonics based on user request!
             let oct2 = 0.255 + Math.random() * (0.66 - 0.255);
             let oct3 = 0.888 + Math.random() * (1.167 - 0.888);
             
             let f2 = Math.min(20000, f * Math.pow(2, oct2));
             let f3 = Math.min(20000, f * Math.pow(2, oct3));
 
+            // Stepping the allpass frequencies creates blocky phase shifts (mosaic)!
             filter1.frequency.setValueAtTime(f, t);
             filter2.frequency.setValueAtTime(f2, t);
             filter3.frequency.setValueAtTime(f3, t);
@@ -1680,18 +1690,20 @@ class ReactionDiffusionSynth {
         }
         
         const fbGain = ctx.createGain();
-        // Lower feedback gain to 0.7 so it stutters/chunks but doesn't self-oscillate into a continuous square wave!
         fbGain.gain.value = 0.7; 
         fbGain.gain.setValueAtTime(0.7, st);
         fbGain.gain.setValueAtTime(0, st + 0.8); 
         setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
         
-        noiseSrc.connect(filter1); noiseSrc.connect(filter2); noiseSrc.connect(filter3);
+        // Connected in series for maximum phase accumulation!
+        noiseSrc.connect(filter1); 
+        filter1.connect(filter2); 
+        filter2.connect(filter3);
+        filter3.connect(overloadShaper);
         
-        filter1.connect(overloadShaper); filter2.connect(overloadShaper); filter3.connect(overloadShaper);
         overloadShaper.connect(fbDelay);
         fbDelay.connect(fbGain);
-        fbGain.connect(filter1); fbGain.connect(filter2); fbGain.connect(filter3);
+        fbGain.connect(filter1); // Close the loop
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, st);
@@ -1834,7 +1846,7 @@ class ReactionDiffusionSynth {
         // The quantizer is a 1-bit comparator that destroys amplitude information! 
         // We MUST use a final gain node AFTER the quantizer to actually make it quieter.
         const finalGain = ctx.createGain();
-        finalGain.gain.value = 0.3; // Pulled back significantly!
+        finalGain.gain.value = 0.6; // Increased back up
         
         quantizer.connect(finalGain);
         finalGain.connect(panner);
