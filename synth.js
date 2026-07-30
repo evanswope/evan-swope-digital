@@ -1567,13 +1567,22 @@ class ReactionDiffusionSynth {
         // Set default to 10ms (100Hz rumble) so if there is a micro-delay before the first jump, it doesn't default to a 1000Hz beep!
         fbDelay.delayTime.value = 0.01; 
         
-        // Rapidly jumping filter AND delay to prevent fixed resonance beep!
+        // Smoothly sweeping filter AND delay to prevent fixed resonance beeps!
         let t = st;
+        filter.frequency.setValueAtTime(1000, st);
+        fbDelay.delayTime.setValueAtTime(0.005, st);
+        
         while (t < st + 0.4) {
-            filter.frequency.setValueAtTime(400 + Math.random() * 6000, t);
-            // Randomly modulate the delay between 1ms and 6ms so it sounds like sparks, not a tone!
-            fbDelay.delayTime.setValueAtTime(0.001 + Math.random() * 0.005, t);
-            t += 0.01 + Math.random() * 0.04; 
+            let nextT = t + 0.01 + Math.random() * 0.04;
+            if (nextT > st + 0.4) nextT = st + 0.4;
+            
+            // Smoothly sweep the filter to prevent stepped tonal chirps
+            filter.frequency.linearRampToValueAtTime(400 + Math.random() * 6000, nextT);
+            
+            // Smoothly sweep the delay time so it acts like a chaotic flanger (sparks) rather than a sequence of static video game tones!
+            fbDelay.delayTime.linearRampToValueAtTime(0.001 + Math.random() * 0.014, nextT);
+            
+            t = nextT;
         }
         
         const fbGain = ctx.createGain();
