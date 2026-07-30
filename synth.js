@@ -1512,19 +1512,32 @@ class ReactionDiffusionSynth {
       }
       case 4: // High-pitched Sine Ping
       {
+        const st = Math.max(time, ctx.currentTime + 0.01);
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         
         osc.type = 'sine';
-        osc.frequency.value = 2500 + Math.random() * 500;
+        let baseFreq = 2500 + Math.random() * 500;
+        osc.frequency.setValueAtTime(baseFreq, st);
+        
+        // Random pitch jump at 50ms!
+        let jumpOctaves = -1.1 + Math.random() * (2.2 - (-1.1));
+        let newFreq = baseFreq * Math.pow(2, jumpOctaves);
+        
+        // Prevent Nyquist errors if jump goes too high
+        if (newFreq > 20000) newFreq = 20000; 
+        
+        osc.frequency.setValueAtTime(baseFreq, st + 0.05);
+        osc.frequency.setValueAtTime(newFreq, st + 0.051); // Instant jump
         
         osc.connect(gain); gain.connect(panner);
         
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.8, time + 0.002);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+        gain.gain.setValueAtTime(0, st);
+        gain.gain.linearRampToValueAtTime(0.8, st + 0.002);
+        gain.gain.setValueAtTime(0.8, st + 0.05); // Hold volume until the jump!
+        gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15); // Fade out
         
-        osc.start(time); osc.stop(time + 0.06);
+        osc.start(st); osc.stop(st + 0.2);
         break;
       }
       case 3: // Gross Sheared Square Cut In Half
@@ -1587,7 +1600,9 @@ class ReactionDiffusionSynth {
         for(let ch=0; ch<2; ch++) {
            let data = crunchBuf.getChannelData(ch);
            for(let i=0; i<irLen; i++) {
-               data[i] = (Math.random() * 2 - 1) * Math.pow(1 - (i/irLen), 3);
+               // 1-bit harsh static buffer! Eliminates the breathiness of pure noise.
+               let val = Math.random() > 0.5 ? 1 : -1;
+               data[i] = val * Math.pow(1 - (i/irLen), 3);
            }
         }
         crunchRev.buffer = crunchBuf;
@@ -1598,7 +1613,7 @@ class ReactionDiffusionSynth {
         crunchFilter.Q.value = 5;
         
         const crunchShaper = ctx.createWaveShaper();
-        crunchShaper.curve = this.getDistortionCurve(200);
+        crunchShaper.curve = this.getDistortionCurve(2000); // 10x more distortion to completely shred it
         
         shaper.connect(revSend);
         revSend.connect(crunchRev);
@@ -1815,7 +1830,14 @@ class ReactionDiffusionSynth {
         
         outGain.connect(wahFilter);
         wahFilter.connect(quantizer);
-        quantizer.connect(panner);
+        
+        // The quantizer is a 1-bit comparator that destroys amplitude information! 
+        // We MUST use a final gain node AFTER the quantizer to actually make it quieter.
+        const finalGain = ctx.createGain();
+        finalGain.gain.value = 0.3; // Pulled back significantly!
+        
+        quantizer.connect(finalGain);
+        finalGain.connect(panner);
         
         osc.start(st);
         osc.stop(st + 0.1); 
