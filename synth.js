@@ -1577,10 +1577,10 @@ class ReactionDiffusionSynth {
         // Blooming Reverb Tail!
         const revSend = ctx.createGain();
         revSend.gain.setValueAtTime(0, st);
-        // Stays quiet until the end, then explodes right as the pitch hits the bottom
+        // Exponential ramp fails from 0, so we use linear ramp to blast the reverb send!
         revSend.gain.setValueAtTime(0, st + 0.12);
-        revSend.gain.exponentialRampToValueAtTime(1.5, st + 0.2);
-        revSend.gain.linearRampToValueAtTime(0, st + 0.3);
+        revSend.gain.linearRampToValueAtTime(5.0, st + 0.2); // massive send right at the tail
+        revSend.gain.setValueAtTime(0, st + 0.25);
         
         shaper.connect(revSend);
         revSend.connect(this.shared2sReverb);
@@ -1589,8 +1589,9 @@ class ReactionDiffusionSynth {
         gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
         gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15);
         
-        oscSq.start(st); oscSq.stop(st + 0.2);
-        oscSaw.start(st); oscSaw.stop(st + 0.2);
+        // Let the oscillators run slightly past the dry gain envelope so they feed the reverb burst!
+        oscSq.start(st); oscSq.stop(st + 0.25);
+        oscSaw.start(st); oscSaw.stop(st + 0.25);
         noise.start(st);
         break;
       }
@@ -1768,8 +1769,8 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
-        outGain.gain.linearRampToValueAtTime(1.0, st + 0.01);
-        outGain.gain.setValueAtTime(1.0, st + 0.05); 
+        outGain.gain.linearRampToValueAtTime(0.6, st + 0.01);
+        outGain.gain.setValueAtTime(0.6, st + 0.05); 
         outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.1);
         outGain.gain.linearRampToValueAtTime(0, st + 0.15);
         
