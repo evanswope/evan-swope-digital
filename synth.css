@@ -342,7 +342,7 @@ canvas#grid-canvas {
   max-height: 250px;
   opacity: 1;
   margin-top: 0.5rem;
-  padding: 1rem;
+  padding: .1rem;
 }
 
 #toggle-drum-pads i {
