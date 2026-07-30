@@ -268,6 +268,30 @@ class GenerativeAutomata {
     for(const cell of newlyBorn) this.playVoice(cell.r, cell.c);
   }
   
+  updatePadUI() {
+    if (!this.padNames || !this.padNames[this.currentKit]) return;
+    document.querySelectorAll('.drum-pad-wrapper').forEach(wrapper => {
+      const idx = parseInt(wrapper.getAttribute('data-index'));
+      wrapper.setAttribute('title', this.padNames[this.currentKit][idx]);
+      
+      const muteBtn = wrapper.querySelector('.pad-mute-btn');
+      if (muteBtn) {
+        if (this.padMutes[this.currentKit][idx]) {
+          muteBtn.classList.add('muted');
+          muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+        } else {
+          muteBtn.classList.remove('muted');
+          muteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        }
+      }
+      
+      const velSlider = wrapper.querySelector('.pad-vel-slider');
+      if (velSlider) {
+        velSlider.value = this.padVelocities[this.currentKit][idx];
+      }
+    });
+  }
+
   initCanvas() {
     this.canvas = document.getElementById('grid-canvas');
     if(!this.canvas) return;
@@ -421,6 +445,35 @@ class ReactionDiffusionSynth {
     this.frameCount = 0;
     this.sampleBuffers = {};
     this.samplesLoaded = false;
+    
+    this.padVelocities = {
+      'bus_stop': new Array(10).fill(1.0),
+      'disco': new Array(10).fill(1.0),
+      'foley': new Array(10).fill(1.0)
+    };
+    this.padMutes = {
+      'bus_stop': new Array(10).fill(false),
+      'disco': new Array(10).fill(false),
+      'foley': new Array(10).fill(false)
+    };
+    this.padNames = {
+      'bus_stop': [
+        "Noisy Shut", "Wimpy Push", "Bandpassed High Texture", "Shaker Single",
+        "Pneumatic Shriek", "Spark plug stutter", "Metallic Thud & Chalk", 
+        "Wobble Gong Hit", "Noisy Hihat", "Heavy Noisy Kick"
+      ],
+      'disco': [
+        "Rototiller (Accelerating)", "Rototiller (Decelerating)", "Spitfire Feedback",
+        "Crushed Snare", "High-pitched Sine Ping", "The Hivemind Groan",
+        "Scratched CD", "Electro-Static Spark", "Laser Bounces", "Shredded Dead Channel"
+      ],
+      'foley': [
+        "Dark Drone", "Bitcrushed Sine Highpass", "Spectral Dust", "Stuttering Dual Guiro",
+        "Hollow Gourd Shaker", "Mid-frequency Shove", "Twig Snap", "Muted Cardboard",
+        "Hollow Knock", "Sub-bass wavefolded bursts"
+      ]
+    };
+    
     this.seedGrid();
   }
   
@@ -665,10 +718,16 @@ class ReactionDiffusionSynth {
     const ctx = globalAudioCtx;
     if (!ctx) return;
     if (!this.samplesLoaded) return; // Wait for samples
+    if (this.padMutes[this.currentKit] && this.padMutes[this.currentKit][index]) return;
     
     const panner = ctx.createStereoPanner();
     panner.pan.value = panVal;
-    panner.connect(this.busStopBus || this.masterGain);
+    
+    const velNode = ctx.createGain();
+    velNode.gain.value = this.padVelocities[this.currentKit] ? this.padVelocities[this.currentKit][index] : 1.0;
+    velNode.connect(this.busStopBus || this.masterGain);
+    
+    panner.connect(velNode);
     
     const buffer = this.sampleBuffers[index];
     if (!buffer) return;
@@ -1205,11 +1264,16 @@ class ReactionDiffusionSynth {
   playDrumGlitch(index, time, panVal) {
     const ctx = globalAudioCtx;
     if (!ctx) return;
+    if (this.padMutes[this.currentKit] && this.padMutes[this.currentKit][index]) return;
     
     const panner = ctx.createStereoPanner();
     panner.pan.value = panVal;
     
-    panner.connect(this.masterGain);
+    const velNode = ctx.createGain();
+    velNode.gain.value = this.padVelocities[this.currentKit] ? this.padVelocities[this.currentKit][index] : 1.0;
+    velNode.connect(this.masterGain);
+    
+    panner.connect(velNode);
     
     const makeNoise = (duration) => {
       const bufferSize = ctx.sampleRate * duration;
@@ -1676,13 +1740,19 @@ class ReactionDiffusionSynth {
   playDrumFoley(index, time, panVal) {
     const ctx = globalAudioCtx;
     if (!ctx) return;
+    if (this.padMutes[this.currentKit] && this.padMutes[this.currentKit][index]) return;
     
     const panner = ctx.createStereoPanner();
     panner.pan.value = panVal;
-    panner.connect(this.masterGain);
+    
+    const velNode = ctx.createGain();
+    velNode.gain.value = this.padVelocities[this.currentKit] ? this.padVelocities[this.currentKit][index] : 1.0;
+    velNode.connect(this.masterGain);
     if (this.foleyReverb) {
-      panner.connect(this.foleyReverb);
+      velNode.connect(this.foleyReverb);
     }
+    
+    panner.connect(velNode);
     
     const makeNoise = (duration) => {
       const bufferSize = ctx.sampleRate * duration;
@@ -2021,6 +2091,30 @@ class ReactionDiffusionSynth {
     }
   }
   
+  updatePadUI() {
+    if (!this.padNames || !this.padNames[this.currentKit]) return;
+    document.querySelectorAll('.drum-pad-wrapper').forEach(wrapper => {
+      const idx = parseInt(wrapper.getAttribute('data-index'));
+      wrapper.setAttribute('title', this.padNames[this.currentKit][idx]);
+      
+      const muteBtn = wrapper.querySelector('.pad-mute-btn');
+      if (muteBtn) {
+        if (this.padMutes[this.currentKit][idx]) {
+          muteBtn.classList.add('muted');
+          muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+        } else {
+          muteBtn.classList.remove('muted');
+          muteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        }
+      }
+      
+      const velSlider = wrapper.querySelector('.pad-vel-slider');
+      if (velSlider) {
+        velSlider.value = this.padVelocities[this.currentKit][idx];
+      }
+    });
+  }
+
   initCanvas() {
     this.canvas = document.getElementById('rd-canvas');
     if(!this.canvas) return;
@@ -2308,8 +2402,24 @@ class ReactionDiffusionSynth {
       this.setType(e.target.value);
     });
     
+    document.querySelectorAll('.pad-mute-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+        this.padMutes[this.currentKit][idx] = !this.padMutes[this.currentKit][idx];
+        this.updatePadUI();
+      });
+    });
+    
+    document.querySelectorAll('.pad-vel-slider').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.getAttribute('data-index'));
+        this.padVelocities[this.currentKit][idx] = parseFloat(e.target.value);
+      });
+    });
+
     document.getElementById('rd-kit')?.addEventListener('change', (e) => {
       this.currentKit = e.target.value;
+      this.updatePadUI();
       if (this.vinylCrackleGain) {
         // Fade crackle in/out smoothly to avoid pops
         const targetVol = this.currentKit === 'bus_stop' ? 0.3 : 0;
@@ -2326,6 +2436,9 @@ class ReactionDiffusionSynth {
     document.getElementById('rd-bpm')?.addEventListener('input', (e) => {
       this.bpm = parseInt(e.target.value);
     });
+    
+    // Initialize UI on load
+    setTimeout(() => this.updatePadUI(), 100);
   }
 }
 
