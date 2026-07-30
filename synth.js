@@ -1733,6 +1733,16 @@ class ReactionDiffusionSynth {
         
         setTimeout(() => { try { fbGain.disconnect(); } catch(e){} }, 1000);
         
+        // 4. Bitcrush the entire assembly
+        const batCurve = new Float32Array(4096);
+        for (let j = 0; j < 4096; j++) {
+            let x = (j * 2 / 4096) - 1;
+            batCurve[j] = Math.round(x * 8) / 8; // 3-bit crush
+        }
+        const quantizer = ctx.createWaveShaper();
+        quantizer.curve = batCurve;
+        sumGain.connect(quantizer);
+        
         const sweepHp = ctx.createBiquadFilter();
         sweepHp.type = 'highpass';
         sweepHp.frequency.setValueAtTime(200, st);
