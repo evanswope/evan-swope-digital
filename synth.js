@@ -1604,27 +1604,28 @@ class ReactionDiffusionSynth {
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
       {
-        const st = Math.max(time, ctx.currentTime + 0.01); // Prevent manual trigger bugs
+        const st = Math.max(time, ctx.currentTime + 0.01); 
         
         const osc = ctx.createOscillator();
-        osc.type = 'square';
-        osc.frequency.value = 40; 
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(20, st);
+        osc.frequency.exponentialRampToValueAtTime(100, st + 0.25);
         
-        const noiseBurst = makeNoise(0.5); 
+        const noiseBurst = makeNoise(0.25); 
         
         const delay = ctx.createDelay();
-        delay.delayTime.value = 0.0005;
-        delay.delayTime.setValueAtTime(0.0005, st);
-        delay.delayTime.exponentialRampToValueAtTime(0.3, st + 0.5);
+        delay.delayTime.value = 0.001;
+        delay.delayTime.setValueAtTime(0.001, st);
+        delay.delayTime.exponentialRampToValueAtTime(0.05, st + 0.25);
         
         const fbGain = ctx.createGain();
         fbGain.gain.value = 0.98;
         fbGain.gain.setValueAtTime(0.98, st);
-        fbGain.gain.setValueAtTime(0, st + 1.0); 
-        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500);
+        fbGain.gain.setValueAtTime(0, st + 0.3); 
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1000);
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(500);
+        shaper.curve = this.getDistortionCurve(2000);
         
         const inputSum = ctx.createGain();
         osc.connect(inputSum);
@@ -1640,8 +1641,8 @@ class ReactionDiffusionSynth {
         outGain.gain.setValueAtTime(0, st);
         outGain.gain.linearRampToValueAtTime(0.4, st + 0.01); 
         outGain.gain.setValueAtTime(0.4, st + 0.1);
-        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.6);
-        outGain.gain.linearRampToValueAtTime(0, st + 0.65);
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.25);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.3);
         
         const batSteps = 4; // 2-bit
         const batCurve = new Float32Array(4096);
@@ -1652,41 +1653,41 @@ class ReactionDiffusionSynth {
         const quantizer = ctx.createWaveShaper();
         quantizer.curve = batCurve;
         
+        inputSum.connect(outGain);
         shaper.connect(outGain);
+        
         outGain.connect(quantizer);
         quantizer.connect(panner);
         
         osc.start(st);
-        osc.stop(st + 0.5);
+        osc.stop(st + 0.25);
         noiseBurst.start(st);
         break;
       }
       case 0: // Rototiller Time-Vortex (Accelerating)
       {
-        const st = Math.max(time, ctx.currentTime + 0.01); // Prevent manual trigger bugs
+        const st = Math.max(time, ctx.currentTime + 0.01);
         
         const osc = ctx.createOscillator();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(60, st); // Lower guttural start
-        osc.frequency.exponentialRampToValueAtTime(15, st + 0.7);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, st);
+        osc.frequency.exponentialRampToValueAtTime(20, st + 0.25);
         
-        const noiseBurst = makeNoise(0.7); 
+        const noiseBurst = makeNoise(0.25); 
         
         const delay = ctx.createDelay();
-        // 100ms starting delay (10Hz flutter) instead of 300ms so it has immediate energy
-        delay.delayTime.value = 0.1;
-        delay.delayTime.setValueAtTime(0.1, st);
-        // Ramp down to 0.015 (66Hz) so it remains a fast motor rumble and never crosses into a high pitched beep!
-        delay.delayTime.exponentialRampToValueAtTime(0.015, st + 0.7);
+        delay.delayTime.value = 0.05;
+        delay.delayTime.setValueAtTime(0.05, st);
+        delay.delayTime.exponentialRampToValueAtTime(0.005, st + 0.25);
         
         const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.95; // slightly lower feedback to prevent infinite blow-out
-        fbGain.gain.setValueAtTime(0.95, st);
-        fbGain.gain.setValueAtTime(0, st + 1.2); 
-        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
+        fbGain.gain.value = 0.98;
+        fbGain.gain.setValueAtTime(0.98, st);
+        fbGain.gain.setValueAtTime(0, st + 0.35); 
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1000); 
         
         const shaper = ctx.createWaveShaper();
-        shaper.curve = this.getDistortionCurve(500); 
+        shaper.curve = this.getDistortionCurve(2000); 
         
         const inputSum = ctx.createGain();
         osc.connect(inputSum);
@@ -1701,18 +1702,18 @@ class ReactionDiffusionSynth {
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
         outGain.gain.linearRampToValueAtTime(1.0, st + 0.01);
-        outGain.gain.setValueAtTime(1.0, st + 0.6); // Hold volume open for the full acceleration!
-        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.8);
-        outGain.gain.linearRampToValueAtTime(0, st + 0.9);
+        outGain.gain.setValueAtTime(1.0, st + 0.2); 
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.3);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.35);
         
-        inputSum.connect(outGain); // PASS DRY SIGNAL DIRECTLY SO IT DOESNT WAIT FOR THE DELAY LINE!
-        shaper.connect(outGain); // Wet signal
+        inputSum.connect(outGain);
+        shaper.connect(outGain);
         
         const wahFilter = ctx.createBiquadFilter();
         wahFilter.type = 'bandpass';
         wahFilter.Q.value = 5.0;
         wahFilter.frequency.setValueAtTime(200, st);
-        wahFilter.frequency.exponentialRampToValueAtTime(4000, st + 0.5);
+        wahFilter.frequency.exponentialRampToValueAtTime(4000, st + 0.25);
         
         const batSteps = 4; // 2-bit
         const batCurve = new Float32Array(4096);
@@ -1723,13 +1724,12 @@ class ReactionDiffusionSynth {
         const quantizer = ctx.createWaveShaper();
         quantizer.curve = batCurve;
         
-        shaper.connect(outGain);
         outGain.connect(wahFilter);
         wahFilter.connect(quantizer);
         quantizer.connect(panner);
         
         osc.start(st);
-        osc.stop(st + 0.5); 
+        osc.stop(st + 0.25); 
         noiseBurst.start(st);
         break;
       }
