@@ -441,7 +441,7 @@ class ReactionDiffusionSynth {
     this.isPlaying = false;
     this.type = 'mitosis';
     this.currentKit = 'bus_stop';
-    this.bpm = 90;
+    this.bpm = 122;
     this.frameCount = 0;
     this.sampleBuffers = {};
     this.samplesLoaded = false;
@@ -2436,7 +2436,7 @@ class ReactionDiffusionSynth {
         this.visualQueue = [];
       }
       
-      const bpm = this.bpm || 90; 
+      const bpm = this.bpm || 122; 
       // All grids use 8th notes.
       const beatMult = 2;
       const stepDuration = (60 / bpm) / beatMult;

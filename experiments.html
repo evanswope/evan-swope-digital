@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=2">
   <link rel="stylesheet" href="synth.css?v=3">
+  <style>
+    .pad-controls { display: none !important; }
+  </style>
 </head>
 <body class="lens-hybrid">
   <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
@@ -167,9 +170,9 @@
                     <div class="fx-knob-group" title="Tempo (BPM)" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex: 1; min-width: 50px;">
                       <div style="display:flex; align-items:center; gap:0.5rem; color:#ff7eb3; font-size:0.9rem; font-weight:bold;">
                         <i class="fa-solid fa-metronome"></i>
-                        <span id="bpm-readout">112 BPM</span>
+                        <span id="bpm-readout">122 BPM</span>
                       </div>
-                      <input type="range" id="rd-bpm" class="line-slider" min="70" max="180" step="1" value="112" oninput="document.getElementById('bpm-readout').innerText = this.value + ' BPM'">
+                      <input type="range" id="rd-bpm" class="line-slider" min="70" max="180" step="1" value="122" oninput="document.getElementById('bpm-readout').innerText = this.value + ' BPM'">
                     </div>
                     
                   </div>
