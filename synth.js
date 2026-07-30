@@ -1708,7 +1708,7 @@ class ReactionDiffusionSynth {
         
         // 2. Square-wave modulated comb filter (metallic scraping instead of birds)
         const delay = ctx.createDelay();
-        delay.delayTime.value = 0.01;
+        delay.delayTime.value = 0.002 + Math.random() * 0.015;
         
         const delayMod = ctx.createOscillator();
         delayMod.type = 'square';
@@ -1753,15 +1753,15 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, st);
         outGain.gain.linearRampToValueAtTime(0.42, st + 0.01); // Reduced 30%
-        outGain.gain.setValueAtTime(0.42, st + 0.15);
-        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.25);
+        outGain.gain.setValueAtTime(0.42, st + 0.05); // Much shorter hold!
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.12); // Shorter fade!
         
         sweepHp.connect(outGain);
         outGain.connect(panner);
         
         noise.start(st);
-        gateOsc.start(st); gateOsc.stop(st + 0.25);
-        delayMod.start(st); delayMod.stop(st + 0.25);
+        gateOsc.start(st); gateOsc.stop(st + 0.12);
+        delayMod.start(st); delayMod.stop(st + 0.12);
         break;
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
