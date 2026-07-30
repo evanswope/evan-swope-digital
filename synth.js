@@ -1574,6 +1574,17 @@ class ReactionDiffusionSynth {
         
         gain.connect(panner);
         
+        // Blooming Reverb Tail!
+        const revSend = ctx.createGain();
+        revSend.gain.setValueAtTime(0, st);
+        // Stays quiet until the end, then explodes right as the pitch hits the bottom
+        revSend.gain.setValueAtTime(0, st + 0.12);
+        revSend.gain.exponentialRampToValueAtTime(1.5, st + 0.2);
+        revSend.gain.linearRampToValueAtTime(0, st + 0.3);
+        
+        shaper.connect(revSend);
+        revSend.connect(this.shared2sReverb);
+        
         gain.gain.setValueAtTime(0, st);
         gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
         gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15);
@@ -1727,19 +1738,19 @@ class ReactionDiffusionSynth {
         const osc = ctx.createOscillator();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(100, st);
-        osc.frequency.exponentialRampToValueAtTime(20, st + 0.25);
+        osc.frequency.exponentialRampToValueAtTime(20, st + 0.1);
         
-        const noiseBurst = makeNoise(0.25); 
+        const noiseBurst = makeNoise(0.1); 
         
         const delay = ctx.createDelay();
         delay.delayTime.value = 0.05;
         delay.delayTime.setValueAtTime(0.05, st);
-        delay.delayTime.exponentialRampToValueAtTime(0.005, st + 0.25);
+        delay.delayTime.exponentialRampToValueAtTime(0.005, st + 0.1);
         
         const fbGain = ctx.createGain();
         fbGain.gain.value = 0.98;
         fbGain.gain.setValueAtTime(0.98, st);
-        fbGain.gain.setValueAtTime(0, st + 0.35); 
+        fbGain.gain.setValueAtTime(0, st + 0.15); 
         setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1000); 
         
         const shaper = ctx.createWaveShaper();
@@ -1758,9 +1769,9 @@ class ReactionDiffusionSynth {
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
         outGain.gain.linearRampToValueAtTime(1.0, st + 0.01);
-        outGain.gain.setValueAtTime(1.0, st + 0.2); 
-        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.3);
-        outGain.gain.linearRampToValueAtTime(0, st + 0.35);
+        outGain.gain.setValueAtTime(1.0, st + 0.05); 
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.1);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.15);
         
         inputSum.connect(outGain);
         shaper.connect(outGain);
@@ -1769,13 +1780,13 @@ class ReactionDiffusionSynth {
         wahFilter.type = 'bandpass';
         wahFilter.Q.value = 5.0;
         wahFilter.frequency.setValueAtTime(200, st);
-        wahFilter.frequency.exponentialRampToValueAtTime(4000, st + 0.25);
+        wahFilter.frequency.exponentialRampToValueAtTime(4000, st + 0.1);
         
-        const batSteps = 4; // 2-bit
+        // 1-bit Comparator! Bitcrushed within an inch of its life.
         const batCurve = new Float32Array(4096);
         for (let j = 0; j < 4096; j++) {
             let x = (j * 2 / 4096) - 1;
-            batCurve[j] = Math.round(x * batSteps) / batSteps;
+            batCurve[j] = x < 0 ? -1 : 1; 
         }
         const quantizer = ctx.createWaveShaper();
         quantizer.curve = batCurve;
@@ -1785,7 +1796,7 @@ class ReactionDiffusionSynth {
         quantizer.connect(panner);
         
         osc.start(st);
-        osc.stop(st + 0.25); 
+        osc.stop(st + 0.1); 
         noiseBurst.start(st);
         break;
       }
