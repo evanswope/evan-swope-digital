@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
       // Intercept AudioContext to allow external suspension
@@ -111,13 +113,40 @@
         .mode-btn { padding: 0.25rem 0.5rem !important; font-size: 0.7rem !important; border-radius: 4px !important; }
         .mode-selector { margin-bottom: 0.5rem !important; gap: 0.25rem !important; }
       }
+      
+      /* Drum Machine Button Styles */
+      .start-btn {
+        background-color: rgba(255, 126, 179, 0.1);
+        color: #ff7eb3;
+        border: 2px solid #ff7eb3;
+        font-family: 'Space Mono', monospace;
+        font-weight: 700;
+        padding: 1.5rem 3rem;
+        font-size: 1.5rem;
+        border-radius: 50px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: transform 0.2s;
+        animation: pulse 2s infinite;
+        text-transform: uppercase;
+      }
+      @keyframes pulse {
+        0% { box-shadow: 0 0 15px 5px rgba(255, 126, 179, 0.3); }
+        50% { box-shadow: 0 0 35px 15px rgba(255, 126, 179, 0.6); }
+        100% { box-shadow: 0 0 15px 5px rgba(255, 126, 179, 0.3); }
+      }
+      .start-btn:hover {
+        transform: scale(1.05);
+      }
     </style>
   </head>
   <body style="padding: 0; min-height: 100%; display: block;">
     <div id="app">
       <div class="synth-card">
         <div id="audioOverlay" class="audio-overlay">
-          <button id="initAudioBtn" class="pulse-btn">POWER ON</button>
+          <button id="initAudioBtn" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
         </div>
 
         <!-- SVG Scribble Border -->
