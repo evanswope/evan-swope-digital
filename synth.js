@@ -1656,81 +1656,70 @@ class ReactionDiffusionSynth {
         noise.start(st);
         break;
       }
-      case 2: // The "Spitfire" Feedback Overload
+      case 2: // Scrambled Data Glitch
       {
-        const st = Math.max(time, ctx.currentTime + 0.01); 
+        const st = Math.max(time, ctx.currentTime + 0.01);
         
-        const noiseSrc = makeNoise(0.5);
+        // 1. Tearing noise stream gated by high-speed modulation
+        const noise = makeNoise(0.25);
         
-        // Use allpass filters in SERIES! Instead of boosting pitches, this smears the phase 
-        // to create a metallic "JPEG mosaic" texture without competing with Pad 4's random pitches.
-        const filter1 = ctx.createBiquadFilter(); filter1.type = 'allpass';  
-        const filter2 = ctx.createBiquadFilter(); filter2.type = 'allpass';  
-        const filter3 = ctx.createBiquadFilter(); filter3.type = 'allpass';  
+        const gateOsc = ctx.createOscillator();
+        gateOsc.type = 'square';
+        gateOsc.frequency.setValueAtTime(30, st);
+        gateOsc.frequency.exponentialRampToValueAtTime(180, st + 0.2); 
         
-        // Fade the phase smearing in by sweeping the Q value from 0 to 10!
-        filter1.Q.setValueAtTime(0, st); filter1.Q.linearRampToValueAtTime(10, st + 0.1);
-        filter2.Q.setValueAtTime(0, st); filter2.Q.linearRampToValueAtTime(10, st + 0.1);
-        filter3.Q.setValueAtTime(0, st); filter3.Q.linearRampToValueAtTime(10, st + 0.1);
+        const gateShaper = ctx.createWaveShaper();
+        const gateCurve = new Float32Array(2);
+        gateCurve[0] = 0; gateCurve[1] = 1; // Map -1 to 0, 1 to 1 (VCA behavior)
+        gateShaper.curve = gateCurve;
         
-        const overloadShaper = ctx.createWaveShaper();
-        overloadShaper.curve = this.getDistortionCurve(1000); 
+        gateOsc.connect(gateShaper);
         
-        const fbDelay = ctx.createDelay();
-        fbDelay.delayTime.value = 0.01; 
+        const noiseGate = ctx.createGain();
+        noiseGate.gain.value = 0; 
+        gateShaper.connect(noiseGate.gain);
+        noise.connect(noiseGate);
         
-        let t = st;
-        filter1.frequency.setValueAtTime(1000, st);
-        filter2.frequency.setValueAtTime(1200, st);
-        filter3.frequency.setValueAtTime(1800, st);
-        fbDelay.delayTime.setValueAtTime(0.005, st);
+        // 2. High-pitched laser sweep (carrier)
+        const carrier = ctx.createOscillator();
+        carrier.type = 'sine';
+        carrier.frequency.setValueAtTime(6000, st);
+        carrier.frequency.exponentialRampToValueAtTime(400, st + 0.2);
         
-        while (t < st + 0.4) {
-            let f = 400 + Math.random() * 6000;
-            
-            let oct2 = 0.255 + Math.random() * (0.66 - 0.255);
-            let oct3 = 0.888 + Math.random() * (1.167 - 0.888);
-            
-            let f2 = Math.min(20000, f * Math.pow(2, oct2));
-            let f3 = Math.min(20000, f * Math.pow(2, oct3));
-
-            // Stepping the allpass frequencies creates blocky phase shifts (mosaic)!
-            filter1.frequency.setValueAtTime(f, t);
-            filter2.frequency.setValueAtTime(f2, t);
-            filter3.frequency.setValueAtTime(f3, t);
-            
-            fbDelay.delayTime.setValueAtTime(0.001 + Math.random() * 0.014, t);
-            
-            t += 0.01 + Math.random() * 0.04; 
+        // 3. Audio-rate FM modulation from noise to carrier! This shreds the laser.
+        const fmGain = ctx.createGain();
+        fmGain.gain.setValueAtTime(4000, st);
+        fmGain.gain.linearRampToValueAtTime(0, st + 0.2);
+        
+        noise.connect(fmGain);
+        fmGain.connect(carrier.frequency);
+        
+        const sumGain = ctx.createGain();
+        noiseGate.connect(sumGain);
+        carrier.connect(sumGain);
+        
+        // 4. Bitcrush the entire assembly
+        const batCurve = new Float32Array(4096);
+        for (let j = 0; j < 4096; j++) {
+            let x = (j * 2 / 4096) - 1;
+            batCurve[j] = Math.round(x * 8) / 8; // 3-bit crush
         }
-        
-        const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.7; 
-        fbGain.gain.setValueAtTime(0.7, st);
-        fbGain.gain.setValueAtTime(0, st + 0.8); 
-        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
-        
-        // Connected in series for maximum phase accumulation!
-        noiseSrc.connect(filter1); 
-        filter1.connect(filter2); 
-        filter2.connect(filter3);
-        filter3.connect(overloadShaper);
-        
-        overloadShaper.connect(fbDelay);
-        fbDelay.connect(fbGain);
-        fbGain.connect(filter1); // Close the loop
+        const quantizer = ctx.createWaveShaper();
+        quantizer.curve = batCurve;
+        sumGain.connect(quantizer);
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, st);
-        outGain.gain.linearRampToValueAtTime(0.5, st + 0.01); 
-        outGain.gain.setValueAtTime(0.5, st + 0.15);
-        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.4);
-        outGain.gain.linearRampToValueAtTime(0, st + 0.45);
+        outGain.gain.linearRampToValueAtTime(0.6, st + 0.01);
+        outGain.gain.setValueAtTime(0.6, st + 0.15);
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.25);
         
-        overloadShaper.connect(outGain);
-        outGain.connect(panner); 
+        quantizer.connect(outGain);
+        outGain.connect(panner);
         
-        noiseSrc.start(st);
+        noise.start(st);
+        gateOsc.start(st); gateOsc.stop(st + 0.25);
+        carrier.start(st); carrier.stop(st + 0.25);
         break;
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
@@ -1806,10 +1795,23 @@ class ReactionDiffusionSynth {
       {
         const st = Math.max(time, ctx.currentTime + 0.01);
         
+        // FM Synthesis to tear apart the single tone!
+        const mod = ctx.createOscillator();
+        mod.type = 'square';
+        mod.frequency.setValueAtTime(800, st);
+        mod.frequency.exponentialRampToValueAtTime(10, st + 0.1);
+        
+        const modGain = ctx.createGain();
+        modGain.gain.setValueAtTime(800, st);
+        modGain.gain.linearRampToValueAtTime(100, st + 0.1);
+        
         const osc = ctx.createOscillator();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(100, st);
         osc.frequency.exponentialRampToValueAtTime(20, st + 0.1);
+        
+        mod.connect(modGain);
+        modGain.connect(osc.frequency);
         
         const noiseBurst = makeNoise(0.1); 
         
@@ -1873,8 +1875,8 @@ class ReactionDiffusionSynth {
         quantizer.connect(finalGain);
         finalGain.connect(panner);
         
-        osc.start(st);
-        osc.stop(st + 0.1); 
+        mod.start(st); mod.stop(st + 0.25);
+        osc.start(st); osc.stop(st + 0.25);
         noiseBurst.start(st);
         break;
       }
