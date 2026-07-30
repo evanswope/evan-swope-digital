@@ -1551,56 +1551,56 @@ class ReactionDiffusionSynth {
       }
       case 2: // The "Spitfire" Feedback Overload
       {
+        const st = Math.max(time, ctx.currentTime + 0.01); // Fix scheduling bug
+        
         const osc = ctx.createOscillator();
         osc.type = 'sawtooth';
-        osc.frequency.value = 100; // raw initial energy
+        osc.frequency.value = 100; 
         
         const filter = ctx.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.Q.value = 20; // highly resonant
+        filter.Q.value = 20; 
         
-        // Rapidly jumping filter
-        let t = time;
-        while (t < time + 0.4) {
-            filter.frequency.setValueAtTime(400 + Math.random() * 6000, t);
-            t += 0.01 + Math.random() * 0.04; // jump every 10-50ms
-        }
-        
-        // Massive distortion for the feedback loop
         const overloadShaper = ctx.createWaveShaper();
-        overloadShaper.curve = this.getDistortionCurve(1000); // 1000x overdrive
+        overloadShaper.curve = this.getDistortionCurve(1000); 
         
-        // Feedback delay (1ms) to break the zero-delay loop limit in Web Audio
         const fbDelay = ctx.createDelay();
         fbDelay.delayTime.value = 0.001; 
         
-        const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.95; // almost totally self-oscillating
-        fbGain.gain.setValueAtTime(0.95, time);
-        fbGain.gain.setValueAtTime(0, time + 0.8); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
-        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); // Break the cyclic reference for GC
+        // Rapidly jumping filter AND delay to prevent 1000Hz fixed resonance beep!
+        let t = st;
+        while (t < st + 0.4) {
+            filter.frequency.setValueAtTime(400 + Math.random() * 6000, t);
+            // Randomly modulate the delay between 1ms and 6ms so it sounds like sparks, not a tone!
+            fbDelay.delayTime.setValueAtTime(0.001 + Math.random() * 0.005, t);
+            t += 0.01 + Math.random() * 0.04; 
+        }
         
-        // The Loop: filter -> overload -> delay -> fbGain -> filter (Using the pad against itself)
+        const fbGain = ctx.createGain();
+        fbGain.gain.value = 0.95; 
+        fbGain.gain.setValueAtTime(0.95, st);
+        fbGain.gain.setValueAtTime(0, st + 0.8); 
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
+        
         osc.connect(filter);
         
         filter.connect(overloadShaper);
         overloadShaper.connect(fbDelay);
         fbDelay.connect(fbGain);
-        fbGain.connect(filter); // violent feedback loop
+        fbGain.connect(filter); 
         
         const outGain = ctx.createGain();
-        outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(0.5, time + 0.01); // 50% velocity
-        outGain.gain.setValueAtTime(0.5, time + 0.15);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
-        outGain.gain.linearRampToValueAtTime(0, time + 0.45);
+        outGain.gain.setValueAtTime(0, st);
+        outGain.gain.linearRampToValueAtTime(0.5, st + 0.01); 
+        outGain.gain.setValueAtTime(0.5, st + 0.15);
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.4);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.45);
         
-        // Read output from the overloaded shaper so we hear the sparks
         overloadShaper.connect(outGain);
-        outGain.connect(panner);
+        outGain.connect(panner); 
         
-        osc.start(time);
-        osc.stop(time + 0.5);
+        osc.start(st);
+        osc.stop(st + 0.5);
         break;
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
