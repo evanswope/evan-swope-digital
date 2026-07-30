@@ -1680,11 +1680,14 @@ class ReactionDiffusionSynth {
         gateShaper.connect(noiseGate.gain);
         noise.connect(noiseGate);
         
-        // 2. High-pitched laser sweep (carrier)
+        // 2. High-pitched laser sweep (carrier) - Obliterated into random steps!
         const carrier = ctx.createOscillator();
         carrier.type = 'sine';
-        carrier.frequency.setValueAtTime(6000, st);
-        carrier.frequency.exponentialRampToValueAtTime(400, st + 0.2);
+        let t = st;
+        while(t < st + 0.25) {
+            carrier.frequency.setValueAtTime(800 + Math.random() * 5000, t);
+            t += 0.005 + Math.random() * 0.015; // 5ms to 20ms steps
+        }
         
         // 3. Audio-rate FM modulation from noise to carrier! This shreds the laser.
         const fmGain = ctx.createGain();
@@ -1798,8 +1801,8 @@ class ReactionDiffusionSynth {
         // FM Synthesis to tear apart the single tone!
         const mod = ctx.createOscillator();
         mod.type = 'square';
-        mod.frequency.setValueAtTime(800, st);
-        mod.frequency.exponentialRampToValueAtTime(10, st + 0.1);
+        mod.frequency.setValueAtTime(400, st); // Chunkier FM
+        mod.frequency.exponentialRampToValueAtTime(5, st + 0.1); // Sweeps lower
         
         const modGain = ctx.createGain();
         modGain.gain.setValueAtTime(800, st);
@@ -1850,10 +1853,10 @@ class ReactionDiffusionSynth {
         shaper.connect(outGain);
         
         const wahFilter = ctx.createBiquadFilter();
-        wahFilter.type = 'bandpass';
-        wahFilter.Q.value = 5.0;
-        wahFilter.frequency.setValueAtTime(200, st);
-        wahFilter.frequency.exponentialRampToValueAtTime(4000, st + 0.1);
+        wahFilter.type = 'lowpass'; // Lowpass retains the low-end chunk!
+        wahFilter.Q.value = 3.0; // Lower Q for thicker resonance
+        wahFilter.frequency.setValueAtTime(100, st);
+        wahFilter.frequency.exponentialRampToValueAtTime(3000, st + 0.15);
         
         // 1-bit Comparator! Bitcrushed within an inch of its life.
         const batCurve = new Float32Array(4096);
