@@ -1459,39 +1459,38 @@ class ReactionDiffusionSynth {
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, time);
-        outGain.gain.linearRampToValueAtTime(1.2, time + 0.02);
-        outGain.gain.exponentialRampToValueAtTime(0.01, time + 1.2); // Pulled apart much longer
-        outGain.gain.linearRampToValueAtTime(0, time + 1.25); 
+        outGain.gain.linearRampToValueAtTime(0.8, time + 0.02);
+        outGain.gain.exponentialRampToValueAtTime(0.01, time + 0.3); // Shrunk profile!
+        outGain.gain.linearRampToValueAtTime(0, time + 0.35); 
         
         noiseBurst.connect(shaper);
         
         const sumGain = ctx.createGain();
         
-        // Create 3 parallel comb filters pulling against each other
-        const numCombs = 3;
-        for (let i = 0; i < numCombs; i++) {
-            const delay = ctx.createDelay();
-            const fb = ctx.createGain();
-            
-            // Stagger initial delay times (e.g. 5ms, 8ms, 12ms)
-            const baseDelay = 0.005 + (i * 0.003) + (Math.random() * 0.002);
-            delay.delayTime.setValueAtTime(baseDelay, time);
-            
-            // Sweep them exponentially upwards MUCH further and slower to pull the texture apart
-            const targetDelay = baseDelay * (15 + i * 4 + Math.random() * 5);
-            delay.delayTime.exponentialRampToValueAtTime(targetDelay, time + 1.2);
-            
-            fb.gain.value = 0.85 + (Math.random() * 0.08); 
-            fb.gain.setValueAtTime(fb.gain.value, time);
-            fb.gain.setValueAtTime(0, time + 1.5); // KILL THE FEEDBACK LOOP TO PREVENT CPU MEMORY LEAKS!
-            setTimeout(() => { try { fb.disconnect(); } catch(e) {} }, 2000); // Break the cyclic reference for GC
-            
-            shaper.connect(delay);
-            delay.connect(fb);
-            fb.connect(delay); 
-            
-            delay.connect(sumGain);
-        }
+        // Split into High (>600Hz) and Low (<600Hz) bands
+        const bandHigh = ctx.createBiquadFilter(); bandHigh.type = 'highpass'; bandHigh.frequency.value = 600;
+        const bandLow = ctx.createBiquadFilter(); bandLow.type = 'lowpass'; bandLow.frequency.value = 600;
+        
+        shaper.connect(bandHigh);
+        shaper.connect(bandLow);
+        
+        // High Comb: Strength 0.5, even-numbered teeth (Positive Feedback)
+        const delayHigh = ctx.createDelay(); delayHigh.delayTime.value = 0.012;
+        const fbHigh = ctx.createGain(); fbHigh.gain.value = 0.5; // positive
+        bandHigh.connect(delayHigh);
+        delayHigh.connect(fbHigh);
+        fbHigh.connect(delayHigh);
+        delayHigh.connect(sumGain);
+        
+        // Low Comb: Strength 0.6, odd-numbered teeth (Negative Feedback shifts peaks by half a cycle)
+        const delayLow = ctx.createDelay(); delayLow.delayTime.value = 0.012;
+        const fbLow = ctx.createGain(); fbLow.gain.value = -0.6; // negative
+        bandLow.connect(delayLow);
+        delayLow.connect(fbLow);
+        fbLow.connect(delayLow);
+        delayLow.connect(sumGain);
+        
+        setTimeout(() => { try { fbHigh.disconnect(); fbLow.disconnect(); } catch(e) {} }, 1000);
         
         // Quantizer to grit it up at the end of the chain
         const quantizerSteps = 4; // 2-bit audio (extremely gritty)
@@ -1533,8 +1532,8 @@ class ReactionDiffusionSynth {
         osc.connect(gain); gain.connect(panner);
         
         gain.gain.setValueAtTime(0, st);
-        gain.gain.linearRampToValueAtTime(0.8, st + 0.002);
-        gain.gain.setValueAtTime(0.8, st + 0.05); // Hold volume until the jump!
+        gain.gain.linearRampToValueAtTime(0.48, st + 0.002);
+        gain.gain.setValueAtTime(0.48, st + 0.05); // Hold volume until the jump!
         gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15); // Fade out
         
         osc.start(st); osc.stop(st + 0.2);
@@ -1573,8 +1572,8 @@ class ReactionDiffusionSynth {
         const delay = ctx.createDelay();
         delay.delayTime.value = 0.06; 
         delay.delayTime.setValueAtTime(0.06, st);
-        // Decelerating speed from 1 to 0.4 = delay time ramps from 60ms to 180ms over 0.2s!
-        delay.delayTime.exponentialRampToValueAtTime(0.18, st + 0.2);
+        // Faster tape stop!
+        delay.delayTime.exponentialRampToValueAtTime(0.18, st + 0.1);
         
         oscSq.connect(cutter);
         oscSaw.connect(cutter);
@@ -1585,17 +1584,18 @@ class ReactionDiffusionSynth {
         shaper.connect(gain); // dry only goes to the short gain envelope
         
         // The delay and morphFilter get their OWN envelope so they can ring out past the dry hit!
+        // Delay and morphFilter ringing out for shorter duration
         const delayGain = ctx.createGain();
         delayGain.gain.setValueAtTime(0, st);
-        delayGain.gain.linearRampToValueAtTime(1.0, st + 0.05);
-        delayGain.gain.exponentialRampToValueAtTime(0.01, st + 0.4);
+        delayGain.gain.linearRampToValueAtTime(1.0, st + 0.03);
+        delayGain.gain.exponentialRampToValueAtTime(0.01, st + 0.2);
         
         const morphFilter = ctx.createBiquadFilter();
         morphFilter.type = 'bandpass';
         morphFilter.Q.value = 20; 
         morphFilter.frequency.setValueAtTime(200, st);
-        morphFilter.frequency.exponentialRampToValueAtTime(8000, st + 0.1);
-        morphFilter.frequency.exponentialRampToValueAtTime(100, st + 0.2);
+        morphFilter.frequency.exponentialRampToValueAtTime(8000, st + 0.05);
+        morphFilter.frequency.exponentialRampToValueAtTime(100, st + 0.1);
         
         delay.connect(morphFilter);
         morphFilter.connect(delayGain); // wet
@@ -1603,12 +1603,12 @@ class ReactionDiffusionSynth {
         
         gain.connect(panner);
         
-        // Short Metallic Crunch Tail! (Using a comb filter instead of Convolver to avoid audio thread init lag)
+        // Short Metallic Crunch Tail! (Pulled closer to the trigger)
         const revSend = ctx.createGain();
         revSend.gain.setValueAtTime(0, st);
-        revSend.gain.setValueAtTime(0, st + 0.12);
-        revSend.gain.linearRampToValueAtTime(5.0, st + 0.2); 
-        revSend.gain.setValueAtTime(0, st + 0.25);
+        revSend.gain.setValueAtTime(0, st + 0.04);
+        revSend.gain.linearRampToValueAtTime(5.0, st + 0.08); 
+        revSend.gain.setValueAtTime(0, st + 0.15);
         
         const comb = ctx.createDelay();
         comb.delayTime.value = 0.012; // 12ms = metallic ringing pitch
@@ -1634,20 +1634,25 @@ class ReactionDiffusionSynth {
         // Output Envelope for the tail
         const tailGain = ctx.createGain();
         tailGain.gain.setValueAtTime(0, st);
-        tailGain.gain.setValueAtTime(1.0, st + 0.12);
-        tailGain.gain.linearRampToValueAtTime(0.01, st + 0.5); 
+        tailGain.gain.setValueAtTime(1.0, st + 0.04);
+        tailGain.gain.linearRampToValueAtTime(0.01, st + 0.25); 
+        
+        const tailHp = ctx.createBiquadFilter();
+        tailHp.type = 'highpass';
+        tailHp.frequency.value = 800;
         
         comb.connect(crunchShaper);
         crunchShaper.connect(tailGain);
-        tailGain.connect(panner);
+        tailGain.connect(tailHp);
+        tailHp.connect(panner);
         
+        // Shortened dry hit duration!
         gain.gain.setValueAtTime(0, st);
         gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.01, st + 0.08);
         
-        // Let the oscillators run slightly past the dry gain envelope so they feed the reverb burst!
-        oscSq.start(st); oscSq.stop(st + 0.25);
-        oscSaw.start(st); oscSaw.stop(st + 0.25);
+        oscSq.start(st); oscSq.stop(st + 0.12);
+        oscSaw.start(st); oscSaw.stop(st + 0.12);
         noise.start(st);
         break;
       }
@@ -1783,7 +1788,14 @@ class ReactionDiffusionSynth {
         shaper.connect(outGain);
         
         outGain.connect(quantizer);
-        quantizer.connect(panner);
+        
+        const lpKick = ctx.createBiquadFilter();
+        lpKick.type = 'lowpass';
+        lpKick.frequency.setValueAtTime(250, st); // Thump!
+        lpKick.frequency.exponentialRampToValueAtTime(40, st + 0.2);
+        
+        quantizer.connect(lpKick);
+        lpKick.connect(panner);
         
         osc.start(st);
         osc.stop(st + 0.25);
