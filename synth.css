@@ -423,15 +423,34 @@ canvas#grid-canvas {
   }
   
 
+  .main-content {
+    padding-top: 60px !important;
+  }
+
   .carousel-wrapper {
     gap: 0;
     width: 100vw;
-    margin-left: -1rem; /* Adjust for parent padding to take full width */
+    margin-left: -1rem; /* Adjust for parent padding */
+    position: relative; /* Anchor absolute nav buttons */
   }
   
+  .carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px !important;
+    height: 32px !important;
+    z-index: 10;
+    background: rgba(15, 15, 20, 0.8) !important;
+    border: none !important;
+  }
+  
+  #carousel-prev { left: 4px; }
+  #carousel-next { right: 4px; }
+  
   .carousel-slide {
-    flex: 0 0 96%; /* Let 4% of the next card peek */
-    padding: 0 4px; /* Space between peeking cards */
+    flex: 0 0 100%; /* Take full width on mobile */
+    padding: 0 40px; /* Leave padding on edges for the nav buttons! */
   }
   
   .generative-card {
