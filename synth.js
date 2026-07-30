@@ -1635,16 +1635,21 @@ class ReactionDiffusionSynth {
         const tailGain = ctx.createGain();
         tailGain.gain.setValueAtTime(0, st);
         tailGain.gain.setValueAtTime(1.0, st + 0.04);
-        tailGain.gain.linearRampToValueAtTime(0.01, st + 0.25); 
+        tailGain.gain.exponentialRampToValueAtTime(0.001, st + 0.6); 
         
         const tailHp = ctx.createBiquadFilter();
         tailHp.type = 'highpass';
         tailHp.frequency.value = 800;
         
+        // Final harsh distortion to shred the ringing tail!
+        const harshShaper = ctx.createWaveShaper();
+        harshShaper.curve = this.getDistortionCurve(200);
+        
         comb.connect(crunchShaper);
         crunchShaper.connect(tailGain);
         tailGain.connect(tailHp);
-        tailHp.connect(panner);
+        tailHp.connect(harshShaper);
+        harshShaper.connect(panner);
         
         // Shortened dry hit duration!
         gain.gain.setValueAtTime(0, st);
@@ -1680,26 +1685,32 @@ class ReactionDiffusionSynth {
         gateShaper.connect(noiseGate.gain);
         noise.connect(noiseGate);
         
-        // 2. High-pitched laser sweep (carrier) - Obliterated into random steps!
-        const carrier = ctx.createOscillator();
-        carrier.type = 'sine';
-        let t = st;
-        while(t < st + 0.25) {
-            carrier.frequency.setValueAtTime(800 + Math.random() * 5000, t);
-            t += 0.005 + Math.random() * 0.015; // 5ms to 20ms steps
-        }
+        // 2. Square-wave modulated comb filter (metallic scraping instead of birds)
+        const delay = ctx.createDelay();
+        delay.delayTime.value = 0.01;
         
-        // 3. Audio-rate FM modulation from noise to carrier! This shreds the laser.
-        const fmGain = ctx.createGain();
-        fmGain.gain.setValueAtTime(4000, st);
-        fmGain.gain.linearRampToValueAtTime(0, st + 0.2);
+        const delayMod = ctx.createOscillator();
+        delayMod.type = 'square';
+        delayMod.frequency.setValueAtTime(60, st);
+        delayMod.frequency.exponentialRampToValueAtTime(10, st + 0.2);
         
-        noise.connect(fmGain);
-        fmGain.connect(carrier.frequency);
+        const delayModGain = ctx.createGain();
+        delayModGain.gain.value = 0.008; 
+        delayMod.connect(delayModGain);
+        delayModGain.connect(delay.delayTime);
+        
+        const fbGain = ctx.createGain();
+        fbGain.gain.value = -0.9; // Negative feedback for odd harmonics
+        
+        noise.connect(delay);
+        delay.connect(fbGain);
+        fbGain.connect(delay);
         
         const sumGain = ctx.createGain();
         noiseGate.connect(sumGain);
-        carrier.connect(sumGain);
+        delay.connect(sumGain);
+        
+        setTimeout(() => { try { fbGain.disconnect(); } catch(e){} }, 1000);
         
         // 4. Bitcrush the entire assembly
         const batCurve = new Float32Array(4096);
@@ -1722,7 +1733,7 @@ class ReactionDiffusionSynth {
         
         noise.start(st);
         gateOsc.start(st); gateOsc.stop(st + 0.25);
-        carrier.start(st); carrier.stop(st + 0.25);
+        delayMod.start(st); delayMod.stop(st + 0.25);
         break;
       }
       case 1: // Rototiller Time-Vortex (Decelerating)
@@ -1784,7 +1795,7 @@ class ReactionDiffusionSynth {
         const lpKick = ctx.createBiquadFilter();
         lpKick.type = 'lowpass';
         lpKick.frequency.setValueAtTime(250, st); // Thump!
-        lpKick.frequency.exponentialRampToValueAtTime(40, st + 0.2);
+        lpKick.frequency.exponentialRampToValueAtTime(80, st + 0.2);
         
         quantizer.connect(lpKick);
         lpKick.connect(panner);
@@ -1812,6 +1823,13 @@ class ReactionDiffusionSynth {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(100, st);
         osc.frequency.exponentialRampToValueAtTime(20, st + 0.1);
+        
+        // Modulate the FM modulator with pure noise to destroy any tonality!
+        const fmNoise = makeNoise(0.1);
+        const fmNoiseGain = ctx.createGain();
+        fmNoiseGain.gain.value = 2000; // Wild pitch jumps at audio rate
+        fmNoise.connect(fmNoiseGain);
+        fmNoiseGain.connect(mod.frequency);
         
         mod.connect(modGain);
         modGain.connect(osc.frequency);
@@ -1873,12 +1891,13 @@ class ReactionDiffusionSynth {
         // The quantizer is a 1-bit comparator that destroys amplitude information! 
         // We MUST use a final gain node AFTER the quantizer to actually make it quieter.
         const finalGain = ctx.createGain();
-        finalGain.gain.value = 0.2; // Brought down significantly
+        finalGain.gain.value = 0.18; // Reduced 10% from 0.2
         
         quantizer.connect(finalGain);
         finalGain.connect(panner);
         
         mod.start(st); mod.stop(st + 0.25);
+        fmNoise.start(st);
         osc.start(st); osc.stop(st + 0.25);
         noiseBurst.start(st);
         break;
