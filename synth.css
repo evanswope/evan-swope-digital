@@ -28,7 +28,6 @@
   fill: none;
   stroke: #ff7eb3;
   stroke-width: 3;
-  filter: url(#scribble-filter);
   width: calc(100% - 10px);
   height: calc(100% - 10px);
 }
