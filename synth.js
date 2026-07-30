@@ -1582,54 +1582,64 @@ class ReactionDiffusionSynth {
         noise.connect(shaper);
         
         shaper.connect(delay);
-        shaper.connect(gain); // dry
+        shaper.connect(gain); // dry only goes to the short gain envelope
         
-        // Morphing filter to strain out the organic frequencies from the delay!
+        // The delay and morphFilter get their OWN envelope so they can ring out past the dry hit!
+        const delayGain = ctx.createGain();
+        delayGain.gain.setValueAtTime(0, st);
+        delayGain.gain.linearRampToValueAtTime(1.0, st + 0.05);
+        delayGain.gain.exponentialRampToValueAtTime(0.01, st + 0.4);
+        
         const morphFilter = ctx.createBiquadFilter();
         morphFilter.type = 'bandpass';
-        morphFilter.Q.value = 20; // high resonance to isolate non-organic frequencies
+        morphFilter.Q.value = 20; 
         morphFilter.frequency.setValueAtTime(200, st);
         morphFilter.frequency.exponentialRampToValueAtTime(8000, st + 0.1);
         morphFilter.frequency.exponentialRampToValueAtTime(100, st + 0.2);
         
         delay.connect(morphFilter);
-        morphFilter.connect(gain); // wet
+        morphFilter.connect(delayGain); // wet
+        delayGain.connect(panner);
         
         gain.connect(panner);
         
-        // Short Metallic Crunch Tail!
+        // Short Metallic Crunch Tail! (Using a comb filter instead of Convolver to avoid audio thread init lag)
         const revSend = ctx.createGain();
         revSend.gain.setValueAtTime(0, st);
         revSend.gain.setValueAtTime(0, st + 0.12);
         revSend.gain.linearRampToValueAtTime(5.0, st + 0.2); 
         revSend.gain.setValueAtTime(0, st + 0.25);
         
-        const crunchRev = ctx.createConvolver();
-        const irLen = Math.floor(ctx.sampleRate * 0.15); // 150ms tail
-        const crunchBuf = ctx.createBuffer(2, irLen, ctx.sampleRate);
-        for(let ch=0; ch<2; ch++) {
-           let data = crunchBuf.getChannelData(ch);
-           for(let i=0; i<irLen; i++) {
-               // 1-bit harsh static buffer! Eliminates the breathiness of pure noise.
-               let val = Math.random() > 0.5 ? 1 : -1;
-               data[i] = val * Math.pow(1 - (i/irLen), 3);
-           }
-        }
-        crunchRev.buffer = crunchBuf;
+        const comb = ctx.createDelay();
+        comb.delayTime.value = 0.012; // 12ms = metallic ringing pitch
+        
+        const combFb = ctx.createGain();
+        combFb.gain.value = 0.95; // high feedback for a long metallic tail!
+        setTimeout(() => { try { combFb.disconnect(); } catch(e){} }, 1000);
         
         const crunchFilter = ctx.createBiquadFilter();
         crunchFilter.type = 'highpass';
         crunchFilter.frequency.value = 1000;
-        crunchFilter.Q.value = 5;
         
         const crunchShaper = ctx.createWaveShaper();
-        crunchShaper.curve = this.getDistortionCurve(2000); // 10x more distortion to completely shred it
+        crunchShaper.curve = this.getDistortionCurve(2000); 
         
+        // Feedback Loop
         shaper.connect(revSend);
-        revSend.connect(crunchRev);
-        crunchRev.connect(crunchFilter);
-        crunchFilter.connect(crunchShaper);
-        crunchShaper.connect(panner);
+        revSend.connect(comb);
+        comb.connect(combFb);
+        combFb.connect(crunchFilter);
+        crunchFilter.connect(comb);
+        
+        // Output Envelope for the tail
+        const tailGain = ctx.createGain();
+        tailGain.gain.setValueAtTime(0, st);
+        tailGain.gain.setValueAtTime(1.0, st + 0.12);
+        tailGain.gain.linearRampToValueAtTime(0.01, st + 0.5); 
+        
+        comb.connect(crunchShaper);
+        crunchShaper.connect(tailGain);
+        tailGain.connect(panner);
         
         gain.gain.setValueAtTime(0, st);
         gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
