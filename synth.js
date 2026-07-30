@@ -1556,12 +1556,21 @@ class ReactionDiffusionSynth {
         shaper.curve = this.getDistortionCurve(500);
         const gain = ctx.createGain();
         
+        const delay = ctx.createDelay();
+        delay.delayTime.value = 0.06; 
+        delay.delayTime.setValueAtTime(0.06, st);
+        // Decelerating speed from 1 to 0.67 = delay time ramps from 60ms to 126ms over 0.2s!
+        delay.delayTime.exponentialRampToValueAtTime(0.126, st + 0.2);
+        
         oscSq.connect(cutter);
         oscSaw.connect(cutter);
         cutter.connect(shaper);
         noise.connect(shaper);
         
-        shaper.connect(gain);
+        shaper.connect(delay);
+        shaper.connect(gain); // dry
+        delay.connect(gain); // wet
+        
         gain.connect(panner);
         
         gain.gain.setValueAtTime(0, st);
@@ -1579,9 +1588,11 @@ class ReactionDiffusionSynth {
         
         const noiseSrc = makeNoise(0.5);
         
-        const filter1 = ctx.createBiquadFilter(); filter1.type = 'bandpass'; filter1.Q.value = 20; 
-        const filter2 = ctx.createBiquadFilter(); filter2.type = 'bandpass'; filter2.Q.value = 20; 
-        const filter3 = ctx.createBiquadFilter(); filter3.type = 'bandpass'; filter3.Q.value = 20; 
+        // Use peaking filters instead of bandpass! Bandpass Q=20 forces the noise into a pure sine wave, causing the beep.
+        // Peaking boosts the frequencies to create chords, but lets broadband noise through, so it stays chunky without beeping!
+        const filter1 = ctx.createBiquadFilter(); filter1.type = 'peaking'; filter1.Q.value = 5; filter1.gain.value = 25;
+        const filter2 = ctx.createBiquadFilter(); filter2.type = 'peaking'; filter2.Q.value = 5; filter2.gain.value = 25;
+        const filter3 = ctx.createBiquadFilter(); filter3.type = 'peaking'; filter3.Q.value = 5; filter3.gain.value = 25;
         
         const overloadShaper = ctx.createWaveShaper();
         overloadShaper.curve = this.getDistortionCurve(1000); 
@@ -1616,8 +1627,9 @@ class ReactionDiffusionSynth {
         }
         
         const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.95; 
-        fbGain.gain.setValueAtTime(0.95, st);
+        // Lower feedback gain to 0.7 so it stutters/chunks but doesn't self-oscillate into a continuous square wave!
+        fbGain.gain.value = 0.7; 
+        fbGain.gain.setValueAtTime(0.7, st);
         fbGain.gain.setValueAtTime(0, st + 0.8); 
         setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
         
