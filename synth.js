@@ -1527,62 +1527,92 @@ class ReactionDiffusionSynth {
         osc.start(time); osc.stop(time + 0.06);
         break;
       }
-      case 3: // Crushed Snare
+      case 3: // Gross Sheared Square Cut In Half
       {
+        const st = Math.max(time, ctx.currentTime + 0.01);
         const noise = makeNoise(0.2);
-        const osc = ctx.createOscillator();
+        
+        const oscSq = ctx.createOscillator();
+        oscSq.type = 'square';
+        oscSq.frequency.setValueAtTime(100, st);
+        oscSq.frequency.exponentialRampToValueAtTime(30, st + 0.2);
+        
+        const oscSaw = ctx.createOscillator();
+        oscSaw.type = 'sawtooth';
+        // Sheared! The sawtooth is slightly offset in pitch so phase cancellation tears it apart!
+        oscSaw.frequency.setValueAtTime(110, st); 
+        oscSaw.frequency.exponentialRampToValueAtTime(10, st + 0.2);
+        
+        // Cut in half! (Half-Wave Rectification)
+        const halfWave = new Float32Array(4096);
+        for(let i=0; i<4096; i++) {
+            let x = (i * 2 / 4096) - 1;
+            halfWave[i] = x < 0 ? 0 : x; // literally cuts the bottom half off
+        }
+        const cutter = ctx.createWaveShaper();
+        cutter.curve = halfWave;
+        
         const shaper = ctx.createWaveShaper();
+        shaper.curve = this.getDistortionCurve(500);
         const gain = ctx.createGain();
         
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, time);
-        osc.frequency.exponentialRampToValueAtTime(100, time + 0.05);
+        oscSq.connect(cutter);
+        oscSaw.connect(cutter);
+        cutter.connect(shaper);
+        noise.connect(shaper);
         
-        shaper.curve = this.getDistortionCurve(150);
+        shaper.connect(gain);
+        gain.connect(panner);
         
-        osc.connect(shaper); noise.connect(shaper); shaper.connect(gain); gain.connect(panner);
+        gain.gain.setValueAtTime(0, st);
+        gain.gain.linearRampToValueAtTime(0.7, st + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15);
         
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.7, time + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
-        
-        osc.start(time); noise.start(time); osc.stop(time + 0.2);
+        oscSq.start(st); oscSq.stop(st + 0.2);
+        oscSaw.start(st); oscSaw.stop(st + 0.2);
+        noise.start(st);
         break;
       }
       case 2: // The "Spitfire" Feedback Overload
       {
-        const st = Math.max(time, ctx.currentTime + 0.01); // Fix scheduling bug
+        const st = Math.max(time, ctx.currentTime + 0.01); 
         
-        // Use pure noise instead of a sawtooth so it can NEVER have a base pitch!
         const noiseSrc = makeNoise(0.5);
         
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.Q.value = 20; 
+        const filter1 = ctx.createBiquadFilter(); filter1.type = 'bandpass'; filter1.Q.value = 20; 
+        const filter2 = ctx.createBiquadFilter(); filter2.type = 'bandpass'; filter2.Q.value = 20; 
+        const filter3 = ctx.createBiquadFilter(); filter3.type = 'bandpass'; filter3.Q.value = 20; 
         
         const overloadShaper = ctx.createWaveShaper();
         overloadShaper.curve = this.getDistortionCurve(1000); 
         
         const fbDelay = ctx.createDelay();
-        // Set default to 10ms (100Hz rumble) so if there is a micro-delay before the first jump, it doesn't default to a 1000Hz beep!
         fbDelay.delayTime.value = 0.01; 
         
-        // Smoothly sweeping filter AND delay to prevent fixed resonance beeps!
         let t = st;
-        filter.frequency.setValueAtTime(1000, st);
+        filter1.frequency.setValueAtTime(1000, st);
+        filter2.frequency.setValueAtTime(1200, st);
+        filter3.frequency.setValueAtTime(1800, st);
         fbDelay.delayTime.setValueAtTime(0.005, st);
         
+        // Use setValueAtTime to keep the chunkiness, but avoid opening beep by jumping quickly
         while (t < st + 0.4) {
-            let nextT = t + 0.01 + Math.random() * 0.04;
-            if (nextT > st + 0.4) nextT = st + 0.4;
+            let f = 400 + Math.random() * 6000;
             
-            // Smoothly sweep the filter to prevent stepped tonal chirps
-            filter.frequency.linearRampToValueAtTime(400 + Math.random() * 6000, nextT);
+            // Random harmonics based on user request!
+            let oct2 = 0.255 + Math.random() * (0.66 - 0.255);
+            let oct3 = 0.888 + Math.random() * (1.167 - 0.888);
             
-            // Smoothly sweep the delay time so it acts like a chaotic flanger (sparks) rather than a sequence of static video game tones!
-            fbDelay.delayTime.linearRampToValueAtTime(0.001 + Math.random() * 0.014, nextT);
+            let f2 = Math.min(20000, f * Math.pow(2, oct2));
+            let f3 = Math.min(20000, f * Math.pow(2, oct3));
+
+            filter1.frequency.setValueAtTime(f, t);
+            filter2.frequency.setValueAtTime(f2, t);
+            filter3.frequency.setValueAtTime(f3, t);
             
-            t = nextT;
+            fbDelay.delayTime.setValueAtTime(0.001 + Math.random() * 0.014, t);
+            
+            t += 0.01 + Math.random() * 0.04; 
         }
         
         const fbGain = ctx.createGain();
@@ -1591,12 +1621,12 @@ class ReactionDiffusionSynth {
         fbGain.gain.setValueAtTime(0, st + 0.8); 
         setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
         
-        noiseSrc.connect(filter);
+        noiseSrc.connect(filter1); noiseSrc.connect(filter2); noiseSrc.connect(filter3);
         
-        filter.connect(overloadShaper);
+        filter1.connect(overloadShaper); filter2.connect(overloadShaper); filter3.connect(overloadShaper);
         overloadShaper.connect(fbDelay);
         fbDelay.connect(fbGain);
-        fbGain.connect(filter); 
+        fbGain.connect(filter1); fbGain.connect(filter2); fbGain.connect(filter3);
         
         const outGain = ctx.createGain();
         outGain.gain.setValueAtTime(0, st);
@@ -1648,8 +1678,8 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
-        outGain.gain.linearRampToValueAtTime(0.4, st + 0.01); 
-        outGain.gain.setValueAtTime(0.4, st + 0.1);
+        outGain.gain.linearRampToValueAtTime(0.32, st + 0.01); 
+        outGain.gain.setValueAtTime(0.32, st + 0.1);
         outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.25);
         outGain.gain.linearRampToValueAtTime(0, st + 0.3);
         
