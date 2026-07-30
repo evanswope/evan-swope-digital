@@ -2262,7 +2262,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   }
   .header-container {
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between !important;
     gap: 0 !important;
   }
   .nav-links {
@@ -2345,6 +2345,71 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
     scroll-behavior: auto !important;
   }
   .tutorial-card:not(.is-flipped) {
-    animation: none !important;
+    transform: perspective(1000px) rotateY(-5deg) rotateX(2deg) scale(0.98);
   }
+}
+
+/* Mobile Menu Toggle & Overlay */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+.mobile-menu-toggle:hover { color: #ff7eb3; }
+
+.mobile-nav-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-nav-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: center;
+}
+.mobile-nav-link {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+.mobile-nav-link:hover { color: #ff7eb3; }
+.mobile-menu-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 2rem;
+  cursor: pointer;
+}
+.mobile-menu-close:hover { color: #ff7eb3; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none !important; }
+  .mobile-menu-toggle { display: block; }
 }

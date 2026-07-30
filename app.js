@@ -6,6 +6,30 @@
 document.addEventListener('DOMContentLoaded', () => {
   
   // --------------------------------------------------------------------------
+  // 0. MOBILE MENU
+  // --------------------------------------------------------------------------
+  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+  const mobileMenuClose = document.getElementById('mobile-menu-close');
+  const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+  
+  if (mobileMenuToggle && mobileMenuClose && mobileNavOverlay) {
+    mobileMenuToggle.addEventListener('click', () => {
+      mobileNavOverlay.classList.add('is-active');
+    });
+    
+    mobileMenuClose.addEventListener('click', () => {
+      mobileNavOverlay.classList.remove('is-active');
+    });
+    
+    // Close menu when a link is clicked
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileNavOverlay.classList.remove('is-active');
+      });
+    });
+  }
+
+  // --------------------------------------------------------------------------
   // 1. LIGHTBOX GALLERY
   // --------------------------------------------------------------------------
   const lightboxModal = document.getElementById('lightbox-modal');

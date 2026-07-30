@@ -265,6 +265,13 @@ class GenerativeAutomata {
       }
     }
     let temp = this.grid; this.grid = this.nextGrid; this.nextGrid = temp;
+    
+    // Prevent AudioContext overload (crash)
+    const maxVoices = window.innerWidth < 768 ? 10 : 20;
+    if (newlyBorn.length > maxVoices) {
+      newlyBorn = newlyBorn.sort(() => Math.random() - 0.5).slice(0, maxVoices);
+    }
+    
     for(const cell of newlyBorn) this.playVoice(cell.r, cell.c);
   }
   
@@ -2751,30 +2758,7 @@ window.addEventListener('message', (e) => {
   }
 });
 
-// --------------------------------------------------------------------------
-// HEADER AUTO-HIDE LOGIC
-// --------------------------------------------------------------------------
-const header = document.querySelector('.site-header');
-let hideTimeout;
-if (header) {
-  function showHeader() {
-    header.classList.remove('is-hidden');
-    clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(() => {
-      if (window.innerWidth < 768) {
-        header.classList.add('is-hidden');
-      }
-    }, 2000);
-  }
-
-  // Initial trigger
-  showHeader();
-
-  // Show header on scroll, touch, or mouse movement
-  window.addEventListener('scroll', showHeader, {passive: true});
-  window.addEventListener('mousemove', showHeader, {passive: true});
-  window.addEventListener('touchstart', showHeader, {passive: true});
-}
+// Header auto-hide logic removed by request
 
 // --------------------------------------------------------------------------
 // WHEEL SELECTORS & DRUM PADS LOGIC
