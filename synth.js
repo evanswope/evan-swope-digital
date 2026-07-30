@@ -1534,20 +1534,21 @@ class ReactionDiffusionSynth {
         
         const oscSq = ctx.createOscillator();
         oscSq.type = 'square';
-        oscSq.frequency.setValueAtTime(100, st);
-        oscSq.frequency.exponentialRampToValueAtTime(30, st + 0.2);
+        // Pitched up 1.5 octaves (x2.828)
+        oscSq.frequency.setValueAtTime(282.8, st);
+        oscSq.frequency.exponentialRampToValueAtTime(84.8, st + 0.2);
         
         const oscSaw = ctx.createOscillator();
         oscSaw.type = 'sawtooth';
-        // Sheared! The sawtooth is slightly offset in pitch so phase cancellation tears it apart!
-        oscSaw.frequency.setValueAtTime(110, st); 
-        oscSaw.frequency.exponentialRampToValueAtTime(10, st + 0.2);
+        // Sheared!
+        oscSaw.frequency.setValueAtTime(311, st); 
+        oscSaw.frequency.exponentialRampToValueAtTime(28.2, st + 0.2);
         
         // Cut in half! (Half-Wave Rectification)
         const halfWave = new Float32Array(4096);
         for(let i=0; i<4096; i++) {
             let x = (i * 2 / 4096) - 1;
-            halfWave[i] = x < 0 ? 0 : x; // literally cuts the bottom half off
+            halfWave[i] = x < 0 ? 0 : x; 
         }
         const cutter = ctx.createWaveShaper();
         cutter.curve = halfWave;
@@ -1559,8 +1560,8 @@ class ReactionDiffusionSynth {
         const delay = ctx.createDelay();
         delay.delayTime.value = 0.06; 
         delay.delayTime.setValueAtTime(0.06, st);
-        // Decelerating speed from 1 to 0.67 = delay time ramps from 60ms to 126ms over 0.2s!
-        delay.delayTime.exponentialRampToValueAtTime(0.126, st + 0.2);
+        // Decelerating speed from 1 to 0.4 = delay time ramps from 60ms to 180ms over 0.2s!
+        delay.delayTime.exponentialRampToValueAtTime(0.18, st + 0.2);
         
         oscSq.connect(cutter);
         oscSaw.connect(cutter);
@@ -1589,10 +1590,14 @@ class ReactionDiffusionSynth {
         const noiseSrc = makeNoise(0.5);
         
         // Use peaking filters instead of bandpass! Bandpass Q=20 forces the noise into a pure sine wave, causing the beep.
-        // Peaking boosts the frequencies to create chords, but lets broadband noise through, so it stays chunky without beeping!
-        const filter1 = ctx.createBiquadFilter(); filter1.type = 'peaking'; filter1.Q.value = 5; filter1.gain.value = 25;
-        const filter2 = ctx.createBiquadFilter(); filter2.type = 'peaking'; filter2.Q.value = 5; filter2.gain.value = 25;
-        const filter3 = ctx.createBiquadFilter(); filter3.type = 'peaking'; filter3.Q.value = 5; filter3.gain.value = 25;
+        const filter1 = ctx.createBiquadFilter(); filter1.type = 'peaking'; filter1.Q.value = 5; 
+        const filter2 = ctx.createBiquadFilter(); filter2.type = 'peaking'; filter2.Q.value = 5; 
+        const filter3 = ctx.createBiquadFilter(); filter3.type = 'peaking'; filter3.Q.value = 5; 
+        
+        // Fade the chunkiness in! This prevents ANY initial filter overload or beeps while letting the tail stay chunky!
+        filter1.gain.setValueAtTime(0, st); filter1.gain.linearRampToValueAtTime(30, st + 0.1);
+        filter2.gain.setValueAtTime(0, st); filter2.gain.linearRampToValueAtTime(30, st + 0.1);
+        filter3.gain.setValueAtTime(0, st); filter3.gain.linearRampToValueAtTime(30, st + 0.1);
         
         const overloadShaper = ctx.createWaveShaper();
         overloadShaper.curve = this.getDistortionCurve(1000); 
