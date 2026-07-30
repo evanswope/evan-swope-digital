@@ -2405,11 +2405,206 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   border: none;
   color: #cbd5e1;
   font-size: 2rem;
+  .contact-section p:not([style*="italic"]),
+  .job-bullets li,
+  .project-card-face ul li {
+    font-size: 0.75rem !important; /* ~13px on mobile/tablets! */
+    line-height: 1.28 !important; /* Super compact line height! */
+    margin-bottom: 0.45rem !important; /* Small, clean paragraph gaps! */
+  }
+
+  
+  /* Shrink eyebrow text hiding in ::before call to be quite small on mobile */
+  .section-header-container::before {
+    font-size: 0.65rem !important; /* ~10.5px */
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Shrink MFS image on back of hero card */
+  .project-card-back img[src*="MFS_white-w-cities"] {
+    max-width: 80px !important;
+    margin-top: 0.75rem !important;
+  }
+
+  /* Bring up size of EVAN SWOPE logo text on mobile by 1rem (~2.1rem) */
+  .logo-text {
+    font-size: 1.5rem !important;
+    line-height: 0.9 !important;
+  }
+
+  /* 5. Typography Clamping Fixes */
+  .hero-title {
+    font-size: clamp(2.2rem, 11vw, 3.5rem) !important;
+    letter-spacing: -1px !important;
+    word-break: break-word !important;
+  }
+  
+  .section-title {
+    font-size: clamp(1.8rem, 7vw, 2.8rem) !important;
+    letter-spacing: -1px !important;
+    word-break: break-word !important;
+  }
+
+  .project-title,
+  .job-title {
+    font-size: clamp(1.3rem, 5vw, 1.6rem) !important;
+    padding-right: 2.5rem !important;
+  }
+
+  /* 6. Navigation Bar Wrapping */
+  .site-header {
+    padding: 0.5rem 1rem !important;
+  }
+  .header-container {
+    flex-direction: row;
+    justify-content: space-between !important;
+    gap: 0 !important;
+  }
+  .nav-links {
+    display: none !important;
+  }
+  .btn-contact {
+    padding: 0.35rem 0.75rem !important;
+  }
+
+  /* 7. About Section & ASCII Art */
+  .about-card {
+    padding: 1.5rem !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-card-face,
+  .about-card {
+    padding: 1.25rem !important;
+  }
+  .hero-title {
+    font-size: clamp(1.8rem, 11vw, 2.8rem) !important;
+  }
+  .section-title {
+    font-size: clamp(1.5rem, 8vw, 2.2rem) !important;
+  }
+  .ascii-art {
+    font-size: 3px !important;
+    line-height: 4.5px !important;
+    letter-spacing: 0px !important;
+    transform: scale(0.9);
+    transform-origin: center top;
+  }
+  .hero-cta-group,
+  .contact-links {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0.75rem !important;
+  }
+  .cta-primary,
+  .cta-secondary {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+/* Ensure ONLY 'Hi!' on contact card back gets the massive clamp size */
+#contact .say-hello-hi {
+  font-size: clamp(4rem, 10vw, 7rem) !important;
+  line-height: 1.1 !important;
+  font-family: 'Permanent Marker', cursive !important;
+  color: #ff7eb3 !important;
+  margin-bottom: 1rem !important;
+  transform: rotate(-2deg) !important;
+}
+
+/* ==========================================================================
+   WCAG 2.1 AA ACCESSIBILITY ENHANCEMENTS (100% Visual Parity)
+   ========================================================================== */
+/* High-contrast focus outline during keyboard navigation only (invisible to mouse clicks) */
+:focus-visible {
+  outline: 2px solid #00ffff !important;
+  outline-offset: 4px !important;
+}
+
+/* Allow active/flipped card face to scroll vertically if text overflows during 200% browser text scaling */
+.project-card-container.is-flipped .project-card-back,
+.project-card-container:not(.is-flipped) .project-card-front {
+  overflow-y: auto;
+}
+
+/* WCAG 2.2.2 Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .tutorial-card:not(.is-flipped) {
+    transform: perspective(1000px) rotateY(-5deg) rotateX(2deg) scale(0.98);
+  }
+}
+
+/* Mobile Menu Toggle & Overlay */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+.mobile-menu-toggle:hover { color: #ff7eb3; }
+
+.mobile-nav-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-nav-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: center;
+}
+.mobile-nav-link {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+.mobile-nav-link:hover { color: #ff7eb3; }
+.mobile-menu-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 2rem;
   cursor: pointer;
 }
 .mobile-menu-close:hover { color: #ff7eb3; }
 
 @media (max-width: 768px) {
   .nav-links { display: none !important; }
-  .mobile-menu-toggle { display: block; }
+  .mobile-menu-toggle { display: block; order: 2; }
 }

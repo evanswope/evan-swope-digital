@@ -540,6 +540,22 @@ canvas#grid-canvas {
   .carousel-dots {
     display: flex;
   }
+  .wheel-selector {
+    height: 28px !important;
+    padding: 0 20px !important;
+    gap: 1rem !important;
+  }
+  .wheel-item {
+    font-size: 0.65rem !important;
+    min-width: 40px !important;
+  }
+  .wheel-selector-container {
+    width: 120px !important;
+  }
+  /* Fix Microbe beats card wheel container specifically */
+  div[style*="width: 220px;"] {
+    width: 140px !important;
+  }
 }
 
 .carousel-dots .dot {
