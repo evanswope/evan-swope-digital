@@ -1755,8 +1755,8 @@ class ReactionDiffusionSynth {
         const outGain = ctx.createGain();
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
-        outGain.gain.linearRampToValueAtTime(0.32, st + 0.01); 
-        outGain.gain.setValueAtTime(0.32, st + 0.1);
+        outGain.gain.linearRampToValueAtTime(0.22, st + 0.01); 
+        outGain.gain.setValueAtTime(0.22, st + 0.1);
         outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.25);
         outGain.gain.linearRampToValueAtTime(0, st + 0.3);
         
@@ -1846,7 +1846,7 @@ class ReactionDiffusionSynth {
         // The quantizer is a 1-bit comparator that destroys amplitude information! 
         // We MUST use a final gain node AFTER the quantizer to actually make it quieter.
         const finalGain = ctx.createGain();
-        finalGain.gain.value = 0.6; // Increased back up
+        finalGain.gain.value = 0.2; // Brought down significantly
         
         quantizer.connect(finalGain);
         finalGain.connect(panner);
