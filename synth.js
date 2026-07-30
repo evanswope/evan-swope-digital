@@ -1604,21 +1604,22 @@ class ReactionDiffusionSynth {
         
         const osc = ctx.createOscillator();
         osc.type = 'square';
-        osc.frequency.setValueAtTime(80, st);
-        osc.frequency.exponentialRampToValueAtTime(15, st + 0.5);
+        osc.frequency.setValueAtTime(60, st); // Lower guttural start
+        osc.frequency.exponentialRampToValueAtTime(15, st + 0.7);
         
-        const noiseBurst = makeNoise(0.5); 
+        const noiseBurst = makeNoise(0.7); 
         
         const delay = ctx.createDelay();
-        delay.delayTime.value = 0.3;
-        delay.delayTime.setValueAtTime(0.3, st);
-        // Ramp down to 0.003 (333Hz) instead of 0.0005 (2000Hz) so it growls instead of beeping!
-        delay.delayTime.exponentialRampToValueAtTime(0.003, st + 0.5);
+        // 100ms starting delay (10Hz flutter) instead of 300ms so it has immediate energy
+        delay.delayTime.value = 0.1;
+        delay.delayTime.setValueAtTime(0.1, st);
+        // Ramp down to 0.015 (66Hz) so it remains a fast motor rumble and never crosses into a high pitched beep!
+        delay.delayTime.exponentialRampToValueAtTime(0.015, st + 0.7);
         
         const fbGain = ctx.createGain();
-        fbGain.gain.value = 0.98;
-        fbGain.gain.setValueAtTime(0.98, st);
-        fbGain.gain.setValueAtTime(0, st + 1.0); 
+        fbGain.gain.value = 0.95; // slightly lower feedback to prevent infinite blow-out
+        fbGain.gain.setValueAtTime(0.95, st);
+        fbGain.gain.setValueAtTime(0, st + 1.2); 
         setTimeout(() => { try { fbGain.disconnect(); } catch(e) {} }, 1500); 
         
         const shaper = ctx.createWaveShaper();
@@ -1637,9 +1638,12 @@ class ReactionDiffusionSynth {
         outGain.gain.value = 0; 
         outGain.gain.setValueAtTime(0, st);
         outGain.gain.linearRampToValueAtTime(1.0, st + 0.01);
-        outGain.gain.setValueAtTime(1.0, st + 0.1);
-        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.6);
-        outGain.gain.linearRampToValueAtTime(0, st + 0.65);
+        outGain.gain.setValueAtTime(1.0, st + 0.6); // Hold volume open for the full acceleration!
+        outGain.gain.exponentialRampToValueAtTime(0.01, st + 0.8);
+        outGain.gain.linearRampToValueAtTime(0, st + 0.9);
+        
+        inputSum.connect(outGain); // PASS DRY SIGNAL DIRECTLY SO IT DOESNT WAIT FOR THE DELAY LINE!
+        shaper.connect(outGain); // Wet signal
         
         const wahFilter = ctx.createBiquadFilter();
         wahFilter.type = 'bandpass';
