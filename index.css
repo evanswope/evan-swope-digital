@@ -58,3 +58,6 @@
   background: var(--accent-color);
   cursor: pointer;
 }
+
+.pad-mute-btn, .pad-vel-slider { display: none !important; }
+
