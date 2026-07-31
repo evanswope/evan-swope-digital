@@ -24,13 +24,7 @@
   pointer-events: none;
   z-index: 10;
 }
-.scribble-outline rect {
-  fill: none;
-  stroke: #ff7eb3;
-  stroke-width: 3;
-  width: calc(100% - 10px);
-  height: calc(100% - 10px);
-}
+
 
 .card-header {
   display: flex;
