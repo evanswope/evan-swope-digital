@@ -465,19 +465,19 @@ class ReactionDiffusionSynth {
     };
     this.padNames = {
       'bus_stop': [
-        "Noisy Shut", "Wimpy Push", "Bandpassed High Texture", "Shaker Single",
-        "Pneumatic Shriek", "Spark plug stutter", "Metallic Thud & Chalk", 
-        "Wobble Gong Hit", "Noisy Hihat", "Heavy Noisy Kick"
+        "Spare Change", "Brake Check", "Metal Sprinkler", "Bean Bag",
+        "Bus Hiss", "Spark Plug", "Pneumatic Block", 
+        "Turn Signal", "Hub Cap", "Bus Kick"
       ],
       'disco': [
-        "Rototiller (Accelerating)", "Rototiller (Decelerating)", "Spitfire Feedback",
-        "Crushed Snare", "High-pitched Sine Ping", "The Hivemind Groan",
-        "Scratched CD", "Electro-Static Spark", "Laser Bounces", "Shredded Dead Channel"
+        "Fake Squelch", "Kick", "Baud Clap",
+        "Stutter Snare", "Pathetic Ping", "Static Snare",
+        "Scratched CD", "Liquid Crystal", "Bounce", "Shredded Channel"
       ],
       'foley': [
-        "Dark Drone", "Bitcrushed Sine Highpass", "Spectral Dust", "Stuttering Dual Guiro",
-        "Hollow Gourd Shaker", "Mid-frequency Shove", "Twig Snap", "Muted Cardboard",
-        "Hollow Knock", "Sub-bass wavefolded bursts"
+        "Primal Kick", "Wind Chime", "Mine", "Bullfrog",
+        "Gourd", "Whip", "Echo Snap", "Loose Drum",
+        "Tight Drum", "Rooting"
       ]
     };
     
