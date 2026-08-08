@@ -442,6 +442,7 @@ class ReactionDiffusionSynth {
     this.gridB = new Float32Array(this.width * this.height);
     this.nextA = new Float32Array(this.width * this.height);
     this.nextB = new Float32Array(this.width * this.height);
+    this.feedMod = new Float32Array(this.width * this.height);
     
     this.imagePixels = new Uint8ClampedArray(this.width * this.height * 4);
     
@@ -2360,10 +2361,8 @@ class ReactionDiffusionSynth {
         
         const abb = a * b * b;
         
-        // Add a slow, traveling sine-wave LFO to the feed rate.
-        // This causes "waves of fertility" to travel across the grid, 
-        // forcing stable patterns to endlessly expand, contract, and break apart!
-        let currentFeed = this.feed + Math.sin(this.frameCount * 0.03 + (x * 0.15) + (y * 0.1)) * 0.008;
+        // Use precalculated LFO to save CPU
+        let currentFeed = this.feed + this.feedMod[idx];
         
         this.nextA[idx] = a + (this.dA * lapA - abb + currentFeed * (1 - a)) * this.dt;
         this.nextB[idx] = b + (this.dB * lapB + abb - (this.kill + currentFeed) * b) * this.dt;
@@ -2398,6 +2397,13 @@ class ReactionDiffusionSynth {
             this.gridB[y * this.width + x] = 1.0;
           }
         }
+      }
+    }
+    
+    // Precalculate feed LFO for this frame to save CPU in the inner step loop
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        this.feedMod[y * this.width + x] = Math.sin(this.frameCount * 0.03 + (x * 0.15) + (y * 0.1)) * 0.008;
       }
     }
     
