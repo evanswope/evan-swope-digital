@@ -873,14 +873,13 @@ body.lens-hybrid .font-hybrid {
   animation-delay: 0s;
 }
 .slide-image:nth-child(2) {
-  animation-delay: 5s;
-  opacity: 0;
+  animation-delay: -5s;
 }
 @keyframes fade-cycle {
   0% { opacity: 1; }
-  40% { opacity: 1; }
+  35% { opacity: 1; }
   50% { opacity: 0; }
-  90% { opacity: 0; }
+  85% { opacity: 0; }
   100% { opacity: 1; }
 }
 @media (hover: hover) {
