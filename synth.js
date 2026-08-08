@@ -245,8 +245,10 @@ class GenerativeAutomata {
     const pan = ctx.createStereoPanner(); pan.pan.value = (Math.random() * 0.6) - 0.3;
     
     osc.connect(filter); filter.connect(gain); gain.connect(pan); pan.connect(this.masterGain);
-    osc.start();
-    setTimeout(() => { osc.stop(); osc.disconnect(); filter.disconnect(); gain.disconnect(); pan.disconnect(); }, 700);
+    const stopTime = ctx.currentTime + 0.7;
+    osc.start(ctx.currentTime);
+    osc.stop(stopTime);
+    setTimeout(() => { osc.disconnect(); filter.disconnect(); gain.disconnect(); pan.disconnect(); }, 750);
   }
   
   tick() {
@@ -363,8 +365,11 @@ class GenerativeAutomata {
     for (let i = 0; i < this.COLS; i++) {
       for (let j = 0; j < this.ROWS; j++) {
         if (this.grid[i][j] === 1) {
-          this.ctx.fillStyle = '#ec4899'; this.ctx.shadowBlur = 10; this.ctx.shadowColor = '#ec4899';
-          this.ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2); this.ctx.shadowBlur = 0;
+          this.ctx.fillStyle = '#ec4899';
+          this.ctx.globalAlpha = 0.3;
+          this.ctx.fillRect(i * cellW - 2, j * cellH - 2, cellW + 4, cellH + 4);
+          this.ctx.globalAlpha = 1.0;
+          this.ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2);
         }
       }
     }
