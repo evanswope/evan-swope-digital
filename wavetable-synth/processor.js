@@ -29,6 +29,13 @@ class WavetableSynthProcessor extends AudioWorkletProcessor {
     this.noiseLevel = 0.0;
     this.masterGain = 1.0;
 
+    // Pre-calculate noise table to avoid Math.random() in audio thread
+    this.noiseTable = new Float32Array(8192);
+    for (let i = 0; i < 8192; i++) {
+        this.noiseTable[i] = Math.random() * 2.0 - 1.0;
+    }
+    this.noiseIdx = 0;
+
     // Listen for messages from the main UI thread
     this.port.onmessage = (event) => {
       const { type, payload } = event.data;
@@ -156,7 +163,7 @@ class WavetableSynthProcessor extends AudioWorkletProcessor {
           
           // Read Wavetable
           const exactIndex = v.phase * tableLen;
-          const indexInt = Math.floor(exactIndex);
+          const indexInt = exactIndex | 0;
           const fraction = exactIndex - indexInt;
           
           const nextIndex = (indexInt + 1) % tableLen;
@@ -204,8 +211,9 @@ class WavetableSynthProcessor extends AudioWorkletProcessor {
         
         // Add true stereo white noise
         if (this.noiseLevel > 0) {
-            const noiseSample = (Math.random() * 2.0 - 1.0) * this.noiseLevel * maxEnv * 0.2;
+            const noiseSample = this.noiseTable[this.noiseIdx] * this.noiseLevel * maxEnv * 0.2;
             outChannel[i] += noiseSample;
+            this.noiseIdx = (this.noiseIdx + 1) & 8191; // Fast modulo 8192
         }
       }
     }
