@@ -2775,6 +2775,7 @@ document.getElementById('toggle-drum-pads')?.addEventListener('click', () => {
   if (container.classList.contains('open')) {
     container.classList.remove('open');
     btn.classList.remove('open');
+    btn.classList.add('has-opened-once');
   } else {
     container.classList.add('open');
     btn.classList.add('open');
