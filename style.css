@@ -350,7 +350,7 @@ body.lens-hybrid .font-hybrid {
    6. HERO SECTION
    -------------------------------------------------------------------------- */
 .hero-section {
-  padding: 6.75rem 2rem 4rem 2rem;
+  padding: 0rem 2rem 4rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -2148,7 +2148,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   /* 1. Reclaim Horizontal & Vertical Real Estate */
   /* Give Hero card 184px of top padding so it stays completely below the stacked mobile menu! */
   .hero-section {
-    padding: 8.5rem 1rem 3.5rem 1rem !important;
+    padding: 0rem 1rem 3.5rem 1rem !important;
   }
   .work-section,
   .philosophy-section,
