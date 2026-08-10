@@ -66,11 +66,8 @@
     </script>
     <script type="module" crossorigin src="../wavetable-synth/assets/index-BpRlw-fK.js"></script>
     <link rel="stylesheet" crossorigin href="../wavetable-synth/assets/index-BCDCReIb.css">
+    <link rel="stylesheet" href="../synth.css">
     <style>
-      .synth-header {
-        position: relative;
-        z-index: 999;
-      }
       .audio-overlay {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -85,24 +82,14 @@
       
       /* Vertical Layout Condensation Overrides */
       .synth-card { padding: 1.25rem !important; }
-      .synth-header { margin-bottom: 0.5rem !important; }
-      .synth-header h1 { font-size: 2rem !important; }
       .canvas-container { margin-bottom: 1rem !important; }
       .controls { margin-bottom: 1rem !important; }
       .slider-group { padding: 0.25rem 0.5rem !important; gap: 0.5rem !important; }
       .sliders { gap: 0.5rem !important; }
       .keyboard-container { height: 120px !important; }
       
-      .scribble-outline rect {
-        width: calc(100% - 10px);
-        height: calc(100% - 10px);
-      }
-      
       @media (max-width: 768px) {
         .synth-card { padding: 0.9rem !important; }
-        .synth-header { margin-bottom: 0.25rem !important; }
-        .synth-header h1 { font-size: 1.25rem !important; margin-bottom: 0 !important; }
-        .synth-header p { font-size: 0.65rem !important; margin-bottom: 0.25rem !important; line-height: 1.1 !important; }
         .canvas-container { margin-bottom: 0.25rem !important; }
         .controls { margin-bottom: 0.25rem !important; }
         .slider-group { padding: 0.15rem 0.25rem !important; gap: 0.25rem !important; }
@@ -114,75 +101,32 @@
         .mode-selector { margin-bottom: 0.5rem !important; gap: 0.25rem !important; }
       }
       
-      /* Drum Machine Button Styles */
-      .start-btn {
-        background-color: rgba(255, 126, 179, 0.1);
-        color: #ff7eb3;
-        border: 2px solid #ff7eb3;
-        font-family: 'Space Mono', monospace;
-        font-weight: 700;
-        padding: 1.5rem 3rem;
-        font-size: 1.5rem;
-        border-radius: 50px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: transform 0.2s;
-        animation: pulse 2s infinite;
-        text-transform: uppercase;
-      }
-      @keyframes pulse {
-        0% { box-shadow: 0 0 15px 5px rgba(255, 126, 179, 0.3); }
-        50% { box-shadow: 0 0 35px 15px rgba(255, 126, 179, 0.6); }
-        100% { box-shadow: 0 0 15px 5px rgba(255, 126, 179, 0.3); }
-      }
-      .start-btn:hover {
-        transform: scale(1.05);
-      }
       .slider-group span i {
         color: #ff7eb3;
       }
-      .power-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .power-light {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: #ef4444; /* red when off */
-        box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        transition: all 0.3s ease;
-      }
-      .power-light.is-on {
-        background-color: #10b981; /* green when on */
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
-      }
     </style>
   </head>
-  <body style="padding: 0; min-height: 100%; display: block;">
+  <body style="padding: 0; min-height: 100%; display: block; background: transparent;">
     <div id="app">
-      <div class="synth-card">
-        <div id="audioOverlay" class="audio-overlay">
+      <div class="generative-card synth-card" style="margin: 0; max-width: none; border: none; box-shadow: none;">
+        <div id="audioOverlay" class="card-overlay" style="z-index: 998;">
           <button id="initAudioBtn" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
         </div>
 
         <!-- SVG Scribble Border -->
-        <svg class="scribble-outline" preserveAspectRatio="none">
+        <svg class="synth-scribble-outline" preserveAspectRatio="none">
           <rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" style="filter: url(#scribble-filter);" />
         </svg>
 
-        <header class="synth-header">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-            <h1 style="margin-bottom: 0;">Waveshaper</h1>
+        <div class="card-header">
+          <div class="title-row" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+            <h2 class="card-title">Waveshaper</h2>
             <div class="power-container">
               <div id="power-indicator" class="power-light"></div>
             </div>
           </div>
-          <p>Distort this sine wave with simple math sliders to discover new harmonics. Select between an arpeggiator, chords, or manual play.</p>
-        </header>
+          <p class="card-desc">Distort this sine wave with simple math sliders to discover new harmonics. Select between an arpeggiator, chords, or manual play.</p>
+        </div>
 
         <div class="canvas-container">
           <canvas id="waveCanvas" width="800" height="200" style="cursor: default; pointer-events: none;"></canvas>
