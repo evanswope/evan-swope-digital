@@ -143,6 +143,23 @@
       .slider-group span i {
         color: #ff7eb3;
       }
+      .power-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .power-light {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ef4444; /* red when off */
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        transition: all 0.3s ease;
+      }
+      .power-light.is-on {
+        background-color: #10b981; /* green when on */
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+      }
     </style>
   </head>
   <body style="padding: 0; min-height: 100%; display: block;">
@@ -154,11 +171,16 @@
 
         <!-- SVG Scribble Border -->
         <svg class="scribble-outline" preserveAspectRatio="none">
-          <rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" />
+          <rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="10" style="filter: url(#scribble-filter);" />
         </svg>
 
         <header class="synth-header">
-          <h1>Waveshaper</h1>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+            <h1 style="margin-bottom: 0;">Waveshaper</h1>
+            <div class="power-container">
+              <div id="power-indicator" class="power-light"></div>
+            </div>
+          </div>
           <p>Distort this sine wave with simple math sliders to discover new harmonics. Select between an arpeggiator, chords, or manual play.</p>
         </header>
 
@@ -249,6 +271,16 @@
           window.parent.postMessage({ type: 'swipe', direction: 'right' }, '*');
         }
       }, {passive: true});
+
+      // Power light logic
+      document.addEventListener("DOMContentLoaded", () => {
+        const initBtn = document.getElementById('initAudioBtn');
+        if(initBtn) {
+           initBtn.addEventListener('click', () => {
+             document.getElementById('power-indicator').classList.add('is-on');
+           });
+        }
+      });
     </script>
   </body>
 </html>
