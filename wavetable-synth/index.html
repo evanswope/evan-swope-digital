@@ -140,6 +140,9 @@
       .start-btn:hover {
         transform: scale(1.05);
       }
+      .slider-group span i {
+        color: #ff7eb3;
+      }
     </style>
   </head>
   <body style="padding: 0; min-height: 100%; display: block;">
@@ -171,25 +174,25 @@
                 <input type="range" id="modTension" min="0" max="100" value="50">
             </div>
             <div class="slider-group">
-                <span title="Phase Skew (Sine to Saw)"><i class="fa-solid fa-ruler-combined"></i></span>
+                <span title="Phase Skew (Sine to Saw)"><i class="fa-regular fa-hand-point-right"></i></span>
                 <input type="range" id="modSaw" min="0" max="100" value="50">
             </div>
             <div class="slider-group">
-                <span title="Phase Modulation (FM)"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <span title="Phase Modulation (FM)"><i class="fa-solid fa-asterisk"></i></span>
                 <input type="range" id="modPM" min="0" max="100" value="0">
             </div>
             <div class="slider-group">
-                <span title="Hard Sync (Formant)"><i class="fa-solid fa-hurricane"></i></span>
+                <span title="Hard Sync (Formant)"><i class="fa-solid fa-repeat"></i></span>
                 <input type="range" id="modSync" min="0" max="100" value="0">
             </div>
             
             <!-- Column 2 -->
             <div class="slider-group">
-                <span title="Wavefolding"><i class="fa-solid fa-infinity"></i></span>
+                <span title="Wavefolding"><i class="fa-solid fa-scissors"></i></span>
                 <input type="range" id="modFold" min="0" max="100" value="0">
             </div>
             <div class="slider-group">
-                <span title="Harmonic (Octave)"><i class="fa-solid fa-star"></i></span>
+                <span title="Harmonic (Octave)"><i class="fa-solid fa-guitar"></i></span>
                 <input type="range" id="modHarmonic" min="0" max="100" value="0">
             </div>
             <div class="slider-group">
