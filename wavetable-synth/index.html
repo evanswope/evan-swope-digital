@@ -244,7 +244,9 @@
     <svg style="width:0; height:0; position:absolute;" aria-hidden="true">
       <defs>
         <filter id="scribble-filter">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise">
+            <animate attributeName="baseFrequency" values="0.04;0.05;0.04" dur="0.2s" repeatCount="indefinite" />
+          </feTurbulence>
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
         </filter>
         <linearGradient id="gradient-pink" x1="0" y1="0" x2="1" y2="1">
