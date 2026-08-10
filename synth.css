@@ -473,6 +473,14 @@ canvas#grid-canvas {
 }
 
 .waveshaper-iframe {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: block;
+  border: none;
+  background: transparent;
+  overflow: hidden;
+  border-radius: 12px;
   height: 850px;
 }
 
@@ -573,7 +581,7 @@ canvas#grid-canvas {
   }
 
   .waveshaper-iframe {
-    height: 420px;
+    height: 750px;
   }
 
   .line-slider::-webkit-slider-thumb {
