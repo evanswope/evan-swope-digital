@@ -2397,9 +2397,9 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   background: transparent;
   border: none;
   color: #cbd5e1;
-  font-size: 1.5rem;
+  font-size: 2rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.8rem;
   transition: color 0.3s;
 }
 .mobile-menu-toggle:hover { color: #ff7eb3; }
@@ -2641,7 +2641,8 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   background: transparent;
   border: none;
   color: #cbd5e1;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  padding: 0.5rem;
   cursor: pointer;
 }
 .mobile-menu-close:hover { color: #ff7eb3; }
@@ -2649,4 +2650,11 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 @media (max-width: 768px) {
   .nav-links { display: none !important; }
   .mobile-menu-toggle { display: block; order: 2; }
+}
+
+.site-footer { gap: 1rem; }
+.footer-text { margin: 10px; }
+@media (max-width: 768px) {
+  .site-footer { gap: 0.5rem !important; }
+  .footer-text { margin: 0; text-align: center; }
 }
