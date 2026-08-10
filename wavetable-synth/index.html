@@ -68,6 +68,7 @@
     <link rel="stylesheet" crossorigin href="../wavetable-synth/assets/index-BCDCReIb.css">
     <link rel="stylesheet" href="../synth.css">
     <style>
+      * { box-sizing: border-box; }
       .audio-overlay {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -100,15 +101,14 @@
         .mode-btn { padding: 0.25rem 0.5rem !important; font-size: 0.7rem !important; border-radius: 4px !important; }
         .mode-selector { margin-bottom: 0.5rem !important; gap: 0.25rem !important; }
       }
-      
       .slider-group span i {
         color: #ff7eb3;
       }
     </style>
   </head>
-  <body style="padding: 0; min-height: 100%; display: block; background: transparent;">
+  <body style="margin: 0; padding: 0; min-height: 100%; display: block; background: transparent;">
     <div id="app">
-      <div class="generative-card synth-card" style="margin: 0; max-width: none; border: none; box-shadow: none;">
+      <div class="generative-card synth-card" style="margin: 0; max-width: none; border: none; box-shadow: none; width: 100%;">
         <div id="audioOverlay" class="card-overlay" style="z-index: 998;">
           <button id="initAudioBtn" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
         </div>
