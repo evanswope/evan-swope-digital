@@ -581,7 +581,7 @@ canvas#grid-canvas {
   }
 
   .waveshaper-iframe {
-    height: 520px;
+    height: 480px;
   }
 
   .line-slider::-webkit-slider-thumb {
@@ -605,6 +605,7 @@ canvas#grid-canvas {
   justify-content: center;
   gap: 12px;
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 @media (max-width: 768px) {
