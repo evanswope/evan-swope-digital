@@ -230,9 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const fontSize = Math.max(minFontSize, Math.floor(maxFontSize - (maxFontSize - minFontSize) * density));
     const fontWidth = fontSize * 0.6;
     
-    // We want the text block to fill the container width, and have a standard landscape/portrait aspect ratio
+    // We want the text block to fill the container width, and have a standard landscape aspect ratio
     const boxW = containerW;
-    const boxH = isMobile ? boxW * 1.0 : boxW * 0.66; // 1:1 on mobile, 3:2 on desktop
+    const boxH = boxW * 0.66; // 3:2 aspect ratio everywhere
     
     // Target characters per line, and total lines
     const targetW = Math.max(10, Math.floor(boxW / fontWidth));
