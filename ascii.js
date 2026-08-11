@@ -169,7 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     video.style.display = 'none';
     pre.style.display = 'inline-block';
+    if (btnCam) btnCam.innerHTML = '<i class="fa-solid fa-camera"></i> WEBCAM';
   }
+  window.stopAsciiWebcam = stopWebcam;
 
   fileUpload.addEventListener('change', (e) => {
     const file = e.target.files[0];

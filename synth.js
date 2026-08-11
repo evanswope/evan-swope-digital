@@ -2688,7 +2688,13 @@ const modules = [
     } 
   },
   new GenerativeAutomata(),
-  new ReactionDiffusionSynth()
+  new ReactionDiffusionSynth(),
+  {
+    start: () => {},
+    stop: () => {
+      if (window.stopAsciiWebcam) window.stopAsciiWebcam();
+    }
+  }
 ];
 let currentIndex = 0;
 
