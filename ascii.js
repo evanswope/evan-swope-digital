@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (file.size > 5 * 1024 * 1024) {
       alert("File is too large! Max 5MB.");
       return;
+    }
     stopWebcam();
     window.lastAsciiFileName = file.name.replace(/\.[^/.]+$/, "");
     const reader = new FileReader();
