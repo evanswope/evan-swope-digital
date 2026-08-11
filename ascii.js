@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (file.size > 5 * 1024 * 1024) {
       alert("File is too large! Max 5MB.");
       return;
-    }
     stopWebcam();
+    window.lastAsciiFileName = file.name.replace(/\.[^/.]+$/, "");
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
@@ -196,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function captureFrame() {
     if (!video.videoWidth) return;
+    window.lastAsciiFileName = "Webcam Capture";
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -218,13 +219,19 @@ document.addEventListener('DOMContentLoaded', () => {
     isMobile = window.innerWidth <= 768;
     
     // Calculate ASCII Grid size based on density slider
-    // Base limits
-    const MAX_W = isMobile ? 150 : 300;
-    const MAX_H = 200;
+    const container = document.querySelector('.ascii-output-container');
+    const containerW = container.clientWidth - 20; // account for padding
     
-    const density = parseFloat(densitySlider.value); // 0.2 to 1.0
-    const targetW = MAX_W * density;
-    const targetH = MAX_H * density;
+    // Dynamic max width based on font aspect ratio (~0.6) and font size (6px mobile, 8px desktop)
+    const fontSize = isMobile ? 6 : 8;
+    const fontWidth = fontSize * 0.6;
+    
+    const maxW = Math.max(10, Math.floor(containerW / fontWidth));
+    const maxH = 150; 
+    
+    const density = parseFloat(densitySlider.value); // 0.0 to 1.0
+    const targetW = Math.floor(10 + (maxW - 10) * density);
+    const targetH = Math.floor(10 + (maxH - 10) * density);
 
     // Aspect ratio covering
     const imgAspect = sourceImage.width / sourceImage.height;
@@ -324,4 +331,72 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     if(sourceImage) processImage();
   });
+
+  // ---------------------------------------------------------
+  // 4. ACTION BUTTONS
+  // ---------------------------------------------------------
+  const btnResetCurve = document.getElementById('btn-ascii-reset-curve');
+  const btnResetSliders = document.getElementById('btn-ascii-reset-sliders');
+  const btnDownload = document.getElementById('btn-ascii-download');
+
+  if (btnResetCurve) {
+    btnResetCurve.addEventListener('click', () => {
+      curvePoints = [
+        {x: 0.0, y: 0.0},
+        {x: 0.25, y: 0.25},
+        {x: 0.5, y: 0.5},
+        {x: 0.75, y: 0.75},
+        {x: 1.0, y: 1.0}
+      ];
+      drawCurve();
+      if(sourceImage) processImage();
+    });
+  }
+
+  if (btnResetSliders) {
+    btnResetSliders.addEventListener('click', () => {
+      expSlider.value = 0;
+      contSlider.value = 0;
+      dehazeSlider.value = 0;
+      densitySlider.value = 1;
+      if(sourceImage) processImage();
+    });
+  }
+
+  if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+      if (!sourceImage || !pre.textContent) return;
+      
+      const exportCanvas = document.createElement('canvas');
+      const ctx = exportCanvas.getContext('2d');
+      const lines = pre.textContent.split('\n');
+      
+      const fontSize = isMobile ? 6 : 8;
+      const fontWidth = fontSize * 0.6;
+      exportCanvas.width = lines[0].length * fontWidth + 20;
+      exportCanvas.height = lines.length * fontSize + 20;
+      
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      ctx.fillStyle = '#ff7eb3';
+      ctx.font = `${fontSize}px monospace`;
+      ctx.textBaseline = 'top';
+      
+      lines.forEach((line, i) => {
+        ctx.fillText(line, 10, 10 + i * fontSize);
+      });
+      
+      const link = document.createElement('a');
+      const date = new Date();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      const y = date.getFullYear();
+      
+      const prefix = window.lastAsciiFileName || "Webcam Capture";
+      link.download = `${prefix} ASCII Portrait ${m}${d}${y}.png`;
+      link.href = exportCanvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+
 });
