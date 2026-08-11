@@ -2658,3 +2658,12 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   .site-footer { gap: 0.5rem !important; }
   .footer-text { margin: 0; text-align: center; }
 }
+
+/* ASCII Portrait Module */
+.ascii-card { padding: 1.5rem; }
+.tooltip-container:hover .tooltip-content { opacity: 1 !important; pointer-events: auto !important; }
+@media (max-width: 768px) {
+  .ascii-layout { grid-template-columns: 1fr !important; }
+  .ascii-top-bar { flex-direction: column; align-items: center; }
+}
+
