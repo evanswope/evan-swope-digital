@@ -315,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pre.textContent = asciiStr;
     
     // Scale PRE to fit container nicely
-    const container = document.querySelector('.ascii-output-container');
     const cw = container.clientWidth;
     const ch = container.clientHeight;
     
