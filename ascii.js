@@ -219,28 +219,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     isMobile = window.innerWidth <= 768;
     
-    // Calculate ASCII Grid size based on density slider
+    // Calculate ASCII resolution based on density slider
     const container = document.querySelector('.ascii-output-container');
     const containerW = container.clientWidth - 20; // account for padding
     
-    // Dynamic max width based on font aspect ratio (~0.6) and font size (6px mobile, 8px desktop)
-    const fontSize = isMobile ? 6 : 8;
+    // Density slider: 1.0 = small font (dense), 0.0 = huge font (chunky)
+    const density = parseFloat(densitySlider.value); // 0.0 to 1.0
+    const minFontSize = isMobile ? 4 : 6;
+    const maxFontSize = 32;
+    const fontSize = Math.max(minFontSize, Math.floor(maxFontSize - (maxFontSize - minFontSize) * density));
     const fontWidth = fontSize * 0.6;
     
-    const maxW = Math.max(10, Math.floor(containerW / fontWidth));
-    const maxH = 150; 
+    // We want the text block to fill the container width, and have a standard landscape/portrait aspect ratio
+    const boxW = containerW;
+    const boxH = isMobile ? boxW * 1.0 : boxW * 0.66; // 1:1 on mobile, 3:2 on desktop
     
-    const density = parseFloat(densitySlider.value); // 0.0 to 1.0
-    const targetW = Math.floor(10 + (maxW - 10) * density);
-    const targetH = Math.floor(10 + (maxH - 10) * density);
+    // Target characters per line, and total lines
+    const targetW = Math.max(10, Math.floor(boxW / fontWidth));
+    const targetH = Math.max(10, Math.floor(boxH / fontSize));
 
-    // Aspect ratio covering
+    // Aspect ratio covering (Crop original image to fill the text block's visual aspect ratio)
     const imgAspect = sourceImage.width / sourceImage.height;
-    const canvasAspect = targetW / targetH;
+    const boxAspect = boxW / boxH;
     
     let drawW, drawH, offsetX = 0, offsetY = 0;
 
-    if (imgAspect > canvasAspect) {
+    if (imgAspect > boxAspect) {
       // Image is wider
       drawH = targetH;
       drawW = sourceImage.width * (targetH / sourceImage.height);
@@ -273,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let asciiStr = "";
     
-    for (let y = 0; y < targetH; y+=2) { // Skip every other row to account for font aspect ratio (fonts are approx 2x as tall as they are wide)
+    for (let y = 0; y < targetH; y++) {
       for (let x = 0; x < targetW; x++) {
         const i = (Math.floor(y) * Math.floor(targetW) + Math.floor(x)) * 4;
         
@@ -313,14 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     pre.textContent = asciiStr;
-    
-    // Scale PRE to fit container nicely
-    const cw = container.clientWidth;
-    const ch = container.clientHeight;
-    
-    // Dynamic font sizing
-    pre.style.fontSize = isMobile ? '6px' : '8px';
-    pre.style.lineHeight = isMobile ? '6px' : '8px';
+    pre.style.fontSize = `${fontSize}px`;
+    pre.style.lineHeight = `${fontSize}px`;
   }
 
   // Update on slider change
@@ -371,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ctx = exportCanvas.getContext('2d');
       const lines = pre.textContent.split('\n');
       
-      const fontSize = isMobile ? 6 : 8;
+      const fontSize = parseFloat(pre.style.fontSize) || (isMobile ? 6 : 8);
       const fontWidth = fontSize * 0.6;
       exportCanvas.width = lines[0].length * fontWidth + 20;
       exportCanvas.height = lines.length * fontSize + 20;
