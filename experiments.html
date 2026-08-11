@@ -290,9 +290,9 @@
 
                 <div class="ascii-controls">
                   <div class="ascii-top-bar" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
-                    <button id="btn-ascii-cam" class="start-btn" style="padding: 0.5rem 1rem; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i class="fa-solid fa-camera"></i> WEBCAM</button>
+                    <button id="btn-ascii-cam" class="start-btn" style="padding: 0.5rem 1rem; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; animation: none;"><i class="fa-solid fa-camera"></i> WEBCAM</button>
                     <div style="position: relative; display: inline-block;">
-                      <label for="ascii-upload" class="start-btn" style="padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0;">
+                      <label for="ascii-upload" class="start-btn" style="padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0; animation: none;">
                         <i class="fa-solid fa-upload"></i> UPLOAD
                       </label>
                       <input type="file" id="ascii-upload" accept="image/jpeg, image/png, image/webp" style="display: none;">
@@ -312,29 +312,29 @@
                     </div>
 
                     <div class="ascii-sliders" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem;">
-                        <span title="Exposure"><i class="fa-solid fa-sun"></i></span>
-                        <input type="range" id="ascii-exposure" min="-1" max="1" step="0.01" value="0">
+                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem; display: flex; align-items: center;">
+                        <i class="fa-solid fa-sun fx-icon" title="Exposure"></i>
+                        <input type="range" id="ascii-exposure" class="line-slider" min="-1" max="1" step="0.01" value="0">
                       </div>
-                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem;">
-                        <span title="Contrast"><i class="fa-solid fa-circle-half-stroke"></i></span>
-                        <input type="range" id="ascii-contrast" min="-1" max="1" step="0.01" value="0">
+                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem; display: flex; align-items: center;">
+                        <i class="fa-solid fa-circle-half-stroke fx-icon" title="Contrast"></i>
+                        <input type="range" id="ascii-contrast" class="line-slider" min="-1" max="1" step="0.01" value="0">
                       </div>
-                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem;">
-                        <span title="Dehaze"><i class="fa-solid fa-smog"></i></span>
-                        <input type="range" id="ascii-dehaze" min="0" max="1" step="0.01" value="0">
+                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem; display: flex; align-items: center;">
+                        <i class="fa-solid fa-smog fx-icon" title="Dehaze"></i>
+                        <input type="range" id="ascii-dehaze" class="line-slider" min="0" max="1" step="0.01" value="0">
                       </div>
-                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem;" title="ASCII Density (Resolution)">
-                        <span><i class="fa-solid fa-compress"></i></span>
-                        <input type="range" id="ascii-density" min="0" max="1" step="0.01" value="1">
+                      <div class="slider-group" style="padding: 0.25rem 0.5rem; gap: 0.5rem; display: flex; align-items: center;">
+                        <i class="fa-solid fa-compress fx-icon" title="ASCII Density (Resolution)"></i>
+                        <input type="range" id="ascii-density" class="line-slider" min="0" max="1" step="0.01" value="1">
                       </div>
                     </div>
                   </div>
 
                   <div class="ascii-actions" style="display: flex; justify-content: center; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
-                    <button id="btn-ascii-reset-curve" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px;"><i class="fa-solid fa-rotate-left"></i> RESET CURVE</button>
-                    <button id="btn-ascii-reset-sliders" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px;"><i class="fa-solid fa-sliders"></i> RESET SLIDERS</button>
-                    <button id="btn-ascii-download" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px;"><i class="fa-solid fa-download"></i> SAVE PNG</button>
+                    <button id="btn-ascii-reset-curve" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px; animation: none;"><i class="fa-solid fa-rotate-left"></i> RESET CURVE</button>
+                    <button id="btn-ascii-reset-sliders" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px; animation: none;"><i class="fa-solid fa-sliders"></i> RESET SLIDERS</button>
+                    <button id="btn-ascii-download" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px; animation: none;"><i class="fa-solid fa-download"></i> SAVE PNG</button>
                   </div>
 
                 </div>
