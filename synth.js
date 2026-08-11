@@ -53,7 +53,11 @@ class GenerativeAutomata {
       this.masterLimiter.attack.setValueAtTime(0.005, ctx.currentTime);
       this.masterLimiter.release.setValueAtTime(0.05, ctx.currentTime);
       
-      this.masterGain.connect(this.masterLimiter);
+      if (this.postCrushBus) {
+        this.postCrushBus.connect(this.masterLimiter);
+      } else {
+        this.masterGain.connect(this.masterLimiter);
+      }
       this.masterLimiter.connect(ctx.destination);
       if (this.fxBus) this.fxBus.connect(this.masterLimiter);
       
@@ -173,10 +177,37 @@ class GenerativeAutomata {
   }
 
   buildFXRack(ctx) {
+    // 1. Bitcrusher (Now first in chain, processing masterGain before sends)
+    this.distDry = ctx.createGain();
+    this.distDry.gain.value = 1.0 - this.fxLevels.dist;
+    this.distWet = ctx.createGain();
+    this.distWet.gain.value = this.fxLevels.dist;
+    
+    this.distNode = ctx.createWaveShaper();
+    const bits = 4; // 4-bit depth for that crunchy NES sound!
+    const steps = Math.pow(2, bits);
+    const n = 44100; 
+    const curve = new Float32Array(n);
+    for (let i = 0; i < n; ++i) {
+      const x = (i * 2) / n - 1;
+      curve[i] = Math.round(x * steps) / steps; // Quantize the wave
+    }
+    this.distNode.curve = curve;
+    
+    this.masterGain.connect(this.distDry);
+    this.masterGain.connect(this.distNode);
+    this.distNode.connect(this.distWet);
+    
+    // Post-crush bus becomes the new source for parallel sends & dry out
+    this.postCrushBus = ctx.createGain();
+    this.distDry.connect(this.postCrushBus);
+    this.distWet.connect(this.postCrushBus);
+
+    // 2. Setup Parallel FX Bus for Chorus and Granular
     this.fxBus = ctx.createGain();
     this.fxBus.gain.value = 1.0;
     
-    // Chorus
+    // 3. Chorus
     this.chorusMix = ctx.createGain();
     this.chorusMix.gain.value = this.fxLevels.chorus;
     this.chorusDelay = ctx.createDelay(0.1);
@@ -189,28 +220,11 @@ class GenerativeAutomata {
     this.chorusLfo.connect(chorusDepth);
     chorusDepth.connect(this.chorusDelay.delayTime);
     this.chorusLfo.start();
-    this.masterGain.connect(this.chorusDelay);
+    this.postCrushBus.connect(this.chorusDelay);
     this.chorusDelay.connect(this.chorusMix);
     this.chorusMix.connect(this.fxBus);
     
-    // 8-Bit Bitcrusher
-    this.distMix = ctx.createGain();
-    this.distMix.gain.value = this.fxLevels.dist;
-    this.distNode = ctx.createWaveShaper();
-    const bits = 4; // 4-bit depth for that crunchy NES sound!
-    const steps = Math.pow(2, bits);
-    const n = 44100; 
-    const curve = new Float32Array(n);
-    for (let i = 0; i < n; ++i) {
-      const x = (i * 2) / n - 1;
-      curve[i] = Math.round(x * steps) / steps; // Quantize the wave
-    }
-    this.distNode.curve = curve;
-    this.masterGain.connect(this.distNode);
-    this.distNode.connect(this.distMix);
-    this.distMix.connect(this.fxBus);
-    
-    // Granular
+    // 4. Granular
     this.granMix = ctx.createGain();
     this.granMix.gain.value = this.fxLevels.granular;
     for(let i=0; i<3; i++) {
@@ -220,7 +234,7 @@ class GenerativeAutomata {
       fb.gain.value = 0.6 + (Math.random() * 0.2);
       const pan = ctx.createStereoPanner();
       pan.pan.value = -0.8 + (i * 0.8); 
-      this.masterGain.connect(d); d.connect(fb); fb.connect(d); d.connect(pan); pan.connect(this.granMix);
+      this.postCrushBus.connect(d); d.connect(fb); fb.connect(d); d.connect(pan); pan.connect(this.granMix);
     }
     this.granMix.connect(this.fxBus);
   }
@@ -415,7 +429,11 @@ class GenerativeAutomata {
     });
     document.getElementById('sim-speed')?.addEventListener('input', (e) => this.simSpeed = 550 - parseFloat(e.target.value));
     document.getElementById('fx-chorus')?.addEventListener('input', (e) => { this.fxLevels.chorus = parseFloat(e.target.value); if(this.chorusMix) this.chorusMix.gain.value = this.fxLevels.chorus; });
-    document.getElementById('fx-dist')?.addEventListener('input', (e) => { this.fxLevels.dist = parseFloat(e.target.value); if(this.distMix) this.distMix.gain.value = this.fxLevels.dist; });
+    document.getElementById('fx-dist')?.addEventListener('input', (e) => { 
+      this.fxLevels.dist = parseFloat(e.target.value); 
+      if(this.distWet) this.distWet.gain.value = this.fxLevels.dist; 
+      if(this.distDry) this.distDry.gain.value = 1.0 - this.fxLevels.dist; 
+    });
     document.getElementById('sim-tuning')?.addEventListener('change', (e) => this.setTuning(e.target.value));
     document.getElementById('fx-granular')?.addEventListener('input', (e) => { this.fxLevels.granular = parseFloat(e.target.value); if(this.granMix) this.granMix.gain.value = this.fxLevels.granular; });
   }
