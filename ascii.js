@@ -371,13 +371,19 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const exportCanvas = document.createElement('canvas');
       const ctx = exportCanvas.getContext('2d');
-      const lines = pre.textContent.split('\n');
+      // Trim end to remove the trailing newline which causes an extra blank line at the bottom
+      const lines = pre.textContent.trimEnd().split('\n');
       
       const fontSize = parseFloat(pre.style.fontSize) || (isMobile ? 6 : 8);
-      const fontWidth = fontSize * 0.6;
-      exportCanvas.width = lines[0].length * fontWidth + 20;
-      exportCanvas.height = lines.length * fontSize + 20;
       
+      // Set font first to measure accurately
+      ctx.font = `${fontSize}px monospace`;
+      const textWidth = ctx.measureText(lines[0]).width;
+      
+      exportCanvas.width = Math.ceil(textWidth);
+      exportCanvas.height = Math.ceil(lines.length * fontSize);
+      
+      // Context settings reset when canvas is resized, so reapply them
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
       ctx.fillStyle = '#ff7eb3';
@@ -385,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.textBaseline = 'top';
       
       lines.forEach((line, i) => {
-        ctx.fillText(line, 10, 10 + i * fontSize);
+        ctx.fillText(line, 0, i * fontSize);
       });
       
       const link = document.createElement('a');
