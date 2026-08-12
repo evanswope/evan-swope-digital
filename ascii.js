@@ -375,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const lines = pre.textContent.trimEnd().split('\n');
       
       const fontSize = parseFloat(pre.style.fontSize) || (isMobile ? 6 : 8);
+      const fontWidth = fontSize * 0.6;
       
       // Set font first to measure accurately
       ctx.font = `${fontSize}px monospace`;
