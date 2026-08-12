@@ -5,8 +5,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultImg = document.getElementById('sdxl-result');
   const placeholder = document.getElementById('sdxl-placeholder');
   const btnDownload = document.getElementById('btn-sdxl-download');
+  
+  const btnSettings = document.getElementById('btn-sdxl-settings');
+  const modalSettings = document.getElementById('sdxl-settings-modal');
+  const btnSettingsClose = document.getElementById('btn-sdxl-settings-close');
+  const aspectSelect = document.getElementById('sdxl-aspect');
+  const negativePrompt = document.getElementById('sdxl-negative');
+  const stepsInput = document.getElementById('sdxl-steps');
+  const stepsVal = document.getElementById('sdxl-steps-val');
+  const guidanceInput = document.getElementById('sdxl-guidance');
+  const guidanceVal = document.getElementById('sdxl-guidance-val');
 
   if (!btnGenerate) return;
+
+  if (btnSettings && modalSettings && btnSettingsClose) {
+    btnSettings.addEventListener('click', () => {
+      modalSettings.style.display = 'flex';
+    });
+    btnSettingsClose.addEventListener('click', () => {
+      modalSettings.style.display = 'none';
+    });
+  }
+
+  if (stepsInput && stepsVal) {
+    stepsInput.addEventListener('input', (e) => {
+      stepsVal.textContent = e.target.value;
+    });
+  }
+  if (guidanceInput && guidanceVal) {
+    guidanceInput.addEventListener('input', (e) => {
+      guidanceVal.textContent = e.target.value;
+    });
+  }
 
   btnGenerate.addEventListener('click', async () => {
     const prompt = promptInput.value.trim();
@@ -14,6 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Please enter a prompt first!");
       return;
     }
+
+    const aspect = aspectSelect ? aspectSelect.value : '1024x1024';
+    const negPrompt = negativePrompt ? negativePrompt.value.trim() : '';
+    const steps = stepsInput ? parseInt(stepsInput.value, 10) : 25;
+    const guidance = guidanceInput ? parseFloat(guidanceInput.value) : 7.5;
+    let width = 1024, height = 1024;
+    if (aspect === '1152x896') { width = 1152; height = 896; }
+    else if (aspect === '896x1152') { width = 896; height = 1152; }
 
     // UI State: Loading
     btnGenerate.disabled = true;
@@ -30,7 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ 
+          prompt,
+          negative_prompt: negPrompt,
+          width,
+          height,
+          num_inference_steps: steps,
+          guidance_scale: guidance
+        })
       });
 
       const data = await res.json();

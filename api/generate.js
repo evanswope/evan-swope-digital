@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { prompt } = req.body;
+  const { prompt, negative_prompt, width, height, num_inference_steps, guidance_scale } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ message: 'Missing prompt' });
@@ -27,11 +27,13 @@ export default async function handler(req, res) {
         version: "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
         input: {
           prompt: prompt,
-          width: 1024,
-          height: 1024,
+          negative_prompt: negative_prompt || "",
+          width: width || 1024,
+          height: height || 1024,
           refine: "expert_ensemble_refiner",
           apply_watermark: false,
-          num_inference_steps: 25 // balance speed and quality
+          num_inference_steps: num_inference_steps || 25,
+          guidance_scale: guidance_scale || 7.5
         }
       })
     });

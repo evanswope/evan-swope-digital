@@ -370,7 +370,10 @@
 
                 <div class="sdxl-controls" style="max-width: 500px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 0.5rem;">
                   <textarea id="sdxl-prompt" placeholder="A futuristic city in the style of cyberpunk..." style="width: 100%; height: 80px; background: #111; border: 1px solid #333; color: #ff7eb3; padding: 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85rem; resize: none; box-sizing: border-box;"></textarea>
-                  <button id="btn-sdxl-generate" class="start-btn" style="padding: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; animation: none;"><i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE IMAGE</button>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button id="btn-sdxl-generate" class="start-btn" style="padding: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; animation: none;"><i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE IMAGE</button>
+                    <button id="btn-sdxl-settings" class="start-btn" style="padding: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; width: 44px; animation: none;"><i class="fa-solid fa-gear"></i></button>
+                  </div>
                 </div>
 
                 <div class="sdxl-output-container" style="background: #000; border: 1px solid #333; border-radius: 4px; overflow: hidden; padding: 0; margin-top: 1rem; display: flex; justify-content: center; align-items: center; aspect-ratio: 1/1; position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
@@ -384,6 +387,39 @@
                 
                 <div style="display: flex; justify-content: center; margin-top: 0.5rem;">
                   <button id="btn-sdxl-download" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px; animation: none; display: none; min-width: 200px; justify-content: center;"><i class="fa-solid fa-download"></i> SAVE PNG</button>
+                </div>
+
+                <div id="sdxl-settings-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column; justify-content: center; align-items: center; padding: 1rem; box-sizing: border-box; border-radius: 8px;">
+                  <h4 style="color: #ff7eb3; font-family: var(--font-marker); margin-bottom: 1rem;">ADVANCED SETTINGS</h4>
+                  
+                  <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+                    
+                    <div>
+                      <label style="color: #aaa; font-family: var(--font-mono); font-size: 0.75rem;">ASPECT RATIO</label>
+                      <select id="sdxl-aspect" style="width: 100%; background: #222; color: #fff; border: 1px solid #444; padding: 0.25rem; font-family: var(--font-mono); margin-top: 0.25rem;">
+                        <option value="1024x1024">Square (1024x1024)</option>
+                        <option value="1152x896">Landscape (1152x896)</option>
+                        <option value="896x1152">Portrait (896x1152)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style="color: #aaa; font-family: var(--font-mono); font-size: 0.75rem;">NEGATIVE PROMPT</label>
+                      <textarea id="sdxl-negative" placeholder="blurry, ugly, text, watermark..." style="width: 100%; height: 60px; background: #222; border: 1px solid #444; color: #fff; padding: 0.25rem; font-family: var(--font-mono); font-size: 0.75rem; resize: none; box-sizing: border-box; margin-top: 0.25rem;"></textarea>
+                    </div>
+
+                    <div>
+                      <label style="color: #aaa; font-family: var(--font-mono); font-size: 0.75rem; display: flex; justify-content: space-between;"><span>INFERENCE STEPS</span><span id="sdxl-steps-val">25</span></label>
+                      <input type="range" id="sdxl-steps" min="10" max="50" value="25" style="width: 100%; margin-top: 0.25rem;">
+                    </div>
+
+                    <div>
+                      <label style="color: #aaa; font-family: var(--font-mono); font-size: 0.75rem; display: flex; justify-content: space-between;"><span>GUIDANCE SCALE</span><span id="sdxl-guidance-val">7.5</span></label>
+                      <input type="range" id="sdxl-guidance" min="1" max="20" step="0.5" value="7.5" style="width: 100%; margin-top: 0.25rem;">
+                    </div>
+                  </div>
+
+                  <button id="btn-sdxl-settings-close" class="start-btn" style="margin-top: 1.5rem; padding: 0.5rem 2rem; font-size: 0.85rem; animation: none;">DONE</button>
                 </div>
               </div>
             </div>
