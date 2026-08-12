@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grocery Dating Sim | Evan Swope</title>
+  
+  <link rel="stylesheet" href="synth.css">
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Share+Tech+Mono&family=Outfit:wght@300;400;600;800&family=VT323&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --game-bg: #111;
+      --game-border: #33ff33;
+      --game-text: #33ff33;
+      --game-error: #ff3333;
+      --game-highlight: #ff00ff;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      max-width: 1000px;
+      margin: 100px auto 40px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1rem;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Stats Bar */
+    .game-stats {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      background: var(--game-bg);
+      border: 2px solid var(--game-border);
+      padding: 1rem;
+      color: var(--game-text);
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
+    }
+    
+    .stat-box {
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    /* Text Log / MUD area */
+    .game-console {
+      background: var(--game-bg);
+      border: 2px solid var(--game-border);
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
+    }
+
+    .log-area {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .log-msg {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .log-gm { color: var(--game-text); }
+    .log-customer { color: var(--game-highlight); font-weight: bold; }
+    .log-user { color: #fff; opacity: 0.8; }
+    .log-system { color: #888; font-style: italic; }
+    .log-error { color: var(--game-error); }
+
+    .input-area {
+      display: flex;
+      border-top: 2px solid var(--game-border);
+      padding: 0.5rem;
+      background: #0a0a0a;
+    }
+
+    .input-area > span {
+      color: var(--game-border);
+      padding: 0.5rem;
+    }
+
+    #game-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      outline: none;
+      padding: 0.5rem;
+    }
+
+    /* Image Display Area */
+    .game-vision {
+      background: var(--game-bg);
+      border: 2px solid var(--game-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
+    }
+
+    .canvas-container {
+      width: 250px;
+      height: 250px;
+      background: #000;
+      border: 1px solid #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .canvas-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff; /* standard white background for product */
+    }
+
+    #loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--game-border);
+      flex-direction: column;
+      gap: 0.5rem;
+      display: none;
+    }
+
+    .status-text {
+      color: #aaa;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    /* Floating Particles for effects */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 2rem;
+      animation: floatUp 2s ease-out forwards;
+      z-index: 9999;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Nav (Reused) -->
+  <nav class="synth-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="https://ui-avatars.com/api/?name=E+S&background=0D8ABC&color=fff&rounded=true&bold=true" alt="Logo">
+        <span class="nav-title" style="font-family: 'Permanent Marker', cursive;">EVAN SWOPE</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">HOME</a>
+        <a href="experiments.html">AI LAB</a>
+        <a href="grocery-dating-sim.html" class="active">GROCERY SIM</a>
+        <a href="mailto:hello@evanswope.com" class="nav-btn">CONTACT</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="game-container">
+    
+    <div class="game-stats">
+      <div class="stat-box">
+        <div class="stat-label">Level</div>
+        <div class="stat-value" id="stat-level">1</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Cash</div>
+        <div class="stat-value" style="color: #4CAF50;">$<span id="stat-cash">0</span></div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Trust</div>
+        <div class="stat-value" id="stat-trust">50%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Popularity</div>
+        <div class="stat-value" id="stat-pop">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Affection</div>
+        <div class="stat-value" style="color: #ff7eb3;"><span id="stat-affection">0</span><i class="fa-solid fa-heart" style="font-size:1rem;margin-left:5px;"></i></div>
+      </div>
+    </div>
+
+    <div class="game-console">
+      <div class="log-area" id="log-area">
+        <p class="log-system">LOADING GROCERY DATING SIM v1.0...</p>
+        <p class="log-system">CONNECTING TO NEURAL NET...</p>
+        <p class="log-system">SUCCESS. TYPE "START" TO BEGIN SHIFT.</p>
+      </div>
+      <div class="input-area">
+        <span>></span>
+        <input type="text" id="game-input" placeholder="Type here..." autocomplete="off">
+      </div>
+    </div>
+
+    <div class="game-vision">
+      <h3 style="margin:0 0 1rem 0; color:var(--game-text); border-bottom: 1px solid var(--game-text); padding-bottom: 0.5rem; width: 100%; text-align: center; font-family: 'VT323', monospace;">THE SCANNER</h3>
+      <div class="canvas-container">
+        <img id="item-image" src="" style="display:none;" />
+        <div id="loading-overlay">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i>
+          <span id="loading-text">GENERATING...</span>
+        </div>
+      </div>
+      <div class="status-text" id="scanner-status">WAITING FOR ITEM...</div>
+    </div>
+
+  </div>
+
+  <script src="grocery-game.js"></script>
+</body>
+</html>
