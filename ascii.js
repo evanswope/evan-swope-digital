@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let sourceImage = null; // Can be an Image object or a captured frame
   let isMobile = window.innerWidth <= 768;
   
-  // ASCII Chars sorted by density (dark to light)
-  const asciiChars = "@%#*+=-:. ";
+  // ASCII Chars sorted by density (light to dark source mapping for dark UI)
+  const asciiChars = " .:-=+*#%@";
   
   // Tone Curve State
   // Points are {x, y} in 0-1 space.
