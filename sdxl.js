@@ -138,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (prediction.status === 'succeeded') {
           break;
         } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
-          throw new Error('Generation failed on Replicate.');
+          const errorMessage = prediction.error ? prediction.error : 'Generation failed on Replicate.';
+          throw new Error(errorMessage);
         }
         // If status is "starting" or "processing", the loop continues
       }
