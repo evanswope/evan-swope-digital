@@ -39,8 +39,30 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(data.message || 'Generation failed');
       }
 
+      const predictionId = data.id;
+      let prediction;
+      
+      // Poll the backend until Replicate finishes the image
+      while (true) {
+        await new Promise(r => setTimeout(r, 1500)); // check every 1.5s
+        
+        const pollRes = await fetch(`/api/poll?id=${predictionId}`);
+        prediction = await pollRes.json();
+        
+        if (!pollRes.ok) {
+          throw new Error(prediction.message || 'Error checking status');
+        }
+        
+        if (prediction.status === 'succeeded') {
+          break;
+        } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
+          throw new Error('Generation failed on Replicate.');
+        }
+        // If status is "starting" or "processing", the loop continues
+      }
+
       // UI State: Success
-      resultImg.src = data.image;
+      resultImg.src = prediction.output[0];
       resultImg.onload = () => {
         loadingDiv.style.display = 'none';
         resultImg.style.display = 'block';
