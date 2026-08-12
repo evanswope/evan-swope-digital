@@ -2697,6 +2697,8 @@ const modules = [
   }
 ];
 let currentIndex = 0;
+let prevIndex = 0;
+let transitionCleanup = null;
 
 // The UI buttons correspond to modules[1] and modules[2] now
 document.getElementById('btn-start-audio').addEventListener('click', () => modules[1].start());
@@ -2707,13 +2709,63 @@ const dots = document.querySelectorAll('.carousel-dots .dot');
 
 function updateCarousel() {
   const slides = document.querySelectorAll('.carousel-slide');
-  if (slides.length > 0) {
-    const slideWidth = slides[0].clientWidth;
-    track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+  if (slides.length === 0) return;
+  const slideWidth = slides[0].clientWidth;
+
+  if (transitionCleanup) {
+    transitionCleanup();
+    transitionCleanup = null;
   }
+
   dots.forEach((dot, index) => {
     dot.classList.toggle('active', index === currentIndex);
   });
+
+  if (currentIndex === 0 && prevIndex === slides.length - 1) {
+    slides[0].style.transform = `translateX(${slides.length * 100}%)`;
+    track.style.transform = `translateX(-${slides.length * slideWidth}px)`;
+    
+    transitionCleanup = () => {
+      track.style.transition = 'none';
+      slides[0].style.transform = '';
+      track.style.transform = `translateX(0px)`;
+      void track.offsetHeight;
+      track.style.transition = '';
+    };
+    
+    track.addEventListener('transitionend', function handler(e) {
+      if (e.target !== track || e.propertyName !== 'transform') return;
+      track.removeEventListener('transitionend', handler);
+      if (transitionCleanup) {
+        transitionCleanup();
+        transitionCleanup = null;
+      }
+    });
+  } else if (currentIndex === slides.length - 1 && prevIndex === 0) {
+    slides[slides.length - 1].style.transform = `translateX(-${slides.length * 100}%)`;
+    track.style.transform = `translateX(${slideWidth}px)`;
+    
+    transitionCleanup = () => {
+      track.style.transition = 'none';
+      slides[slides.length - 1].style.transform = '';
+      track.style.transform = `translateX(-${(slides.length - 1) * slideWidth}px)`;
+      void track.offsetHeight;
+      track.style.transition = '';
+    };
+    
+    track.addEventListener('transitionend', function handler(e) {
+      if (e.target !== track || e.propertyName !== 'transform') return;
+      track.removeEventListener('transitionend', handler);
+      if (transitionCleanup) {
+        transitionCleanup();
+        transitionCleanup = null;
+      }
+    });
+  } else {
+    track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+  }
+
+  prevIndex = currentIndex;
 }
 
 window.addEventListener('resize', () => {
