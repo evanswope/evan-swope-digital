@@ -42,28 +42,9 @@ export default async function handler(req, res) {
     }
 
     let prediction = await response.json();
-    const getUrl = prediction.urls.get;
-
-    // 2. Poll Replicate every 1 second until the image is finished
-    while (
-      prediction.status !== "succeeded" &&
-      prediction.status !== "failed"
-    ) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const pollResponse = await fetch(getUrl, {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      prediction = await pollResponse.json();
-    }
-
-    if (prediction.status === 'failed') {
-      return res.status(500).json({ message: 'Generation failed on Replicate.' });
-    }
-
-    // 3. Return the final image URL to the frontend
-    res.status(200).json({ image: prediction.output[0] });
+    
+    // Return the prediction ID instantly to avoid Vercel 10s timeout
+    res.status(200).json({ id: prediction.id });
 
   } catch (err) {
     console.error(err);
