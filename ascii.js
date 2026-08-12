@@ -238,9 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const boxW = containerW;
     const boxH = boxW * 0.66; // 3:2 aspect ratio everywhere
     
-    // Target characters per line, and total lines
+    // Target characters per line, and total lines (force square pixels by sampling height using fontWidth)
     const targetW = Math.max(10, Math.floor(boxW / fontWidth));
-    const targetH = Math.max(10, Math.floor(boxH / fontSize));
+    const targetH = Math.max(10, Math.floor(boxH / fontWidth));
 
     // Aspect ratio covering (Crop original image to fill the text block's visual aspect ratio)
     const imgAspect = sourceImage.width / sourceImage.height;
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pre.textContent = asciiStr;
     pre.style.fontSize = `${fontSize}px`;
-    pre.style.lineHeight = `${fontSize}px`;
+    pre.style.lineHeight = `${fontWidth}px`; // Force square vertical overlapping
   }
 
   // Update on slider change
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const textWidth = ctx.measureText(lines[0]).width;
       
       exportCanvas.width = Math.ceil(textWidth);
-      exportCanvas.height = Math.ceil(lines.length * fontSize);
+      exportCanvas.height = Math.ceil(lines.length * fontWidth);
       
       // Context settings reset when canvas is resized, so reapply them
       ctx.fillStyle = '#000';
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.textBaseline = 'top';
       
       lines.forEach((line, i) => {
-        ctx.fillText(line, 0, i * fontSize);
+        ctx.fillText(line, 0, i * fontWidth);
       });
       
       const link = document.createElement('a');
