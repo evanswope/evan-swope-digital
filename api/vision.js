@@ -26,7 +26,7 @@ JSON Schema:
 }`;
 
   try {
-    const response = await fetch(`https://api.replicate.com/v1/models/yorickvp/llava-13b/predictions`, {
+    const response = await fetch(`https://api.replicate.com/v1/predictions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -34,6 +34,7 @@ JSON Schema:
         'Prefer': 'wait' // Wait for the generation to finish synchronously
       },
       body: JSON.stringify({ 
+        version: '2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591',
         input: {
           image: imageUrl,
           prompt: visionPrompt,
