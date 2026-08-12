@@ -67,15 +67,26 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const aspect = aspectSelect ? aspectSelect.value : '1024x1024';
+    const aspect = aspectSelect ? aspectSelect.value : '1:1';
     const negPrompt = negativePrompt ? negativePrompt.value.trim() : '';
     const steps = stepsInput ? parseInt(stepsInput.value, 10) : 25;
     const guidance = guidanceInput ? parseFloat(guidanceInput.value) : 7.5;
     const modelId = modelSelect ? modelSelect.value : 'flux-schnell';
     
     let width = 1024, height = 1024;
-    if (aspect === '1152x896') { width = 1152; height = 896; }
-    else if (aspect === '896x1152') { width = 896; height = 1152; }
+    if (aspect === '3:2') { width = 1216; height = 832; }
+    else if (aspect === '2:3') { width = 832; height = 1216; }
+    else if (aspect === '16:9') { width = 1344; height = 768; }
+    else if (aspect === '9:16') { width = 768; height = 1344; }
+
+    const outputContainer = document.querySelector('.sdxl-output-container');
+    if (outputContainer) {
+      if (aspect === '3:2') outputContainer.style.aspectRatio = '3/2';
+      else if (aspect === '2:3') outputContainer.style.aspectRatio = '2/3';
+      else if (aspect === '16:9') outputContainer.style.aspectRatio = '16/9';
+      else if (aspect === '9:16') outputContainer.style.aspectRatio = '9/16';
+      else outputContainer.style.aspectRatio = '1/1';
+    }
 
     // UI State: Loading
     btnGenerate.disabled = true;
@@ -100,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
           height,
           num_inference_steps: steps,
           guidance_scale: guidance,
-          aspect_ratio: aspect.replace('x', ':') // For Flux (e.g. 1024x1024 -> 1024:1024 -> we'll handle actual format in backend)
+          aspect_ratio: aspect
         })
       });
 
