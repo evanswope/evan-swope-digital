@@ -142,11 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (err) {
       console.error(err);
-      alert('Error generating image: ' + err.message);
       // UI State: Error
       loadingDiv.style.display = 'none';
       placeholder.style.display = 'block';
-      placeholder.textContent = 'ERROR GENERATING IMAGE';
+      placeholder.style.color = '#ff4d4d';
+      placeholder.innerHTML = `ERROR GENERATING IMAGE<br><span style="color:#aaa; font-size:0.65rem;">${err.message.toUpperCase()}</span>`;
     } finally {
       btnGenerate.disabled = false;
       btnGenerate.style.opacity = '1';
