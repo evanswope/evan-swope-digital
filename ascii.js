@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const hiddenCanvas = document.getElementById('ascii-hidden-canvas');
   const hiddenCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
   const pre = document.getElementById('ascii-pre');
+  const webcamModal = document.getElementById('ascii-webcam-modal');
+  const btnSnap = document.getElementById('btn-ascii-snap');
+  const btnCancelCam = document.getElementById('btn-ascii-cancel-cam');
   
   // Controls
   const expSlider = document.getElementById('ascii-exposure');
@@ -143,33 +146,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. INPUT CAPTURE
   // ---------------------------------------------------------
   btnCam.addEventListener('click', async () => {
-    if (btnCam.innerText.includes('SNAP')) {
-      // Capture frame
-      captureFrame();
-      stopWebcam();
-      btnCam.innerHTML = '<i class="fa-solid fa-camera"></i> WEBCAM';
-    } else {
-      // Start webcam
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        video.srcObject = stream;
-        video.style.display = 'block';
-        pre.style.display = 'none';
-        btnCam.innerHTML = '<i class="fa-solid fa-camera"></i> SNAP';
-      } catch (err) {
-        alert('Webcam access denied or unavailable.');
-      }
+    // Start webcam
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      video.srcObject = stream;
+      if (webcamModal) webcamModal.style.display = 'flex';
+    } catch (err) {
+      alert('Webcam access denied or unavailable.');
     }
   });
+
+  if (btnSnap) {
+    btnSnap.addEventListener('click', () => {
+      captureFrame();
+      stopWebcam();
+    });
+  }
+
+  if (btnCancelCam) {
+    btnCancelCam.addEventListener('click', () => {
+      stopWebcam();
+    });
+  }
 
   function stopWebcam() {
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
     }
-    video.style.display = 'none';
-    pre.style.display = 'inline-block';
-    if (btnCam) btnCam.innerHTML = '<i class="fa-solid fa-camera"></i> WEBCAM';
+    if (webcamModal) webcamModal.style.display = 'none';
   }
   window.stopAsciiWebcam = stopWebcam;
 
@@ -187,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const img = new Image();
       img.onload = () => {
         sourceImage = img;
-        btnCam.innerHTML = '<i class="fa-solid fa-camera"></i> WEBCAM';
         processImage();
       };
       img.src = event.target.result;
