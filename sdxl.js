@@ -15,8 +15,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const stepsVal = document.getElementById('sdxl-steps-val');
   const guidanceInput = document.getElementById('sdxl-guidance');
   const guidanceVal = document.getElementById('sdxl-guidance-val');
+  
+  const modelSelect = document.getElementById('sdxl-model');
+  const settingNegative = document.getElementById('sdxl-setting-negative');
+  const settingSteps = document.getElementById('sdxl-setting-steps');
+  const settingGuidance = document.getElementById('sdxl-setting-guidance');
 
   if (!btnGenerate) return;
+
+  if (modelSelect) {
+    modelSelect.addEventListener('change', (e) => {
+      const model = e.target.value;
+      if (model === 'flux-schnell') {
+        if (settingNegative) settingNegative.style.display = 'none';
+        if (settingSteps) settingSteps.style.display = 'none';
+        if (settingGuidance) settingGuidance.style.display = 'none';
+      } else {
+        if (settingNegative) settingNegative.style.display = 'block';
+        if (settingSteps) settingSteps.style.display = 'block';
+        if (settingGuidance) settingGuidance.style.display = 'block';
+      }
+    });
+    // Trigger once to set initial state
+    modelSelect.dispatchEvent(new Event('change'));
+  }
 
   if (btnSettings && modalSettings && btnSettingsClose) {
     btnSettings.addEventListener('click', () => {
@@ -49,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const negPrompt = negativePrompt ? negativePrompt.value.trim() : '';
     const steps = stepsInput ? parseInt(stepsInput.value, 10) : 25;
     const guidance = guidanceInput ? parseFloat(guidanceInput.value) : 7.5;
+    const modelId = modelSelect ? modelSelect.value : 'flux-schnell';
+    
     let width = 1024, height = 1024;
     if (aspect === '1152x896') { width = 1152; height = 896; }
     else if (aspect === '896x1152') { width = 896; height = 1152; }
@@ -69,12 +93,14 @@ document.addEventListener('DOMContentLoaded', () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
+          model_id: modelId,
           prompt,
           negative_prompt: negPrompt,
           width,
           height,
           num_inference_steps: steps,
-          guidance_scale: guidance
+          guidance_scale: guidance,
+          aspect_ratio: aspect.replace('x', ':') // For Flux (e.g. 1024x1024 -> 1024:1024 -> we'll handle actual format in backend)
         })
       });
 
@@ -136,10 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const m = String(date.getMonth() + 1).padStart(2, '0');
       const d = String(date.getDate()).padStart(2, '0');
       const y = date.getFullYear();
-      link.download = `SDXL_Generation_${m}${d}${y}.png`;
+      link.download = `AI_Generation_${m}${d}${y}.jpg`;
       
       // Replicate image URLs are CORS-enabled, so we can fetch and trigger a proper download blob
-      // If we just use link.click() on a cross-origin URL, the browser often opens it in a new tab instead.
       const originalText = btnDownload.innerHTML;
       btnDownload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SAVING...';
       
