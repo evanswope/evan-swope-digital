@@ -128,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
       while (true) {
         await new Promise(r => setTimeout(r, 1500)); // check every 1.5s
         
-        const pollRes = await fetch(`/api/poll?id=${predictionId}`);
+        // Cache-bust the request so the browser doesn't cache the "starting" state
+        const pollRes = await fetch(`/api/poll?id=${predictionId}&_t=${Date.now()}`);
         prediction = await pollRes.json();
         
         if (!pollRes.ok) {

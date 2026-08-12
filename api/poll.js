@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
       headers: {
-        'Authorization': `Token ${token}`
+        'Authorization': `Bearer ${token}`
       }
     });
 
@@ -27,6 +27,9 @@ export default async function handler(req, res) {
     }
 
     const prediction = await response.json();
+    
+    // Disable Vercel Edge caching so polling gets live data
+    res.setHeader('Cache-Control', 'no-store, max-age=0, must-revalidate');
     res.status(200).json(prediction);
     
   } catch (err) {
