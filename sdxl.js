@@ -127,7 +127,12 @@ document.addEventListener('DOMContentLoaded', () => {
       let prediction;
       
       // Poll the backend until Replicate finishes the image
+      let pollCount = 0;
       while (true) {
+        if (pollCount > 60) {
+          throw new Error('Timeout: Replicate took too long to generate.');
+        }
+        pollCount++;
         await new Promise(r => setTimeout(r, 1500)); // check every 1.5s
         
         // Cache-bust the request so the browser doesn't cache the "starting" state
@@ -148,11 +153,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // UI State: Success
-      resultImg.src = prediction.output[0];
+      let outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+      if (!outputUrl) throw new Error("Replicate returned no image URL.");
+      
+      resultImg.src = outputUrl;
       resultImg.onload = () => {
         loadingDiv.style.display = 'none';
         resultImg.style.display = 'block';
         btnDownload.style.display = 'flex';
+      };
+      resultImg.onerror = () => {
+        loadingDiv.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.style.color = '#ff4d4d';
+        placeholder.innerHTML = `ERROR:<br><span style="color:#aaa; font-size:0.65rem;">FAILED TO LOAD IMAGE (Check network/adblocker)</span>`;
       };
 
     } catch (err) {
