@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       break;
 
     case 'realvis':
-      modelOwnerName = "sg161222/realvisxl-v4.0";
+      modelOwnerName = "adirik/realvisxl-v4.0";
       input = { prompt, negative_prompt, width, height, num_inference_steps, guidance_scale };
       break;
 
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     const response = await fetch(`https://api.replicate.com/v1/models/${modelOwnerName}/predictions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ input })
