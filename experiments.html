@@ -357,6 +357,36 @@
                 </div>
               </div>
             </div>
+
+            <!-- SLIDE 5: Stable Diffusion XL -->
+            <div class="carousel-slide">
+              <div class="generative-card sdxl-card">
+                <svg class="synth-scribble-outline" preserveAspectRatio="none"><rect rx="10" style="filter: url(#scribble-filter);"></rect></svg>
+                
+                <div class="card-header">
+                  <h3 class="card-title" style="color: #ff7eb3; font-family: var(--font-marker);">SDXL 1.0 STUDIO</h3>
+                  <p class="card-desc">Type a prompt to generate high quality images using the open-source SDXL 1.0 model via Replicate.</p>
+                </div>
+
+                <div class="sdxl-controls" style="max-width: 500px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 0.5rem;">
+                  <textarea id="sdxl-prompt" placeholder="A futuristic city in the style of cyberpunk..." style="width: 100%; height: 80px; background: #111; border: 1px solid #333; color: #ff7eb3; padding: 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85rem; resize: none; box-sizing: border-box;"></textarea>
+                  <button id="btn-sdxl-generate" class="start-btn" style="padding: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; animation: none;"><i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE IMAGE</button>
+                </div>
+
+                <div class="sdxl-output-container" style="background: #000; border: 1px solid #333; border-radius: 4px; overflow: hidden; padding: 0; margin-top: 1rem; display: flex; justify-content: center; align-items: center; aspect-ratio: 1/1; position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
+                  <div id="sdxl-loading" style="display: none; flex-direction: column; align-items: center; gap: 1rem; color: #ff7eb3; font-family: var(--font-mono);">
+                    <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                    <span>GENERATING...</span>
+                  </div>
+                  <img id="sdxl-result" style="display: none; width: 100%; height: 100%; object-fit: cover;" alt="Generated Image" />
+                  <div id="sdxl-placeholder" style="color: #333; font-family: var(--font-mono); font-size: 0.75rem;">1024x1024 OUTPUT</div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin-top: 0.5rem;">
+                  <button id="btn-sdxl-download" class="start-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 4px; animation: none; display: none; min-width: 200px; justify-content: center;"><i class="fa-solid fa-download"></i> SAVE PNG</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -365,6 +395,7 @@
       
       <div class="carousel-dots">
         <span class="dot active"></span>
+        <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
@@ -396,5 +427,6 @@
   <script src="app.js"></script>
   <script src="synth.js?v=2"></script>
   <script src="ascii.js?v=2"></script>
+  <script src="sdxl.js"></script>
 </body>
 </html>

@@ -2694,6 +2694,10 @@ const modules = [
     stop: () => {
       if (window.stopAsciiWebcam) window.stopAsciiWebcam();
     }
+  },
+  {
+    start: () => {},
+    stop: () => {} // SDXL doesn't have active hardware processes to stop
   }
 ];
 let currentIndex = 0;
