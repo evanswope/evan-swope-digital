@@ -63,7 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
   btnGenerate.addEventListener('click', async () => {
     const prompt = promptInput.value.trim();
     if (!prompt) {
-      alert("Please enter a prompt first!");
+      placeholder.style.display = 'block';
+      placeholder.style.color = '#ff4d4d';
+      placeholder.innerHTML = `ERROR:<br><span style="color:#aaa; font-size:0.65rem;">PLEASE ENTER A PROMPT FIRST!</span>`;
       return;
     }
 
