@@ -48,12 +48,68 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper: Floating particles
   function spawnParticle(type) {
     const p = document.createElement('div');
-    p.className = 'particle';
-    p.innerHTML = type === 'heart' ? '💖' : '💵';
+    p.className = `particle ${type}`;
+    // Random position within log area
     p.style.left = Math.random() * 80 + 10 + '%';
-    p.style.top = '60%';
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 2000);
+    p.style.top = Math.random() * 80 + 10 + '%';
+    logArea.appendChild(p);
+    
+    // Remove after animation
+    setTimeout(() => {
+      if (p.parentNode) p.parentNode.removeChild(p);
+    }, 2000);
+  }
+
+  // Audio Context for Beep
+  let audioCtx;
+  function playScannerBeep() {
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const masterGain = audioCtx.createGain();
+      masterGain.connect(audioCtx.destination);
+      masterGain.gain.value = 0.3; // keep it subtle
+
+      const osc = audioCtx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1750, audioCtx.currentTime);
+
+      const env = audioCtx.createGain();
+      env.gain.setValueAtTime(0, audioCtx.currentTime);
+      env.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.02);
+      env.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+      osc.connect(env);
+
+      // Simple slapback/ringing reverb with delay
+      const delay = audioCtx.createDelay();
+      delay.delayTime.value = 0.025; // 25ms ringing
+
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = 0.5;
+
+      const wetGain = audioCtx.createGain();
+      wetGain.gain.value = 0.25; // 25% wet mix
+
+      // Dry path
+      env.connect(masterGain);
+      // Wet path
+      env.connect(delay);
+      delay.connect(feedback);
+      feedback.connect(delay);
+      delay.connect(wetGain);
+      wetGain.connect(masterGain);
+
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.5); // Allow reverb tail
+    } catch(e) {
+      console.warn("Audio not supported or allowed yet", e);
+    }
   }
 
   // Helper: Update UI stats
@@ -182,6 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
             void redScanline.offsetWidth;
             redScanline.classList.add('active');
           }
+          
+          playScannerBeep();
 
           if (!isDating) {
             scannerStatus.textContent = "SCANNING ITEM...";
