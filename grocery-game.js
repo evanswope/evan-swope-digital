@@ -141,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.currentCustomerName = data.name || "A Mysterious Entity";
       state.currentCustomerDesc = data.dialogue;
       state.currentCustomerRequest = data.base_item;
+      state.currentCustomerNeed = data.emotional_need;
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
 
       addLog(`> Customer Wants: ${data.base_item.toUpperCase()}`, "log-system");
@@ -314,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({
           imageUrl,
           customerRequest: state.currentCustomerRequest,
+          emotionalNeed: state.currentCustomerNeed,
           userPrompt
         })
       });
