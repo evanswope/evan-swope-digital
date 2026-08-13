@@ -211,7 +211,13 @@
         <a href="index.html#work" class="nav-link">Work</a>
         <a href="index.html#resume" class="nav-link">Experience</a>
         <a href="index.html#about" class="nav-link">About</a>
-        <a href="experiments.html" class="nav-link">Experiments</a>
+        <div class="nav-dropdown">
+          <a href="#" class="nav-link dropdown-toggle">AI Lab <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
+          <div class="dropdown-menu">
+            <a href="experiments.html" class="dropdown-item">Audio / Visual</a>
+            <a href="grocery-dating-sim.html" class="dropdown-item">Games</a>
+          </div>
+        </div>
         <a href="index.html#contact" class="nav-link btn-contact">Let's Connect</a>
       </nav>
     </div>
@@ -224,7 +230,8 @@
       <a href="index.html#work" class="mobile-nav-link">Work</a>
       <a href="index.html#resume" class="mobile-nav-link">Experience</a>
       <a href="index.html#about" class="mobile-nav-link">About</a>
-      <a href="experiments.html" class="mobile-nav-link">Experiments</a>
+      <a href="experiments.html" class="mobile-nav-link">AI Lab: Audio/Visual</a>
+      <a href="grocery-dating-sim.html" class="mobile-nav-link">AI Lab: Games</a>
       <a href="index.html#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
     </nav>
   </div>
@@ -250,7 +257,24 @@
     </div>
   </div>
 
-  <div class="game-container">
+  <div class="game-wrapper" style="max-width: 1000px; margin: 120px auto 40px; padding: 0 1rem;">
+    <h2 style="font-family: 'VT323', monospace; color: var(--game-text); font-size: 3rem; margin: 0 0 1rem 0; text-align: center; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 10px rgba(51,255,51,0.5); border-bottom: 2px solid var(--game-border); padding-bottom: 1rem; position: relative; overflow: hidden;">
+      Grocery Dating Sim
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.8); animation: scanline 3s linear infinite;"></div>
+    </h2>
+    <style>
+      @keyframes scanline {
+        0% { transform: translateY(-10px); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(80px); opacity: 0; }
+      }
+      .game-container {
+        margin: 0 !important; /* Overriding previous margin since wrapper handles it */
+      }
+    </style>
+    
+    <div class="game-container">
     
     <div class="game-stats">
       <div class="stat-box">
@@ -279,7 +303,9 @@
       <div class="log-area" id="log-area">
         <p class="log-system">LOADING GROCERY DATING SIM v1.0...</p>
         <p class="log-system">CONNECTING TO NEURAL NET...</p>
-        <p class="log-system">SUCCESS. TYPE "START" TO BEGIN SHIFT.</p>
+        <p class="log-gm" style="margin-top: 1rem;">Welcome weary local grocer! Are you looking for love? Or just cash? Why not both.</p>
+        <p class="log-gm">Provide your customers with the grocery items they need, and add a twist to help them emotionally and you may just end up falling in love!</p>
+        <p class="log-system" style="margin-top: 1rem;">SUCCESS. TYPE "START" TO BEGIN SHIFT.</p>
       </div>
       <div class="input-area">
         <span>></span>
@@ -303,7 +329,8 @@
       </div>
     </div>
 
-  </div>
+  </div> <!-- End Game Container -->
+  </div> <!-- End Wrapper -->
 
   <!-- Firebase Integration -->
   <script type="module">

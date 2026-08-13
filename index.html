@@ -100,7 +100,13 @@
         <a href="#work" class="nav-link">Work</a>
         <a href="#resume" class="nav-link">Experience</a>
         <a href="#about" class="nav-link">About</a>
-        <a href="/experiments" class="nav-link">Experiments</a>
+        <div class="nav-dropdown">
+          <a href="#" class="nav-link dropdown-toggle">AI Lab <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
+          <div class="dropdown-menu">
+            <a href="experiments.html" class="dropdown-item">Audio / Visual</a>
+            <a href="grocery-dating-sim.html" class="dropdown-item">Games</a>
+          </div>
+        </div>
         <a href="#contact" class="nav-link btn-contact">Let's Connect</a>
       </nav>
     </div>
@@ -113,7 +119,8 @@
       <a href="#work" class="mobile-nav-link">Work</a>
       <a href="#resume" class="mobile-nav-link">Experience</a>
       <a href="#about" class="mobile-nav-link">About</a>
-      <a href="/experiments.html" class="mobile-nav-link">Experiments</a>
+      <a href="experiments.html" class="mobile-nav-link">AI Lab: Audio/Visual</a>
+      <a href="grocery-dating-sim.html" class="mobile-nav-link">AI Lab: Games</a>
       <a href="#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
     </nav>
   </div>
@@ -725,8 +732,8 @@
   </main>
 
 
-    <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
-    <p style="margin: 10px;">Copyright © 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
+    <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; flex-wrap: wrap;">
+    <p class="footer-text">Copyright &copy; 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
     <svg viewBox="-20 -20 240 140" class="inchworm-svg" style="width: 50px; height: 35px; overflow: visible; flex-shrink: 0;">
       <path d="M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80" fill="none" stroke="#ff7eb3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" style="shape-rendering: crispEdges; filter: url(#scribble-filter);">
         <animate attributeName="d" calcMode="discrete" dur="0.8s" repeatCount="indefinite"
