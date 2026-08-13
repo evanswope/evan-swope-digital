@@ -43,11 +43,18 @@ Failure Condition: If your Affection is 4 or less AND the location the player su
 Action: If you don't terminate, ask the player a deep question about the future, romance, or your original emotional needs.
 Image Prompt Rules: The image prompt MUST describe the customer at the specified date location, facing the camera, holding a dating object (wine, bouquet, romantic card, etc). Their expression should continue to reflect their Affection.
 `;
-  } else if (datingRound >= 3) {
+  } else if (datingRound === 3) {
     systemPrompt += `=== ROUND 3: THE ALTAR ===
-Narrative: You and the player are at the altar (or friendship ceremony). You read your vows/speech, and the player just responded with theirs.
-Failure Condition: If your Affection is 4 or less, the player's response MUST address your original emotional need. If they ignore it, you must TERMINATE the date (set terminate: true). If Affection is 5+, any vow is accepted.
+Narrative: You and the player are now at the altar (or friendship ceremony). You must read your vows/speech to the player.
+Action: Read your vows. Do NOT terminate yet.
 Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) at the altar. If they made it this far with low Affection, they should still be scowling.
+`;
+  } else if (datingRound >= 4) {
+    systemPrompt += `=== ROUND 4: VOW EVALUATION ===
+Narrative: You are at the altar. The player just responded with their vows.
+Failure Condition: If your Affection is 4 or less, the player's vows MUST address your original emotional need. If they ignore it, you must TERMINATE the wedding (set terminate: true). If Affection is 5+, any vow is accepted.
+Action: If you don't terminate, happily accept their vows.
+Image Prompt Rules: (This image won't be shown to the user as they win, but keep it a happy wedding scene).
 `;
   }
 
@@ -101,13 +108,38 @@ JSON Schema:
     try {
       parsed = JSON.parse(rawText);
     } catch (parseError) {
-      console.warn("JSON Parse Failed, falling back. Raw text:", rawText);
-      parsed = {
-        dialogue: "I... I can't quite articulate my feelings right now. Let's just sit in silence.",
-        terminate: false,
-        approval: 1,
-        image_prompt: "A beautiful, silent moment between two abstract entities in a surreal, quiet landscape, cinematic lighting, masterpiece"
-      };
+      console.warn("JSON Parse Failed, attempting regex extraction. Raw text:", rawText);
+      try {
+        const extractString = (field) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
+          const match = rawText.match(regex);
+          return match ? match[1].replace(/"/g, "'").trim() : "";
+        };
+        const extractBool = (field) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*(true|false)`);
+          const match = rawText.match(regex);
+          return match ? match[1] === "true" : false;
+        };
+        const extractInt = (field, defaultVal) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*([0-9]+)`);
+          const match = rawText.match(regex);
+          return match ? parseInt(match[1], 10) : defaultVal;
+        };
+
+        parsed = {
+          dialogue: extractString("dialogue") || "I... I can't quite articulate my feelings right now. Let's just sit in silence.",
+          terminate: extractBool("terminate"),
+          approval: extractInt("approval", 1),
+          image_prompt: extractString("image_prompt") || "A beautiful, silent moment between two abstract entities in a surreal, quiet landscape, cinematic lighting, masterpiece"
+        };
+      } catch (regexError) {
+        parsed = {
+          dialogue: "I... I can't quite articulate my feelings right now. Let's just sit in silence.",
+          terminate: false,
+          approval: 1,
+          image_prompt: "A beautiful, silent moment between two abstract entities in a surreal, quiet landscape, cinematic lighting, masterpiece"
+        };
+      }
     }
     res.status(200).json(parsed);
 

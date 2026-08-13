@@ -76,13 +76,27 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
     try {
       parsed = JSON.parse(rawText);
     } catch (parseError) {
-      console.warn("JSON Parse Failed, falling back. Raw text:", rawText);
-      parsed = {
-        name: "A Glitched Entity",
-        dialogue: "My reality is breaking apart due to unescaped quotation marks. I require something simple.",
-        base_item: "a single egg",
-        emotional_need: "stability in a chaotic world"
-      };
+      console.warn("JSON Parse Failed, attempting regex extraction. Raw text:", rawText);
+      try {
+        const extractString = (field) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
+          const match = rawText.match(regex);
+          return match ? match[1].replace(/"/g, "'").trim() : "";
+        };
+        parsed = {
+          name: extractString("name") || "A Glitched Entity",
+          dialogue: extractString("dialogue") || "My reality is breaking apart. I require something simple.",
+          base_item: extractString("base_item") || "a single egg",
+          emotional_need: extractString("emotional_need") || "stability in a chaotic world"
+        };
+      } catch (regexError) {
+        parsed = {
+          name: "A Glitched Entity",
+          dialogue: "My reality is completely broken. I require something simple.",
+          base_item: "a single egg",
+          emotional_need: "stability in a chaotic world"
+        };
+      }
     }
     res.status(200).json(parsed);
 

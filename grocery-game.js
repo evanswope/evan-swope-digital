@@ -384,14 +384,40 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         data = JSON.parse(rawText);
       } catch (parseError) {
-        console.warn("Vision AI JSON Parse Failed. Raw text:", rawText);
-        data = {
-          approved: true,
-          bonus: true,
-          affection: 3,
-          value: 400,
-          reaction: "Wow! I am so overwhelmed I can barely speak properly!"
-        };
+        console.warn("Vision AI JSON Parse Failed. Attempting regex extraction. Raw text:", rawText);
+        try {
+          const extractString = (field) => {
+            const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
+            const match = rawText.match(regex);
+            return match ? match[1].replace(/"/g, "'").trim() : "";
+          };
+          const extractBool = (field) => {
+            const regex = new RegExp(`"${field}"\\s*:\\s*(true|false)`);
+            const match = rawText.match(regex);
+            return match ? match[1] === "true" : true;
+          };
+          const extractInt = (field, defaultVal) => {
+            const regex = new RegExp(`"${field}"\\s*:\\s*([0-9]+)`);
+            const match = rawText.match(regex);
+            return match ? parseInt(match[1], 10) : defaultVal;
+          };
+
+          data = {
+            approved: extractBool("approved"),
+            bonus: extractBool("bonus"),
+            affection: extractInt("affection", 3),
+            value: extractInt("value", 400),
+            reaction: extractString("reaction") || "Wow! I am so overwhelmed I can barely speak properly!"
+          };
+        } catch (regexError) {
+          data = {
+            approved: true,
+            bonus: true,
+            affection: 3,
+            value: 400,
+            reaction: "Wow! I am so overwhelmed I can barely speak properly!"
+          };
+        }
       }
 
       addLog(`[CUSTOMER] ${data.reaction}`, "log-customer");
