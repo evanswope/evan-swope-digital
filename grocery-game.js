@@ -255,10 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
             scannerStatus.textContent = "SCANNING ITEM...";
             appraiseItem(outputUrl, prompt);
           } else {
-            scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
-            state.phase = "DATING_WAIT_USER";
-            gameInput.disabled = false;
-            gameInput.focus();
+            if (state.phase === "DATING_GENERATING") {
+              scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
+              state.phase = "DATING_WAIT_USER";
+              gameInput.disabled = false;
+              gameInput.focus();
+            }
           }
         };
         
@@ -491,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const won = forceLoss ? false : (state.datingScore >= 2);
     
     let finalPrompt = won 
-      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the grocery clerk falling in love with ${state.selectedCustomer.request}. Epic lighting, beautiful masterpiece.`
+      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the grocery clerk falling in love with ${state.selectedCustomer.desc}. Epic lighting, beautiful masterpiece.`
       : `A lonely, dark, depressing cinematic shot of a sad grocery clerk crying alone in a dimly lit, empty grocery store. Game over vibes.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
