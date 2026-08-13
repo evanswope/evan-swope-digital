@@ -533,7 +533,13 @@ document.addEventListener('DOMContentLoaded', () => {
         spawnParticle('heart');
       }
 
-      if (state.datingRound > 3) {
+      if (data.terminate) {
+        addLog(`> The date was a disaster. They left.`, "log-system");
+        finishDating(true);
+        return;
+      }
+
+      if (state.datingRound >= 3) {
         finishDating();
         return;
       }
@@ -556,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const won = forceLoss ? false : (state.datingScore >= 2);
     
     let finalPrompt = won 
-      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the grocery clerk falling in love with ${state.selectedCustomer.desc}. Epic lighting, beautiful masterpiece.`
+      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the ${state.selectedCustomer.desc} happily in love with a first-person POV camera standing in front of a grocery store. Epic lighting, beautiful masterpiece. DO NOT generate two human people.`
       : `A lonely, dark, depressing cinematic shot of a sad grocery clerk crying alone in a dimly lit, empty grocery store. Game over vibes.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
