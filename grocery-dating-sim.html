@@ -258,16 +258,50 @@
   </div>
 
   <div class="game-wrapper" style="max-width: 1000px; margin: 120px auto 40px; padding: 0 1rem;">
-    <h2 style="font-family: 'VT323', monospace; color: var(--game-text); font-size: 3rem; margin: 0 0 1rem 0; text-align: center; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 10px rgba(51,255,51,0.5); border-bottom: 2px solid var(--game-border); padding-bottom: 1rem; position: relative; overflow: hidden;">
+    <h2 class="vhs-title">
       Grocery Dating Sim
-      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.8); animation: scanline 3s linear infinite;"></div>
+      <div class="vhs-scanline"></div>
     </h2>
     <style>
+      .vhs-title {
+        font-family: 'VT323', monospace; 
+        color: var(--game-text); 
+        font-size: 3.5rem; 
+        margin: 0 0 1rem 0; 
+        text-align: center; 
+        text-transform: uppercase; 
+        letter-spacing: 4px; 
+        border-bottom: 2px solid var(--game-border); 
+        padding-bottom: 1rem; 
+        position: relative; 
+        overflow: hidden;
+        animation: vhs-warp 7s infinite;
+        text-shadow: 2px 0 rgba(255,0,0,0.8), -2px 0 rgba(0,0,255,0.8), 0 0 10px rgba(51,255,51,0.5);
+      }
+      .vhs-scanline {
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 15px; 
+        background: rgba(0, 50, 0, 0.6); 
+        box-shadow: 0 0 10px rgba(0, 100, 0, 0.8);
+        mix-blend-mode: overlay;
+        animation: scanline 4s linear infinite;
+        pointer-events: none;
+      }
+      @keyframes vhs-warp {
+        0%, 90% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); }
+        91% { transform: skewX(-2deg) skewY(0.5deg) translateY(-2px); filter: blur(1px); text-shadow: 4px 0 rgba(255,0,0,0.9), -4px 0 rgba(0,0,255,0.9); }
+        93% { transform: skewX(2deg) skewY(-0.5deg) translateY(2px); filter: blur(0px); }
+        94% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); }
+        98% { transform: skewX(-5deg) translateY(-1px); filter: blur(2px); text-shadow: -5px 0 rgba(255,0,0,0.9), 5px 0 rgba(0,0,255,0.9); }
+        99% { transform: skewX(5deg) translateY(1px); filter: blur(0px); }
+        100% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); text-shadow: 2px 0 rgba(255,0,0,0.8), -2px 0 rgba(0,0,255,0.8), 0 0 10px rgba(51,255,51,0.5); }
+      }
       @keyframes scanline {
-        0% { transform: translateY(-10px); opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { transform: translateY(80px); opacity: 0; }
+        0% { transform: translateY(-30px); }
+        100% { transform: translateY(120px); }
       }
       .game-container {
         margin: 0 !important; /* Overriding previous margin since wrapper handles it */
