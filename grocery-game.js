@@ -164,6 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
           gameInput.focus();
         }
       };
+      
+      itemImage.onerror = () => {
+        loadingOverlay.style.display = 'none';
+        scannerStatus.textContent = "IMAGE LOAD ERROR";
+        state.phase = originalPhase;
+        gameInput.disabled = false;
+        addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
+      };
 
     } catch (e) {
       addLog(`Generation Error: ${e.message}`, "log-error");
