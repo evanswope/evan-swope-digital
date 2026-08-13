@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       addLog(`Error: ${e.message}`, "log-error");
       gameInput.disabled = false;
-      state.phase = "WAITING_FOR_USER";
+      state.phase = "START";
     }
   }
 
@@ -375,7 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       addLog(`Appraisal Error: ${e.message}`, "log-error");
       scannerStatus.textContent = "SCANNER ERROR";
-      state.phase = "START";
+      addLog(`> What grocery item do you slide across the scanner?`, "log-gm");
+      state.phase = "WAITING_FOR_USER";
       gameInput.disabled = false;
     }
   }
