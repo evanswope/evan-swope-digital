@@ -26,6 +26,7 @@ The requested grocery item should get more ridiculous and expensive as the playe
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks, just the JSON string).
 JSON Schema:
 {
+  "name": "A short, descriptive name and species/form of the customer (e.g. 'Wanda the Dog', 'Guillame the Pea', 'Jenny the Haunted Doll', 'Stan the Washbasin')",
   "dialogue": "A short, funny description of the abstract customer entering and what they say.",
   "base_item": "A short phrase describing the exact base grocery item they want to buy (e.g., 'a jar of mayo')",
   "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution (e.g., 'companionship', 'a nap', 'help chewing')"

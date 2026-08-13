@@ -138,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) throw new Error(data.message);
 
       addLog(`[CUSTOMER] ${data.dialogue}`, "log-customer");
+      state.currentCustomerName = data.name || "A Mysterious Entity";
       state.currentCustomerDesc = data.dialogue;
       state.currentCustomerRequest = data.base_item;
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
@@ -335,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Save customer to ledger
       state.customersServed.push({
         id: state.level,
+        name: state.currentCustomerName,
         desc: state.currentCustomerDesc,
         request: state.currentCustomerRequest,
         affectionGained: affectionGained
@@ -392,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.customersServed.sort((a, b) => b.affectionGained - a.affectionGained);
 
     state.customersServed.forEach((c, idx) => {
-      addLog(`[${idx + 1}] Affection: ${c.affectionGained}💖 | Wanted: ${c.request}`, "log-user");
+      addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}💖 | Wanted: ${c.request}`, "log-user");
     });
 
     addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" to just hang out as friends.`, "log-gm");
