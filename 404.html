@@ -34,13 +34,22 @@
     }
     
     .giant-worm.dropping {
-      animation: dropIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      animation: dropIn 1s forwards;
     }
     
     @keyframes dropIn {
-      0% { transform: translateY(-150vh); }
-      70% { transform: translateY(2.5vh); }
-      77.5% { transform: translateY(-5vh); }
+      0% { 
+        transform: translateY(-150vh); 
+        animation-timing-function: cubic-bezier(0.5, 0, 1, 1); /* Accelerate falling down */
+      }
+      70% { 
+        transform: translateY(2.5vh); 
+        animation-timing-function: cubic-bezier(0, 0, 0.5, 1); /* Decelerate bouncing up */
+      }
+      77.5% { 
+        transform: translateY(-5vh); 
+        animation-timing-function: cubic-bezier(0.5, 0, 1, 1); /* Accelerate falling back down */
+      }
       85% { transform: translateY(0); }
       100% { transform: translateY(0); }
     }
