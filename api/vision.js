@@ -24,8 +24,8 @@ You must judge this on TWO criteria:
 2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that specifically and creatively address their emotional need? If the user's prompt or the image completely ignores the emotional need, the bonus MUST be false.
 
 Scoring Affection:
-- If Base Item is NOT present: Affection is 0. (Even if they solved the emotional need, they failed the base task).
-- If Base Item IS present but Bonus is FALSE: Affection is 1. The customer's reaction should acknowledge they got the item they wanted, but express confusion, disappointment, or horror at the weird/unrelated twist the player added.
+- If Base Item is NOT present: Affection is 0. (Even if they solved the emotional need, they failed the base task). The customer refuses to buy the item.
+- If Base Item IS present but Bonus is FALSE: Affection is 1. CRITICAL: The customer's reaction MUST explicitly state that they are buying/taking the item (e.g. "I guess I'll take it, but..."), while expressing confusion or disappointment at the weird twist. They CANNOT refuse to buy it if the base item is present.
 - If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is.
 - TRUE LOVE: In very rare, incredibly clever circumstances, you can award 10 Affection.
 
