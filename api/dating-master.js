@@ -34,7 +34,7 @@ CRITICAL IMAGE PROMPT RULE: When writing the \`image_prompt\`, DO NOT include th
   if (datingRound === 1) {
     systemPrompt += `=== ROUND 1: THE CALL ===
 Narrative: The player is calling you on the phone to ask you out. You must ask the player where they want to take you for the date. If your Affection is 1 or 2, you are highly suspicious, annoyed, or reluctant to go, and the player must convince you.
-Image Prompt Rules: The image prompt MUST describe the customer holding a phone. 
+Image Prompt Rules: The image prompt MUST describe the customer on a phone call. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
 - Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
 - CRITICAL RULE: If Affection is 0, their mundane requested object MUST NEVER be in the frame because they didn't buy it.
 `;
