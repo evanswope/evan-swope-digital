@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         };
+        return true;
         
         let imageLoadAttempts = 0;
         itemImage.onerror = () => {
@@ -332,9 +333,12 @@ document.addEventListener('DOMContentLoaded', () => {
           state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
           gameInput.disabled = false;
           gameInput.focus();
+          return false;
         } else {
           console.warn(`Attempt ${attempt} failed:`, e);
           attempt++;
+          // Rate limit protection: wait 4s before retrying
+          await new Promise(r => setTimeout(r, 4000));
         }
       }
     }
@@ -572,9 +576,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Generate the scene image based on the LLM's prompt
       addLog("> Generating scene...", "log-system");
-      await generateImage(null, true, data.image_prompt);
+      const imageSuccess = await generateImage(null, true, data.image_prompt);
       
-      state.datingRound++;
+      if (imageSuccess) {
+        state.datingRound++;
+      }
 
     } catch (e) {
       addLog(`Dating Error: ${e.message}`, "log-error");
