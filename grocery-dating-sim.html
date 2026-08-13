@@ -420,11 +420,11 @@
 
     <div class="game-console">
       <div class="log-area" id="log-area">
-        <p class="log-system">LOADING GROCERY DATING SIM v1.0...</p>
-        <p class="log-system">CONNECTING TO NEURAL NET...</p>
-        <p class="log-gm" style="margin-top: 1rem;">Welcome weary local grocer! Are you looking for love? Or just cash? Why not both.</p>
-        <p class="log-gm">Provide your customers with the grocery items they need, and add a twist to help them emotionally and you may just end up falling in love!</p>
-        <p class="log-system" style="margin-top: 1rem;">SUCCESS. TYPE "START" TO BEGIN SHIFT.</p>
+        <div class="log-msg log-system">LOADING GROCERY DATING SIM v1.0...</div>
+        <div class="log-msg log-system">CONNECTING TO NEURAL NET...</div>
+        <div class="log-msg log-gm" style="margin-top: 1rem;">Welcome weary local grocer! Are you looking for love? Or just cash? Why not both.</div>
+        <div class="log-msg log-gm">Provide your customers with the grocery items they need, and add a twist to help them emotionally and you may just end up falling in love!</div>
+        <div class="log-msg log-system" style="margin-top: 1rem;">SUCCESS. TYPE "START" TO BEGIN SHIFT.</div>
       </div>
       <div class="input-area">
         <span>></span>
@@ -476,7 +476,7 @@
     window.FirebaseAPI = { db, storage, ref, push, query, orderByChild, limitToLast, get, storageRef, uploadBytes, getDownloadURL };
   </script>
 
-  <script src="grocery-game.js"></script>
+  <script src="grocery-game.js?v=2"></script>
   
   <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 4rem;">
     <p class="footer-text">Copyright &copy; 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
