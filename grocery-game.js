@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let finalPrompt = won 
       ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date, seen from a first-person POV camera. Epic lighting, beautiful masterpiece, highly detailed. No other humans in frame.`
-      : `A lonely, dark, depressing cinematic shot of a sad grocery clerk crying alone in a dimly lit, empty grocery store. Game over vibes.`;
+      : `A wildly dramatic, hyper-emotional cinematic shot of a pathetic grocery clerk having an absolute mental breakdown. They are completely collapsed on the ground in the middle of a dimly lit grocery store aisle, sobbing uncontrollably, head in their hands, covered in extreme embarrassment and regret, throwing a fit. Lonely, depressing, Game over vibes. Masterpiece lighting.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
 
