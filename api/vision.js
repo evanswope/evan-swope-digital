@@ -20,7 +20,7 @@ CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY
 
 Look at the generated image provided. 
 You must judge this on TWO criteria:
-1. BASE ITEM: Does the image visually contain the base item requested (or at least close enough in a silly way)? Be VERY LENIENT about packaging, form factors, and shapes. (e.g. a "wedge" of cheese is fine for a "wheel", a "can" of salsa is fine for a "jar", etc). Do NOT reject items just because they are in the wrong container or shape, as long as the core food/object is present.
+1. BASE ITEM: Does the image visually contain the base item requested? Be VERY LENIENT about packaging, form factors, and shapes (e.g. a "wedge" of cheese is fine for a "wheel", a "can" of salsa is fine for a "jar"). HOWEVER, the CORE TYPE OF FOOD OR OBJECT MUST BE CORRECT. A jar of carrots is NOT a jar of pickles. If they asked for pickles and got carrots, you MUST reject it (approved: false).
 2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that specifically and creatively address their emotional need? Be EXTREMELY STRICT. If the user's prompt or the image completely ignores the emotional need, or does something entirely unrelated (e.g. they asked for a dance party, but the user gave crying children), the bonus MUST be false.
 
 Scoring Affection:
