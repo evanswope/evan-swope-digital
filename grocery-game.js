@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Helper: Add text to log
   function addLog(text, className) {
-    const p = document.createElement('p');
+    const p = document.createElement('div');
     p.className = `log-msg ${className}`;
     p.textContent = text;
     logArea.appendChild(p);
