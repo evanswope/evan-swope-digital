@@ -28,6 +28,7 @@ CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON par
 JSON Schema:
 {
   "name": "A short, descriptive name and species/form of the customer (e.g. 'Wanda the Dog', 'Guillame the Pea', 'Jenny the Haunted Doll', 'Stan the Washbasin')",
+  "desc": "A short, strictly physical description of what the customer looks like for an image generator (e.g. 'A plump chicken carrying a banjo')",
   "dialogue": "A short, funny description of the abstract customer entering and what they say.",
   "base_item": "A short phrase describing the exact base grocery item they want to buy (e.g., 'a jar of mayo')",
   "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution (e.g., 'companionship', 'a nap', 'help chewing')"
@@ -85,6 +86,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
         };
         parsed = {
           name: extractString("name") || "A Glitched Entity",
+          desc: extractString("desc") || extractString("dialogue") || "A glowing orb of glitching light",
           dialogue: extractString("dialogue") || "My reality is breaking apart. I require something simple.",
           base_item: extractString("base_item") || "a single egg",
           emotional_need: extractString("emotional_need") || "stability in a chaotic world"
@@ -92,6 +94,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
       } catch (regexError) {
         parsed = {
           name: "A Glitched Entity",
+          desc: "A glowing orb of glitching light",
           dialogue: "My reality is completely broken. I require something simple.",
           base_item: "a single egg",
           emotional_need: "stability in a chaotic world"

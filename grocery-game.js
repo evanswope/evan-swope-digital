@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       addLog(`[CUSTOMER] ${data.dialogue}`, "log-customer");
       state.currentCustomerName = data.name || "A Mysterious Entity";
-      state.currentCustomerDesc = data.dialogue;
+      state.currentCustomerDesc = data.desc || data.dialogue;
       state.currentCustomerRequest = data.base_item;
       state.currentCustomerNeed = data.emotional_need;
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
