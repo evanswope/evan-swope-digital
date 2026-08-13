@@ -20,7 +20,7 @@ CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY
 
 Look at the generated image provided. 
 You must judge this on TWO criteria:
-1. BASE ITEM (CRITICAL): Does the image visually contain the base item requested? You must be EXTREMELY STRICT about the CORE TYPE of object. If the customer asked for aluminum foil, and the image shows a tree, a dog, or a car, you MUST reject it (approved: false). It does not matter if it's cute or solves their emotional need. If the fundamental object is completely wrong, "approved" MUST BE false. (You can be lenient about packaging, e.g., a "wedge" of cheese instead of a "wheel", but a tree is NEVER aluminum foil).
+1. BASE ITEM (CRITICAL): Does the image visually contain the base item requested? You must be EXTREMELY STRICT about the CORE TYPE of object. If the customer asked for aluminum foil, and the image shows a tree, a dog, or a car, you MUST reject it (approved: false). However, if the core material/food IS present but mutated, alive, or absurd (e.g., they asked for a "jar of pickles" and you see a "living pet pickle"), you MUST ACCEPT IT (approved: true) because the core item (pickle) is technically there. Be lenient about packaging (a wedge of cheese counts as a wheel of cheese).
 2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that specifically and creatively address their emotional need? If the user's prompt or the image completely ignores the emotional need, the bonus MUST be false.
 
 Scoring Affection:
