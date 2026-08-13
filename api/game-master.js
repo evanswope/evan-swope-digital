@@ -14,16 +14,11 @@ export default async function handler(req, res) {
 The player is a clerk at an otherworldly grocery store. 
 Based on the player's current Level, Cash, and Affection, invent a highly unusual, abstract, or absurd "customer" and a strange twist on a normal GROCERY ITEM they want to buy. 
 
-DO NOT just generate regular humans or "flamboyant individuals". Your customers should be extremely conceptual and high-perplexity. 
-Examples of good customers: 
-- a screaming pebble
-- a single green pea that talks like a baby
-- a wet wipe who's seen better days
-- a developing third-world nation with a lot of promise
-- a stolen page from a diary of a high schooler
-- an insurance salesman under investigation for churning
+CUSTOMER RULES:
+- If Level is 1 through 4: Generate a corporeal (physical/living) but extremely silly and bizarre customer. Examples: a clam with 4 legs, a clown experiencing religion for the first time, a talking dog with a law degree, a llama that really enjoys true crime, an aloof little girl with a fire poker.
+- If Level is 5 (or higher): Generate a highly conceptual, abstract, or obscure customer. Examples: a shadow, a thought bubble, a wisp, a stolen page from a diary, a developing third-world nation.
 
-CRITICAL: Even though the customers are highly abstract, they still want to buy GROCERY STORE ITEMS (e.g. mayo, milk, cereal, bread, coffee). However, they have a bizarre problem or emotional need that requires a creative solution. 
+CRITICAL: Even though the customers are highly abstract or silly, they still want to buy GROCERY STORE ITEMS (e.g. mayo, milk, cereal, bread, coffee). However, they have a bizarre problem or emotional need that requires a creative solution. 
 
 The requested grocery item should get more ridiculous and expensive as the player levels up.
 
