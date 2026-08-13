@@ -34,11 +34,25 @@ JSON Schema:
   "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution (e.g., 'companionship', 'a nap', 'help chewing')"
 }`;
 
+  const randomNames = ["Balthazar", "Bruno", "Bernie", "Wanda", "Jenny", "Stan"];
+  const randomCustomerThemes = ["an aquatic animal", "a piece of furniture", "a weather phenomenon", "a mathematical concept", "an insect", "a ghost", "a celestial body", "a medieval weapon", "a root vegetable"];
+  const randomItemAisles = ["Produce", "Dairy", "Frozen Foods", "Canned Goods", "Cleaning Supplies", "Hardware", "Bakery", "Meat", "Snacks", "Beverages", "Office Supplies"];
+  
+  const chosenTheme = randomCustomerThemes[Math.floor(Math.random() * randomCustomerThemes.length)];
+  const chosenAisle = randomItemAisles[Math.floor(Math.random() * randomItemAisles.length)];
+  const seed = Math.floor(Math.random() * 999999);
+
   const userPrompt = `Current Game State:
 Level: ${state.level}
 Cash: $${state.cash}
 Affection: ${state.affection}
 Trust: ${state.trust}%
+
+CRITICAL DIVERSITY REQUIREMENT (Seed: ${seed}): 
+- DO NOT use the names: ${randomNames.join(', ')}. Pick a wildly different name.
+- INSPIRATION: Try making the customer related to: ${chosenTheme}.
+- INSPIRATION: Try picking a base grocery item from the aisle: ${chosenAisle}.
+- DO NOT request duct tape, mayonnaise, or kielbasas. Be completely novel.
 
 Generate the next customer encounter. RETURN ONLY RAW JSON.`;
 
@@ -55,7 +69,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
           system_prompt: systemPrompt,
           prompt: userPrompt,
           max_tokens: 512,
-          temperature: 0.8
+          temperature: 1.15
         }
       })
     });
