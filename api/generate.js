@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       input = {
         prompt: prompt,
         aspect_ratio: aspect_ratio || "1:1",
-        output_format: "jpg",
+        output_format: "webp",
         go_fast: true
       };
       break;
