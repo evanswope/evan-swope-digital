@@ -67,7 +67,7 @@ You MUST respond ONLY with a raw JSON object (no markdown formatting, no backtic
 CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON parsing. Use single quotes instead if needed.
 JSON Schema:
 {
-  "dialogue": "Your response to the player, spoken in character.",
+  "dialogue": "Your response to the player. CRITICAL: This must ONLY be spoken dialogue. DO NOT include stage directions, asterisks, narration, or describe your physical actions in this text. Just speak directly.",
   "terminate": true or false, // True ONLY if the player failed the round's failure condition. This instantly ends the game.
   "approval": 1 or 0, // 1 if you liked their message, 0 if you hated it or found it boring.
   "image_prompt": "A vivid, dramatic, colorful, full-background image generation prompt describing the current scene as per the Image Prompt Rules for this round."
