@@ -72,7 +72,18 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
     // Strip markdown formatting if the model accidentally included it
     rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
 
-    const parsed = JSON.parse(rawText);
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseError) {
+      console.warn("JSON Parse Failed, falling back. Raw text:", rawText);
+      parsed = {
+        name: "A Glitched Entity",
+        dialogue: "My reality is breaking apart due to unescaped quotation marks. I require something simple.",
+        base_item: "a single egg",
+        emotional_need: "stability in a chaotic world"
+      };
+    }
     res.status(200).json(parsed);
 
   } catch (err) {

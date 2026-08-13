@@ -343,7 +343,20 @@ document.addEventListener('DOMContentLoaded', () => {
       
       let rawText = Array.isArray(prediction.output) ? prediction.output.join('') : prediction.output;
       rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const data = JSON.parse(rawText);
+      
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (parseError) {
+        console.warn("Vision AI JSON Parse Failed. Raw text:", rawText);
+        data = {
+          approved: true,
+          bonus: true,
+          affection: 3,
+          value: 400,
+          reaction: "Wow! I am so overwhelmed I can barely speak properly!"
+        };
+      }
 
       addLog(`[CUSTOMER] ${data.reaction}`, "log-customer");
       

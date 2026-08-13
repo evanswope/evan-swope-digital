@@ -71,7 +71,17 @@ JSON Schema:
     let rawText = prediction.output.join('');
     rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
 
-    const parsed = JSON.parse(rawText);
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseError) {
+      console.warn("JSON Parse Failed, falling back. Raw text:", rawText);
+      parsed = {
+        dialogue: "I... I can't quite articulate my feelings right now. Let's just sit in silence.",
+        approval: 1,
+        image_prompt: "A beautiful, silent moment between two abstract entities in a surreal, quiet landscape, cinematic lighting, masterpiece"
+      };
+    }
     res.status(200).json(parsed);
 
   } catch (err) {
