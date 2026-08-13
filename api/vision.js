@@ -46,8 +46,7 @@ JSON Schema:
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'wait' // Wait for the generation to finish synchronously
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
         version: '2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591',
@@ -65,15 +64,7 @@ JSON Schema:
     }
 
     const prediction = await response.json();
-    
-    // LLaVA output is an array of strings, we need to join them
-    let rawText = prediction.output.join('');
-    
-    // Strip markdown formatting if the model accidentally included it
-    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-    const parsed = JSON.parse(rawText);
-    res.status(200).json(parsed);
+    res.status(200).json({ id: prediction.id });
 
   } catch (err) {
     console.error(err);
