@@ -832,6 +832,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCloseLeaderboard.addEventListener('click', () => {
       modalLeaderboard.style.display = 'none';
     });
+
+    modalLeaderboard.addEventListener('click', (e) => {
+      if (e.target === modalLeaderboard) {
+        modalLeaderboard.style.display = 'none';
+      }
+    });
   }
 
   // Image Modal Logic
