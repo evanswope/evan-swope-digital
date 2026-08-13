@@ -783,8 +783,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        const { db, ref, query, orderByChild, limitToLast, get } = window.FirebaseAPI;
-        const lbQuery = query(ref(db, 'leaderboard'), orderByChild('score'), limitToLast(10));
+        const { db, ref, get } = window.FirebaseAPI;
+        const lbQuery = ref(db, 'leaderboard');
         const snapshot = await get(lbQuery);
         
         if (!snapshot.exists()) {
@@ -795,11 +795,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const scores = [];
         snapshot.forEach((child) => { scores.push(child.val()); });
         scores.sort((a, b) => b.score - a.score); // highest first
+        const topScores = scores.slice(0, 10); // take top 10
 
         let html = '<table style="width:100%; text-align:left; border-collapse:collapse;">';
         html += '<tr style="border-bottom:1px solid gold; color:gold;"><th>Rank</th><th>Photo</th><th>Name</th><th>Partner</th><th>Score</th></tr>';
         
-        scores.forEach((s, idx) => {
+        topScores.forEach((s, idx) => {
           html += `
             <tr style="border-bottom:1px solid #333;">
               <td style="padding:0.5rem; font-size:1.5rem;">#${idx+1}</td>
