@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Not Found | Evan Swope</title>
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Permanent+Marker&display=swap" rel="stylesheet">
+  
+  <!-- Icon System -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="assets/images/favicon2.png">
+  
+  <style>
+    .worm-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .giant-worm {
+      width: 80vw;
+      max-width: 800px;
+      transform: translateY(-150vh);
+      animation: dropIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    
+    @keyframes dropIn {
+      0% { transform: translateY(-150vh); }
+      70% { transform: translateY(5vh); }
+      85% { transform: translateY(-10vh); }
+      100% { transform: translateY(0); }
+    }
+    
+    .error-text {
+      font-family: 'Permanent Marker', cursive;
+      color: #ff7eb3;
+      font-size: clamp(2rem, 8vw, 5rem);
+      margin-top: 2rem;
+      transform: rotate(-3deg) scale(0);
+      opacity: 0;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+      animation: smashText 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      animation-delay: 1.1s; /* Right after bounce finishes */
+    }
+    
+    @keyframes smashText {
+      0% { transform: rotate(-3deg) scale(0); opacity: 0; }
+      100% { transform: rotate(-3deg) scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="lens-hybrid">
+  
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+    <filter id="scribble-filter" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
+        <animate attributeName="seed" values="1;2;3;4;5" dur="0.5s" calcMode="discrete" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <!-- Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="/" class="brand-logo">
+        <span class="logo-text">EVAN SWOPE</span>
+        <span class="logo-subtext">CREATIVE + STRATEGY</span>
+      </a>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="nav-links">
+        <a href="/#work" class="nav-link">Work</a>
+        <a href="/#resume" class="nav-link">Experience</a>
+        <a href="/#about" class="nav-link">About</a>
+        <div class="nav-dropdown">
+          <a href="#" class="nav-link dropdown-toggle">AI Lab <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
+          <div class="dropdown-menu">
+            <a href="/experiments.html" class="dropdown-item">Audio / Visual</a>
+            <a href="/grocery-dating-sim.html" class="dropdown-item">Games</a>
+          </div>
+        </div>
+        <a href="/#contact" class="nav-link btn-contact">Let's Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <button class="mobile-menu-close" id="mobile-menu-close"><i class="fa-solid fa-xmark"></i></button>
+    <nav class="mobile-nav-links">
+      <a href="/#work" class="mobile-nav-link">Work</a>
+      <a href="/#resume" class="mobile-nav-link">Experience</a>
+      <a href="/#about" class="mobile-nav-link">About</a>
+      <a href="/experiments.html" class="mobile-nav-link">AI Lab: Audio/Visual</a>
+      <a href="/grocery-dating-sim.html" class="mobile-nav-link">AI Lab: Games</a>
+      <a href="/#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
+    </nav>
+  </div>
+
+  <main class="main-content">
+    <div class="worm-container">
+      <svg viewBox="-20 -20 240 140" class="inchworm-svg giant-worm" style="overflow:visible;">
+        <path d="M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80" fill="none" stroke="#ff7eb3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" style="shape-rendering: crispEdges; filter: url(#scribble-filter);">
+          <animate attributeName="d" calcMode="discrete" dur="0.8s" repeatCount="indefinite"
+            values="
+              M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80;
+              M 50 80 C 70 80, 70 40, 100 40 C 130 40, 130 80, 150 80;
+              M 60 80 C 80 80, 80 20, 100 20 C 120 20, 120 80, 140 80;
+              M 50 80 C 70 80, 70 40, 100 40 C 130 40, 130 80, 150 80
+            " />
+        </path>
+      </svg>
+      
+      <h2 class="error-text">YOU DON'T BELONG HERE</h2>
+    </div>
+  </main>
+
+  <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; flex-wrap: wrap;">
+    <p class="footer-text">Copyright &copy; 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
+    <svg viewBox="-20 -20 240 140" class="inchworm-svg" style="width: 50px; height: 35px; overflow: visible; flex-shrink: 0;">
+      <path d="M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80" fill="none" stroke="#ff7eb3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" style="shape-rendering: crispEdges; filter: url(#scribble-filter);">
+        <animate attributeName="d" calcMode="discrete" dur="0.8s" repeatCount="indefinite"
+          values="
+            M 40 80 C 60 80, 80 75, 100 75 C 120 75, 140 80, 160 80;
+            M 50 80 C 70 80, 70 40, 100 40 C 130 40, 130 80, 150 80;
+            M 60 80 C 80 80, 80 20, 100 20 C 120 20, 120 80, 140 80;
+            M 50 80 C 70 80, 70 40, 100 40 C 130 40, 130 80, 150 80
+          " />
+      </path>
+    </svg>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    function playThud() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Create an oscillator for the fundamental frequency
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        
+        // Create a gain node for the envelope
+        const gainNode = audioCtx.createGain();
+        
+        // Connect nodes
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        const now = audioCtx.currentTime;
+        
+        // Pitch drop for the "thud" effect
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(0.01, now + 0.5);
+        
+        // Volume envelope (quick attack, slightly slower decay)
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(1, now + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        
+        // Add a bit of noise for impact texture
+        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.value = 1000;
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(1, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        
+        // Start everything
+        osc.start(now);
+        noise.start(now);
+        
+        // Stop everything
+        osc.stop(now + 0.5);
+        noise.stop(now + 0.5);
+      } catch (e) {
+        console.log("AudioContext blocked or failed", e);
+      }
+    }
+
+    // Play thud right when it lands (animation is 1s, but lands around 0.7s)
+    setTimeout(() => {
+      playThud();
+    }, 700);
+    
+    // Redirect 4 seconds after text appears (text appears at 1.1s + 4s = 5.1s total)
+    setTimeout(() => {
+      window.location.href = "https://www.evanswope.com";
+    }, 5100);
+  </script>
+</body>
+</html>
