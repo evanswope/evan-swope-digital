@@ -87,9 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
 
       addLog(`> Customer Wants: ${data.base_item.toUpperCase()}`, "log-system");
-      addLog(`> Hint: ${data.emotional_need}`, "log-system");
+      addLog(`> With: ${data.emotional_need}`, "log-system");
 
-      addLog(`> What do you generate for them?`, "log-gm");
+      addLog(`> What grocery item do you slide across the scanner?`, "log-gm");
       state.phase = "WAITING_FOR_USER";
       gameInput.disabled = false;
       gameInput.focus();
@@ -174,8 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
         itemImage.src = outputUrl;
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
-          itemImage.style.display = 'block';
           
+          itemImage.classList.add('loaded');
+          const redScanline = document.getElementById('red-scanline');
+          if (redScanline) {
+            redScanline.classList.remove('active');
+            void redScanline.offsetWidth;
+            redScanline.classList.add('active');
+          }
+
           if (!isDating) {
             scannerStatus.textContent = "SCANNING ITEM...";
             appraiseItem(outputUrl, prompt);
@@ -467,11 +474,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (state.phase === "START") {
         if (val.toLowerCase() === 'start' || val.toLowerCase() === 'next') {
+          itemImage.classList.remove('loaded');
+          itemImage.src = '';
+          const redScanline = document.getElementById('red-scanline');
+          if (redScanline) redScanline.classList.remove('active');
+          
           callGameMaster();
         } else {
           addLog("Type 'start' or 'next' to continue.", "log-system");
         }
-      } 
+      }
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
       }

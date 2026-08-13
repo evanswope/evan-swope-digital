@@ -186,22 +186,63 @@
       overflow: hidden;
     }
 
-    .canvas-container img {
+    #item-image {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      background: #fff; /* standard white background for product */
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      position: absolute;
+      z-index: 2;
+    }
+    
+    #item-image.loaded {
+      opacity: 1;
+      animation: crt-resolve 2s forwards;
+    }
+    
+    @keyframes crt-resolve {
+      0% { filter: brightness(0.1) blur(4px) sepia(0.8) hue-rotate(-50deg); }
+      50% { filter: brightness(0.5) blur(1px) sepia(0.3) hue-rotate(-20deg); }
+      100% { filter: brightness(1) blur(0px) sepia(0) hue-rotate(0deg); }
+    }
+
+    .red-scanline {
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 0, 0, 0.8);
+      box-shadow: 0 0 15px rgba(255, 0, 0, 1);
+      display: none;
+      z-index: 10;
+    }
+
+    .red-scanline.active {
+      display: block;
+      animation: scan-up 2s ease-out forwards;
+    }
+    
+    @keyframes scan-up {
+      0% { bottom: -10px; opacity: 1; }
+      90% { opacity: 1; }
+      100% { bottom: 100%; opacity: 0; }
+    }
+
+    #no-item-text {
+      position: absolute;
+      font-family: 'VT323', monospace;
+      color: #ff3333;
+      font-size: 2.5rem;
+      text-align: center;
+      animation: vhs-warp 5s infinite;
+      text-shadow: 2px 0 rgba(255,0,0,0.8), -2px 0 rgba(0,0,255,0.8);
+      z-index: 1;
     }
 
     #loading-overlay {
       position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: var(--game-border);
-      flex-direction: column;
       gap: 0.5rem;
       display: none;
     }
@@ -383,12 +424,14 @@
     </div>
 
     <div class="game-vision">
-      <h3 style="margin:0 0 1rem 0; color:var(--game-text); border-bottom: 1px solid var(--game-text); padding-bottom: 0.5rem; width: 100%; text-align: center; font-family: 'VT323', monospace;">THE SCANNER</h3>
+      <h3 style="margin:0 0 1rem 0; color:var(--game-text); border-bottom: 1px solid var(--game-text); padding-bottom: 0.5rem; width: 100%; text-align: center; font-family: 'VT323', monospace;">GROCERY BAG CAM</h3>
       <div class="canvas-container">
-        <img id="item-image" src="" style="display:none;" crossorigin="anonymous" />
+        <div id="no-item-text">NO ITEMS<br>FOUND</div>
+        <img id="item-image" src="" style="display:block;" crossorigin="anonymous" />
+        <div class="red-scanline" id="red-scanline"></div>
         <div id="loading-overlay">
           <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i>
-          <span id="loading-text">GENERATING...</span>
+          <span id="loading-text" style="margin-top:0.5rem;">GENERATING...</span>
         </div>
       </div>
       <div class="status-text" id="scanner-status">WAITING FOR ITEM...</div>
