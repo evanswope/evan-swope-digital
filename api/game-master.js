@@ -89,12 +89,19 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
 
     let parsed;
     try {
-      parsed = JSON.parse(rawText);
+      // First attempt: try to extract a JSON block using regex in case there is leading/trailing text
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      } else {
+        parsed = JSON.parse(rawText);
+      }
     } catch (parseError) {
       console.warn("JSON Parse Failed, attempting regex extraction. Raw text:", rawText);
       try {
         const extractString = (field) => {
-          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
+          // Use a more robust regex that catches the last field even without a comma
+          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\}|$)`);
           const match = rawText.match(regex);
           return match ? match[1].replace(/"/g, "'").trim() : "";
         };
