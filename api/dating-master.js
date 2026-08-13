@@ -28,6 +28,7 @@ If this is round 3, you are responding for the final time to conclude the date.
   }
 
   systemPrompt += `You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks).
+CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON parsing. Use single quotes instead if needed.
 JSON Schema:
 {
   "dialogue": "Your response to the player, spoken in character.",
@@ -55,7 +56,7 @@ JSON Schema:
         input: {
           system_prompt: systemPrompt,
           prompt: promptText,
-          max_tokens: 256,
+          max_tokens: 512,
           temperature: 0.8
         }
       })

@@ -24,6 +24,7 @@ ANY bizarre conditions, emotional twists, or strange requirements MUST be placed
 The requested grocery item should get more ridiculous and expensive as the player levels up.
 
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks, just the JSON string).
+CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON parsing. Use single quotes instead if needed.
 JSON Schema:
 {
   "name": "A short, descriptive name and species/form of the customer (e.g. 'Wanda the Dog', 'Guillame the Pea', 'Jenny the Haunted Doll', 'Stan the Washbasin')",
@@ -52,7 +53,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
         input: {
           system_prompt: systemPrompt,
           prompt: userPrompt,
-          max_tokens: 256,
+          max_tokens: 512,
           temperature: 0.8
         }
       })
