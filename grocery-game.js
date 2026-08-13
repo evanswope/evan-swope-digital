@@ -256,8 +256,14 @@ document.addEventListener('DOMContentLoaded', () => {
             appraiseItem(outputUrl, prompt);
           } else {
             if (state.phase === "DATING_GENERATING") {
-              scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
-              state.phase = "DATING_WAIT_USER";
+              if (state.datingRound > 3) {
+                scannerStatus.textContent = "DATE CONCLUDED";
+                addLog("> The date has concluded. Press Enter to see the final results.", "log-system");
+                state.phase = "DATING_FINISHED";
+              } else {
+                scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
+                state.phase = "DATING_WAIT_USER";
+              }
               gameInput.disabled = false;
               gameInput.focus();
             }
@@ -627,6 +633,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "DATING_WAIT_USER") {
         callDatingMaster(val);
+      }
+      else if (state.phase === "DATING_FINISHED") {
+        finishDating();
       }
       else if (state.phase === "LEADERBOARD_PROMPT") {
         if (val.toLowerCase() === 'no') {
