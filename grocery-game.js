@@ -114,71 +114,101 @@ document.addEventListener('DOMContentLoaded', () => {
     // If grocery, append product photography suffix.
     const finalPrompt = fullPromptOverride ? fullPromptOverride : `${prompt}, isolated on a pure white background, studio lighting, product photography`;
 
-    try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model_id: 'flux-schnell',
-          prompt: finalPrompt,
-          aspect_ratio: '1:1'
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+    let success = false;
+    let attempt = 1;
+    const maxAttempts = 3;
 
-      let predictionId = data.id;
-      let prediction;
-
-      let pollCount = 0;
-      while (true) {
-        if (pollCount > 60) throw new Error('Timeout generating image.');
-        pollCount++;
-        await new Promise(r => setTimeout(r, 1500));
-        
-        const pollRes = await fetch(`/api/poll?id=${predictionId}&_t=${Date.now()}`);
-        prediction = await pollRes.json();
-        
-        if (!pollRes.ok) throw new Error(prediction.message);
-        if (prediction.status === 'succeeded') break;
-        if (prediction.status === 'failed' || prediction.status === 'canceled') {
-          throw new Error(prediction.error || 'Generation failed.');
+    while (attempt <= maxAttempts && !success) {
+      try {
+        if (attempt > 1) {
+          addLog(`> Retrying image generation (Attempt ${attempt}/${maxAttempts})...`, "log-system");
         }
-      }
 
-      let outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
-      if (!outputUrl) throw new Error("No image returned.");
+        // Add an AbortController for a 15s hard timeout on the initial fetch just in case
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      itemImage.src = outputUrl;
-      itemImage.onload = () => {
-        loadingOverlay.style.display = 'none';
-        itemImage.style.display = 'block';
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model_id: 'flux-schnell',
+            prompt: finalPrompt,
+            aspect_ratio: '1:1'
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+
+        let predictionId = data.id;
+        let prediction;
+
+        let pollCount = 0;
+        while (true) {
+          // Poll every 1.5s, up to 10 times (15s total wait time per attempt)
+          if (pollCount > 10) throw new Error('Timeout waiting for image (15s limit).');
+          pollCount++;
+          await new Promise(r => setTimeout(r, 1500));
+          
+          const pollRes = await fetch(`/api/poll?id=${predictionId}&_t=${Date.now()}`);
+          prediction = await pollRes.json();
+          
+          if (!pollRes.ok) throw new Error(prediction.message);
+          if (prediction.status === 'succeeded') break;
+          if (prediction.status === 'failed' || prediction.status === 'canceled') {
+            throw new Error(prediction.error || 'Generation failed.');
+          }
+        }
+
+        let outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+        if (!outputUrl) throw new Error("No image returned.");
+
+        // Instead of returning immediately, we set up the image load logic.
+        // We set success = true here so the loop doesn't retry. If the image fails to LOAD later,
+        // it hits onerror, which we don't retry (we just inform the user).
+        success = true;
+
+        itemImage.src = outputUrl;
+        itemImage.onload = () => {
+          loadingOverlay.style.display = 'none';
+          itemImage.style.display = 'block';
+          
+          if (!isDating) {
+            scannerStatus.textContent = "SCANNING ITEM...";
+            appraiseItem(outputUrl, prompt);
+          } else {
+            scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
+            state.phase = "DATING_WAIT_USER";
+            gameInput.disabled = false;
+            gameInput.focus();
+          }
+        };
         
-        if (!isDating) {
-          scannerStatus.textContent = "SCANNING ITEM...";
-          appraiseItem(outputUrl, prompt);
-        } else {
-          scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
-          state.phase = "DATING_WAIT_USER";
+        itemImage.onerror = () => {
+          loadingOverlay.style.display = 'none';
+          scannerStatus.textContent = "IMAGE LOAD ERROR";
+          state.phase = originalPhase;
           gameInput.disabled = false;
           gameInput.focus();
-        }
-      };
-      
-      itemImage.onerror = () => {
-        loadingOverlay.style.display = 'none';
-        scannerStatus.textContent = "IMAGE LOAD ERROR";
-        state.phase = originalPhase;
-        gameInput.disabled = false;
-        addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
-      };
+          addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
+        };
 
-    } catch (e) {
-      addLog(`Generation Error: ${e.message}`, "log-error");
-      loadingOverlay.style.display = 'none';
-      scannerStatus.textContent = "ERROR";
-      state.phase = originalPhase;
-      gameInput.disabled = false;
+      } catch (e) {
+        if (attempt === maxAttempts) {
+          addLog(`Generation Error: ${e.message}`, "log-error");
+          loadingOverlay.style.display = 'none';
+          scannerStatus.textContent = "ERROR";
+          state.phase = originalPhase;
+          gameInput.disabled = false;
+          gameInput.focus();
+        } else {
+          console.warn(`Attempt ${attempt} failed:`, e);
+          attempt++;
+        }
+      }
     }
   }
 
