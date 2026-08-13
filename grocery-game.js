@@ -255,13 +255,21 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
         
+        let imageLoadAttempts = 0;
         itemImage.onerror = () => {
-          loadingOverlay.style.display = 'none';
-          scannerStatus.textContent = "IMAGE LOAD ERROR";
-          state.phase = originalPhase;
-          gameInput.disabled = false;
-          gameInput.focus();
-          addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
+          imageLoadAttempts++;
+          if (imageLoadAttempts < 3) {
+            setTimeout(() => {
+              itemImage.src = outputUrl + (outputUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+            }, 1000);
+          } else {
+            loadingOverlay.style.display = 'none';
+            scannerStatus.textContent = "IMAGE LOAD ERROR";
+            state.phase = originalPhase;
+            gameInput.disabled = false;
+            gameInput.focus();
+            addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
+          }
         };
 
       } catch (e) {
