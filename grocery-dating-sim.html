@@ -237,7 +237,7 @@
       font-size: 2.5rem;
       text-align: center;
       animation: vhs-warp 5s infinite;
-      text-shadow: 2px 0 rgba(255,0,0,0.8), -2px 0 rgba(0,0,255,0.8);
+      text-shadow: 1px 0 rgba(255,0,0,0.8), -1px 0 rgba(0,0,255,0.8);
       z-index: 1;
     }
 
@@ -351,7 +351,7 @@
         position: relative; 
         overflow: hidden;
         animation: vhs-warp 7s infinite;
-        text-shadow: 2px 0 rgba(255,0,0,0.8), -2px 0 rgba(0,0,255,0.8), 0 0 10px rgba(51,255,51,0.5);
+        text-shadow: 1px 0 rgba(255,0,0,0.8), -1px 0 rgba(0,0,255,0.8), 0 0 10px rgba(51,255,51,0.5);
       }
       .vhs-scanline {
         position: absolute; 
@@ -367,12 +367,12 @@
       }
       @keyframes vhs-warp {
         0%, 90% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); }
-        91% { transform: skewX(-2deg) skewY(0.5deg) translateY(-2px); filter: blur(1px); text-shadow: 4px 0 rgba(255,0,0,0.9), -4px 0 rgba(0,0,255,0.9); }
+        91% { transform: skewX(-2deg) skewY(0.5deg) translateY(-2px); filter: blur(1px); text-shadow: 2px 0 rgba(255,0,0,0.9), -2px 0 rgba(0,0,255,0.9); }
         93% { transform: skewX(2deg) skewY(-0.5deg) translateY(2px); filter: blur(0px); }
         94% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); }
-        98% { transform: skewX(-5deg) translateY(-1px); filter: blur(2px); text-shadow: -5px 0 rgba(255,0,0,0.9), 5px 0 rgba(0,0,255,0.9); }
-        99% { transform: skewX(5deg) translateY(1px); filter: blur(0px); }
-        100% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); text-shadow: 2px 0 rgba(255,0,0,0.8), -2px 0 rgba(0,0,255,0.8), 0 0 10px rgba(51,255,51,0.5); }
+        98% { transform: skewX(-3deg) translateY(-1px); filter: blur(2px); text-shadow: -3px 0 rgba(255,0,0,0.9), 3px 0 rgba(0,0,255,0.9); }
+        99% { transform: skewX(3deg) translateY(1px); filter: blur(0px); }
+        100% { transform: skewX(0deg) skewY(0deg) translateY(0); filter: blur(0px); text-shadow: 1px 0 rgba(255,0,0,0.8), -1px 0 rgba(0,0,255,0.8), 0 0 10px rgba(51,255,51,0.5); }
       }
       @keyframes scanline {
         0% { transform: translateY(-30px); }
