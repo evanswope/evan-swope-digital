@@ -309,8 +309,31 @@ document.addEventListener('DOMContentLoaded', () => {
           userPrompt
         })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const initData = await res.json();
+      if (!res.ok) throw new Error(initData.message);
+
+      let predictionId = initData.id;
+      let prediction;
+      
+      let pollCount = 0;
+      while (true) {
+        if (pollCount > 15) throw new Error('Timeout waiting for appraisal (22s limit).');
+        pollCount++;
+        await new Promise(r => setTimeout(r, 1500));
+        
+        const pollRes = await fetch(`/api/poll?id=${predictionId}&_t=${Date.now()}`);
+        prediction = await pollRes.json();
+        
+        if (!pollRes.ok) throw new Error(prediction.message);
+        if (prediction.status === 'succeeded') break;
+        if (prediction.status === 'failed' || prediction.status === 'canceled') {
+          throw new Error(prediction.error || 'Appraisal failed.');
+        }
+      }
+      
+      let rawText = Array.isArray(prediction.output) ? prediction.output.join('') : prediction.output;
+      rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const data = JSON.parse(rawText);
 
       addLog(`[CUSTOMER] ${data.reaction}`, "log-customer");
       
