@@ -31,6 +31,9 @@
       width: 80vw;
       max-width: 800px;
       transform: translateY(-150vh);
+    }
+    
+    .giant-worm.dropping {
       animation: dropIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
     
@@ -50,8 +53,10 @@
       margin-bottom: -1rem;
       transform: scale(0);
       opacity: 0;
+    }
+    
+    .error-subtext.smashing {
       animation: smashText 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      animation-delay: 0.9s;
     }
     
     .error-text {
@@ -62,8 +67,11 @@
       transform: rotate(-3deg) scale(0);
       opacity: 0;
       text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+    }
+    
+    .error-text.smashing {
       animation: smashText 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      animation-delay: 1.0s;
+      animation-delay: 0.1s;
     }
     
     @keyframes smashText {
@@ -157,34 +165,37 @@
 
   <script src="app.js"></script>
   <script>
+    // Spin up audio engine globally first
+    let audioCtx = null;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.log("AudioContext blocked or failed early", e);
+    }
+
     function playThud() {
+      if (!audioCtx) return;
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
         
-        // Create an oscillator for the fundamental frequency
         const osc = audioCtx.createOscillator();
         osc.type = 'sine';
-        
-        // Create a gain node for the envelope
         const gainNode = audioCtx.createGain();
         
-        // Connect nodes
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         
         const now = audioCtx.currentTime;
-        
-        // Pitch drop for the "thud" effect
         osc.frequency.setValueAtTime(150, now);
         osc.frequency.exponentialRampToValueAtTime(0.01, now + 0.5);
         
-        // Volume envelope (quick attack, slightly slower decay)
         gainNode.gain.setValueAtTime(0, now);
         gainNode.gain.linearRampToValueAtTime(1, now + 0.02);
         gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
         
-        // Add a bit of noise for impact texture
-        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
+        const bufferSize = audioCtx.sampleRate * 0.5;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -204,11 +215,9 @@
         noiseFilter.connect(noiseGain);
         noiseGain.connect(audioCtx.destination);
         
-        // Start everything
         osc.start(now);
         noise.start(now);
         
-        // Stop everything
         osc.stop(now + 0.5);
         noise.stop(now + 0.5);
       } catch (e) {
@@ -216,15 +225,26 @@
       }
     }
 
-    // Play thud a bit earlier (400ms) to counteract AudioContext initialization latency
+    // Start the sequence after a tiny delay to let engine settle
     setTimeout(() => {
-      playThud();
-    }, 400);
-    
-    // Redirect 4 seconds after text appears (text appears around 1s + 4s = 5s total)
-    setTimeout(() => {
-      window.location.href = "https://www.evanswope.com";
-    }, 5000);
+      document.querySelector('.giant-worm').classList.add('dropping');
+      
+      // Thud exactly 100ms before the 1s drop animation ends
+      setTimeout(() => {
+        playThud();
+      }, 900);
+      
+      // Smash text exactly when the worm lands
+      setTimeout(() => {
+        document.querySelector('.error-subtext').classList.add('smashing');
+        document.querySelector('.error-text').classList.add('smashing');
+      }, 1000);
+      
+      // Redirect 4s after text appears (1000ms + 4000ms = 5000ms from sequence start)
+      setTimeout(() => {
+        window.location.href = "https://www.evanswope.com";
+      }, 5000);
+    }, 50);
   </script>
 </body>
 </html>
