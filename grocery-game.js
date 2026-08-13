@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const won = forceLoss ? false : (state.datingScore >= 2);
     
     let finalPrompt = won 
-      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the ${state.selectedCustomer.desc} happily in love with a first-person POV camera standing in front of a grocery store. Epic lighting, beautiful masterpiece. DO NOT generate two human people.`
+      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date, seen from a first-person POV camera. Epic lighting, beautiful masterpiece, highly detailed. No other humans in frame.`
       : `A lonely, dark, depressing cinematic shot of a sad grocery clerk crying alone in a dimly lit, empty grocery store. Game over vibes.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
@@ -628,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.disabled = true;
 
     try {
-      const { db, storage, ref, push, storageRef, uploadBytes, getDownloadURL } = window.FirebaseAPI;
+      const { db, storage, ref, push, set, storageRef, uploadBytes, getDownloadURL } = window.FirebaseAPI;
       
       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout. Firebase might be blocked by an adblocker or the image is too large.")), 20000));
 
@@ -660,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (e) {
       console.error(e);
-      addLog(`> Error saving to leaderboard: ${e.message}`, "log-error");
+      addLog(`> Error saving to leaderboard: Timeout or blocked connection. Memory saved locally instead!`, "log-error");
     }
 
     addLog(`\nType a complaint to management, or type RESTART to play again.`, "log-gm");

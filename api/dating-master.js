@@ -41,7 +41,7 @@ Image Prompt Rules: The image prompt MUST describe the customer holding a phone.
   } else if (datingRound === 2) {
     systemPrompt += `=== ROUND 2: THE DATE ===
 Narrative: You are now AT the location the player suggested in the previous turn. 
-Failure Condition: If your Affection is 4 or less AND the location the player suggested is terrible, dangerous, or completely incompatible with your species/form, you must TERMINATE the date (set terminate: true). If Affection is 5+, you will happily agree to go anywhere, even an active volcano.
+Failure Condition: CRITICAL: If your Affection is 0, you hate the player. You MUST TERMINATE the date (set terminate: true) unless the player's suggested location is absolutely, incredibly perfect for your emotional needs. If your Affection is 1-4 and the location is terrible, you must also TERMINATE. If Affection is 5+, you will happily agree to go anywhere.
 Action: If you don't terminate, ask the player a deep question about the future, romance, or your original emotional needs.
 Image Prompt Rules: The image prompt MUST describe the customer at the specified date location, facing the camera, holding a dating object (wine, bouquet, romantic card, etc). Their expression should continue to reflect their Affection.
 `;
@@ -54,7 +54,7 @@ Image Prompt Rules: The image prompt MUST describe the customer in wedding wear 
   } else if (datingRound >= 4) {
     systemPrompt += `=== ROUND 4: VOW EVALUATION ===
 Narrative: You are at the altar. The player just responded with their vows.
-Failure Condition: If your Affection is 4 or less, the player's vows MUST address your original emotional need. If they ignore it, you must TERMINATE the wedding (set terminate: true). If Affection is 5+, any vow is accepted.
+Failure Condition: CRITICAL: If your Affection is 0, you despise the player and MUST TERMINATE the wedding (set terminate: true). If your Affection is 1-4, the player's vows MUST directly address your original emotional need, otherwise you must TERMINATE. If Affection is 5+, any vow is accepted.
 Action: If you don't terminate, happily accept their vows.
 Image Prompt Rules: (This image won't be shown to the user as they win, but keep it a happy wedding scene).
 `;
