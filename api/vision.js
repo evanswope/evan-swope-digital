@@ -16,7 +16,7 @@ Base Item Wanted: "${customerRequest}"
 Their Emotional Need/Problem: "${emotionalNeed}"
 The player generated an item using the prompt: "${userPrompt}"
 
-CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY see the image. Judge the item strictly on what it visually looks like in the image. If the image failed to draw what the prompt asked for, you must judge and reject it based on what it actually looks like. Use the player's prompt ONLY as background context to understand their intent.
+CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY see the image. Judge the item strictly on what it visually looks like in the image. If the image failed to draw what the prompt asked for, you must judge and reject it based on what it actually looks like. Use the player's prompt ONLY as background context to understand their intent. When writing the "reaction", you are roleplaying as the customer speaking directly to the grocer. Address them as "you", "the grocer", or "the clerk". DO NOT break the fourth wall or refer to them as "the player" or "the user".
 
 Look at the generated image provided. 
 You must judge this on TWO criteria:
