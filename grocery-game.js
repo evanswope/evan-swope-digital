@@ -17,12 +17,23 @@ document.addEventListener('DOMContentLoaded', () => {
   let state = {
     level: 1,
     cash: 0,
-    trust: 50, // percentage
+    trust: 50,
     popularity: 0,
     affection: 0,
+    
+    currentCustomerDesc: "",
     currentCustomerRequest: "",
-    phase: "START", // START, WAITING_FOR_USER, GENERATING, APPRAISING
-    conversationHistory: [] // To pass to Game Master
+    customersServed: [], // Array of { id, desc, request, affectionGained }
+
+    phase: "START", // START, WAITING_FOR_USER, GENERATING, APPRAISING, LEDGER, DATING_WAIT_USER, DATING_GENERATING, COMPLAINT
+    conversationHistory: [],
+
+    // Dating state
+    datingRound: 1,
+    datingScore: 0,
+    selectedCustomer: null,
+    datingHistory: [],
+    isAce: false
   };
 
   // Helper: Add text to log
@@ -70,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) throw new Error(data.message);
 
-      // GM returns: dialogue, customer_request
       addLog(`[CUSTOMER] ${data.dialogue}`, "log-customer");
+      state.currentCustomerDesc = data.dialogue;
       state.currentCustomerRequest = data.customer_request;
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
 
@@ -88,15 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Phase: Generate Image
-  async function generateImage(prompt) {
-    state.phase = "GENERATING";
+  async function generateImage(prompt, isDating = false, fullPromptOverride = null) {
+    const originalPhase = state.phase;
+    state.phase = isDating ? "DATING_GENERATING" : "GENERATING";
     gameInput.disabled = true;
     itemImage.style.display = 'none';
     loadingOverlay.style.display = 'flex';
-    scannerStatus.textContent = "FABRICATING ITEM...";
+    scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
 
-    // Secretly append product photography prompt
-    const finalPrompt = `${prompt}, isolated on a pure white background, studio lighting, product photography`;
+    // If dating, use the LLM's full prompt (no white background requirement). 
+    // If grocery, append product photography suffix.
+    const finalPrompt = fullPromptOverride ? fullPromptOverride : `${prompt}, isolated on a pure white background, studio lighting, product photography`;
 
     try {
       const res = await fetch('/api/generate', {
@@ -137,15 +150,23 @@ document.addEventListener('DOMContentLoaded', () => {
       itemImage.onload = () => {
         loadingOverlay.style.display = 'none';
         itemImage.style.display = 'block';
-        scannerStatus.textContent = "SCANNING ITEM...";
-        appraiseItem(outputUrl, prompt);
+        
+        if (!isDating) {
+          scannerStatus.textContent = "SCANNING ITEM...";
+          appraiseItem(outputUrl, prompt);
+        } else {
+          scannerStatus.textContent = `DATE ROUND ${state.datingRound}/3`;
+          state.phase = "DATING_WAIT_USER";
+          gameInput.disabled = false;
+          gameInput.focus();
+        }
       };
 
     } catch (e) {
       addLog(`Generation Error: ${e.message}`, "log-error");
       loadingOverlay.style.display = 'none';
-      scannerStatus.textContent = "FABRICATION FAILED";
-      state.phase = "WAITING_FOR_USER";
+      scannerStatus.textContent = "ERROR";
+      state.phase = originalPhase;
       gameInput.disabled = false;
     }
   }
@@ -167,15 +188,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // Vision returns: approved (boolean), value (int), reaction (string)
       addLog(`[CUSTOMER] ${data.reaction}`, "log-customer");
       
+      let affectionGained = 0;
+
       if (data.approved) {
         scannerStatus.textContent = `APPROVED: $${data.value}`;
         scannerStatus.style.color = "#33ff33";
         state.cash += data.value;
         state.popularity += 1;
-        state.affection += Math.floor(data.value / 100);
+        affectionGained = Math.floor(data.value / 100);
+        state.affection += affectionGained;
         state.trust = Math.min(100, state.trust + 5);
         for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
         if (data.value > 1000) spawnParticle('heart');
@@ -185,13 +208,26 @@ document.addEventListener('DOMContentLoaded', () => {
         state.trust = Math.max(0, state.trust - 10);
       }
 
-      state.level++;
+      // Save customer to ledger
+      state.customersServed.push({
+        id: state.level,
+        desc: state.currentCustomerDesc,
+        request: state.currentCustomerRequest,
+        affectionGained: affectionGained
+      });
+
       updateStatsUI();
 
-      addLog(`> Shift completed. Type "NEXT" to serve the next customer.`, "log-gm");
-      state.phase = "START";
-      gameInput.disabled = false;
-      gameInput.focus();
+      if (state.level >= 5) {
+        showLedger();
+      } else {
+        state.level++;
+        updateStatsUI();
+        addLog(`> Shift completed. Type "NEXT" to serve the next customer.`, "log-gm");
+        state.phase = "START";
+        gameInput.disabled = false;
+        gameInput.focus();
+      }
 
     } catch (e) {
       addLog(`Appraisal Error: ${e.message}`, "log-error");
@@ -201,13 +237,110 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Phase: Ledger / Selection
+  function showLedger() {
+    state.phase = "LEDGER";
+    addLog(`\n===========================================`, "log-system");
+    addLog(`WEEKLY LEDGER: SHIFT OVER`, "log-system");
+    addLog(`===========================================`, "log-system");
+    
+    // Sort customers by affection, descending
+    state.customersServed.sort((a, b) => b.affectionGained - a.affectionGained);
+
+    state.customersServed.forEach((c, idx) => {
+      addLog(`[${idx + 1}] Affection: ${c.affectionGained}💖 | Wanted: ${c.request}`, "log-user");
+    });
+
+    addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" to just hang out as friends.`, "log-gm");
+    gameInput.disabled = false;
+    gameInput.focus();
+  }
+
+  // Phase: Dating Logic
+  async function callDatingMaster(userMessage) {
+    state.phase = "DATING_GENERATING";
+    gameInput.disabled = true;
+
+    if (userMessage) {
+      state.datingHistory.push({ role: "user", content: userMessage });
+    } else {
+      userMessage = "*Calls the customer on the phone*";
+    }
+
+    addLog("Waiting for response...", "log-system");
+
+    try {
+      const res = await fetch('/api/dating-master', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: state.selectedCustomer,
+          userMessage: userMessage,
+          datingRound: state.datingRound,
+          datingHistory: state.datingHistory,
+          isAce: state.isAce
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      addLog(`[DATE] ${data.dialogue}`, "log-customer");
+      state.datingHistory.push({ role: "assistant", content: data.dialogue });
+      
+      if (data.approval === 1) {
+        state.datingScore++;
+        spawnParticle('heart');
+      }
+
+      if (state.datingRound > 3) {
+        finishDating();
+        return;
+      }
+
+      // Generate the scene image based on the LLM's prompt
+      addLog("> Generating scene...", "log-system");
+      await generateImage(null, true, data.image_prompt);
+      
+      state.datingRound++;
+
+    } catch (e) {
+      addLog(`Dating Error: ${e.message}`, "log-error");
+      state.phase = "DATING_WAIT_USER";
+      gameInput.disabled = false;
+    }
+  }
+
+  async function finishDating() {
+    state.phase = "DATING_GENERATING";
+    const won = state.datingScore >= 2;
+    
+    let finalPrompt = won 
+      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the grocery clerk falling in love with ${state.selectedCustomer.request}. Epic lighting, beautiful masterpiece.`
+      : `A lonely, dark, depressing cinematic shot of a sad grocery clerk crying alone in a dimly lit, empty grocery store. Game over vibes.`;
+
+    addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
+
+    // We don't await because we just want the final image to show up
+    await generateImage(null, true, finalPrompt);
+    
+    scannerStatus.textContent = won ? "YOU WIN!" : "GAME OVER";
+    scannerStatus.style.color = won ? "#ff00ff" : "#ff3333";
+    
+    addLog(`\n===========================================`, "log-system");
+    addLog(won ? `GAME OVER - YOU WON!` : `GAME OVER - YOU LOST!`, "log-system");
+    addLog(`Type a complaint to management, or type RESTART to play again.`, "log-gm");
+    
+    state.phase = "COMPLAINT";
+    gameInput.disabled = false;
+    gameInput.focus();
+  }
+
   // Input Handler
   gameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       const val = gameInput.value.trim();
       if (!val) return;
       gameInput.value = '';
-
       addLog(val, "log-user");
 
       if (state.phase === "START") {
@@ -216,8 +349,40 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           addLog("Type 'start' or 'next' to continue.", "log-system");
         }
-      } else if (state.phase === "WAITING_FOR_USER") {
-        generateImage(val);
+      } 
+      else if (state.phase === "WAITING_FOR_USER") {
+        generateImage(val, false);
+      }
+      else if (state.phase === "LEDGER") {
+        const lower = val.toLowerCase();
+        if (lower === "i'm ace" || lower === "im ace") {
+          state.isAce = true;
+          // Just pick the highest affection customer to hang out with
+          state.selectedCustomer = state.customersServed[0];
+          addLog(`> You decided to just make a friend. Calling up Customer #1...`, "log-gm");
+          callDatingMaster(null);
+        } else {
+          const num = parseInt(val);
+          if (num >= 1 && num <= 5) {
+            state.selectedCustomer = state.customersServed[num - 1];
+            addLog(`> Calling up Customer #${num}...`, "log-gm");
+            callDatingMaster(null);
+          } else {
+            addLog("> Invalid choice. Pick 1-5 or 'I'm Ace'.", "log-error");
+          }
+        }
+      }
+      else if (state.phase === "DATING_WAIT_USER") {
+        callDatingMaster(val);
+      }
+      else if (state.phase === "COMPLAINT") {
+        if (val.toLowerCase() === 'restart') {
+          location.reload();
+        } else {
+          addLog(`> Your complaint has been sent to the shredder.`, "log-system");
+          addLog(`> Restarting...`, "log-system");
+          setTimeout(() => location.reload(), 2000);
+        }
       }
     }
   });
