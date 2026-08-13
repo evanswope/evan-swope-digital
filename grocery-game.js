@@ -410,6 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.bonus) {
           addLog(`> BONUS! You creatively solved their problem! (+${affectionGained} Affection)`, "log-system");
           state.cash += data.value * 2; // Massive cash multiplier for being clever
+        } else {
+          addLog(`> Item sold. (+${affectionGained} Affection)`, "log-system");
         }
 
         state.trust = Math.min(100, state.trust + 5);
@@ -446,7 +448,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (state.level >= 5) {
-        showLedger();
+        updateStatsUI();
+        addLog(`> Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+        state.phase = "WAIT_LEDGER";
+        gameInput.disabled = false;
+        gameInput.focus();
       } else {
         state.level++;
         updateStatsUI();
@@ -683,6 +689,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Jump straight to dating round (pass a true love flag to the dating API)
         state.isTrueLove = true;
         callDatingMaster(null);
+      }
+      else if (state.phase === "WAIT_LEDGER") {
+        if (val.toLowerCase() === 'ledger' || val.toLowerCase() === 'next') {
+          showLedger();
+        } else {
+          addLog("Type 'ledger' to review your customers.", "log-system");
+        }
       }
       else if (state.phase === "DATING_WAIT_USER") {
         callDatingMaster(val);
