@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
           html += `
             <tr style="border-bottom:1px solid #333;">
               <td style="padding:0.5rem; font-size:1.5rem;">#${idx+1}</td>
-              <td style="padding:0.5rem;"><img src="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px;" crossorigin="anonymous"/></td>
+              <td style="padding:0.5rem;"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" crossorigin="anonymous"/></td>
               <td style="padding:0.5rem; color:#fff;">${s.name.substring(0,20)}</td>
               <td style="padding:0.5rem; color:#ff7eb3;">${s.customer}</td>
               <td style="padding:0.5rem; color:#33ff33;">${s.score}</td>
@@ -495,6 +495,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         html += '</table>';
         contentLeaderboard.innerHTML = html;
+
+        // Add click listeners to thumbnails
+        document.querySelectorAll('.leaderboard-thumbnail').forEach(img => {
+          img.addEventListener('click', (e) => {
+            const fullSrc = e.target.getAttribute('data-fullsrc');
+            document.getElementById('image-modal-img').src = fullSrc;
+            document.getElementById('image-modal').style.display = 'flex';
+          });
+        });
 
       } catch (err) {
         console.error(err);
@@ -506,5 +515,34 @@ document.addEventListener('DOMContentLoaded', () => {
       modalLeaderboard.style.display = 'none';
     });
   }
+
+  // Image Modal Logic
+  const imageModal = document.getElementById('image-modal');
+  const btnCloseImage = document.getElementById('btn-close-image');
+  const imageModalContent = document.getElementById('image-modal-content');
+
+  if (imageModal) {
+    imageModal.addEventListener('click', (e) => {
+      // Close if they click the background, but not the image itself
+      if (e.target === imageModal) {
+        imageModal.style.display = 'none';
+      }
+    });
+    btnCloseImage.addEventListener('click', () => {
+      imageModal.style.display = 'none';
+    });
+  }
+
+  // Global Auto-Focus Logic
+  document.addEventListener('click', (e) => {
+    // If they aren't clicking on a button, link, or inside a modal, refocus input
+    if (e.target.tagName !== 'BUTTON' 
+        && e.target.tagName !== 'A' 
+        && !e.target.closest('#leaderboard-modal')
+        && !e.target.closest('#image-modal')
+        && !e.target.classList.contains('leaderboard-thumbnail')) {
+      gameInput.focus();
+    }
+  });
 
 });
