@@ -231,8 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // We set success = true here so the loop doesn't retry. If the image fails to LOAD later,
         // it hits onerror, which we don't retry (we just inform the user).
         success = true;
+        
+        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(outputUrl)}`;
 
-        itemImage.src = outputUrl;
+        itemImage.src = proxyUrl;
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
           const noItemText = document.getElementById('no-item-text');
@@ -265,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
           imageLoadAttempts++;
           if (imageLoadAttempts < 3) {
             setTimeout(() => {
-              itemImage.src = outputUrl + (outputUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+              itemImage.src = proxyUrl + '&retry=' + Date.now();
             }, 1000);
           } else {
             loadingOverlay.style.display = 'none';
