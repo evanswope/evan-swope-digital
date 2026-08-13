@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentCustomerRequest: "",
     customersServed: [], // Array of { id, desc, request, affectionGained }
 
-    phase: "START", // START, WAITING_FOR_USER, GENERATING, APPRAISING, LEDGER, DATING_WAIT_USER, DATING_GENERATING, COMPLAINT
+    phase: "START", // START, WAITING_FOR_USER, GENERATING, APPRAISING, LEDGER, DATING_WAIT_USER, DATING_GENERATING, LEADERBOARD_PROMPT, COMPLAINT
     conversationHistory: [],
 
     // Dating state
@@ -328,8 +328,62 @@ document.addEventListener('DOMContentLoaded', () => {
     
     addLog(`\n===========================================`, "log-system");
     addLog(won ? `GAME OVER - YOU WON!` : `GAME OVER - YOU LOST!`, "log-system");
-    addLog(`Type a complaint to management, or type RESTART to play again.`, "log-gm");
     
+    if (won) {
+      addLog(`> Type your name to immortalize your romance on the Leaderboard, or type "NO" to skip.`, "log-gm");
+      state.phase = "LEADERBOARD_PROMPT";
+    } else {
+      addLog(`Type a complaint to management, or type RESTART to play again.`, "log-gm");
+      state.phase = "COMPLAINT";
+    }
+    gameInput.disabled = false;
+    gameInput.focus();
+  }
+
+  async function saveToLeaderboard(playerName) {
+    if (!window.FirebaseAPI) {
+      addLog("> Firebase not loaded. Cannot save score.", "log-error");
+      return;
+    }
+    
+    addLog("> Uploading memory to the Hall of Romance...", "log-system");
+    gameInput.disabled = true;
+
+    try {
+      const { db, storage, ref, push, storageRef, uploadBytes, getDownloadURL } = window.FirebaseAPI;
+      
+      // 1. Download image from Replicate
+      const imgUrl = itemImage.src;
+      const res = await fetch(imgUrl);
+      const blob = await res.blob();
+
+      // 2. Upload to Firebase Storage
+      const filename = `dates/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+      const sRef = storageRef(storage, filename);
+      await uploadBytes(sRef, blob);
+      const permUrl = await getDownloadURL(sRef);
+
+      // 3. Save to Realtime Database
+      const totalScore = state.cash + (state.affection * 100);
+      const scoreData = {
+        name: playerName,
+        score: totalScore,
+        cash: state.cash,
+        affection: state.affection,
+        customer: state.selectedCustomer.request,
+        imageUrl: permUrl,
+        timestamp: Date.now()
+      };
+
+      await push(ref(db, 'leaderboard'), scoreData);
+      addLog("> Successfully immortalized! 🏆", "log-system");
+
+    } catch (e) {
+      console.error(e);
+      addLog(`> Error saving to leaderboard: ${e.message}`, "log-error");
+    }
+
+    addLog(`\nType a complaint to management, or type RESTART to play again.`, "log-gm");
     state.phase = "COMPLAINT";
     gameInput.disabled = false;
     gameInput.focus();
@@ -357,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const lower = val.toLowerCase();
         if (lower === "i'm ace" || lower === "im ace") {
           state.isAce = true;
-          // Just pick the highest affection customer to hang out with
           state.selectedCustomer = state.customersServed[0];
           addLog(`> You decided to just make a friend. Calling up Customer #1...`, "log-gm");
           callDatingMaster(null);
@@ -375,6 +428,14 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (state.phase === "DATING_WAIT_USER") {
         callDatingMaster(val);
       }
+      else if (state.phase === "LEADERBOARD_PROMPT") {
+        if (val.toLowerCase() === 'no') {
+          addLog(`Type a complaint to management, or type RESTART to play again.`, "log-gm");
+          state.phase = "COMPLAINT";
+        } else {
+          saveToLeaderboard(val);
+        }
+      }
       else if (state.phase === "COMPLAINT") {
         if (val.toLowerCase() === 'restart') {
           location.reload();
@@ -386,5 +447,64 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // Leaderboard Modal Logic
+  const btnLeaderboard = document.getElementById('btn-leaderboard');
+  const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
+  const modalLeaderboard = document.getElementById('leaderboard-modal');
+  const contentLeaderboard = document.getElementById('leaderboard-content');
+
+  if (btnLeaderboard && modalLeaderboard) {
+    btnLeaderboard.addEventListener('click', async (e) => {
+      e.preventDefault();
+      modalLeaderboard.style.display = 'flex';
+      contentLeaderboard.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading legends...</div>';
+      
+      if (!window.FirebaseAPI) {
+        contentLeaderboard.innerHTML = '<div style="color:red; text-align:center;">Firebase not loaded yet.</div>';
+        return;
+      }
+
+      try {
+        const { db, ref, query, orderByChild, limitToLast, get } = window.FirebaseAPI;
+        const lbQuery = query(ref(db, 'leaderboard'), orderByChild('score'), limitToLast(10));
+        const snapshot = await get(lbQuery);
+        
+        if (!snapshot.exists()) {
+          contentLeaderboard.innerHTML = '<div style="text-align:center;">No romances recorded yet!</div>';
+          return;
+        }
+
+        const scores = [];
+        snapshot.forEach((child) => { scores.push(child.val()); });
+        scores.sort((a, b) => b.score - a.score); // highest first
+
+        let html = '<table style="width:100%; text-align:left; border-collapse:collapse;">';
+        html += '<tr style="border-bottom:1px solid gold; color:gold;"><th>Rank</th><th>Photo</th><th>Name</th><th>Partner</th><th>Score</th></tr>';
+        
+        scores.forEach((s, idx) => {
+          html += `
+            <tr style="border-bottom:1px solid #333;">
+              <td style="padding:0.5rem; font-size:1.5rem;">#${idx+1}</td>
+              <td style="padding:0.5rem;"><img src="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px;" crossorigin="anonymous"/></td>
+              <td style="padding:0.5rem; color:#fff;">${s.name.substring(0,20)}</td>
+              <td style="padding:0.5rem; color:#ff7eb3;">${s.customer}</td>
+              <td style="padding:0.5rem; color:#33ff33;">${s.score}</td>
+            </tr>
+          `;
+        });
+        html += '</table>';
+        contentLeaderboard.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        contentLeaderboard.innerHTML = `<div style="color:red; text-align:center;">Error loading scores: ${err.message}</div>`;
+      }
+    });
+
+    btnCloseLeaderboard.addEventListener('click', () => {
+      modalLeaderboard.style.display = 'none';
+    });
+  }
 
 });

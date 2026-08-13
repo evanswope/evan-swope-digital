@@ -207,10 +207,24 @@
         <a href="index.html">HOME</a>
         <a href="experiments.html">AI LAB</a>
         <a href="grocery-dating-sim.html" class="active">GROCERY SIM</a>
+        <a href="#" id="btn-leaderboard" style="color: gold;"><i class="fa-solid fa-trophy"></i> LEADERBOARD</a>
         <a href="mailto:hello@evanswope.com" class="nav-btn">CONTACT</a>
       </div>
     </div>
   </nav>
+
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--game-bg); border:2px solid gold; padding:2rem; width:90%; max-width:600px; max-height:80vh; overflow-y:auto; box-shadow:0 0 20px rgba(255,215,0,0.3); font-family: 'VT323', monospace;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid gold; padding-bottom:1rem; margin-bottom:1rem;">
+        <h2 style="color:gold; margin:0; font-size:2rem;"><i class="fa-solid fa-trophy"></i> HALL OF ROMANCE</h2>
+        <button id="btn-close-leaderboard" style="background:transparent; border:none; color:gold; font-size:2rem; cursor:pointer;">&times;</button>
+      </div>
+      <div id="leaderboard-content" style="color:var(--text-light); font-size:1.2rem;">
+        <div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading legends...</div>
+      </div>
+    </div>
+  </div>
 
   <div class="game-container">
     
@@ -252,7 +266,7 @@
     <div class="game-vision">
       <h3 style="margin:0 0 1rem 0; color:var(--game-text); border-bottom: 1px solid var(--game-text); padding-bottom: 0.5rem; width: 100%; text-align: center; font-family: 'VT323', monospace;">THE SCANNER</h3>
       <div class="canvas-container">
-        <img id="item-image" src="" style="display:none;" />
+        <img id="item-image" src="" style="display:none;" crossorigin="anonymous" />
         <div id="loading-overlay">
           <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i>
           <span id="loading-text">GENERATING...</span>
@@ -262,6 +276,28 @@
     </div>
 
   </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getDatabase, ref, push, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2I4nMihPDLIANp-3p2e_sjLg04YFdKoA",
+      authDomain: "grocery-sim.firebaseapp.com",
+      projectId: "grocery-sim",
+      storageBucket: "grocery-sim.firebasestorage.app",
+      messagingSenderId: "744813705956",
+      appId: "1:744813705956:web:568f0f42ed49aa639d4af1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    window.FirebaseAPI = { db, storage, ref, push, query, orderByChild, limitToLast, get, storageRef, uploadBytes, getDownloadURL };
+  </script>
 
   <script src="grocery-game.js"></script>
 </body>
