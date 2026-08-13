@@ -38,7 +38,7 @@ JSON Schema:
   "bonus": true or false,    // True if emotional need is creatively addressed
   "affection": integer,      // 0, 1, 2-5, or 10
   "value": integer,
-  "reaction": "A short, funny one-liner from the customer reacting to what they ACTUALLY SEE in the image."
+  "reaction": "A short, funny one-liner from the customer reacting to what they ACTUALLY SEE in the image. CRITICAL: If 'approved' is true, they MUST buy/accept the item in the dialogue (even if they hate it or are confused). They cannot refuse or walk away if approved is true."
 }`;
 
   try {
