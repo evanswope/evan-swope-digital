@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { imageUrl, customerRequest, userPrompt } = req.body;
+  const { imageUrl, customerRequest, emotionalNeed, userPrompt } = req.body;
   const token = process.env.REPLICATE_API_TOKEN;
 
   if (!token) {
@@ -11,19 +11,32 @@ export default async function handler(req, res) {
   }
 
   const visionPrompt = `You are the strict visual judge in a silly Grocery Store game. 
-A highly unusual customer came in asking for: "${customerRequest}"
+A highly unusual customer came in. 
+Base Item Wanted: "${customerRequest}"
+Their Emotional Need/Problem: "${emotionalNeed}"
 The player generated an item using the prompt: "${userPrompt}"
 
 CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY see the image. Judge the item strictly on what it visually looks like in the image. If the image failed to draw what the prompt asked for, you must judge and reject it based on what it actually looks like. Use the player's prompt ONLY as background context to understand their intent.
 
 Look at the generated image provided. 
-Does the image visually satisfy what the customer requested (or at least close enough in a silly way)?
+You must judge this on TWO criteria:
+1. BASE ITEM: Does the image visually contain the base item requested (or at least close enough in a silly way)?
+2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that creatively solve or address their emotional need?
+
+Scoring Affection:
+- If Base Item is NOT present: Affection is 0. (Even if they solved the emotional need, they failed the base task).
+- If Base Item IS present: Affection is 1.
+- If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is.
+- TRUE LOVE: In very rare, incredibly clever circumstances, you can award 10 Affection.
+
 Rate the "Value" (price) of the item based on how ridiculous, expensive, or gold-encrusted it looks (give an integer between 10 and 100000).
 
 You MUST respond ONLY with a raw JSON object (no markdown, no backticks).
 JSON Schema:
 {
-  "approved": true or false,
+  "approved": true or false, // True if base item is present
+  "bonus": true or false,    // True if emotional need is creatively addressed
+  "affection": integer,      // 0, 1, 2-5, or 10
   "value": integer,
   "reaction": "A short, funny one-liner from the customer reacting to what they ACTUALLY SEE in the image."
 }`;

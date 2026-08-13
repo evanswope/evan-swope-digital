@@ -83,8 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       addLog(`[CUSTOMER] ${data.dialogue}`, "log-customer");
       state.currentCustomerDesc = data.dialogue;
-      state.currentCustomerRequest = data.customer_request;
+      state.currentCustomerRequest = data.base_item;
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
+
+      addLog(`> Customer Wants: ${data.base_item.toUpperCase()}`, "log-system");
+      addLog(`> Hint: ${data.emotional_need}`, "log-system");
 
       addLog(`> What do you generate for them?`, "log-gm");
       state.phase = "WAITING_FOR_USER";
@@ -197,8 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
         scannerStatus.style.color = "#33ff33";
         state.cash += data.value;
         state.popularity += 1;
-        affectionGained = Math.floor(data.value / 100);
+        
+        affectionGained = data.affection || 1;
         state.affection += affectionGained;
+        
+        if (data.bonus) {
+          addLog(`> BONUS! You creatively solved their problem! (+${affectionGained} Affection)`, "log-system");
+          state.cash += data.value * 2; // Massive cash multiplier for being clever
+        }
+
         state.trust = Math.min(100, state.trust + 5);
         for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
         if (data.value > 1000) spawnParticle('heart');
@@ -217,6 +227,19 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       updateStatsUI();
+      
+      // True Love instant-win condition
+      if (affectionGained >= 10) {
+        state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc };
+        addLog(`\n===========================================`, "log-system");
+        addLog(`> 💘 TRUE LOVE! 💘`, "log-system");
+        addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
+        addLog(`> Type "I'm Ace" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
+        state.phase = "TRUE_LOVE_PROMPT";
+        gameInput.disabled = false;
+        gameInput.focus();
+        return;
+      }
 
       if (state.level >= 5) {
         showLedger();
@@ -239,6 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Phase: Ledger / Selection
   function showLedger() {
+    if (state.cash === 0) {
+      addLog(`\n===========================================`, "log-system");
+      addLog(`> YOU SOLD NO GROCERIES. YOU HAVE NO MONEY FOR A DATE.`, "log-error");
+      finishDating(true);
+      return;
+    }
+
     state.phase = "LEDGER";
     addLog(`\n===========================================`, "log-system");
     addLog(`WEEKLY LEDGER: SHIFT OVER`, "log-system");
@@ -310,9 +340,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function finishDating() {
+  async function finishDating(forceLoss = false) {
     state.phase = "DATING_GENERATING";
-    const won = state.datingScore >= 2;
+    const won = forceLoss ? false : (state.datingScore >= 2);
     
     let finalPrompt = won 
       ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing the grocery clerk falling in love with ${state.selectedCustomer.request}. Epic lighting, beautiful masterpiece.`
@@ -424,6 +454,18 @@ document.addEventListener('DOMContentLoaded', () => {
             addLog("> Invalid choice. Pick 1-5 or 'I'm Ace'.", "log-error");
           }
         }
+      }
+      else if (state.phase === "TRUE_LOVE_PROMPT") {
+        const lower = val.toLowerCase();
+        if (lower === "i'm ace" || lower === "im ace") {
+          state.isAce = true;
+          addLog(`> You decided to just be best friends!`, "log-gm");
+        } else {
+          addLog(`> You accept their romantic advances!`, "log-gm");
+        }
+        // Jump straight to dating round (pass a true love flag to the dating API)
+        state.isTrueLove = true;
+        callDatingMaster(null);
       }
       else if (state.phase === "DATING_WAIT_USER") {
         callDatingMaster(val);

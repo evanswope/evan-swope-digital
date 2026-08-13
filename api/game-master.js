@@ -23,7 +23,7 @@ Examples of good customers:
 - a stolen page from a diary of a high schooler
 - an insurance salesman under investigation for churning
 
-CRITICAL: Even though the customers are highly abstract, they still want to buy GROCERY STORE ITEMS (e.g. mayo, milk, cereal, bread, coffee), but with a bizarre mystical or thematic twist tailored to them. For example, a puff of ominous smoke might want "a jar of mayonnaise that has been slightly burned by hellfire".
+CRITICAL: Even though the customers are highly abstract, they still want to buy GROCERY STORE ITEMS (e.g. mayo, milk, cereal, bread, coffee). However, they have a bizarre problem or emotional need that requires a creative solution. 
 
 The requested grocery item should get more ridiculous and expensive as the player levels up.
 
@@ -31,7 +31,8 @@ You MUST respond ONLY with a raw JSON object (no markdown formatting, no backtic
 JSON Schema:
 {
   "dialogue": "A short, funny description of the abstract customer entering and what they say.",
-  "customer_request": "A short phrase describing the exact grocery item (with a weird twist) they want to buy."
+  "base_item": "A short phrase describing the exact base grocery item they want to buy (e.g., 'a jar of mayo')",
+  "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution (e.g., 'companionship', 'a nap', 'help chewing')"
 }`;
 
   const userPrompt = `Current Game State:

@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { customer, userMessage, datingRound, datingHistory, isAce } = req.body;
+  const { customer, userMessage, datingRound, datingHistory, isAce, isTrueLove } = req.body;
   const token = process.env.REPLICATE_API_TOKEN;
 
   if (!token) {
@@ -12,8 +12,8 @@ export default async function handler(req, res) {
 
   const relationshipType = isAce ? "a deep, platonic friendship hangout" : "a romantic date";
 
-  const systemPrompt = `You are playing the role of a highly abstract, bizarre customer in a Grocery Store game who is currently on ${relationshipType} with the grocery clerk (the player).
-The customer is described as: "${customer.description}"
+  let systemPrompt = `You are playing the role of a highly abstract, bizarre customer in a Grocery Store game who is currently on ${relationshipType} with the grocery clerk (the player).
+The customer is described as: "${customer.desc || customer.description}"
 They originally came into the store wanting: "${customer.request}"
 
 We are on round ${datingRound} out of 3 of the date/hangout.
@@ -21,7 +21,13 @@ Your job is to respond to the player's last message, judge if their response was
 
 If this is round 3, you are responding for the final time to conclude the date.
 
-You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks).
+`;
+
+  if (isTrueLove) {
+    systemPrompt += `CRITICAL INSTRUCTION: THIS CUSTOMER EXPERIENCED TRUE LOVE AT FIRST SIGHT! They are absolutely, madly, overwhelmingly infatuated with the player. You MUST give them an approval score of 1 (unless the player is being outright abusive), and your dialogue should reflect their obsessive infatuation.\n\n`;
+  }
+
+  systemPrompt += `You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks).
 JSON Schema:
 {
   "dialogue": "Your response to the player, spoken in character.",
