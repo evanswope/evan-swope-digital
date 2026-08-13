@@ -21,11 +21,11 @@ CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY
 Look at the generated image provided. 
 You must judge this on TWO criteria:
 1. BASE ITEM: Does the image visually contain the base item requested (or at least close enough in a silly way)?
-2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that creatively solve or address their emotional need?
+2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that specifically and creatively address their emotional need? Be EXTREMELY STRICT. If the user's prompt or the image completely ignores the emotional need, or does something entirely unrelated (e.g. they asked for a dance party, but the user gave crying children), the bonus MUST be false.
 
 Scoring Affection:
 - If Base Item is NOT present: Affection is 0. (Even if they solved the emotional need, they failed the base task).
-- If Base Item IS present: Affection is 1.
+- If Base Item IS present but Bonus is FALSE: Affection is 1. The customer's reaction should acknowledge they got the item they wanted, but express confusion, disappointment, or horror at the weird/unrelated twist the player added.
 - If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is.
 - TRUE LOVE: In very rare, incredibly clever circumstances, you can award 10 Affection.
 
