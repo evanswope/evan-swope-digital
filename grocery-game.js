@@ -233,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const noItemText = document.getElementById('no-item-text');
           if (noItemText) noItemText.style.display = 'none';
           
+          itemImage.style.display = 'block';
           itemImage.classList.add('loaded');
           const redScanline = document.getElementById('red-scanline');
           if (redScanline) {
