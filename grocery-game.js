@@ -536,6 +536,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const { db, storage, ref, push, storageRef, uploadBytes, getDownloadURL } = window.FirebaseAPI;
       
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout. Firebase might be blocked by an adblocker.")), 8000));
+
       // 1. Download image from Replicate
       const imgUrl = itemImage.src;
       const res = await fetch(imgUrl);
@@ -544,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Upload to Firebase Storage
       const filename = `dates/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
       const sRef = storageRef(storage, filename);
-      await uploadBytes(sRef, blob);
+      await Promise.race([uploadBytes(sRef, blob), timeoutPromise]);
       const permUrl = await getDownloadURL(sRef);
 
       // 3. Save to Realtime Database
@@ -554,12 +556,12 @@ document.addEventListener('DOMContentLoaded', () => {
         score: totalScore,
         cash: state.cash,
         affection: state.affection,
-        customer: state.selectedCustomer.request,
+        customer: state.selectedCustomer.desc,
         imageUrl: permUrl,
         timestamp: Date.now()
       };
 
-      await push(ref(db, 'leaderboard'), scoreData);
+      await Promise.race([push(ref(db, 'leaderboard'), scoreData), timeoutPromise]);
       addLog("> Successfully immortalized! 🏆", "log-system");
 
     } catch (e) {
