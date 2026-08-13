@@ -49,8 +49,9 @@ Image Prompt Rules: The image prompt MUST describe the customer at the specified
 `;
   } else if (datingRound === 3) {
     systemPrompt += `=== ROUND 3: THE ALTAR ===
-Narrative: You and the player are now at the altar (or friendship ceremony). You must read your vows/speech to the player.
-Action: Read your vows. Do NOT terminate yet.
+Narrative: First, evaluate the player's answer to your deep question from the date. If they passed, you are now at the altar (or friendship ceremony) for the final vows.
+Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy, dismissive, one word, or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy. If they failed to answer the question, you MUST TERMINATE.
+Action: If you don't terminate, you are now at the altar. Read your vows to the player.
 Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) at the altar. If they made it this far with low Affection, they should still be scowling.
 `;
   } else if (datingRound >= 4) {
