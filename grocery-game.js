@@ -33,8 +33,44 @@ document.addEventListener('DOMContentLoaded', () => {
     datingScore: 0,
     selectedCustomer: null,
     datingHistory: [],
-    isAce: false
+    isAce: false,
+    isTrueLove: false
   };
+
+  function resetGame() {
+    state = {
+      level: 1,
+      cash: 0,
+      trust: 50,
+      popularity: 0,
+      affection: 0,
+      currentCustomerDesc: "",
+      currentCustomerRequest: "",
+      customersServed: [],
+      phase: "START",
+      conversationHistory: [],
+      datingRound: 1,
+      datingScore: 0,
+      selectedCustomer: null,
+      datingHistory: [],
+      isAce: false,
+      isTrueLove: false
+    };
+    updateStatsUI();
+    logArea.innerHTML = '';
+    
+    // reset image UI
+    itemImage.onload = null;
+    itemImage.onerror = null;
+    itemImage.classList.remove('loaded');
+    itemImage.src = '';
+    const noItemText = document.getElementById('no-item-text');
+    if (noItemText) noItemText.style.display = 'block';
+    const redScanline = document.getElementById('red-scanline');
+    if (redScanline) redScanline.classList.remove('active');
+
+    callGameMaster();
+  }
 
   // Helper: Add text to log
   function addLog(text, className) {
@@ -664,11 +700,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "COMPLAINT") {
         if (val.toLowerCase() === 'restart') {
-          location.reload();
+          resetGame();
         } else {
           addLog(`> Your complaint has been sent to the shredder.`, "log-system");
           addLog(`> Restarting...`, "log-system");
-          setTimeout(() => location.reload(), 2000);
+          gameInput.disabled = true;
+          setTimeout(() => resetGame(), 2000);
         }
       }
     }
