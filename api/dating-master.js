@@ -22,6 +22,8 @@ The customer's current Affection for the player is: ${affection} (Scale: 0 is lo
 We are on round ${datingRound} out of 3 of the date/hangout.
 Your job is to respond to the player's last message, judge if their response was good/charming/funny, and present the next conversational beat.
 
+CRITICAL IMAGE PROMPT RULE: When writing the \`image_prompt\`, DO NOT include the grocer, the user, or any other humans! The image should feature ONLY the customer (e.g., the bike, the tapeworm, the llama). Text-to-image models will accidentally add humans if you use phrases like "talking to you", "on a date with", or "looking at the grocer", so keep the prompt completely focused on the customer alone.
+
 `;
 
   if (isTrueLove) {

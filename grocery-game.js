@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scannerStatus.textContent = "DATE CONCLUDED";
                 finishDating();
               } else {
-                scannerStatus.textContent = `DATE ROUND ${state.datingRound}/4`;
+                scannerStatus.textContent = `DATE ROUND ${state.datingRound - 1}/3`;
                 state.phase = "DATING_WAIT_USER";
                 gameInput.disabled = false;
                 gameInput.focus();
