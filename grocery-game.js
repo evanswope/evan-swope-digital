@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (state.datingRound >= 3) {
+      if (state.datingRound >= 4) {
         finishDating();
         return;
       }
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const { db, storage, ref, push, storageRef, uploadBytes, getDownloadURL } = window.FirebaseAPI;
       
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout. Firebase might be blocked by an adblocker.")), 8000));
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout. Firebase might be blocked by an adblocker or the image is too large.")), 20000));
 
       // 1. Download image from Replicate
       const imgUrl = itemImage.src;
