@@ -230,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
         itemImage.src = outputUrl;
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
+          const noItemText = document.getElementById('no-item-text');
+          if (noItemText) noItemText.style.display = 'none';
           
           itemImage.classList.add('loaded');
           const redScanline = document.getElementById('red-scanline');
@@ -534,6 +536,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (val.toLowerCase() === 'start' || val.toLowerCase() === 'next') {
           itemImage.classList.remove('loaded');
           itemImage.src = '';
+          const noItemText = document.getElementById('no-item-text');
+          if (noItemText) noItemText.style.display = 'block';
+          
           const redScanline = document.getElementById('red-scanline');
           if (redScanline) redScanline.classList.remove('active');
           
