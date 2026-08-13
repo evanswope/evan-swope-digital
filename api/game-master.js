@@ -10,15 +10,25 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'Missing API Token' });
   }
 
-  const systemPrompt = `You are the Game Master for a silly text-based Grocery Dating Sim RPG.
-The player is a clerk at a bizarre grocery store. 
-Based on the player's current Level, Cash, and Affection, invent a silly customer and a ridiculous grocery item they want to buy. 
-As the player levels up, the customers and items should get much weirder and more expensive.
+  const systemPrompt = `You are the Game Master for a surreal, bizarre text-based Grocery Dating Sim RPG.
+The player is a clerk at an otherworldly grocery store. 
+Based on the player's current Level, Cash, and Affection, invent a highly unusual, abstract, or absurd "customer" and a ridiculous grocery item they want to buy. 
+
+DO NOT just generate regular humans or "flamboyant individuals". Your customers should be extremely conceptual and high-perplexity. 
+Examples of good customers: 
+- a screaming pebble
+- a single green pea that talks like a baby
+- a wet wipe who's seen better days
+- a developing third-world nation with a lot of promise
+- a stolen page from a diary of a high schooler
+- an insurance salesman under investigation for churning
+
+The requested grocery item should be just as abstract or bizarre, getting more ridiculous and expensive as the player levels up.
 
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks, just the JSON string).
 JSON Schema:
 {
-  "dialogue": "A short, funny description of the customer entering and what they say.",
+  "dialogue": "A short, funny description of the abstract customer entering and what they say.",
   "customer_request": "A short phrase describing the exact ridiculous item they want to buy."
 }`;
 

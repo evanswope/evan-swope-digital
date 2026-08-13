@@ -10,11 +10,14 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'Missing API Token' });
   }
 
-  const visionPrompt = `You are an evaluator in a silly Grocery Store game. 
-A customer came in asking for: "${customerRequest}"
+  const visionPrompt = `You are the strict visual judge in a silly Grocery Store game. 
+A highly unusual customer came in asking for: "${customerRequest}"
 The player generated an item using the prompt: "${userPrompt}"
+
+CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY see the image. Judge the item strictly on what it visually looks like in the image. If the image failed to draw what the prompt asked for, you must judge and reject it based on what it actually looks like. Use the player's prompt ONLY as background context to understand their intent.
+
 Look at the generated image provided. 
-Does the image look like what the customer requested (or at least close enough in a silly way)?
+Does the image visually satisfy what the customer requested (or at least close enough in a silly way)?
 Rate the "Value" (price) of the item based on how ridiculous, expensive, or gold-encrusted it looks (give an integer between 10 and 100000).
 
 You MUST respond ONLY with a raw JSON object (no markdown, no backticks).
@@ -22,7 +25,7 @@ JSON Schema:
 {
   "approved": true or false,
   "value": integer,
-  "reaction": "A short, funny one-liner from the customer reacting to the item."
+  "reaction": "A short, funny one-liner from the customer reacting to what they ACTUALLY SEE in the image."
 }`;
 
   try {
