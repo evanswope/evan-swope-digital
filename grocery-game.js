@@ -490,7 +490,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Leaderboard Modal Logic
+  const btnSubmit = document.getElementById('btn-submit');
+  if (btnSubmit) {
+    btnSubmit.addEventListener('click', () => {
+      const e = new KeyboardEvent('keypress', { key: 'Enter' });
+      gameInput.dispatchEvent(e);
+      gameInput.focus();
+    });
+  }
+
+  // Leaderboard Button
   const btnLeaderboard = document.getElementById('btn-leaderboard');
   const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
   const modalLeaderboard = document.getElementById('leaderboard-modal');
