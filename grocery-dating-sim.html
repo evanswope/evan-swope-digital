@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Grocery Dating Sim | Evan Swope</title>
   
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="synth.css">
   
   <!-- FontAwesome -->
@@ -196,22 +197,37 @@
 </head>
 <body>
 
-  <!-- Nav (Reused) -->
-  <nav class="synth-nav">
-    <div class="nav-container">
-      <a href="index.html" class="nav-logo">
-        <img src="https://ui-avatars.com/api/?name=E+S&background=0D8ABC&color=fff&rounded=true&bold=true" alt="Logo">
-        <span class="nav-title" style="font-family: 'Permanent Marker', cursive;">EVAN SWOPE</span>
+  <!-- Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo">
+        <span class="logo-text">EVAN SWOPE</span>
+        <span class="logo-subtext">CREATIVE + STRATEGY</span>
       </a>
-      <div class="nav-links">
-        <a href="index.html">HOME</a>
-        <a href="experiments.html">AI LAB</a>
-        <a href="grocery-dating-sim.html" class="active">GROCERY SIM</a>
-        <a href="#" id="btn-leaderboard" style="color: gold;"><i class="fa-solid fa-trophy"></i> LEADERBOARD</a>
-        <a href="mailto:hello@evanswope.com" class="nav-btn">CONTACT</a>
-      </div>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="nav-links">
+        <a href="index.html#work" class="nav-link">Work</a>
+        <a href="index.html#resume" class="nav-link">Experience</a>
+        <a href="index.html#about" class="nav-link">About</a>
+        <a href="experiments.html" class="nav-link">Experiments</a>
+        <a href="index.html#contact" class="nav-link btn-contact">Let's Connect</a>
+      </nav>
     </div>
-  </nav>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <button class="mobile-menu-close" id="mobile-menu-close"><i class="fa-solid fa-xmark"></i></button>
+    <nav class="mobile-nav-links">
+      <a href="index.html#work" class="mobile-nav-link">Work</a>
+      <a href="index.html#resume" class="mobile-nav-link">Experience</a>
+      <a href="index.html#about" class="mobile-nav-link">About</a>
+      <a href="experiments.html" class="mobile-nav-link">Experiments</a>
+      <a href="index.html#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
+    </nav>
+  </div>
 
   <!-- Leaderboard Modal -->
   <div id="leaderboard-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
@@ -281,6 +297,10 @@
         </div>
       </div>
       <div class="status-text" id="scanner-status">WAITING FOR ITEM...</div>
+      
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <button id="btn-leaderboard" style="background: transparent; border: 2px solid gold; color: gold; padding: 0.5rem 1rem; font-family: 'VT323', monospace; font-size: 1.2rem; cursor: pointer; transition: all 0.2s;"><i class="fa-solid fa-trophy"></i> LEADERBOARD</button>
+      </div>
     </div>
 
   </div>
@@ -308,5 +328,23 @@
   </script>
 
   <script src="grocery-game.js"></script>
+  
+  <footer class="site-footer" style="padding: 0.5rem 0.5rem !important; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 4rem;">
+    <p class="footer-text">Copyright &copy; 2026 Evan Swope Digital LLC. Built with Antigravity.</p>
+  </footer>
+  
+  <script>
+    // Mobile menu logic
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+    if(mobileMenuToggle && mobileNavOverlay) {
+      mobileMenuToggle.addEventListener('click', () => mobileNavOverlay.classList.add('active'));
+      mobileMenuClose.addEventListener('click', () => mobileNavOverlay.classList.remove('active'));
+      mobileNavOverlay.querySelectorAll('.mobile-nav-link').forEach(link => {
+        link.addEventListener('click', () => mobileNavOverlay.classList.remove('active'));
+      });
+    }
+  </script>
 </body>
 </html>
