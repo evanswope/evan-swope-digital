@@ -20,11 +20,11 @@ CRITICAL INSTRUCTION: The customer CANNOT read the prompt! The customer can ONLY
 
 Look at the generated image provided. 
 You must judge this on TWO criteria:
-1. BASE ITEM (CRITICAL): Does the image visually contain the base item requested? You must be EXTREMELY STRICT about the CORE TYPE of object. If the customer asked for aluminum foil, and the image shows a tree, a dog, or a car, you MUST reject it (approved: false). However, if the core material/food IS present ANYWHERE in the image (even if surrounded by chaotic unrelated items, or mutated/alive like a "pet pickle"), you MUST ACCEPT IT (approved: true) because the core item is technically there. Be lenient about packaging.
+1. BASE ITEM (CRITICAL): Does the image visually contain the exact "Base Item Wanted" requested by the customer? You must be EXTREMELY STRICT about the CORE TYPE of object. If the customer asked for a carton of eggs, and the player generated a spoon, a dog, or a car, you MUST reject it (approved: false). However, if the exact core material/food requested IS present ANYWHERE in the image (even if surrounded by chaotic unrelated items, or mutated/alive like a "pet pickle"), you MUST ACCEPT IT (approved: true) because the core item is technically there. Be lenient about packaging.
 2. BONUS (Creative Problem Solving): Does the image ALSO contain elements that specifically and creatively address their emotional need? If the user's prompt or the image completely ignores the emotional need, the bonus MUST be false.
 
 Scoring Affection:
-- If Base Item is NOT present: Affection is 0. (Even if they solved the emotional need, they failed the base task). The customer refuses to buy the item.
+- If Base Item is NOT present: Affection is 0, and 'approved' MUST BE false. (Even if they solved the emotional need, they failed the base task). The customer refuses to buy the item.
 - If Base Item IS present but Bonus is FALSE: Affection is 1. CRITICAL: The customer's reaction MUST explicitly state that they are buying/taking the item (e.g. "I guess I'll take it, but..."), while expressing confusion or disappointment at the weird twist. They CANNOT refuse to buy it if the base item is present.
 - If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is.
 - TRUE LOVE: In very rare, incredibly clever circumstances, you can award 10 Affection.
