@@ -543,6 +543,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (state.phase === "START") {
         if (val.toLowerCase() === 'start' || val.toLowerCase() === 'next') {
+          itemImage.onload = null;
+          itemImage.onerror = null;
           itemImage.classList.remove('loaded');
           itemImage.src = '';
           const noItemText = document.getElementById('no-item-text');
