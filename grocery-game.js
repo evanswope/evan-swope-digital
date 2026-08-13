@@ -163,6 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalPhase = state.phase;
     state.phase = isDating ? "DATING_GENERATING" : "GENERATING";
     gameInput.disabled = true;
+    
+    itemImage.onload = null;
+    itemImage.onerror = null;
+    
     itemImage.style.display = 'none';
     loadingOverlay.style.display = 'flex';
     scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
@@ -266,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             loadingOverlay.style.display = 'none';
             scannerStatus.textContent = "IMAGE LOAD ERROR";
-            state.phase = originalPhase;
+            state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
             gameInput.disabled = false;
             gameInput.focus();
             addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
@@ -278,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
           addLog(`Generation Error: ${e.message}`, "log-error");
           loadingOverlay.style.display = 'none';
           scannerStatus.textContent = "ERROR";
-          state.phase = originalPhase;
+          state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
           gameInput.disabled = false;
           gameInput.focus();
         } else {
