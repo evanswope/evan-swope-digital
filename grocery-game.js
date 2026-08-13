@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let success = false;
     let attempt = 1;
-    const maxAttempts = 3;
+    const maxAttempts = 6;
 
     while (attempt <= maxAttempts && !success) {
       try {
@@ -325,6 +325,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
       } catch (e) {
+        let waitTime = 2500;
+        const match = e.message.match(/resets in ~([0-9]+)s/);
+        if (match) {
+          waitTime = (parseInt(match[1], 10) * 1000) + 1000; // wait requested time + 1s buffer
+        }
+
         if (attempt === maxAttempts) {
           addLog(`Generation Error: ${e.message}`, "log-error");
           loadingOverlay.style.display = 'none';
@@ -334,10 +340,9 @@ document.addEventListener('DOMContentLoaded', () => {
           gameInput.focus();
           return false;
         } else {
-          console.warn(`Attempt ${attempt} failed:`, e);
+          addLog(`> Rate limit hit. Waiting ${Math.round(waitTime/1000)}s before retrying...`, "log-system");
+          await new Promise(r => setTimeout(r, waitTime));
           attempt++;
-          // Rate limit protection: wait 4s before retrying
-          await new Promise(r => setTimeout(r, 4000));
         }
       }
     }
