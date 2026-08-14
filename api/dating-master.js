@@ -36,7 +36,7 @@ CRITICAL IMAGE PROMPT RULE: When writing the \`image_prompt\`, DO NOT include th
   if (datingRound === 1) {
     systemPrompt += `=== ROUND 1: THE CALL ===
 Narrative: The player is calling you on the phone to ask you out. 
-Rules for flavor_text: Briefly describe your current situation (e.g. at work, napping, foraging) and how you answer the phone based on your Affection level (scowling, smiling, suspicious, excited).
+Rules for flavor_text: Write in the THIRD-PERSON as a narrator (e.g., "Wanda the Dog is napping when the phone rings..."). Briefly describe the customer's current situation and how they answer the phone based on their Affection level. CRITICAL: DO NOT use first-person "I" or "my" in flavor_text, and DO NOT mention game mechanics like "Affection".
 Rules for dialogue: You must explicitly end your speech by asking the player where they want to take you for this date.
 Image Prompt Rules: The image prompt MUST describe the customer on a phone call. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
 - Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
@@ -46,23 +46,23 @@ Image Prompt Rules: The image prompt MUST describe the customer on a phone call.
     systemPrompt += `=== ROUND 2: THE DATE ===
 Narrative: You are now AT the location the player suggested in the previous turn. 
 Failure Condition: CRITICAL: If your Affection is 0, you hate the player. You MUST TERMINATE the date (set terminate: true) unless the player's suggested location is absolutely, incredibly perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the location is fast food, lazy, generic, unrelated to your emotional needs, or if the player completely failed to suggest a location. If your Affection is 3-4, you only terminate if the location is completely terrible/dangerous. If Affection is 5+, you will happily agree to go anywhere.
-Rules for flavor_text: Briefly describe how the date is going based on your Affection level (e.g. awkward silence, romantic eye contact). If you are terminating, describe you storming out or ruining the date.
-Rules for dialogue: If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about your connection, hope for the future, or your original emotional needs.
+Rules for flavor_text: Write in the THIRD-PERSON as a narrator. Briefly describe how the date is going. If you are setting 'terminate' to true, the flavor_text MUST describe the customer storming out or ruining the date. If you are NOT terminating, describe the vibe (e.g., romantic eye contact, awkward silence). CRITICAL: DO NOT use first-person and DO NOT mention the word "Affection".
+Rules for dialogue: If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about your connection, hope for the future, or your original emotional needs. If you terminate, just insult them and leave.
 Image Prompt Rules: The image prompt MUST describe the customer at the specified date location, facing the camera, holding a dating object (wine, bouquet, romantic card, etc). Their expression should continue to reflect their Affection.
 `;
   } else if (datingRound === 3) {
     systemPrompt += `=== ROUND 3: THE ALTAR ===
 Narrative: First, evaluate the player's answer to your deep question from the date. If they passed, you are now at the altar (or friendship ceremony) for the final vows.
 Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy, dismissive, one word, or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy. If they failed to answer the question, you MUST TERMINATE.
-Rules for flavor_text: If you terminate, describe you leaving them at the altar in disgust. If you don't terminate, describe standing at the altar with them, preparing to say your vows.
-Rules for dialogue: If you don't terminate, read your vows to the player.
+Rules for flavor_text: Write in the THIRD-PERSON as a narrator. If you set 'terminate' to true, describe the customer leaving them at the altar in disgust. If you set 'terminate' to false, describe the customer standing at the altar with them, preparing to say vows.
+Rules for dialogue: If you set 'terminate' to false, read your vows to the player. If you terminate, insult them and leave.
 Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) at the altar. If they made it this far with low Affection, they should still be scowling.
 `;
   } else if (datingRound >= 4) {
     systemPrompt += `=== ROUND 4: VOW EVALUATION ===
 Narrative: You are at the altar. The player just responded with their vows.
 Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 0, you despise the player and MUST TERMINATE the wedding (set terminate: true). If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive (e.g. "whatever", "okay"), or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
-Rules for flavor_text: If you terminate, describe how the player completely ruined the moment, leaving you both alone forever. If you don't terminate, describe a beautiful, happy future together.
+Rules for flavor_text: Write in the THIRD-PERSON as a narrator. If you set 'terminate' to true, describe how the player completely ruined the moment, leaving you both alone forever. If you set 'terminate' to false, describe a beautiful, happy future together.
 Rules for dialogue: Give your final reaction to their vows.
 Image Prompt Rules: The image prompt MUST describe the customer happily married in their wedding attire in a beautiful, cinematic romantic setting. CRITICAL RULE: DO NOT include the grocer or any other humans in the frame (make it first-person POV of the customer).
 `;
@@ -73,7 +73,7 @@ You MUST respond ONLY with a raw JSON object (no markdown formatting, no backtic
 CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON parsing. Use single quotes instead if needed.
 JSON Schema:
 {
-  "flavor_text": "A brief narrated description of the scene, what you are doing, and your physical reaction/vibe. This should NOT be spoken dialogue.",
+  "flavor_text": "A brief THIRD-PERSON narrated description of the scene. Do NOT use first-person ('I', 'my') and do NOT mention game mechanics or the word 'Affection'.",
   "dialogue": "Your response to the player. CRITICAL: This must ONLY be spoken dialogue. DO NOT include stage directions, asterisks, narration, or describe your physical actions in this text. Just speak directly.",
   "terminate": true or false, // True ONLY if the player failed the round's failure condition. This instantly ends the game.
   "approval": 1 or 0, // 1 if you liked their message, 0 if you hated it or found it boring.
