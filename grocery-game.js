@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     itemImage.onload = null;
     itemImage.onerror = null;
     
-    itemImage.style.display = 'none';
+    itemImage.style.opacity = '0.3';
     loadingOverlay.style.display = 'flex';
     scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
 
@@ -382,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         itemImage.src = proxyUrl;
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
+          itemImage.style.opacity = '';
           const noItemText = document.getElementById('no-item-text');
           if (noItemText) noItemText.style.display = 'none';
           
@@ -461,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Do NOT disable game input or change phase, as this runs in parallel with text
     itemImage.onload = null;
     itemImage.onerror = null;
-    itemImage.style.display = 'none';
+    itemImage.style.opacity = '0.3';
     loadingOverlay.style.display = 'flex';
     scannerStatus.textContent = "VISUALIZING ENTITY...";
     scannerStatus.style.color = "#00ffcc";
@@ -513,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
+          itemImage.style.opacity = '';
           itemImage.style.display = 'block';
           itemImage.classList.add('loaded');
           scannerStatus.textContent = "VISUALIZATION COMPLETE";
