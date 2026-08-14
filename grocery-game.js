@@ -134,6 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('success.mp3'),
         fetch('fail.mp3')
       ]);
+      
+      if (!succRes.ok || !failRes.ok) {
+        addLog(`> AUDIO ERROR: SFX files returned HTTP ${succRes.status}. Check if they are in the correct directory.`, "log-error");
+        return;
+      }
+
       const [succBuf, failBuf] = await Promise.all([
         succRes.arrayBuffer(),
         failRes.arrayBuffer()
@@ -141,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Use callback signature wrapped in Promise for older Safari compatibility
       const decode = (buf) => new Promise((resolve, reject) => {
-        audioCtx.decodeAudioData(buf, resolve, reject);
+        audioCtx.decodeAudioData(buf, resolve, reject).catch(reject); // Catch modern promise rejections too
       });
 
       sfxBuffers.success = await decode(succBuf);
@@ -149,16 +155,17 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("SFX loaded successfully!");
     } catch (e) {
       console.warn("Could not preload SFX buffers", e);
+      addLog(`> AUDIO ERROR: Failed to decode MP3 files. ${e.message}`, "log-error");
     }
   }
 
   function playSFX(type) {
     if (!audioCtx) {
-      console.warn("audioCtx not initialized for playSFX");
+      addLog("> AUDIO ERROR: audioCtx not initialized.", "log-error");
       return;
     }
     if (!sfxBuffers[type]) {
-      console.warn(`sfxBuffers[${type}] is missing!`);
+      addLog(`> AUDIO ERROR: ${type}.mp3 was never loaded into memory.`, "log-error");
       return;
     }
     try {
@@ -168,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       source.connect(audioCtx.destination);
       source.start();
     } catch (e) {
+      addLog(`> AUDIO ERROR: Failed to play ${type} SFX.`, "log-error");
       console.warn(`Failed to play ${type} SFX`, e);
     }
   }
@@ -264,9 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       drumrollMasterGain = audioCtx.createGain();
-      drumrollMasterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      // Curve down from 50% to 25% over the first 1.5 seconds
-      drumrollMasterGain.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 1.5);
+      drumrollMasterGain.gain.setValueAtTime(0.375, audioCtx.currentTime);
+      // Curve down from 37.5% to 18% over the first 1.5 seconds
+      drumrollMasterGain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 1.5);
       
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'highpass';
@@ -335,8 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
               // Cancel current ramps
               drumrollMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
               drumrollMasterGain.gain.setValueAtTime(drumrollMasterGain.gain.value, audioCtx.currentTime);
-              // Crescendo back to 50% over 0.5 seconds
-              drumrollMasterGain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
+              // Crescendo back to 37.5% over 0.5 seconds
+              drumrollMasterGain.gain.linearRampToValueAtTime(0.375, audioCtx.currentTime + 0.5);
               
               setTimeout(() => {
                 isDrumrolling = false;
