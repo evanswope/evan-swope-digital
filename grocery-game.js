@@ -398,8 +398,13 @@ document.addEventListener('DOMContentLoaded', () => {
           playScannerBeep();
 
           if (!isDating) {
-            scannerStatus.textContent = "SCANNING ITEM...";
-            appraiseItem(outputUrl, prompt);
+            state.phase = "HAND_OVER_ITEM";
+            addLog(`> Item fabricated. Press ENTER or type "GIVE" to hand it over.`, "log-gm");
+            // We store the url and prompt in state so the input handler can call appraiseItem
+            state.pendingItemUrl = outputUrl;
+            state.pendingItemPrompt = prompt;
+            gameInput.disabled = false;
+            gameInput.focus();
           } else {
             if (state.phase === "DATING_GENERATING") {
               if (state.datingRound > 4) {
@@ -515,30 +520,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(outputUrl)}`;
         let imageLoadAttempts = 0;
 
-        itemImage.onload = () => {
-          loadingOverlay.style.display = 'none';
-          itemImage.style.opacity = '';
-          itemImage.style.display = 'block';
-          itemImage.classList.add('loaded');
-          scannerStatus.textContent = "VISUALIZATION COMPLETE";
-          scannerStatus.style.color = "#00ffcc";
-        };
-
-        itemImage.onerror = () => {
-          imageLoadAttempts++;
-          if (imageLoadAttempts < 3) {
-            setTimeout(() => {
-              itemImage.src = proxyUrl + '&retry=' + Date.now();
-            }, 1000);
-          } else {
+        return new Promise((resolve) => {
+          itemImage.onload = () => {
             loadingOverlay.style.display = 'none';
-            scannerStatus.textContent = "IMAGE LOAD FAILED";
-            scannerStatus.style.color = "#ff3333";
-          }
-        };
+            itemImage.style.opacity = '';
+            itemImage.style.display = 'block';
+            itemImage.classList.add('loaded');
+            scannerStatus.textContent = "VISUALIZATION COMPLETE";
+            scannerStatus.style.color = "#00ffcc";
+            resolve(true);
+          };
 
-        itemImage.src = proxyUrl;
-        return; // Success, exit function
+          itemImage.onerror = () => {
+            imageLoadAttempts++;
+            if (imageLoadAttempts < 3) {
+              setTimeout(() => {
+                itemImage.src = proxyUrl + '&retry=' + Date.now();
+              }, 1000);
+            } else {
+              loadingOverlay.style.display = 'none';
+              scannerStatus.textContent = "IMAGE LOAD FAILED";
+              scannerStatus.style.color = "#ff3333";
+              resolve(false);
+            }
+          };
+
+          itemImage.src = proxyUrl;
+        });
 
       } catch (e) {
         attempt++;
@@ -549,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadingOverlay.style.display = 'none';
     scannerStatus.textContent = "VISUALIZATION FAILED";
     scannerStatus.style.color = "#ff3333";
+    return false;
   }
 
   // Phase: Vision Appraisal
@@ -574,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling at ${state.playerDescription}. Dramatic, chaotic, angry, grocery store background.`;
       }
-      generateCharacterImage(reactionPrompt);
+      let imagePromise = generateCharacterImage(reactionPrompt);
 
       if (data.flavor_text) {
         await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
@@ -622,6 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       updateStatsUI();
       
+      if (imagePromise) {
+        await imagePromise;
+      }
+
       // True Love instant-win condition
       if (affectionGained >= 10) {
         state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc };
@@ -712,8 +725,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // Trigger image generation in the background
+      let imagePromise = null;
       if (data.image_prompt) {
-        generateCharacterImage(data.image_prompt);
+        imagePromise = generateCharacterImage(data.image_prompt);
       }
 
       if (data.flavor_text) {
@@ -743,6 +757,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Automatically advance round since we don't block on generateImage anymore
       state.datingRound++;
       
+      if (imagePromise) {
+        await imagePromise;
+      }
+
       state.phase = "DATING_WAIT_USER";
       gameInput.disabled = false;
       gameInput.focus();
@@ -765,7 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
 
     // We don't await because we just want the final image to show up
-    await generateImage(null, true, finalPrompt);
+    await generateCharacterImage(finalPrompt);
     
     scannerStatus.textContent = won ? "YOU WIN!" : "GAME OVER";
     scannerStatus.style.color = won ? "#ff00ff" : "#ff3333";
@@ -840,7 +858,17 @@ document.addEventListener('DOMContentLoaded', () => {
   gameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       const val = gameInput.value.trim();
-      if (!val) return;
+      
+      if (!val) {
+        // Allow empty enter for NEXT or GIVE
+        if (state.phase === "START" && state.level > 1) {
+          callGameMaster();
+        } else if (state.phase === "HAND_OVER_ITEM") {
+          appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
+        }
+        return;
+      }
+
       gameInput.value = '';
       addLog(val, "log-user");
 
@@ -862,6 +890,13 @@ document.addEventListener('DOMContentLoaded', () => {
           callGameMaster();
         } else {
           addLog("Type 'start' or 'next' to continue.", "log-system");
+        }
+      }
+      else if (state.phase === "HAND_OVER_ITEM") {
+        if (val.toLowerCase() === 'give') {
+          appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
+        } else {
+          addLog("Press ENTER or type 'GIVE' to hand it over.", "log-system");
         }
       }
       else if (state.phase === "PLAYER_SETUP") {
