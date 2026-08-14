@@ -157,6 +157,32 @@ document.addEventListener('DOMContentLoaded', () => {
     statAffection.textContent = state.affection;
   }
 
+  async function fetchWithRetry(url, options, maxAttempts = 6) {
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      if (attempt > 1) {
+        addLog(`> Retrying connection (Attempt ${attempt}/${maxAttempts})...`, "log-system");
+      }
+      try {
+        const res = await fetch(url, options);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'API Error');
+        return data;
+      } catch (e) {
+        const isRateLimit = e.message.includes('429') || e.message.toLowerCase().includes('rate limit') || e.message.includes('resets in') || e.message.toLowerCase().includes('throttled');
+        if (!isRateLimit || attempt === maxAttempts) throw e;
+        
+        let waitTime = 2500;
+        const match = e.message.match(/resets in ~([0-9]+)s/);
+        if (match) waitTime = (parseInt(match[1], 10) * 1000) + 1000;
+        
+        addLog(`> Rate limit hit. Waiting ${Math.round(waitTime/1000)}s before retrying...`, "log-system");
+        await new Promise(r => setTimeout(r, waitTime));
+        attempt++;
+      }
+    }
+  }
+
   // Phase: Call Game Master
   async function callGameMaster() {
     state.phase = "WAITING_FOR_GM";
@@ -164,14 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.disabled = true;
 
     try {
-      const res = await fetch('/api/game-master', {
+      const data = await fetchWithRetry('/api/game-master', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ state })
       });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message);
 
       if (data.flavor_text) {
         addLog(`> ${data.flavor_text}`, "log-system");
@@ -357,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.phase = "APPRAISING";
 
     try {
-      const res = await fetch('/api/vision', {
+      const initData = await fetchWithRetry('/api/vision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -367,8 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
           userPrompt
         })
       });
-      const initData = await res.json();
-      if (!res.ok) throw new Error(initData.message);
 
       let predictionId = initData.id;
       let prediction;
@@ -549,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addLog("Waiting for response...", "log-system");
 
     try {
-      const res = await fetch('/api/dating-master', {
+      const data = await fetchWithRetry('/api/dating-master', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -560,8 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
           isAce: state.isAce
         })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
 
       if (data.flavor_text) {
         addLog(`> ${data.flavor_text}`, "log-system");
