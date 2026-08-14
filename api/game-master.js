@@ -30,7 +30,7 @@ CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON par
 JSON Schema:
 {
   "name": "A short, descriptive name and species/form of the customer (e.g. 'Wanda the Dog', 'Guillame the Pea', 'Jenny the Haunted Doll', 'Stan the Washbasin')",
-  "desc": "A short, strictly physical description of what the customer looks like for an image generator (e.g. 'A plump chicken carrying a banjo')",
+  "desc": "A short, strictly physical description of what the customer looks like for an image generator (e.g. 'A plump chicken wearing a top hat'). CRITICAL RULE: DO NOT describe them holding, wearing, or being made of the grocery item they are asking for, as they haven't received it yet!",
   "flavor_text": "A brief narrated description of the clerk's busywork being interrupted by the customer.",
   "dialogue": "A short, funny description of the abstract customer entering and what they say. MUST ONLY BE SPOKEN DIALOGUE.",
   "base_item": "A short phrase describing the exact base grocery item they want to buy (e.g., 'a jar of mayo')",
