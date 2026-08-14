@@ -255,8 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       drumrollMasterGain = audioCtx.createGain();
-      drumrollMasterGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-      drumrollMasterGain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 4);
+      drumrollMasterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      // Curve down from 50% to 25% over the first 1.5 seconds
+      drumrollMasterGain.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 1.5);
       
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'highpass';
@@ -292,18 +293,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return {
         stop: () => {
-          isDrumrolling = false;
-          clearTimeout(drumrollTimer);
-          if (drumrollMasterGain) {
-            drumrollMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-            drumrollMasterGain.gain.setValueAtTime(drumrollMasterGain.gain.value, audioCtx.currentTime);
-            drumrollMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-          }
+          return new Promise(resolve => {
+            if (drumrollMasterGain) {
+              // Cancel current ramps
+              drumrollMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+              drumrollMasterGain.gain.setValueAtTime(drumrollMasterGain.gain.value, audioCtx.currentTime);
+              // Crescendo back to 50% over 0.5 seconds
+              drumrollMasterGain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
+              
+              setTimeout(() => {
+                isDrumrolling = false;
+                clearTimeout(drumrollTimer);
+                // Quick fade out
+                drumrollMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
+                setTimeout(resolve, 50);
+              }, 500);
+            } else {
+              isDrumrolling = false;
+              clearTimeout(drumrollTimer);
+              resolve();
+            }
+          });
         }
       };
     } catch (e) {
       console.error("Drumroll err", e);
-      return { stop: () => {} };
+      return { stop: () => Promise.resolve() };
     }
   }
 
@@ -802,8 +817,11 @@ document.addEventListener('DOMContentLoaded', () => {
         await imagePromise;
       }
 
-      // The image has loaded! Stop drumroll and hide hands
-      drumroll.stop();
+      // The image has loaded! Crescendo drumroll, then stop
+      if (drumroll && drumroll.stop) {
+        await drumroll.stop();
+      }
+
       if (handOverlay) handOverlay.style.display = 'none';
 
       // Play outcome sound effect
