@@ -231,14 +231,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function createSnareBuffer(ctx) {
     const sampleRate = ctx.sampleRate;
-    const length = sampleRate * 0.2; // 200ms
+    const length = sampleRate * 0.25; // 250ms
     const buffer = ctx.createBuffer(1, length, sampleRate);
     const data = buffer.getChannelData(0);
+    
     for (let i = 0; i < length; i++) {
-      const env = Math.exp(-i / (sampleRate * 0.03));
-      const noise = (Math.random() * 2 - 1);
-      const tone = Math.sin(2 * Math.PI * 180 * (i / sampleRate)) * Math.exp(-i / (sampleRate * 0.05));
-      data[i] = (noise * 0.8 + tone * 0.5) * env;
+      const t = i / sampleRate;
+      
+      // Sharp attack for the snap
+      const noiseEnv = Math.pow(Math.max(0, 1 - t / 0.15), 2);
+      const noise = (Math.random() * 2 - 1) * noiseEnv;
+      
+      // Drum body tones
+      const bodyEnv = Math.pow(Math.max(0, 1 - t / 0.2), 2);
+      const tone1 = Math.sin(2 * Math.PI * 180 * t) * bodyEnv;
+      const tone2 = Math.sin(2 * Math.PI * 330 * t) * bodyEnv * 0.5;
+      
+      data[i] = (noise * 0.7) + (tone1 * 0.6) + (tone2 * 0.4);
     }
     return buffer;
   }
@@ -261,8 +270,27 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'highpass';
-      filter.frequency.value = 300;
+      filter.frequency.value = 250;
       filter.connect(drumrollMasterGain);
+      
+      // Metallic comb filter to simulate the snare springs rattling against the drumhead
+      const rattleReverb = audioCtx.createDelay();
+      rattleReverb.delayTime.value = 0.005; // 5ms
+      
+      const rattleFeedback = audioCtx.createGain();
+      rattleFeedback.gain.value = 0.6; // High resonance
+      
+      const rattleFilter = audioCtx.createBiquadFilter();
+      rattleFilter.type = 'highpass';
+      rattleFilter.frequency.value = 800; // Only ring the high snaps
+      
+      rattleReverb.connect(rattleFilter);
+      rattleFilter.connect(rattleFeedback);
+      rattleFeedback.connect(rattleReverb);
+      
+      // Connect wet rattle to master
+      rattleReverb.connect(drumrollMasterGain);
+
       drumrollMasterGain.connect(audioCtx.destination);
 
       isDrumrolling = true;
@@ -274,11 +302,20 @@ document.addEventListener('DOMContentLoaded', () => {
           source.buffer = snareBuffer;
           
           const velGain = audioCtx.createGain();
-          // Random velocity 0.4 to 1.0
-          velGain.gain.value = 0.4 + (Math.random() * 0.6);
+          const velocity = 0.4 + (Math.random() * 0.6);
+          velGain.gain.value = velocity;
 
           source.connect(velGain);
+          
+          // Dry path (Drum body)
           velGain.connect(filter);
+          
+          // Wet path (Snare rattle) - scales exponentially with velocity for realistic dynamics
+          const rattleSend = audioCtx.createGain();
+          rattleSend.gain.value = Math.pow(velocity, 2) * 0.8;
+          velGain.connect(rattleSend);
+          rattleSend.connect(rattleReverb);
+
           source.start(nextNoteTime);
 
           // 1/32 note is roughly 0.05s. Add slight swing randomness (±0.005)
