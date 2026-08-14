@@ -631,13 +631,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function generateCharacterImage(prompt) {
+  async function generateCharacterImage(prompt, type = 'character') {
     // Do NOT disable game input or change phase, as this runs in parallel with text
     itemImage.onload = null;
     itemImage.onerror = null;
     itemImage.style.opacity = '0.3';
-    loadingOverlay.style.display = 'flex';
-    scannerStatus.textContent = "VISUALIZING ENTITY...";
+    
+    if (type === 'badge') {
+      scannerStatus.textContent = "PRINTING ID BADGE...";
+      loadingOverlay.style.display = 'none';
+    } else {
+      loadingOverlay.style.display = 'flex';
+      scannerStatus.textContent = "VISUALIZING ENTITY...";
+    }
     scannerStatus.style.color = "#00ffcc";
 
     let attempt = 1;
@@ -690,11 +696,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return new Promise((resolve) => {
           itemImage.onload = () => {
-            loadingOverlay.style.display = 'none';
+            if (type !== 'badge') loadingOverlay.style.display = 'none';
             itemImage.style.opacity = '';
             itemImage.style.display = 'block';
             itemImage.classList.add('loaded');
-            scannerStatus.textContent = "VISUALIZATION COMPLETE";
+            scannerStatus.textContent = type === 'badge' ? "ID BADGE PRINTED" : "VISUALIZATION COMPLETE";
             scannerStatus.style.color = "#00ffcc";
             resolve(true);
           };
@@ -706,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemImage.src = proxyUrl + '&retry=' + Date.now();
               }, 1000);
             } else {
-              loadingOverlay.style.display = 'none';
+              if (type !== 'badge') loadingOverlay.style.display = 'none';
               scannerStatus.textContent = "IMAGE LOAD FAILED";
               scannerStatus.style.color = "#ff3333";
               resolve(false);
@@ -1082,6 +1088,9 @@ document.addEventListener('DOMContentLoaded', () => {
           callGameMaster();
         } else if (state.phase === "HAND_OVER_ITEM") {
           appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
+        } else if (state.phase === "BADGE_HOLD") {
+          addLog("> Booting register...", "log-system");
+          callGameMaster();
         }
         return;
       }
@@ -1122,10 +1131,17 @@ document.addEventListener('DOMContentLoaded', () => {
         addLog(`> Taking photo for ID badge...`, "log-system");
         
         const badgePrompt = `${val}, smiling employee badge on white background with lanyard, high key lighting portrait photography`;
-        generateCharacterImage(badgePrompt).then(() => {
-          addLog("> Badge generated. Booting register...", "log-system");
-          callGameMaster();
+        generateCharacterImage(badgePrompt, 'badge').then(() => {
+          addLog("> Badge printed. Press ENTER to start your shift.", "log-system");
+          state.phase = "BADGE_HOLD";
+          gameInput.disabled = false;
+          gameInput.focus();
         });
+      }
+      else if (state.phase === "BADGE_HOLD") {
+        gameInput.value = "";
+        addLog("> Booting register...", "log-system");
+        callGameMaster();
       }
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
