@@ -1118,8 +1118,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "PLAYER_SETUP") {
         state.playerDescription = val;
-        addLog("> Badge generated. Booting register...", "log-system");
-        callGameMaster();
+        gameInput.disabled = true;
+        addLog(`> Taking photo for ID badge...`, "log-system");
+        
+        const badgePrompt = `${val}, smiling employee badge on white background with lanyard, high key lighting portrait photography`;
+        generateCharacterImage(badgePrompt).then(() => {
+          addLog("> Badge generated. Booting register...", "log-system");
+          callGameMaster();
+        });
       }
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
