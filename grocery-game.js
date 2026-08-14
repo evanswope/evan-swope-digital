@@ -21,11 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
     popularity: 0,
     affection: 0,
     
+    playerDescription: "a tired clerk", // Default if skipped
     currentCustomerDesc: "",
     currentCustomerRequest: "",
     customersServed: [], // Array of { id, desc, request, affectionGained }
 
-    phase: "START", // START, WAITING_FOR_USER, GENERATING, APPRAISING, LEDGER, DATING_WAIT_USER, DATING_GENERATING, LEADERBOARD_PROMPT, COMPLAINT
+    phase: "START", // START, PLAYER_SETUP, WAITING_FOR_USER, GENERATING, APPRAISING, LEDGER, DATING_WAIT_USER, DATING_GENERATING, LEADERBOARD_PROMPT, COMPLAINT
     conversationHistory: [],
 
     // Dating state
@@ -44,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       trust: 50,
       popularity: 0,
       affection: 0,
+      playerDescription: "a tired clerk",
       currentCustomerDesc: "",
       currentCustomerRequest: "",
       customersServed: [],
@@ -79,6 +81,31 @@ document.addEventListener('DOMContentLoaded', () => {
     p.textContent = text;
     logArea.appendChild(p);
     logArea.scrollTop = logArea.scrollHeight;
+  }
+
+  // Helper: Add text to log with typewriter effect
+  async function addLogTypewriter(text, className, delayMs = 15) {
+    const p = document.createElement('div');
+    p.className = `log-msg ${className}`;
+    logArea.appendChild(p);
+    
+    // Disable input while typing
+    gameInput.disabled = true;
+    
+    for (let i = 0; i < text.length; i++) {
+      p.textContent += text[i];
+      logArea.scrollTop = logArea.scrollHeight;
+      // Skip wait on spaces for slight speedup
+      if (text[i] !== ' ') {
+        await new Promise(r => setTimeout(r, delayMs));
+      }
+    }
+    
+    // Re-enable if we aren't in a waiting state
+    if (state.phase === "WAITING_FOR_USER" || state.phase === "DATING_WAIT_USER" || state.phase === "LEDGER" || state.phase === "TRUE_LOVE_PROMPT" || state.phase === "LEADERBOARD_PROMPT") {
+      gameInput.disabled = false;
+      gameInput.focus();
+    }
   }
 
   // Helper: Floating particles
@@ -244,20 +271,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      if (data.flavor_text) {
-        addLog(`> ${data.flavor_text}`, "log-system");
-      }
       state.currentCustomerName = data.name || "A Mysterious Entity";
-      addLog(`[${state.currentCustomerName.toUpperCase()}] ${data.dialogue}`, "log-customer");
       state.currentCustomerDesc = data.desc || data.dialogue;
       state.currentCustomerRequest = data.base_item;
       state.currentCustomerNeed = data.emotional_need;
+      
+      // Start image generation in the background!
+      let portraitPrompt = `A surreal portrait of ${state.currentCustomerDesc} standing at a grocery store checkout counter. Cinematic, vibrant.`;
+      generateCharacterImage(portraitPrompt);
+
+      // Use typewriter effect to buy time while image generates
+      if (data.flavor_text) {
+        await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
+      }
+      
+      await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.dialogue}`, "log-customer", 20);
       state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
 
-      addLog(`> Customer Wants: ${data.base_item.toUpperCase()}`, "log-system");
-      addLog(`> With: ${data.emotional_need}`, "log-system");
+      await addLogTypewriter(`> Customer Wants: ${data.base_item.toUpperCase()}`, "log-system", 10);
+      await addLogTypewriter(`> With: ${data.emotional_need}`, "log-system", 10);
+      await addLogTypewriter(`> What grocery item do you slide across the scanner?`, "log-gm", 10);
 
-      addLog(`> What grocery item do you slide across the scanner?`, "log-gm");
       state.phase = "WAITING_FOR_USER";
       gameInput.disabled = false;
       gameInput.focus();
@@ -423,6 +457,88 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  async function generateCharacterImage(prompt) {
+    // Do NOT disable game input or change phase, as this runs in parallel with text
+    itemImage.onload = null;
+    itemImage.onerror = null;
+    itemImage.style.display = 'none';
+    loadingOverlay.style.display = 'flex';
+    scannerStatus.textContent = "VISUALIZING ENTITY...";
+    scannerStatus.style.color = "#00ffcc";
+
+    let attempt = 1;
+    const maxAttempts = 3;
+
+    while (attempt <= maxAttempts) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model_id: 'flux-schnell',
+            prompt: prompt,
+            aspect_ratio: '1:1'
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+
+        let predictionId = data.id;
+        let prediction;
+        let pollCount = 0;
+
+        while (true) {
+          if (pollCount > 40) throw new Error('Timeout waiting for image (60s limit).');
+          pollCount++;
+          await new Promise(r => setTimeout(r, 1500));
+          
+          const pollRes = await fetch(`/api/poll?id=${predictionId}&_t=${Date.now()}`);
+          prediction = await pollRes.json();
+          
+          if (!pollRes.ok) throw new Error(prediction.message);
+          if (prediction.status === 'succeeded') break;
+          if (prediction.status === 'failed' || prediction.status === 'canceled') {
+            throw new Error(prediction.error || 'Generation failed.');
+          }
+        }
+
+        let outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+        if (!outputUrl) throw new Error("No image returned.");
+
+        itemImage.onload = () => {
+          loadingOverlay.style.display = 'none';
+          itemImage.style.display = 'block';
+          itemImage.classList.add('loaded');
+          scannerStatus.textContent = "VISUALIZATION COMPLETE";
+          scannerStatus.style.color = "#00ffcc";
+        };
+
+        itemImage.onerror = () => {
+          loadingOverlay.style.display = 'none';
+          scannerStatus.textContent = "IMAGE LOAD FAILED";
+          scannerStatus.style.color = "#ff3333";
+        };
+
+        itemImage.src = outputUrl;
+        return; // Success, exit function
+
+      } catch (e) {
+        attempt++;
+      }
+    }
+    
+    // If we exhaust attempts
+    loadingOverlay.style.display = 'none';
+    scannerStatus.textContent = "VISUALIZATION FAILED";
+    scannerStatus.style.color = "#ff3333";
+  }
+
   // Phase: Vision Appraisal
   async function appraiseItem(imageUrl, userPrompt) {
     state.phase = "APPRAISING";
@@ -440,9 +556,21 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
-      addLog(`> ${data.flavor_text || "The clerk hands over the item."}`, "log-system");
+      let reactionPrompt = "";
+      if (data.approved) {
+        reactionPrompt = `A surreal painting of ${state.playerDescription} successfully handing an item to ${state.currentCustomerDesc}. Happy, vibrant, successful, grocery store background.`;
+      } else {
+        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling at ${state.playerDescription}. Dramatic, chaotic, angry, grocery store background.`;
+      }
+      generateCharacterImage(reactionPrompt);
 
-      addLog(`[CUSTOMER] ${data.reaction}`, "log-customer");
+      if (data.flavor_text) {
+        await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
+      } else {
+        await addLogTypewriter(`> The clerk hands over the item.`, "log-system", 15);
+      }
+      
+      await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.reaction}`, "log-customer", 25);
       
       let affectionGained = 0;
 
@@ -571,11 +699,16 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
+      // Trigger image generation in the background
+      if (data.image_prompt) {
+        generateCharacterImage(data.image_prompt);
+      }
+
       if (data.flavor_text) {
-        addLog(`> ${data.flavor_text}`, "log-system");
+        await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
       }
       if (data.dialogue) {
-        addLog(`[DATE] ${data.dialogue}`, "log-customer");
+        await addLogTypewriter(`[DATE] ${data.dialogue}`, "log-customer", 25);
         state.datingHistory.push({ role: "assistant", content: data.dialogue });
       }
       
@@ -595,13 +728,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Generate the scene image based on the LLM's prompt for rounds 1-3
-      addLog("> Generating scene...", "log-system");
-      const imageSuccess = await generateImage(null, true, data.image_prompt);
-      
-      if (imageSuccess) {
-        state.datingRound++;
-      }
+      // Automatically advance round since we don't block on generateImage anymore
+      state.datingRound++;
       
       state.phase = "DATING_WAIT_USER";
       gameInput.disabled = false;
@@ -716,10 +844,16 @@ document.addEventListener('DOMContentLoaded', () => {
           const redScanline = document.getElementById('red-scanline');
           if (redScanline) redScanline.classList.remove('active');
           
-          callGameMaster();
+          state.phase = "PLAYER_SETUP";
+          addLog("> Welcome to your shift. Before we begin, please describe what you look like (e.g., 'a tired clerk with purple hair', 'a suave cashier wearing a tuxedo'). This will be used for your ID badge.", "log-system");
         } else {
           addLog("Type 'start' or 'next' to continue.", "log-system");
         }
+      }
+      else if (state.phase === "PLAYER_SETUP") {
+        state.playerDescription = val;
+        addLog("> Badge generated. Booting register...", "log-system");
+        callGameMaster();
       }
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
