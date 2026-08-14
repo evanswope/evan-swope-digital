@@ -272,8 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let pollCount = 0;
         while (true) {
-          // Poll every 1.5s, up to 10 times (15s total wait time per attempt)
-          if (pollCount > 10) throw new Error('Timeout waiting for image (15s limit).');
+          // Poll every 1.5s, up to 40 times (60s total wait time per attempt) to allow for cold boots
+          if (pollCount > 40) throw new Error('Timeout waiting for image (60s limit). Replicate cold boot taking too long.');
           pollCount++;
           await new Promise(r => setTimeout(r, 1500));
           
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       let pollCount = 0;
       while (true) {
-        if (pollCount > 15) throw new Error('Timeout waiting for appraisal (22s limit).');
+        if (pollCount > 40) throw new Error('Timeout waiting for appraisal (60s limit). Replicate cold boot taking too long.');
         pollCount++;
         await new Promise(r => setTimeout(r, 1500));
         
