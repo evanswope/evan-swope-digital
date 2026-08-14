@@ -56,6 +56,7 @@ CRITICAL DIVERSITY REQUIREMENT (Seed: ${seed}):
 - INSPIRATION: Try making the customer related to: ${chosenTheme}.
 - INSPIRATION: Try picking a base grocery item from the aisle: ${chosenAisle}.
 - DO NOT request duct tape, mayonnaise, or kielbasas. Be completely novel.
+- CRITICAL IMAGE RULE: The 'desc' field must NOT mention or describe the grocery item they want to buy. They must be completely empty-handed and not made of the item!
 
 Generate the next customer encounter. RETURN ONLY RAW JSON.`;
 
