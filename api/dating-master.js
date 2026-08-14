@@ -4,10 +4,10 @@ export default async function handler(req, res) {
   }
 
   const { customer, userMessage, datingRound, datingHistory, isAce, isTrueLove } = req.body;
-  const token = process.env.REPLICATE_API_TOKEN;
+  const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
-    return res.status(500).json({ message: 'Missing API Token' });
+    return res.status(500).json({ message: 'Missing OPENAI_API_KEY' });
   }
 
   const affection = customer.affectionGained || 0;
@@ -80,40 +80,39 @@ JSON Schema:
   "image_prompt": "A vivid, dramatic, colorful, full-background image generation prompt describing the current scene as per the Image Prompt Rules for this round."
 }`;
 
-  let promptText = `Past conversation:\n`;
+  let messages = [{ role: "system", content: systemPrompt }];
+  
   if (datingHistory && datingHistory.length > 0) {
     datingHistory.forEach(msg => {
-      promptText += `[${msg.role}]: ${msg.content}\n`;
+      // Ensure roles map to OpenAI's accepted roles (assistant/user)
+      let role = msg.role === 'customer' || msg.role === 'assistant' ? 'assistant' : 'user';
+      messages.push({ role: role, content: msg.content });
     });
   }
-  promptText += `\n[Player]: ${userMessage}\n\nGenerate the next JSON response for Round ${datingRound}.`;
+  messages.push({ role: "user", content: userMessage });
 
   try {
-    const response = await fetch(`https://api.replicate.com/v1/models/meta/meta-llama-3-8b-instruct/predictions`, {
+    const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'wait' // Wait for the generation to finish synchronously
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        input: {
-          system_prompt: systemPrompt,
-          prompt: promptText,
-          max_tokens: 512,
-          temperature: 0.8
-        }
+        model: "gpt-4o-mini",
+        messages: messages,
+        response_format: { type: "json_object" },
+        temperature: 0.8
       })
     });
 
     if (!response.ok) {
       const error = await response.json();
-      return res.status(500).json({ message: error.detail || 'Replicate API error' });
+      return res.status(500).json({ message: error.error?.message || 'OpenAI API error' });
     }
 
     const prediction = await response.json();
-    let rawText = prediction.output.join('');
-    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    let rawText = prediction.choices[0].message.content;
 
     let parsed;
     try {

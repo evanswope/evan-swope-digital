@@ -4,10 +4,10 @@ export default async function handler(req, res) {
   }
 
   const { state } = req.body;
-  const token = process.env.REPLICATE_API_TOKEN;
+  const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
-    return res.status(500).json({ message: 'Missing API Token' });
+    return res.status(500).json({ message: 'Missing OPENAI_API_KEY' });
   }
 
   const systemPrompt = `You are the Game Master for a surreal, bizarre text-based Grocery Dating Sim RPG.
@@ -60,50 +60,38 @@ CRITICAL DIVERSITY REQUIREMENT (Seed: ${seed}):
 Generate the next customer encounter. RETURN ONLY RAW JSON.`;
 
   try {
-    const response = await fetch(`https://api.replicate.com/v1/models/meta/meta-llama-3-8b-instruct/predictions`, {
+    const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'wait' // Wait for the generation to finish synchronously
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        input: {
-          system_prompt: systemPrompt,
-          prompt: userPrompt,
-          max_tokens: 512,
-          temperature: 1.15
-        }
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 1.15
       })
     });
 
     if (!response.ok) {
       const error = await response.json();
-      return res.status(500).json({ message: error.detail || 'Replicate API error' });
+      return res.status(500).json({ message: error.error?.message || 'OpenAI API error' });
     }
 
     const prediction = await response.json();
+    let rawText = prediction.choices[0].message.content;
     
-    // Llama 3 output is an array of strings, we need to join them
-    let rawText = prediction.output.join('');
-    
-    // Strip markdown formatting if the model accidentally included it
-    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
     let parsed;
     try {
-      // First attempt: try to extract a JSON block using regex in case there is leading/trailing text
-      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      } else {
-        parsed = JSON.parse(rawText);
-      }
+      parsed = JSON.parse(rawText);
     } catch (parseError) {
       console.warn("JSON Parse Failed, attempting regex extraction. Raw text:", rawText);
       try {
         const extractString = (field) => {
-          // Use a more robust regex that catches the last field even without a comma
           const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\}|$)`);
           const match = rawText.match(regex);
           return match ? match[1].replace(/"/g, "'").trim() : "";

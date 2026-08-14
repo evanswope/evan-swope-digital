@@ -4,10 +4,10 @@ export default async function handler(req, res) {
   }
 
   const { imageUrl, customerRequest, emotionalNeed, userPrompt } = req.body;
-  const token = process.env.REPLICATE_API_TOKEN;
+  const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
-    return res.status(500).json({ message: 'Missing API Token' });
+    return res.status(500).json({ message: 'Missing OPENAI_API_KEY' });
   }
 
   const visionPrompt = `You are the strict visual judge in a silly Grocery Store game. 
@@ -44,29 +44,72 @@ JSON Schema:
 }`;
 
   try {
-    const response = await fetch(`https://api.replicate.com/v1/predictions`, {
+    const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        version: '2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591',
-        input: {
-          image: imageUrl,
-          prompt: visionPrompt,
-          max_tokens: 256
-        }
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: visionPrompt },
+              { type: "image_url", image_url: { url: imageUrl } }
+            ]
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500
       })
     });
 
     if (!response.ok) {
       const error = await response.json();
-      return res.status(500).json({ message: error.detail || 'Replicate Vision API error' });
+      return res.status(500).json({ message: error.error?.message || 'OpenAI Vision API error' });
     }
 
     const prediction = await response.json();
-    res.status(200).json({ id: prediction.id });
+    const rawText = prediction.choices[0].message.content;
+    
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseError) {
+      console.warn("Vision AI JSON Parse Failed. Attempting regex extraction. Raw text:", rawText);
+      try {
+        const extractString = (field) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
+          const match = rawText.match(regex);
+          return match ? match[1].replace(/"/g, "'").trim() : "";
+        };
+        const extractBool = (field) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*(true|false)`);
+          const match = rawText.match(regex);
+          return match ? match[1] === "true" : false;
+        };
+        const extractInt = (field, defaultVal) => {
+          const regex = new RegExp(`"${field}"\\s*:\\s*([0-9]+)`);
+          const match = rawText.match(regex);
+          return match ? parseInt(match[1], 10) : defaultVal;
+        };
+
+        parsed = {
+          approved: extractBool("approved"),
+          bonus: extractBool("bonus"),
+          affection: extractInt("affection", 0),
+          value: extractInt("value", 50),
+          flavor_text: extractString("flavor_text") || "The clerk hands over the item.",
+          reaction: extractString("reaction") || "What is this? I can't take this."
+        };
+      } catch (regexError) {
+        parsed = { approved: false, bonus: false, affection: 0, value: 0, flavor_text: "You give them the item.", reaction: "No way." };
+      }
+    }
+    
+    res.status(200).json(parsed);
 
   } catch (err) {
     console.error(err);

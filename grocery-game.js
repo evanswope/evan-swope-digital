@@ -210,18 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         aspect_ratio: '1:1'
       })
     }).catch(e => console.warn("Warmup image failed:", e));
-
-    // 3. Ping Vision GPU
-    fetchWithRetry('/api/vision', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/14/Rubber_Duck_%288374802487%29.jpg",
-        customerRequest: "a duck",
-        emotionalNeed: "loneliness",
-        userPrompt: "a duck"
-      })
-    }).catch(e => console.warn("Warmup vision failed:", e));
   }
   // Trigger immediately
   warmupCloud();
@@ -440,7 +428,8 @@ document.addEventListener('DOMContentLoaded', () => {
     state.phase = "APPRAISING";
 
     try {
-      const initData = await fetchWithRetry('/api/vision', {
+      // OpenAI returns the parsed JSON synchronously, no polling needed!
+      let data = await fetchWithRetry('/api/vision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -451,67 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
-      let predictionId = initData.id;
-      let prediction;
-      
-      let pollCount = 0;
-      while (true) {
-        if (pollCount > 40) throw new Error('Timeout waiting for appraisal (60s limit). Replicate cold boot taking too long.');
-        pollCount++;
-        await new Promise(r => setTimeout(r, 1500));
-        
-        const pollRes = await fetch(`/api/poll?id=${predictionId}&_t=${Date.now()}`);
-        prediction = await pollRes.json();
-        
-        if (!pollRes.ok) throw new Error(prediction.message);
-        if (prediction.status === 'succeeded') break;
-        if (prediction.status === 'failed' || prediction.status === 'canceled') {
-          throw new Error(prediction.error || 'Appraisal failed.');
-        }
-      }
-      
-      let rawText = Array.isArray(prediction.output) ? prediction.output.join('') : prediction.output;
-      rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-      
-      let data;
-      try {
-        data = JSON.parse(rawText);
-      } catch (parseError) {
-        console.warn("Vision AI JSON Parse Failed. Attempting regex extraction. Raw text:", rawText);
-        try {
-          const extractString = (field) => {
-            const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
-            const match = rawText.match(regex);
-            return match ? match[1].replace(/"/g, "'").trim() : "";
-          };
-          const extractBool = (field) => {
-            const regex = new RegExp(`"${field}"\\s*:\\s*(true|false)`);
-            const match = rawText.match(regex);
-            return match ? match[1] === "true" : true;
-          };
-          const extractInt = (field, defaultVal) => {
-            const regex = new RegExp(`"${field}"\\s*:\\s*([0-9]+)`);
-            const match = rawText.match(regex);
-            return match ? parseInt(match[1], 10) : defaultVal;
-          };
-
-          data = {
-            approved: extractBool("approved"),
-            bonus: extractBool("bonus"),
-            affection: extractInt("affection", 3),
-            value: extractInt("value", 400),
-            reaction: extractString("reaction") || "Wow! I am so overwhelmed I can barely speak properly!"
-          };
-        } catch (regexError) {
-          data = {
-            approved: true,
-            bonus: true,
-            affection: 3,
-            value: 400,
-            reaction: "Wow! I am so overwhelmed I can barely speak properly!"
-          };
-        }
-      }
+      addLog(`> ${data.flavor_text || "The clerk hands over the item."}`, "log-system");
 
       addLog(`[CUSTOMER] ${data.reaction}`, "log-customer");
       
