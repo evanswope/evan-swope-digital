@@ -111,6 +111,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
         parsed = {
           name: extractString("name") || "A Glitched Entity",
           desc: extractString("desc") || extractString("dialogue") || "A glowing orb of glitching light",
+          flavor_text: extractString("flavor_text") || "You are wiping down the checkout counter when the doors violently burst open.",
           dialogue: extractString("dialogue") || "My reality is breaking apart. I require something simple.",
           base_item: extractString("base_item") || "a single egg",
           emotional_need: extractString("emotional_need") || "stability in a chaotic world"
@@ -119,6 +120,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
         parsed = {
           name: "A Glitched Entity",
           desc: "A glowing orb of glitching light",
+          flavor_text: "You are wiping down the checkout counter when the doors violently burst open.",
           dialogue: "My reality is completely broken. I require something simple.",
           base_item: "a single egg",
           emotional_need: "stability in a chaotic world"

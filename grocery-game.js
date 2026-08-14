@@ -176,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.flavor_text) {
         addLog(`> ${data.flavor_text}`, "log-system");
       }
-      addLog(`[CUSTOMER] ${data.dialogue}`, "log-customer");
       state.currentCustomerName = data.name || "A Mysterious Entity";
+      addLog(`[${state.currentCustomerName.toUpperCase()}] ${data.dialogue}`, "log-customer");
       state.currentCustomerDesc = data.desc || data.dialogue;
       state.currentCustomerRequest = data.base_item;
       state.currentCustomerNeed = data.emotional_need;
