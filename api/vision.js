@@ -24,11 +24,13 @@ You must judge this on TWO criteria: 1. BASE ITEM (CRITICAL): Does the image vis
 
 Scoring Affection:
 - If Base Item is NOT present: Affection is 0, and 'approved' MUST BE false. CRITICAL: The customer's reaction MUST explicitly state that they are REFUSING to buy or take the item (e.g. "I'm not paying for this", "I absolutely will not take this"). They MUST NOT say they will take it if approved is false.
-- If Base Item IS present but Bonus is FALSE: Affection is 1, and 'approved' MUST BE true. CRITICAL: The customer's reaction MUST explicitly state that they are buying/taking the item (e.g. "I guess I'll take it, but..."), while expressing confusion or disappointment at the weird twist. They CANNOT refuse to buy it if the base item is present.
-- If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is.
+- If Base Item IS present but Bonus is FALSE: Affection is 1, and 'approved' MUST BE true. CRITICAL: The customer's reaction MUST explicitly state that they are buying/taking the item (e.g. "I guess I'll take it, but..."), while expressing confusion or disappointment at the weird twist. They CANNOT refuse to buy it or claim they are stealing it if the base item is present.
+- If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is. They must happily buy the item.
 - TRUE LOVE: In very rare, incredibly clever circumstances, you can award 10 Affection.
 
 Rate the "Value" (price) of the item based on how ridiculous, expensive, or gold-encrusted it looks (give an integer between 10 and 100000).
+
+Rules for flavor_text: Briefly describe the clerk physically providing the item to the customer based on the "approved" status. If approved is true, describe the clerk confidently pulling it off the shelf or presenting it. If approved is false, describe the clerk failing horribly to find anything close to what they wanted.
 
 You MUST respond ONLY with a raw JSON object (no markdown, no backticks).
 JSON Schema:
@@ -37,6 +39,7 @@ JSON Schema:
   "bonus": true or false,    // True if emotional need is creatively addressed
   "affection": integer,      // 0, 1, 2-5, or 10
   "value": integer,
+  "flavor_text": "A brief narrated description of the clerk providing the item.",
   "reaction": "A short, funny one-liner from the customer reacting to what they ACTUALLY SEE in the image. CRITICAL: If 'approved' is true, they MUST buy/accept the item in the dialogue. If 'approved' is false, they MUST violently refuse to take the item and leave it on the counter."
 }`;
 

@@ -23,13 +23,16 @@ ANY bizarre conditions, emotional twists, or strange requirements MUST be placed
 
 The requested grocery item should get more ridiculous and expensive as the player levels up.
 
+Rules for flavor_text: Briefly describe the player (the clerk) performing tedious, thankless grocery store tasks (e.g., mopping up a spill, restocking shelves, taking their lunch break, replacing lightbulbs, trying to hide in the back) right before they are abruptly interrupted by this specific customer bursting into the store.
+
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks, just the JSON string).
 CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON parsing. Use single quotes instead if needed.
 JSON Schema:
 {
   "name": "A short, descriptive name and species/form of the customer (e.g. 'Wanda the Dog', 'Guillame the Pea', 'Jenny the Haunted Doll', 'Stan the Washbasin')",
   "desc": "A short, strictly physical description of what the customer looks like for an image generator (e.g. 'A plump chicken carrying a banjo')",
-  "dialogue": "A short, funny description of the abstract customer entering and what they say.",
+  "flavor_text": "A brief narrated description of the clerk's busywork being interrupted by the customer.",
+  "dialogue": "A short, funny description of the abstract customer entering and what they say. MUST ONLY BE SPOKEN DIALOGUE.",
   "base_item": "A short phrase describing the exact base grocery item they want to buy (e.g., 'a jar of mayo')",
   "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution (e.g., 'companionship', 'a nap', 'help chewing')"
 }`;

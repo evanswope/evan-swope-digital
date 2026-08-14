@@ -173,6 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) throw new Error(data.message);
 
+      if (data.flavor_text) {
+        addLog(`> ${data.flavor_text}`, "log-system");
+      }
       addLog(`[CUSTOMER] ${data.dialogue}`, "log-customer");
       state.currentCustomerName = data.name || "A Mysterious Entity";
       state.currentCustomerDesc = data.desc || data.dialogue;
