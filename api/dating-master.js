@@ -64,7 +64,7 @@ Narrative: You are at the altar. The player just responded with their vows.
 Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 0, you despise the player and MUST TERMINATE the wedding (set terminate: true). If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive (e.g. "whatever", "okay"), or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
 Rules for flavor_text: If you terminate, describe how the player completely ruined the moment, leaving you both alone forever. If you don't terminate, describe a beautiful, happy future together.
 Rules for dialogue: Give your final reaction to their vows.
-Image Prompt Rules: (This image won't be shown to the user as they win, but keep it a happy wedding scene).
+Image Prompt Rules: The image prompt MUST describe the customer happily married in their wedding attire in a beautiful, cinematic romantic setting. CRITICAL RULE: DO NOT include the grocer or any other humans in the frame (make it first-person POV of the customer).
 `;
   }
 
