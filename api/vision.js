@@ -24,7 +24,7 @@ You must judge this on TWO criteria: 1. BASE ITEM (CRITICAL): Does the image vis
 
 Scoring Affection:
 - If Base Item is NOT present: Affection is 0, and 'approved' MUST BE false. CRITICAL: The customer's reaction MUST explicitly state that they are REFUSING to buy or take the item (e.g. "I'm not paying for this", "I absolutely will not take this"). They MUST NOT say they will take it if approved is false.
-- If Base Item IS present but Bonus is FALSE: Affection is 1, and 'approved' MUST BE true. CRITICAL: The customer's reaction MUST explicitly state that they are buying/taking the item (e.g. "I guess I'll take it, but..."), while expressing confusion or disappointment at the weird twist. They CANNOT refuse to buy it or claim they are stealing it if the base item is present.
+- If Base Item IS present but Bonus is FALSE: Affection is 1, and 'approved' MUST BE true. CRITICAL: The customer's reaction MUST explicitly state that they are buying/taking the item (e.g. "I guess I'll take it, but..."). If the user provided EXACTLY what was requested but ignored the emotional need, the customer MUST remember that they asked for the item—do NOT have them say "why did you give me this?". Instead, they should express disappointment that their deeper emotional problem wasn't addressed. If the user DID add a weird twist but it didn't help the emotional need, express confusion at the weird twist.
 - If Base Item IS present AND Bonus is achieved: Affection should be between 2 and 5 depending on how clever it is. They must happily buy the item.
 - TRUE LOVE: In very rare, incredibly clever circumstances, you can award 10 Affection.
 
