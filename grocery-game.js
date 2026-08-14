@@ -464,9 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       state.currentCustomerName = data.name || "A Mysterious Entity";
+      state.currentCustomerDesc = data.desc || data.dialogue;
+      state.currentCustomerRequest = data.base_item;
       state.currentCustomerNeed = data.emotional_need;
-      state.currentCustomerRequest = data.item_requested;
-      state.currentCustomerDesc = data.customer_desc;
       state.currentCustomerSeed = Math.floor(Math.random() * 1000000);
       
       // Start image generation in the background!
@@ -816,7 +816,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
-      handOverlay.classList.add('visible');
+      const handOverlay = document.getElementById('hand-overlay');
+      if (handOverlay) handOverlay.style.display = 'block';
       playDrumroll();
       
       // Request generation in the background without awaiting it
