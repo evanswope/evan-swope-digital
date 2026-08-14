@@ -209,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Web Audio Drumroll Synthesis
+  let drumrollBuffer = null;
   function playDrumroll() {
     try {
       if (!audioCtx) {
@@ -1018,9 +1019,9 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          // Kick off loading buffers if they aren't loaded yet
-          if (!sfxBuffers.success) loadSFX();
         }
+        // Kick off loading buffers if they aren't loaded yet
+        if (!sfxBuffers.success && !sfxBuffers.fail) loadSFX();
         if (audioCtx.state === 'suspended') audioCtx.resume();
       } catch (err) {}
 
