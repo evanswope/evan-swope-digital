@@ -652,8 +652,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 1. Download image from Replicate via proxy to avoid CORS
       const imgUrl = itemImage.src;
-      const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(imgUrl)}`);
-      if (!res.ok) throw new Error("Failed to proxy image");
+      const res = await fetch(imgUrl);
+      if (!res.ok) throw new Error("Failed to download image for upload");
       const blob = await res.blob();
 
       // 2. Upload to Firebase Storage
