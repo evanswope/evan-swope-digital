@@ -408,6 +408,49 @@
       .game-container {
         margin: 0 !important; /* Overriding previous margin since wrapper handles it */
       }
+
+      /* Hand Animation */
+      #hand-overlay {
+        position: absolute;
+        font-size: 8rem;
+        opacity: 0.5;
+        display: none;
+        z-index: 5;
+        pointer-events: none;
+      }
+
+      @media (min-width: 768px) {
+        #hand-overlay {
+          animation: hand-slide-in 2s infinite ease-in-out;
+        }
+        #hand-overlay::after {
+          content: '🫴';
+        }
+      }
+
+      @media (max-width: 767px) {
+        #hand-overlay {
+          animation: hand-lift-up 2s infinite ease-in-out;
+        }
+        #hand-overlay::after {
+          content: '🤲';
+        }
+      }
+
+      @keyframes hand-slide-in {
+        0% { transform: translateX(-150px) translateY(20px); opacity: 0; }
+        30% { opacity: 0.5; }
+        70% { transform: translateX(50px) translateY(20px); opacity: 0.5; }
+        100% { transform: translateX(100px) translateY(20px); opacity: 0; }
+      }
+
+      @keyframes hand-lift-up {
+        0% { transform: translateY(100px); opacity: 0; }
+        30% { opacity: 0.5; }
+        70% { transform: translateY(0px); opacity: 0.5; }
+        100% { transform: translateY(-50px); opacity: 0; }
+      }
+
     </style>
     
     <div class="game-container">
@@ -457,6 +500,7 @@
         <div id="no-item-text">NO ITEMS<br>FOUND</div>
         <img id="item-image" src="" style="display:block;" crossorigin="anonymous" />
         <div class="red-scanline" id="red-scanline"></div>
+        <div id="hand-overlay"></div>
         <div id="loading-overlay">
           <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i>
           <span id="loading-text" style="margin-top:0.5rem;">GENERATING...</span>
@@ -471,6 +515,9 @@
 
   </div> <!-- End Game Container -->
   </div> <!-- End Wrapper -->
+
+  <audio id="sfx-success" src="success.mp3" preload="auto"></audio>
+  <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
 
   <!-- Firebase Integration -->
   <script type="module">

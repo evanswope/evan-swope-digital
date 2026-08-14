@@ -175,6 +175,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Web Audio Drumroll Synthesis
+  function playDrumroll() {
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = buffer.getChannelData(0);
+      let lastOut = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + (0.02 * white)) / 1.02; // Brown noise approx
+        lastOut = output[i];
+        output[i] *= 3.5; 
+      }
+
+      const noiseSrc = audioCtx.createBufferSource();
+      noiseSrc.buffer = buffer;
+      noiseSrc.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 350;
+
+      const tremolo = audioCtx.createGain();
+      const lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 18; 
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 0.5; 
+      lfo.connect(lfoGain);
+      lfoGain.connect(tremolo.gain);
+
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 5);
+      
+      noiseSrc.connect(filter);
+      filter.connect(tremolo);
+      tremolo.connect(masterGain);
+      masterGain.connect(audioCtx.destination);
+
+      noiseSrc.start();
+      lfo.start();
+
+      return {
+        stop: () => {
+          masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+          masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+          masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+          setTimeout(() => {
+            try { noiseSrc.stop(); lfo.stop(); } catch(e){}
+          }, 150);
+        }
+      };
+    } catch (e) {
+      console.error("Drumroll err", e);
+      return { stop: () => {} };
+    }
+  }
+
   // Helper: Update UI stats
   function updateStatsUI() {
     statLevel.textContent = state.level;
@@ -612,6 +678,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit. Dramatic, chaotic, angry, grocery store background. No other humans in frame.`;
       }
+
+      // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
+      const handOverlay = document.getElementById('hand-overlay');
+      if (handOverlay) handOverlay.style.display = 'block';
+      const drumroll = playDrumroll();
+
       let imagePromise = generateCharacterImage(reactionPrompt);
 
       if (data.flavor_text) {
@@ -664,6 +736,22 @@ document.addEventListener('DOMContentLoaded', () => {
         await imagePromise;
       }
 
+      // The image has loaded! Stop drumroll and hide hands
+      drumroll.stop();
+      if (handOverlay) handOverlay.style.display = 'none';
+
+      // Play outcome sound effect
+      try {
+        const audioId = data.approved ? 'sfx-success' : 'sfx-fail';
+        const sfx = document.getElementById(audioId);
+        if (sfx) {
+          sfx.currentTime = 0;
+          sfx.play().catch(e => console.warn("Audio play prevented", e));
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+
       // True Love instant-win condition
       if (affectionGained >= 10) {
         state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc };
@@ -679,14 +767,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (state.level >= 5) {
         updateStatsUI();
-        addLog(`> Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+        if (data.approved) {
+          addLog(`> Success! Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+        } else {
+          addLog(`> Too bad. Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+        }
         state.phase = "WAIT_LEDGER";
         gameInput.disabled = false;
         gameInput.focus();
       } else {
         state.level++;
         updateStatsUI();
-        addLog(`> Shift completed. Type "NEXT" to serve the next customer.`, "log-gm");
+        if (data.approved) {
+          addLog(`> Success! Type "NEXT" to serve the next customer.`, "log-gm");
+        } else {
+          addLog(`> Too bad. Type "NEXT" to serve the next customer.`, "log-gm");
+        }
         state.phase = "START";
         gameInput.disabled = false;
         gameInput.focus();
