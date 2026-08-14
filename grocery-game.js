@@ -272,9 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       drumrollMasterGain = audioCtx.createGain();
-      drumrollMasterGain.gain.setValueAtTime(0.375, audioCtx.currentTime);
-      // Curve down from 37.5% to 18% over the first 1.5 seconds
-      drumrollMasterGain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 1.5);
+      drumrollMasterGain.gain.setValueAtTime(0.26, audioCtx.currentTime);
+      // Curve down from 26% to 12% over the first 1.5 seconds
+      drumrollMasterGain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 1.5);
       
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'highpass';
@@ -343,8 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
               // Cancel current ramps
               drumrollMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
               drumrollMasterGain.gain.setValueAtTime(drumrollMasterGain.gain.value, audioCtx.currentTime);
-              // Crescendo back to 37.5% over 0.5 seconds
-              drumrollMasterGain.gain.linearRampToValueAtTime(0.375, audioCtx.currentTime + 0.5);
+              // Crescendo back to 26% over 0.5 seconds
+              drumrollMasterGain.gain.linearRampToValueAtTime(0.26, audioCtx.currentTime + 0.5);
               
               setTimeout(() => {
                 isDrumrolling = false;
