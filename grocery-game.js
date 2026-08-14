@@ -186,13 +186,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // WARM UP THE CLOUD
   // Pre-fetch the first customer and send dummy pings to wake up Replicate GPUs
   let preloadedCustomerPromise = null;
+  let lastWarmupTime = Date.now();
+
   function warmupCloud() {
-    // 1. Preload the first customer
-    preloadedCustomerPromise = fetchWithRetry('/api/game-master', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state })
-    });
+    lastWarmupTime = Date.now();
+    
+    // 1. Preload the first customer ONLY if we are at the start screen
+    if (state.phase === "START") {
+      preloadedCustomerPromise = fetchWithRetry('/api/game-master', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state })
+      });
+    }
     
     // 2. Ping Image GPU (flux-schnell)
     fetchWithRetry('/api/generate', {
@@ -219,6 +225,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Trigger immediately
   warmupCloud();
+
+  // Re-warm the cloud if the user leaves the tab and comes back later!
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === 'visible') {
+      // If it's been more than 3 minutes (180,000 ms), the cloud is probably cold. Warm it up!
+      if (Date.now() - lastWarmupTime > 180000) {
+        console.log("Tab regained focus after 3+ mins. Rewarming the cloud...");
+        warmupCloud();
+      }
+    }
+  });
 
   // Phase: Call Game Master
   async function callGameMaster() {
