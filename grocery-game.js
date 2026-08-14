@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.approved) {
         reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} happily receiving an item ${playerContext}. Happy, vibrant, successful, grocery store background.`;
       } else {
-        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit at a clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
+        reactionPrompt = `A surreal painting of a grocery clerk standing all alone at the register looking extremely defeated, sad, and rejected because the customer just walked out in a huff. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, depressing, lonely, empty grocery store background. No other humans in frame.`;
       }
 
       // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
