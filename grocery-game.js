@@ -406,6 +406,21 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!isDating) {
             state.phase = "HAND_OVER_ITEM";
             addLog(`> Item fabricated. Press ENTER or type "GIVE" to hand it over.`, "log-gm");
+            
+            state.pendingVisionData = fetchWithRetry('/api/vision', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                imageUrl: outputUrl,
+                customerRequest: state.currentCustomerRequest,
+                emotionalNeed: state.currentCustomerNeed,
+                userPrompt: prompt
+              })
+            }).catch(err => {
+              console.error("Prefetch vision error:", err);
+              return null;
+            });
+
             // We store the url and prompt in state so the input handler can call appraiseItem
             state.pendingItemUrl = outputUrl;
             state.pendingItemPrompt = prompt;
@@ -571,17 +586,25 @@ document.addEventListener('DOMContentLoaded', () => {
     state.phase = "APPRAISING";
 
     try {
-      // OpenAI returns the parsed JSON synchronously, no polling needed!
-      let data = await fetchWithRetry('/api/vision', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageUrl,
-          customerRequest: state.currentCustomerRequest,
-          emotionalNeed: state.currentCustomerNeed,
-          userPrompt
-        })
-      });
+      let data;
+      if (state.pendingVisionData) {
+        data = await state.pendingVisionData;
+        state.pendingVisionData = null;
+      }
+      
+      // If prefetch failed or didn't exist, fetch normally
+      if (!data) {
+        data = await fetchWithRetry('/api/vision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageUrl,
+            customerRequest: state.currentCustomerRequest,
+            emotionalNeed: state.currentCustomerNeed,
+            userPrompt
+          })
+        });
+      }
 
       let reactionPrompt = "";
       if (data.approved) {
