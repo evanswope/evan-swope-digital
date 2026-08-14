@@ -559,8 +559,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      addLog(`[DATE] ${data.dialogue}`, "log-customer");
-      state.datingHistory.push({ role: "assistant", content: data.dialogue });
+      if (data.flavor_text) {
+        addLog(`> ${data.flavor_text}`, "log-system");
+      }
+      if (data.dialogue) {
+        addLog(`[DATE] ${data.dialogue}`, "log-customer");
+        state.datingHistory.push({ role: "assistant", content: data.dialogue });
+      }
       
       if (data.approval === 1) {
         state.datingScore++;
@@ -568,18 +573,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (data.terminate) {
-        addLog(`> The date was a disaster. They left.`, "log-system");
         finishDating(true);
         return;
       }
 
-      // Generate the scene image based on the LLM's prompt
+      if (state.datingRound >= 4) {
+        // Round 4 is the Vow Evaluation. If we didn't terminate, we won!
+        finishDating(false, data.image_prompt);
+        return;
+      }
+
+      // Generate the scene image based on the LLM's prompt for rounds 1-3
       addLog("> Generating scene...", "log-system");
       const imageSuccess = await generateImage(null, true, data.image_prompt);
       
       if (imageSuccess) {
         state.datingRound++;
       }
+      
+      state.phase = "DATING_WAIT_USER";
+      gameInput.disabled = false;
+      gameInput.focus();
 
     } catch (e) {
       addLog(`Dating Error: ${e.message}`, "log-error");
@@ -588,12 +602,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function finishDating(forceLoss = false) {
+  async function finishDating(forceLoss = false, customWinPrompt = null) {
     state.phase = "DATING_GENERATING";
     const won = forceLoss ? false : (state.datingScore >= 2);
     
     let finalPrompt = won 
-      ? `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date, seen from a first-person POV camera. Epic lighting, beautiful masterpiece, highly detailed. No other humans in frame.`
+      ? (customWinPrompt || `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date. Epic lighting, beautiful masterpiece. No humans in frame.`)
       : `A wildly dramatic, hyper-emotional cinematic shot of a pathetic grocery clerk having an absolute mental breakdown. They are completely collapsed on the ground in the middle of a dimly lit grocery store aisle, sobbing uncontrollably, head in their hands, covered in extreme embarrassment and regret, throwing a fit. Lonely, depressing, Game over vibes. Masterpiece lighting.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
