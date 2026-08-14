@@ -464,13 +464,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       state.currentCustomerName = data.name || "A Mysterious Entity";
-      state.currentCustomerDesc = data.desc || data.dialogue;
-      state.currentCustomerRequest = data.base_item;
       state.currentCustomerNeed = data.emotional_need;
+      state.currentCustomerRequest = data.item_requested;
+      state.currentCustomerDesc = data.customer_desc;
+      state.currentCustomerSeed = Math.floor(Math.random() * 1000000);
       
       // Start image generation in the background!
       let portraitPrompt = `A surreal portrait of ${state.currentCustomerDesc} standing at a grocery store checkout counter. Cinematic, vibrant.`;
-      generateCharacterImage(portraitPrompt);
+      generateCharacterImage(portraitPrompt, 'character', state.currentCustomerSeed);
 
       // Use typewriter effect to buy time while image generates
       if (data.flavor_text) {
@@ -676,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function generateCharacterImage(prompt, type = 'character') {
+  async function generateCharacterImage(prompt, type = 'character', seed = undefined) {
     // Do NOT disable game input or change phase, as this runs in parallel with text
     itemImage.onload = null;
     itemImage.onerror = null;
@@ -705,7 +706,8 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({
             model_id: 'flux-schnell',
             prompt: prompt,
-            aspect_ratio: '1:1'
+            aspect_ratio: '1:1',
+            seed: seed
           }),
           signal: controller.signal
         });
@@ -814,11 +816,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
-      const handOverlay = document.getElementById('hand-overlay');
-      if (handOverlay) handOverlay.style.display = 'block';
-      const drumroll = playDrumroll();
-
-      let imagePromise = generateCharacterImage(reactionPrompt);
+      handOverlay.classList.add('visible');
+      playDrumroll();
+      
+      // Request generation in the background without awaiting it
+      const imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed);
 
       if (data.flavor_text) {
         await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
@@ -857,11 +859,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Save customer to ledger
       state.customersServed.push({
-        id: state.level,
         name: state.currentCustomerName,
         desc: state.currentCustomerDesc,
         request: state.currentCustomerRequest,
-        affectionGained: affectionGained
+        affectionGained: affectionGained,
+        seed: state.currentCustomerSeed
       });
 
       updateStatsUI();
@@ -989,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Trigger image generation in the background
       let imagePromise = null;
       if (data.image_prompt) {
-        imagePromise = generateCharacterImage(data.image_prompt);
+        imagePromise = generateCharacterImage(data.image_prompt, 'character', state.selectedCustomer.seed);
       }
 
       if (data.flavor_text) {
@@ -1045,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
 
     // We don't await because we just want the final image to show up
-    await generateCharacterImage(finalPrompt);
+    await generateCharacterImage(finalPrompt, 'character', won ? state.selectedCustomer.seed : state.playerSeed);
     
     scannerStatus.textContent = won ? "YOU WIN!" : "GAME OVER";
     scannerStatus.style.color = won ? "#ff00ff" : "#ff3333";
@@ -1175,11 +1177,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "PLAYER_SETUP") {
         state.playerDescription = val;
+        state.playerSeed = Math.floor(Math.random() * 1000000);
         gameInput.disabled = true;
         addLog(`> Taking photo for ID badge...`, "log-system");
         
         const badgePrompt = `${val}, smiling employee badge on white background with lanyard, high key lighting portrait photography`;
-        generateCharacterImage(badgePrompt, 'badge').then(() => {
+        generateCharacterImage(badgePrompt, 'badge', state.playerSeed).then(() => {
           addLog("> Badge printed. Press ENTER to start your shift.", "log-system");
           state.phase = "BADGE_HOLD";
           gameInput.disabled = false;

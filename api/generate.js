@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { model_id, prompt, negative_prompt, width, height, num_inference_steps, guidance_scale, aspect_ratio } = req.body;
+  const { model_id, prompt, negative_prompt, width, height, num_inference_steps, guidance_scale, aspect_ratio, seed } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ message: 'Missing prompt' });
@@ -39,6 +39,7 @@ export default async function handler(req, res) {
         go_fast: true,
         disable_safety_checker: true
       };
+      if (seed !== undefined) input.seed = seed;
       break;
     
     case 'sd3':
