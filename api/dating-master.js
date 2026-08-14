@@ -43,12 +43,12 @@ Image Prompt Rules: The image prompt MUST describe the customer on a phone call.
 - CRITICAL RULE: If Affection is 0, their mundane requested object MUST NEVER be in the frame because they didn't buy it.
 `;
   } else if (datingRound === 2) {
-    systemPrompt += `=== ROUND 2: THE DATE ===
-Narrative: You are now AT the location the player suggested in the previous turn. 
-Failure Condition: CRITICAL: If your Affection is 0, you hate the player. You MUST TERMINATE the date (set terminate: true) unless the player's suggested location is absolutely, incredibly perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the location is fast food, lazy, generic, unrelated to your emotional needs, or if the player completely failed to suggest a location. If your Affection is 3-4, you only terminate if the location is completely terrible/dangerous. If Affection is 5+, you will happily agree to go anywhere.
-Rules for flavor_text: Write in the THIRD-PERSON as a narrator. Briefly describe how the date is going. If you are setting 'terminate' to true, the flavor_text MUST describe the customer storming out or ruining the date. If you are NOT terminating, describe the vibe (e.g., romantic eye contact, awkward silence). CRITICAL: DO NOT use first-person and DO NOT mention the word "Affection".
-Rules for dialogue: If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about your connection, hope for the future, or your original emotional needs. If you terminate, just insult them and leave.
-Image Prompt Rules: The image prompt MUST describe the customer at the specified date location, facing the camera, holding a dating object (wine, bouquet, romantic card, etc). Their expression should continue to reflect their Affection.
+    systemPrompt += `=== ROUND 2: EVALUATING THE DATE SUGGESTION ===
+Narrative: You are still on the phone. The player just suggested a location for the date. 
+Failure Condition: CRITICAL: Evaluate their suggested location. If your Affection is 0, you hate the player and MUST TERMINATE the call (set terminate: true) unless the location is absolutely, incredibly perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the location is fast food, lazy, generic, unrelated to your emotional needs, or if they failed to suggest a location. If your Affection is 3-4, you only terminate if the location is completely terrible/dangerous. If Affection is 5+, you will happily agree to go anywhere.
+Rules for flavor_text: Write in the THIRD-PERSON as a narrator. If you are setting 'terminate' to true, describe the customer scoffing and hanging up the phone in disgust. If you are NOT terminating, describe the customer agreeing, and then briefly narrate the scene shifting to the two of you arriving at the date location. CRITICAL: DO NOT use first-person and DO NOT mention the word "Affection".
+Rules for dialogue: If you terminate, insult their choice of location and hang up. If you don't terminate, you are now at the date: you MUST end your speech by asking the player a deep, meaningful question about your connection, hope for the future, or your original emotional needs.
+Image Prompt Rules: If you terminate, the image should show the customer angrily hanging up a phone. If you DO NOT terminate, the image MUST describe the customer at the specified date location, holding a dating object (wine, bouquet, etc). Their expression should reflect their Affection.
 `;
   } else if (datingRound === 3) {
     systemPrompt += `=== ROUND 3: THE ALTAR ===
