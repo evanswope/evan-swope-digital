@@ -123,8 +123,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
   }
 
-  // Audio Context for Beep
-  let audioCtx;
+  // Audio Management
+  let audioCtx = null;
+  let sfxBuffers = { success: null, fail: null };
+
+  async function loadSFX() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      const [succRes, failRes] = await Promise.all([
+        fetch('success.mp3'),
+        fetch('fail.mp3')
+      ]);
+      const [succBuf, failBuf] = await Promise.all([
+        succRes.arrayBuffer(),
+        failRes.arrayBuffer()
+      ]);
+      sfxBuffers.success = await audioCtx.decodeAudioData(succBuf);
+      sfxBuffers.fail = await audioCtx.decodeAudioData(failBuf);
+    } catch (e) {
+      console.warn("Could not preload SFX buffers", e);
+    }
+  }
+
+  function playSFX(type) {
+    if (!audioCtx || !sfxBuffers[type]) return;
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const source = audioCtx.createBufferSource();
+      source.buffer = sfxBuffers[type];
+      source.connect(audioCtx.destination);
+      source.start();
+    } catch (e) {
+      console.warn(`Failed to play ${type} SFX`, e);
+    }
+  }
+
   function playScannerBeep() {
     try {
       if (!audioCtx) {
@@ -743,16 +776,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Play outcome sound effect
       try {
-        const audioId = data.approved ? 'sfx-success' : 'sfx-fail';
-        const sfx = document.getElementById(audioId);
-        if (sfx) {
-          // Only needed once, but good for debugging if the files fail to load
-          sfx.onerror = () => addLog(`> AUDIO ERROR: Could not load ${sfx.src}. Check if the file is correctly named and exists.`, "log-error");
-          sfx.currentTime = 0;
-          sfx.play().catch(e => {
-            console.warn("Audio play prevented", e);
-            addLog(`> AUDIO ERROR: Browser prevented playback or file is missing/invalid.`, "log-error");
-          });
+        if (data.approved) {
+          playSFX('success');
+        } else {
+          playSFX('fail');
         }
       } catch (err) {
         console.warn(err);
@@ -989,22 +1016,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') {
       // AUDIO UNLOCK: Must happen synchronously in the event handler
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          // Kick off loading buffers if they aren't loaded yet
+          if (!sfxBuffers.success) loadSFX();
+        }
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        ['sfx-success', 'sfx-fail'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el && !el.dataset.unlocked) {
-            // Silently play and pause to unlock media playback
-            const p = el.play();
-            if (p !== undefined) {
-              p.then(() => {
-                el.pause();
-                el.currentTime = 0;
-                el.dataset.unlocked = 'true';
-              }).catch(() => {});
-            }
-          }
-        });
       } catch (err) {}
 
       const val = gameInput.value.trim();

@@ -33,10 +33,11 @@ export default async function handler(req, res) {
     case 'flux-schnell':
       modelOwnerName = "black-forest-labs/flux-schnell";
       input = {
-        prompt: prompt,
+        prompt: prompt + ", wholesome, safe for work, cartoon, pg-13",
         aspect_ratio: aspect_ratio || "1:1",
         output_format: "webp",
-        go_fast: true
+        go_fast: true,
+        disable_safety_checker: true
       };
       break;
     
