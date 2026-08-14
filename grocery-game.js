@@ -233,10 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model_id: 'sd15',
+            model_id: 'flux-schnell',
             prompt: finalPrompt,
-            width: 512,
-            height: 512
+            aspect_ratio: '1:1'
           }),
           signal: controller.signal
         });
