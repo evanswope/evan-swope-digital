@@ -316,6 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loadingOverlay.style.display = 'flex';
     scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
 
+    const noItemText = document.getElementById('no-item-text');
+    if (noItemText && !isDating) {
+      noItemText.innerHTML = 'SEARCHING<br>FOR PRODUCT';
+      noItemText.style.display = 'block';
+    }
+
     // If dating, use the LLM's full prompt (no white background requirement). 
     // If grocery, append product photography suffix.
     const finalPrompt = fullPromptOverride ? fullPromptOverride : `${prompt}, isolated on a pure white background, studio lighting, product photography`;
@@ -579,9 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let reactionPrompt = "";
       if (data.approved) {
-        reactionPrompt = `A surreal painting of ${state.playerDescription} successfully handing an item to ${state.currentCustomerDesc}. Happy, vibrant, successful, grocery store background.`;
+        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} happily receiving an item. Happy, vibrant, successful, grocery store background. No other humans in frame.`;
       } else {
-        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling at ${state.playerDescription}. Dramatic, chaotic, angry, grocery store background.`;
+        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit. Dramatic, chaotic, angry, grocery store background. No other humans in frame.`;
       }
       let imagePromise = generateCharacterImage(reactionPrompt);
 
@@ -778,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let finalPrompt = won 
       ? (customWinPrompt || `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date. Epic lighting, beautiful masterpiece. No humans in frame.`)
-      : `A wildly dramatic, hyper-emotional cinematic shot of a pathetic grocery clerk having an absolute mental breakdown. They are completely collapsed on the ground in the middle of a dimly lit grocery store aisle, sobbing uncontrollably, head in their hands, covered in extreme embarrassment and regret, throwing a fit. Lonely, depressing, Game over vibes. Masterpiece lighting.`;
+      : `A wildly dramatic, hyper-emotional cinematic shot of ${state.playerDescription} having an absolute mental breakdown. They are completely collapsed on the ground in the middle of a dimly lit grocery store aisle, sobbing uncontrollably, head in their hands, covered in extreme embarrassment and regret, throwing a fit. Lonely, depressing, Game over vibes. Masterpiece lighting.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
 
