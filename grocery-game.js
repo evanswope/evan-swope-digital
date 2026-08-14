@@ -833,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
       addLog(val, "log-user");
 
       if (state.phase === "START") {
-        if (val.toLowerCase() === 'start' || val.toLowerCase() === 'next') {
+        if (val.toLowerCase() === 'start') {
           itemImage.onload = null;
           itemImage.onerror = null;
           itemImage.classList.remove('loaded');
@@ -846,6 +846,8 @@ document.addEventListener('DOMContentLoaded', () => {
           
           state.phase = "PLAYER_SETUP";
           addLog("> Welcome to your shift. Before we begin, please describe what you look like (e.g., 'a tired clerk with purple hair', 'a suave cashier wearing a tuxedo'). This will be used for your ID badge.", "log-system");
+        } else if (val.toLowerCase() === 'next') {
+          callGameMaster();
         } else {
           addLog("Type 'start' or 'next' to continue.", "log-system");
         }
