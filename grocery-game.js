@@ -818,7 +818,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
       const handOverlay = document.getElementById('hand-overlay');
       if (handOverlay) handOverlay.style.display = 'block';
-      playDrumroll();
+      const drumroll = playDrumroll();
       
       // Request generation in the background without awaiting it
       const imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed);
