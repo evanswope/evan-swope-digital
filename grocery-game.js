@@ -185,54 +185,55 @@ document.addEventListener('DOMContentLoaded', () => {
         audioCtx.resume();
       }
 
-      const bufferSize = audioCtx.sampleRate * 2;
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = buffer.getChannelData(0);
-      let lastOut = 0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + (0.02 * white)) / 1.02; // Brown noise approx
-        lastOut = output[i];
-        output[i] *= 3.5; 
+      // Create the buffer once and cache it
+      if (!drumrollBuffer) {
+        const sampleRate = audioCtx.sampleRate;
+        const hitsPerSecond = 24; // Fast snare roll
+        const length = sampleRate * 1; // 1 second loop
+        drumrollBuffer = audioCtx.createBuffer(1, length, sampleRate);
+        const data = drumrollBuffer.getChannelData(0);
+        
+        for (let i = 0; i < length; i++) {
+          const hitPhase = (i / sampleRate) * hitsPerSecond % 1.0;
+          // Sharp attack, fast decay for a snappy snare
+          const env = Math.exp(-hitPhase * 25);
+          // Bright noise
+          const noise = (Math.random() * 2 - 1);
+          // Tone (snare fundamental around 180Hz)
+          const tone = Math.sin(2 * Math.PI * 180 * (i / sampleRate)) * Math.exp(-hitPhase * 30);
+          
+          data[i] = (noise * 0.7 + tone * 0.3) * env;
+        }
       }
 
-      const noiseSrc = audioCtx.createBufferSource();
-      noiseSrc.buffer = buffer;
-      noiseSrc.loop = true;
+      const source = audioCtx.createBufferSource();
+      source.buffer = drumrollBuffer;
+      source.loop = true;
 
       const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 350;
-
-      const tremolo = audioCtx.createGain();
-      const lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 18; 
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 0.5; 
-      lfo.connect(lfoGain);
-      lfoGain.connect(tremolo.gain);
+      filter.type = 'highpass';
+      filter.frequency.value = 300; // Cut low mud
 
       const masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 5);
+      masterGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+      // Ramp down slightly for anticipation
+      masterGain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 4);
       
-      noiseSrc.connect(filter);
-      filter.connect(tremolo);
-      tremolo.connect(masterGain);
+      source.connect(filter);
+      filter.connect(masterGain);
       masterGain.connect(audioCtx.destination);
 
-      noiseSrc.start();
-      lfo.start();
+      source.start();
 
       return {
         stop: () => {
           masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
           masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-          masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+          // Quick fade out
+          masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
           setTimeout(() => {
-            try { noiseSrc.stop(); lfo.stop(); } catch(e){}
-          }, 150);
+            try { source.stop(); } catch(e){}
+          }, 60);
         }
       };
     } catch (e) {
@@ -745,8 +746,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const audioId = data.approved ? 'sfx-success' : 'sfx-fail';
         const sfx = document.getElementById(audioId);
         if (sfx) {
+          // Only needed once, but good for debugging if the files fail to load
+          sfx.onerror = () => addLog(`> AUDIO ERROR: Could not load ${sfx.src}. Check if the file is correctly named and exists.`, "log-error");
           sfx.currentTime = 0;
-          sfx.play().catch(e => console.warn("Audio play prevented", e));
+          sfx.play().catch(e => {
+            console.warn("Audio play prevented", e);
+            addLog(`> AUDIO ERROR: Browser prevented playback or file is missing/invalid.`, "log-error");
+          });
         }
       } catch (err) {
         console.warn(err);
