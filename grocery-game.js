@@ -512,6 +512,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
         if (!outputUrl) throw new Error("No image returned.");
 
+        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(outputUrl)}`;
+        let imageLoadAttempts = 0;
+
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
           itemImage.style.opacity = '';
@@ -522,12 +525,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         itemImage.onerror = () => {
-          loadingOverlay.style.display = 'none';
-          scannerStatus.textContent = "IMAGE LOAD FAILED";
-          scannerStatus.style.color = "#ff3333";
+          imageLoadAttempts++;
+          if (imageLoadAttempts < 3) {
+            setTimeout(() => {
+              itemImage.src = proxyUrl + '&retry=' + Date.now();
+            }, 1000);
+          } else {
+            loadingOverlay.style.display = 'none';
+            scannerStatus.textContent = "IMAGE LOAD FAILED";
+            scannerStatus.style.color = "#ff3333";
+          }
         };
 
-        itemImage.src = outputUrl;
+        itemImage.src = proxyUrl;
         return; // Success, exit function
 
       } catch (e) {
