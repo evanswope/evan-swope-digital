@@ -19,6 +19,17 @@ export default async function handler(req, res) {
   let input = {};
 
   switch(model_id) {
+    case 'sd15':
+      modelOwnerName = "runwayml/stable-diffusion-v1.5";
+      input = {
+        prompt: prompt,
+        width: width || 512,
+        height: height || 512,
+        num_inference_steps: num_inference_steps || 20,
+        guidance_scale: guidance_scale || 7.5
+      };
+      break;
+
     case 'flux-schnell':
       modelOwnerName = "black-forest-labs/flux-schnell";
       input = {

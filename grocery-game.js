@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model_id: 'sdxl-lightning',
+            model_id: 'sd15',
             prompt: finalPrompt,
             width: 512,
             height: 512
@@ -329,13 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
       } catch (e) {
-        let waitTime = 2500;
-        const match = e.message.match(/resets in ~([0-9]+)s/);
-        if (match) {
-          waitTime = (parseInt(match[1], 10) * 1000) + 1000; // wait requested time + 1s buffer
-        }
-
-        if (attempt === maxAttempts) {
+        const isRateLimit = e.message.includes('429') || e.message.toLowerCase().includes('rate limit') || e.message.includes('resets in');
+        
+        if (!isRateLimit || attempt === maxAttempts) {
           addLog(`Generation Error: ${e.message}`, "log-error");
           loadingOverlay.style.display = 'none';
           scannerStatus.textContent = "ERROR";
@@ -344,6 +340,11 @@ document.addEventListener('DOMContentLoaded', () => {
           gameInput.focus();
           return false;
         } else {
+          let waitTime = 2500;
+          const match = e.message.match(/resets in ~([0-9]+)s/);
+          if (match) {
+            waitTime = (parseInt(match[1], 10) * 1000) + 1000; // wait requested time + 1s buffer
+          }
           addLog(`> Rate limit hit. Waiting ${Math.round(waitTime/1000)}s before retrying...`, "log-system");
           await new Promise(r => setTimeout(r, waitTime));
           attempt++;
