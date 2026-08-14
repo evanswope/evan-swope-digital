@@ -183,6 +183,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // WARM UP THE CLOUD
+  // Pre-fetch the first customer and send dummy pings to wake up Replicate GPUs
+  let preloadedCustomerPromise = null;
+  function warmupCloud() {
+    // 1. Preload the first customer
+    preloadedCustomerPromise = fetchWithRetry('/api/game-master', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state })
+    });
+    
+    // 2. Ping Image GPU (flux-schnell)
+    fetchWithRetry('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model_id: 'flux-schnell',
+        prompt: "A blank white square",
+        aspect_ratio: '1:1'
+      })
+    }).catch(e => console.warn("Warmup image failed:", e));
+
+    // 3. Ping Vision GPU
+    fetchWithRetry('/api/vision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/14/Rubber_Duck_%288374802487%29.jpg",
+        customerRequest: "a duck",
+        emotionalNeed: "loneliness",
+        userPrompt: "a duck"
+      })
+    }).catch(e => console.warn("Warmup vision failed:", e));
+  }
+  // Trigger immediately
+  warmupCloud();
+
   // Phase: Call Game Master
   async function callGameMaster() {
     state.phase = "WAITING_FOR_GM";
@@ -190,11 +227,17 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.disabled = true;
 
     try {
-      const data = await fetchWithRetry('/api/game-master', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state })
-      });
+      let data;
+      if (preloadedCustomerPromise) {
+        data = await preloadedCustomerPromise;
+        preloadedCustomerPromise = null;
+      } else {
+        data = await fetchWithRetry('/api/game-master', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state })
+        });
+      }
 
       if (data.flavor_text) {
         addLog(`> ${data.flavor_text}`, "log-system");
