@@ -679,9 +679,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (e) {
       console.error(e);
-      addLog(`> Error saving to leaderboard: Timeout or blocked connection. Memory saved locally instead!`, "log-error");
+      addLog(`> Error saving to leaderboard: ${e.message}`, "log-error");
+      addLog(`> (Memory saved locally instead!)`, "log-error");
     }
-
     addLog(`\nType a complaint to management, or type RESTART to play again.`, "log-gm");
     state.phase = "COMPLAINT";
     gameInput.disabled = false;
