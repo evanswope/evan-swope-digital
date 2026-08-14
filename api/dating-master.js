@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { customer, userMessage, datingRound, datingHistory, isAce, isTrueLove } = req.body;
+  const { customer, userMessage, datingRound, datingHistory, isAce, isTrueLove, playerDescription } = req.body;
   const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
@@ -24,7 +24,7 @@ Your job is to respond to the player's last message, judge if their response was
 
 CRITICAL ANTI-HALLUCINATION RULE: DO NOT INVENT actions, locations, or vows on behalf of the player. You must strictly evaluate exactly what the player typed in their last message. If the player typed a lazy non-answer (like "Yes", "whatever", "okay", "I don't know"), treat it exactly as a lazy non-answer and aggressively apply your Failure Conditions. You cannot put words in the player's mouth to save the date.
 
-CRITICAL IMAGE PROMPT RULE: When writing the \`image_prompt\`, DO NOT include the grocer, the user, or any other humans! The image should feature ONLY the customer (e.g., the bike, the tapeworm, the llama). Text-to-image models will accidentally add humans if you use phrases like "talking to you", "on a date with", or "looking at the grocer", so keep the prompt completely focused on the customer alone.
+CRITICAL IMAGE PROMPT RULE: When writing the \`image_prompt\`, you MUST include the grocer (the player) in the frame alongside the customer. The grocer is described as: "${playerDescription || 'a grocery clerk'}". Describe their interaction.
 
 `;
 
@@ -64,7 +64,7 @@ Narrative: You are at the altar. The player just responded with their vows.
 Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 0, you despise the player and MUST TERMINATE the wedding (set terminate: true). If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive (e.g. "whatever", "okay"), or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
 Rules for flavor_text: Write in the THIRD-PERSON as a narrator. If you set 'terminate' to true, describe how the player completely ruined the moment, leaving you both alone forever. If you set 'terminate' to false, describe a beautiful, happy future together.
 Rules for dialogue: Give your final reaction to their vows.
-Image Prompt Rules: The image prompt MUST describe the customer happily married in their wedding attire in a beautiful, cinematic romantic setting. CRITICAL RULE: DO NOT include the grocer or any other humans in the frame (make it first-person POV of the customer).
+Image Prompt Rules: The image prompt MUST describe the customer happily married in their wedding attire in a beautiful, cinematic romantic setting alongside the grocer (described as: "${playerDescription || 'a grocery clerk'}").
 `;
   }
 

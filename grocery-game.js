@@ -805,10 +805,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       let reactionPrompt = "";
+      const playerContext = state.playerDescription ? `from a grocery clerk described as: ${state.playerDescription}. The clerk is clearly visible in frame` : `from a grocery clerk`;
+
       if (data.approved) {
-        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} happily receiving an item. Happy, vibrant, successful, grocery store background. No other humans in frame.`;
+        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} happily receiving an item ${playerContext}. Happy, vibrant, successful, grocery store background.`;
       } else {
-        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit. Dramatic, chaotic, angry, grocery store background. No other humans in frame.`;
+        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit at a clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
       }
 
       // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
@@ -979,7 +981,8 @@ document.addEventListener('DOMContentLoaded', () => {
           userMessage: userMessage,
           datingRound: state.datingRound,
           datingHistory: state.datingHistory,
-          isAce: state.isAce
+          isAce: state.isAce,
+          playerDescription: state.playerDescription
         })
       });
 
@@ -1036,8 +1039,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const won = forceLoss ? false : (state.datingScore >= 2);
     
     let finalPrompt = won 
-      ? (customWinPrompt || `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date. Epic lighting, beautiful masterpiece. No humans in frame.`)
-      : `A wildly dramatic, hyper-emotional cinematic shot of ${state.playerDescription} having an absolute mental breakdown. They are completely collapsed on the ground in the middle of a dimly lit grocery store aisle, sobbing uncontrollably, head in their hands, covered in extreme embarrassment and regret, throwing a fit. Lonely, depressing, Game over vibes. Masterpiece lighting.`;
+      ? (customWinPrompt || `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date alongside the grocer. The grocer looks like: ${state.playerDescription || 'a grocery clerk'}. Epic lighting, beautiful masterpiece.`)
+      : `A wildly dramatic, hyper-emotional cinematic shot of a grocery clerk having an absolute mental breakdown. The clerk looks like: ${state.playerDescription || 'a grocery clerk'}. They are completely collapsed on the ground in the middle of a dimly lit grocery store aisle, sobbing uncontrollably, head in their hands, covered in extreme embarrassment and regret, throwing a fit. Lonely, depressing, Game over vibes. Masterpiece lighting.`;
 
     addLog(won ? "> YOU FELL IN LOVE! Generating memory..." : "> THEY HATED YOU. Generating memory...", "log-system");
 
