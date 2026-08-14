@@ -984,10 +984,29 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.disabled = false;
     gameInput.focus();
   }
-
   // Input Handler
   gameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
+      // AUDIO UNLOCK: Must happen synchronously in the event handler
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        ['sfx-success', 'sfx-fail'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && !el.dataset.unlocked) {
+            // Silently play and pause to unlock media playback
+            const p = el.play();
+            if (p !== undefined) {
+              p.then(() => {
+                el.pause();
+                el.currentTime = 0;
+                el.dataset.unlocked = 'true';
+              }).catch(() => {});
+            }
+          }
+        });
+      } catch (err) {}
+
       const val = gameInput.value.trim();
       
       if (!val) {
