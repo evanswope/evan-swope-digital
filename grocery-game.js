@@ -138,15 +138,29 @@ document.addEventListener('DOMContentLoaded', () => {
         succRes.arrayBuffer(),
         failRes.arrayBuffer()
       ]);
-      sfxBuffers.success = await audioCtx.decodeAudioData(succBuf);
-      sfxBuffers.fail = await audioCtx.decodeAudioData(failBuf);
+      
+      // Use callback signature wrapped in Promise for older Safari compatibility
+      const decode = (buf) => new Promise((resolve, reject) => {
+        audioCtx.decodeAudioData(buf, resolve, reject);
+      });
+
+      sfxBuffers.success = await decode(succBuf);
+      sfxBuffers.fail = await decode(failBuf);
+      console.log("SFX loaded successfully!");
     } catch (e) {
       console.warn("Could not preload SFX buffers", e);
     }
   }
 
   function playSFX(type) {
-    if (!audioCtx || !sfxBuffers[type]) return;
+    if (!audioCtx) {
+      console.warn("audioCtx not initialized for playSFX");
+      return;
+    }
+    if (!sfxBuffers[type]) {
+      console.warn(`sfxBuffers[${type}] is missing!`);
+      return;
+    }
     try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const source = audioCtx.createBufferSource();
@@ -208,66 +222,83 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Web Audio Drumroll Synthesis
-  let drumrollBuffer = null;
+  // Web Audio Drumroll Synthesis (Lookahead Scheduler)
+  let snareBuffer = null;
+  let isDrumrolling = false;
+  let drumrollTimer = null;
+  let nextNoteTime = 0;
+  let drumrollMasterGain = null;
+
+  function createSnareBuffer(ctx) {
+    const sampleRate = ctx.sampleRate;
+    const length = sampleRate * 0.2; // 200ms
+    const buffer = ctx.createBuffer(1, length, sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) {
+      const env = Math.exp(-i / (sampleRate * 0.03));
+      const noise = (Math.random() * 2 - 1);
+      const tone = Math.sin(2 * Math.PI * 180 * (i / sampleRate)) * Math.exp(-i / (sampleRate * 0.05));
+      data[i] = (noise * 0.8 + tone * 0.5) * env;
+    }
+    return buffer;
+  }
+
   function playDrumroll() {
     try {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      if (!snareBuffer) {
+        snareBuffer = createSnareBuffer(audioCtx);
       }
 
-      // Create the buffer once and cache it
-      if (!drumrollBuffer) {
-        const sampleRate = audioCtx.sampleRate;
-        const hitsPerSecond = 24; // Fast snare roll
-        const length = sampleRate * 1; // 1 second loop
-        drumrollBuffer = audioCtx.createBuffer(1, length, sampleRate);
-        const data = drumrollBuffer.getChannelData(0);
-        
-        for (let i = 0; i < length; i++) {
-          const hitPhase = (i / sampleRate) * hitsPerSecond % 1.0;
-          // Sharp attack, fast decay for a snappy snare
-          const env = Math.exp(-hitPhase * 25);
-          // Bright noise
-          const noise = (Math.random() * 2 - 1);
-          // Tone (snare fundamental around 180Hz)
-          const tone = Math.sin(2 * Math.PI * 180 * (i / sampleRate)) * Math.exp(-hitPhase * 30);
+      drumrollMasterGain = audioCtx.createGain();
+      drumrollMasterGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+      drumrollMasterGain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 4);
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 300;
+      filter.connect(drumrollMasterGain);
+      drumrollMasterGain.connect(audioCtx.destination);
+
+      isDrumrolling = true;
+      nextNoteTime = audioCtx.currentTime + 0.05;
+
+      function scheduleDrumroll() {
+        while (nextNoteTime < audioCtx.currentTime + 0.1 && isDrumrolling) {
+          const source = audioCtx.createBufferSource();
+          source.buffer = snareBuffer;
           
-          data[i] = (noise * 0.7 + tone * 0.3) * env;
+          const velGain = audioCtx.createGain();
+          // Random velocity 0.4 to 1.0
+          velGain.gain.value = 0.4 + (Math.random() * 0.6);
+
+          source.connect(velGain);
+          velGain.connect(filter);
+          source.start(nextNoteTime);
+
+          // 1/32 note is roughly 0.05s. Add slight swing randomness (±0.005)
+          nextNoteTime += 0.05 + (Math.random() * 0.01 - 0.005);
+        }
+        if (isDrumrolling) {
+          drumrollTimer = setTimeout(scheduleDrumroll, 25);
         }
       }
 
-      const source = audioCtx.createBufferSource();
-      source.buffer = drumrollBuffer;
-      source.loop = true;
-
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.value = 300; // Cut low mud
-
-      const masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-      // Ramp down slightly for anticipation
-      masterGain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 4);
-      
-      source.connect(filter);
-      filter.connect(masterGain);
-      masterGain.connect(audioCtx.destination);
-
-      source.start();
+      scheduleDrumroll();
 
       return {
         stop: () => {
-          masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-          masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-          // Quick fade out
-          masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-          setTimeout(() => {
-            try { source.stop(); } catch(e){}
-          }, 60);
+          isDrumrolling = false;
+          clearTimeout(drumrollTimer);
+          if (drumrollMasterGain) {
+            drumrollMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+            drumrollMasterGain.gain.setValueAtTime(drumrollMasterGain.gain.value, audioCtx.currentTime);
+            drumrollMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
+          }
         }
       };
     } catch (e) {
