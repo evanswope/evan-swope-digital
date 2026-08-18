@@ -1105,7 +1105,9 @@ document.addEventListener('DOMContentLoaded', () => {
         timestamp: Date.now()
       };
 
-      await Promise.race([push(ref(db, 'leaderboard'), scoreData), timeoutPromise]);
+      const newScoreRef = push(ref(db, 'leaderboard'));
+      await Promise.race([set(newScoreRef, scoreData), timeoutPromise]);
+      localStorage.setItem('myGroceryHighScoreId', newScoreRef.key);
       addLog("> Successfully immortalized! 🏆", "log-system");
 
     } catch (e) {
@@ -1277,6 +1279,105 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalLeaderboard = document.getElementById('leaderboard-modal');
   const contentLeaderboard = document.getElementById('leaderboard-content');
 
+  let cachedLeaderboardScores = [];
+  let visibleLeaderboardCount = 10;
+
+  function renderLeaderboard() {
+    const myId = localStorage.getItem('myGroceryHighScoreId');
+    const topScores = cachedLeaderboardScores.slice(0, visibleLeaderboardCount);
+    let myScoreInTop = false;
+
+    let html = `
+    <style>
+      .lb-table { width:100%; text-align:left; border-collapse:collapse; table-layout:fixed; }
+      .lb-th { padding:0.5rem; border-bottom:1px solid gold; color:gold; }
+      .lb-td { padding:0.5rem; }
+      
+      @media (max-width: 600px) {
+        .lb-table, .lb-table tbody, .lb-table tr, .lb-table td { display: block; width: 100%; box-sizing: border-box; }
+        .lb-table thead { display: none; }
+        .lb-table tr { padding-bottom: 1rem; border-bottom: 1px solid #555 !important; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: center; }
+        .lb-td-rank { width: 15%; font-size: 1.5rem !important; }
+        .lb-td-photo { width: 25%; }
+        .lb-td-name { width: 35%; color: #fff; word-break: break-all; }
+        .lb-td-score { width: 25%; color: #33ff33; text-align: right; }
+        .lb-td-partner { width: 100%; color: #ff7eb3; line-height: 1.2; margin-top: 0.5rem; border-top: 1px dashed #444; padding-top: 0.5rem !important; }
+      }
+    </style>
+    <table class="lb-table">
+      <thead>
+        <tr>
+          <th class="lb-th" style="width:10%;">Rank</th>
+          <th class="lb-th" style="width:15%;">Photo</th>
+          <th class="lb-th" style="width:25%;">Name</th>
+          <th class="lb-th" style="width:40%;">Partner</th>
+          <th class="lb-th" style="width:10%;">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
+    topScores.forEach((s, idx) => {
+      if (s.id === myId) myScoreInTop = true;
+      const nameHtml = s.id === myId ? `${s.name.substring(0,20)} <span class="heart-pulse">💕 That's You!</span>` : s.name.substring(0,20);
+      
+      html += `
+        <tr style="border-bottom:1px solid #333;">
+          <td class="lb-td lb-td-rank" style="font-size:1.5rem;">#${idx+1}</td>
+          <td class="lb-td lb-td-photo"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
+          <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${nameHtml}</td>
+          <td class="lb-td lb-td-partner" style="color:#ff7eb3; line-height:1.2;">${s.customer}</td>
+          <td class="lb-td lb-td-score" style="color:#33ff33;">${s.score}</td>
+        </tr>
+      `;
+    });
+
+    if (myId && !myScoreInTop) {
+      const myScore = cachedLeaderboardScores.find(s => s.id === myId);
+      if (myScore) {
+        let myIdx = cachedLeaderboardScores.findIndex(s => s.id === myId);
+        let displayRank = myIdx > -1 ? `#${myIdx+1}` : `#-`;
+        
+        html += `
+            <tr style="border-bottom: none; opacity: 0.7;">
+              <td colspan="5" style="text-align:center; padding:1rem; color:gold; font-size:1.5rem; letter-spacing:5px;">≀≀≀≀≀≀≀</td>
+            </tr>
+            <tr style="border-bottom:1px solid #333;">
+              <td class="lb-td lb-td-rank" style="font-size:1.5rem;">${displayRank}</td>
+              <td class="lb-td lb-td-photo"><img src="${myScore.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${myScore.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
+              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${myScore.name.substring(0,20)} <br><span class="heart-pulse" style="margin:0;">💕 That's You!</span></td>
+              <td class="lb-td lb-td-partner" style="color:#ff7eb3; line-height:1.2;">${myScore.customer}</td>
+              <td class="lb-td lb-td-score" style="color:#33ff33;">${myScore.score}</td>
+            </tr>
+        `;
+      }
+    }
+
+    html += '</tbody></table>';
+
+    if (visibleLeaderboardCount < cachedLeaderboardScores.length) {
+      html += `<div style="text-align:center; margin-top:2rem;"><button id="btn-load-more" style="background:transparent; border:2px solid gold; color:gold; padding:0.5rem 1rem; font-family:'VT323', monospace; font-size:1.2rem; cursor:pointer; transition:all 0.2s;">LOAD MORE</button></div>`;
+    }
+
+    contentLeaderboard.innerHTML = html;
+
+    document.querySelectorAll('.leaderboard-thumbnail').forEach(img => {
+      img.addEventListener('click', (e) => {
+        const fullSrc = e.target.getAttribute('data-fullsrc');
+        document.getElementById('image-modal-img').src = fullSrc;
+        document.getElementById('image-modal').style.display = 'flex';
+      });
+    });
+
+    const btnLoadMore = document.getElementById('btn-load-more');
+    if (btnLoadMore) {
+      btnLoadMore.addEventListener('click', () => {
+        visibleLeaderboardCount = Math.min(cachedLeaderboardScores.length, visibleLeaderboardCount + 10);
+        renderLeaderboard();
+      });
+    }
+  }
+
   if (btnLeaderboard && modalLeaderboard) {
     btnLeaderboard.addEventListener('click', async (e) => {
       e.preventDefault();
@@ -1289,8 +1390,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        const { db, ref, get } = window.FirebaseAPI;
-        const lbQuery = ref(db, 'leaderboard');
+        const { db, ref, get, query, orderByChild, limitToLast } = window.FirebaseAPI;
+        const lbQuery = query(ref(db, 'leaderboard'), orderByChild('score'), limitToLast(50));
         const snapshot = await get(lbQuery);
         
         if (!snapshot.exists()) {
@@ -1299,62 +1400,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const scores = [];
-        snapshot.forEach((child) => { scores.push(child.val()); });
-        scores.sort((a, b) => b.score - a.score); // highest first
-        const topScores = scores.slice(0, 10); // take top 10
+        snapshot.forEach((child) => { 
+          const val = child.val();
+          val.id = child.key;
+          scores.push(val); 
+        });
+        scores.sort((a, b) => b.score - a.score);
+        cachedLeaderboardScores = scores;
 
-        let html = `
-        <style>
-          .lb-table { width:100%; text-align:left; border-collapse:collapse; table-layout:fixed; }
-          .lb-th { padding:0.5rem; border-bottom:1px solid gold; color:gold; }
-          .lb-td { padding:0.5rem; }
-          
-          @media (max-width: 600px) {
-            .lb-table, .lb-table tbody, .lb-table tr, .lb-table td { display: block; width: 100%; box-sizing: border-box; }
-            .lb-table thead { display: none; }
-            .lb-table tr { padding-bottom: 1rem; border-bottom: 1px solid #555 !important; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: center; }
-            .lb-td-rank { width: 15%; font-size: 1.5rem !important; }
-            .lb-td-photo { width: 25%; }
-            .lb-td-name { width: 35%; color: #fff; word-break: break-all; }
-            .lb-td-score { width: 25%; color: #33ff33; text-align: right; }
-            .lb-td-partner { width: 100%; color: #ff7eb3; line-height: 1.2; margin-top: 0.5rem; border-top: 1px dashed #444; padding-top: 0.5rem !important; }
+        const myId = localStorage.getItem('myGroceryHighScoreId');
+        if (myId && !cachedLeaderboardScores.find(s => s.id === myId)) {
+          const mySnap = await get(ref(db, `leaderboard/${myId}`));
+          if (mySnap.exists()) {
+            const myVal = mySnap.val();
+            myVal.id = mySnap.key;
+            cachedLeaderboardScores.push(myVal); 
           }
-        </style>
-        <table class="lb-table">
-          <thead>
-            <tr>
-              <th class="lb-th" style="width:10%;">Rank</th>
-              <th class="lb-th" style="width:15%;">Photo</th>
-              <th class="lb-th" style="width:25%;">Name</th>
-              <th class="lb-th" style="width:40%;">Partner</th>
-              <th class="lb-th" style="width:10%;">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-        `;
-        
-        topScores.forEach((s, idx) => {
-          html += `
-            <tr style="border-bottom:1px solid #333;">
-              <td class="lb-td lb-td-rank" style="font-size:1.5rem;">#${idx+1}</td>
-              <td class="lb-td lb-td-photo"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
-              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${s.name.substring(0,20)}</td>
-              <td class="lb-td lb-td-partner" style="color:#ff7eb3; line-height:1.2;">${s.customer}</td>
-              <td class="lb-td lb-td-score" style="color:#33ff33;">${s.score}</td>
-            </tr>
-          `;
-        });
-        html += '</tbody></table>';
-        contentLeaderboard.innerHTML = html;
+        }
 
-        // Add click listeners to thumbnails
-        document.querySelectorAll('.leaderboard-thumbnail').forEach(img => {
-          img.addEventListener('click', (e) => {
-            const fullSrc = e.target.getAttribute('data-fullsrc');
-            document.getElementById('image-modal-img').src = fullSrc;
-            document.getElementById('image-modal').style.display = 'flex';
-          });
-        });
+        visibleLeaderboardCount = 10;
+        renderLeaderboard();
 
       } catch (err) {
         console.error(err);

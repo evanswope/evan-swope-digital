@@ -340,7 +340,7 @@
 
   <!-- Leaderboard Modal -->
   <div id="leaderboard-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:var(--game-bg); border:2px solid gold; padding:2rem; width:90%; max-width:800px; max-height:80vh; overflow-y:auto; box-shadow:0 0 20px rgba(255,215,0,0.3); font-family: 'VT323', monospace;">
+    <div class="gold-scroll" style="background:var(--game-bg); border:2px solid gold; padding:2rem; width:90%; max-width:800px; max-height:80vh; overflow-y:auto; box-shadow:0 0 20px rgba(255,215,0,0.3); font-family: 'VT323', monospace;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid gold; padding-bottom:1rem; margin-bottom:1rem;">
         <h2 style="color:gold; margin:0; font-size:2rem;"><i class="fa-solid fa-trophy"></i> HALL OF ROMANCE</h2>
         <button id="btn-close-leaderboard" style="background:transparent; border:none; color:gold; font-size:2rem; cursor:pointer;">&times;</button>
@@ -405,6 +405,38 @@
         0% { transform: translateY(-30px); }
         100% { transform: translateY(120px); }
       }
+
+      /* Custom Gold Scrollbar for Leaderboard */
+      .gold-scroll::-webkit-scrollbar {
+        width: 12px;
+      }
+      .gold-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 215, 0, 0.1);
+        border-left: 1px solid rgba(255, 215, 0, 0.3);
+      }
+      .gold-scroll::-webkit-scrollbar-thumb {
+        background: gold;
+        border-radius: 6px;
+        border: 3px solid var(--game-bg);
+      }
+      .gold-scroll::-webkit-scrollbar-thumb:hover {
+        background: #ffdb58;
+      }
+
+      /* Pulsing Heart Animation */
+      @keyframes pulse-heart {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+      .heart-pulse {
+        display: inline-block;
+        animation: pulse-heart 1s infinite ease-in-out;
+        color: #ff7eb3;
+        margin-left: 5px;
+        margin-right: 5px;
+      }
+
       .game-container {
         margin: 0 !important; /* Overriding previous margin since wrapper handles it */
       }
@@ -522,7 +554,7 @@
   <!-- Firebase Integration -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getDatabase, ref, push, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+    import { getDatabase, ref, push, set, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
     const firebaseConfig = {
@@ -538,7 +570,7 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    window.FirebaseAPI = { db, storage, ref, push, query, orderByChild, limitToLast, get, storageRef, uploadBytes, getDownloadURL };
+    window.FirebaseAPI = { db, storage, ref, push, set, query, orderByChild, limitToLast, get, storageRef, uploadBytes, getDownloadURL };
   </script>
 
   <script src="grocery-game.js?v=2"></script>
