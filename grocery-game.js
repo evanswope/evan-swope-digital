@@ -1303,21 +1303,48 @@ document.addEventListener('DOMContentLoaded', () => {
         scores.sort((a, b) => b.score - a.score); // highest first
         const topScores = scores.slice(0, 10); // take top 10
 
-        let html = '<table style="width:100%; text-align:left; border-collapse:collapse; table-layout: fixed;">';
-        html += '<tr style="border-bottom:1px solid gold; color:gold;"><th style="width:10%;">Rank</th><th style="width:12%;">Photo</th><th style="width:25%;">Name</th><th style="width:43%;">Partner</th><th style="width:10%;">Score</th></tr>';
+        let html = `
+        <style>
+          .lb-table { width:100%; text-align:left; border-collapse:collapse; table-layout:fixed; }
+          .lb-th { padding:0.5rem; border-bottom:1px solid gold; color:gold; }
+          .lb-td { padding:0.5rem; }
+          
+          @media (max-width: 600px) {
+            .lb-table, .lb-table tbody, .lb-table tr, .lb-table td { display: block; width: 100%; box-sizing: border-box; }
+            .lb-table thead { display: none; }
+            .lb-table tr { padding-bottom: 1rem; border-bottom: 1px solid #555 !important; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: center; }
+            .lb-td-rank { width: 15%; font-size: 1.5rem !important; }
+            .lb-td-photo { width: 25%; }
+            .lb-td-name { width: 35%; color: #fff; word-break: break-all; }
+            .lb-td-score { width: 25%; color: #33ff33; text-align: right; }
+            .lb-td-partner { width: 100%; color: #ff7eb3; line-height: 1.2; margin-top: 0.5rem; border-top: 1px dashed #444; padding-top: 0.5rem !important; }
+          }
+        </style>
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th class="lb-th" style="width:10%;">Rank</th>
+              <th class="lb-th" style="width:15%;">Photo</th>
+              <th class="lb-th" style="width:25%;">Name</th>
+              <th class="lb-th" style="width:40%;">Partner</th>
+              <th class="lb-th" style="width:10%;">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+        `;
         
         topScores.forEach((s, idx) => {
           html += `
             <tr style="border-bottom:1px solid #333;">
-              <td style="padding:0.5rem; font-size:1.5rem;">#${idx+1}</td>
-              <td style="padding:0.5rem;"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
-              <td style="padding:0.5rem; color:#fff; word-break: break-all;">${s.name.substring(0,20)}</td>
-              <td style="padding:0.5rem; color:#ff7eb3; line-height:1.2;">${s.customer}</td>
-              <td style="padding:0.5rem; color:#33ff33;">${s.score}</td>
+              <td class="lb-td lb-td-rank" style="font-size:1.5rem;">#${idx+1}</td>
+              <td class="lb-td lb-td-photo"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
+              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${s.name.substring(0,20)}</td>
+              <td class="lb-td lb-td-partner" style="color:#ff7eb3; line-height:1.2;">${s.customer}</td>
+              <td class="lb-td lb-td-score" style="color:#33ff33;">${s.score}</td>
             </tr>
           `;
         });
-        html += '</table>';
+        html += '</tbody></table>';
         contentLeaderboard.innerHTML = html;
 
         // Add click listeners to thumbnails
