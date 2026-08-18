@@ -44,8 +44,19 @@ JSON Schema:
 }`;
 
   const randomNames = ["Balthazar", "Bruno", "Bernie", "Wanda", "Jenny", "Stan"];
-  const corporealThemes = ["an aquatic animal", "a piece of furniture", "an insect", "a medieval weapon", "a root vegetable", "a mundane household appliance", "a disgruntled farm animal", "a discarded toy"];
-  const esotericThemes = ["a weather phenomenon", "a mathematical concept", "a ghost", "a celestial body", "an abstract emotion", "a localized paradox", "a corrupted computer file", "a forgotten memory"];
+  const corporealThemes = [
+    "an aquatic animal", "a piece of furniture", "an insect", "a medieval weapon", 
+    "a root vegetable", "a mundane household appliance", "a disgruntled farm animal", 
+    "a discarded toy", "a body part", "a piece of clothing", "a piece of technology", 
+    "a vehicle", "a kind of stone", "a type of pottery", "a famous work of art", 
+    "a holiday decoration", "a plant", "a school supply", "an unusual occupation"
+  ];
+  const esotericThemes = [
+    "a weather phenomenon", "a mathematical concept", "a ghost", "a celestial body", 
+    "an abstract emotion", "a localized paradox", "a corrupted computer file", 
+    "a forgotten memory", "a group or throng", "an ex", "an embodiment of a former state", 
+    "a ghost of a famous historical figure"
+  ];
   const randomItemAisles = ["Produce", "Dairy", "Frozen Foods", "Canned Goods", "Cleaning Supplies", "Hardware", "Bakery", "Meat", "Snacks", "Beverages", "Office Supplies"];
   
   const chosenThemeArray = state.level >= 5 ? esotericThemes : corporealThemes;
