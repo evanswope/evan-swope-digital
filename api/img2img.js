@@ -22,8 +22,8 @@ export default async function handler(req, res) {
         version: modelVersion,
         input: {
           image: image,
-          prompt: prompt + ", masterpiece, high resolution, cohesive scene",
-          prompt_strength: prompt_strength || 0.65, // How much to change the original image (0-1)
+          prompt: prompt + ", a single unified photograph, seamless composition, cohesive scene, masterpiece, highly detailed",
+          prompt_strength: prompt_strength || 0.85, // Cranked up to break the collage boundaries
           num_inference_steps: 30
         }
       })
