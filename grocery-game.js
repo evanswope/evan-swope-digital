@@ -42,7 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
     weddingVenue: "",
     weddingRing: "",
     obstacleTarget: "",
-    obstacleCount: 0
+    obstacleCount: 0,
+    badgeImageUrl: null,
+    customerImageUrl: null,
+    lastItemUrl: null
   };
 
   function resetGame() {
@@ -70,7 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
       weddingVenue: "",
       weddingRing: "",
       obstacleTarget: "",
-      obstacleCount: 0
+      obstacleCount: 0,
+      badgeImageUrl: null,
+      customerImageUrl: null,
+      lastItemUrl: null
     };
     updateStatsUI();
     logArea.innerHTML = '';
@@ -539,6 +545,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  async function generateReactionCollageImg2Img(customerUrl, badgeUrl, itemUrl, reactionPrompt) {
+    loadingOverlay.style.display = 'flex';
+    scannerStatus.textContent = "COMPOSITING MEMORIES...";
+    itemImage.style.opacity = '0.3';
+    scannerStatus.style.color = "#00ffcc";
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, 1024, 1024);
+
+    const loadImage = (url) => new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    try {
+      const [customerImg, badgeImg, itemImg] = await Promise.all([
+        loadImage(customerUrl),
+        loadImage(badgeUrl),
+        loadImage(itemUrl)
+      ]);
+
+      // Left half: Customer
+      ctx.drawImage(customerImg, 0, 0, 512, 1024);
+      // Top Right: Badge
+      ctx.drawImage(badgeImg, 512, 0, 512, 512);
+      // Bottom Right: Item
+      ctx.drawImage(itemImg, 512, 512, 512, 512);
+
+      const base64Collage = canvas.toDataURL('image/jpeg', 0.9);
+
+      scannerStatus.textContent = "SYNTHESIZING COLLAGE...";
+      
+      const res = await fetch('/api/img2img', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: base64Collage,
+          prompt: reactionPrompt,
+          prompt_strength: 0.65
+        })
+      });
+
+      if (!res.ok) throw new Error("Img2Img API Error");
+      const data = await res.json();
+      
+      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(data.url)}`;
+      return new Promise((resolve) => {
+        itemImage.onload = () => {
+          loadingOverlay.style.display = 'none';
+          itemImage.style.opacity = '';
+          itemImage.style.display = 'block';
+          itemImage.classList.add('loaded');
+          scannerStatus.textContent = "VISUALIZATION COMPLETE";
+          resolve();
+        };
+        itemImage.onerror = () => {
+          loadingOverlay.style.display = 'none';
+          scannerStatus.textContent = "IMAGE LOAD ERROR";
+          resolve();
+        };
+        itemImage.src = proxyUrl;
+      });
+
+    } catch (e) {
+      console.error("Img2Img Error:", e);
+      loadingOverlay.style.display = 'none';
+      scannerStatus.textContent = "SYNTHESIS FAILED";
+      scannerStatus.style.color = "#ff3333";
+    }
+  }
+
   // Phase: Call Game Master
   async function callGameMaster() {
     state.phase = "WAITING_FOR_GM";
@@ -672,6 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
         success = true;
         
         const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(outputUrl)}`;
+        if (!isDating) state.lastItemUrl = proxyUrl;
 
         itemImage.src = proxyUrl;
         itemImage.onload = () => {
@@ -834,6 +920,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!outputUrl) throw new Error("No image returned.");
 
         const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(outputUrl)}`;
+        if (type === 'badge') state.badgeImageUrl = proxyUrl;
+        else if (type === 'character') state.customerImageUrl = proxyUrl;
+        
         let imageLoadAttempts = 0;
 
         return new Promise((resolve) => {
@@ -916,7 +1005,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const drumroll = playDrumroll();
       
       // Request generation in the background without awaiting it
-      const imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed);
+      let imagePromise;
+      if (state.customersServed.length === 0 && state.customerImageUrl && state.badgeImageUrl && state.lastItemUrl) {
+        // Test Img2Img on Customer 1
+        imagePromise = generateReactionCollageImg2Img(state.customerImageUrl, state.badgeImageUrl, state.lastItemUrl, reactionPrompt);
+      } else {
+        // Fallback to standard generation
+        imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed);
+      }
 
       if (data.flavor_text) {
         await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
