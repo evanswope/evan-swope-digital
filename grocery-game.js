@@ -1310,7 +1310,7 @@ document.addEventListener('DOMContentLoaded', () => {
           html += `
             <tr style="border-bottom:1px solid #333;">
               <td style="padding:0.5rem; font-size:1.5rem;">#${idx+1}</td>
-              <td style="padding:0.5rem;"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" crossorigin="anonymous"/></td>
+              <td style="padding:0.5rem;"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
               <td style="padding:0.5rem; color:#fff;">${s.name.substring(0,20)}</td>
               <td style="padding:0.5rem; color:#ff7eb3;">${s.customer}</td>
               <td style="padding:0.5rem; color:#33ff33;">${s.score}</td>
