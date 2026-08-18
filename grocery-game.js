@@ -1178,7 +1178,8 @@ document.addEventListener('DOMContentLoaded', () => {
         await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
       }
       if (data.dialogue) {
-        await addLogTypewriter(`[DATE] ${data.dialogue}`, "log-customer", 25);
+        const customerName = state.selectedCustomer && state.selectedCustomer.name ? state.selectedCustomer.name.toUpperCase() : "DATE";
+        await addLogTypewriter(`[${customerName}] ${data.dialogue}`, "log-customer", 25);
         state.datingHistory.push({ role: "assistant", content: data.dialogue });
       }
       
