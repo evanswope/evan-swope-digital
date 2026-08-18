@@ -44,10 +44,12 @@ JSON Schema:
 }`;
 
   const randomNames = ["Balthazar", "Bruno", "Bernie", "Wanda", "Jenny", "Stan"];
-  const randomCustomerThemes = ["an aquatic animal", "a piece of furniture", "a weather phenomenon", "a mathematical concept", "an insect", "a ghost", "a celestial body", "a medieval weapon", "a root vegetable"];
+  const corporealThemes = ["an aquatic animal", "a piece of furniture", "an insect", "a medieval weapon", "a root vegetable", "a mundane household appliance", "a disgruntled farm animal", "a discarded toy"];
+  const esotericThemes = ["a weather phenomenon", "a mathematical concept", "a ghost", "a celestial body", "an abstract emotion", "a localized paradox", "a corrupted computer file", "a forgotten memory"];
   const randomItemAisles = ["Produce", "Dairy", "Frozen Foods", "Canned Goods", "Cleaning Supplies", "Hardware", "Bakery", "Meat", "Snacks", "Beverages", "Office Supplies"];
   
-  const chosenTheme = randomCustomerThemes[Math.floor(Math.random() * randomCustomerThemes.length)];
+  const chosenThemeArray = state.level >= 5 ? esotericThemes : corporealThemes;
+  const chosenTheme = chosenThemeArray[Math.floor(Math.random() * chosenThemeArray.length)];
   const chosenAisle = randomItemAisles[Math.floor(Math.random() * randomItemAisles.length)];
   const seed = Math.floor(Math.random() * 999999);
 
