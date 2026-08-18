@@ -51,16 +51,25 @@ Rules for dialogue: If you terminate, insult their choices and leave. If you don
 Image Prompt Rules: If you terminate, the image should show the customer angrily leaving. If you DO NOT terminate, the image MUST describe the customer at the specified date location alongside the grocer. The grocer is described exactly as: "${playerDescription || 'a grocery clerk'}". The grocer should be holding the gift.
 `;
   } else if (datingRound === 3) {
-    systemPrompt += `=== ROUND 3: THE ALTAR ===
-Narrative: First, evaluate the player's answer to your deep question from the date. If they passed, you are now at the altar (or friendship ceremony) for the final vows.
-Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE. If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy.
-Rules for player_flavor_text: Describe the player standing nervously awaiting your reaction.
-Rules for customer_flavor_text: If you terminate, describe your anger. If not, describe your joy at the altar.
-Rules for dialogue: If you terminate, insult their previous answer and leave. If not, read your vows to the player.
-Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) at the altar alongside the grocer ("${playerDescription || 'a grocery clerk'}").
+    systemPrompt += `=== ROUND 3: THE MONTAGE & PROPOSAL ===
+Narrative: First, evaluate the player's answer to your deep question from the date. If they passed, the date was a success. Time passes, and the player proposes to you!
+Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy.
+Rules for player_flavor_text: Describe the player nervously dropping to one knee to propose after some time has passed.
+Rules for customer_flavor_text: Describe how the relationship has been going (if Affection is 5+, it's a whirlwind romance; if low, it's rocky) and describe your reaction to the proposal. If you terminate, describe your disgust and rejection.
+Rules for dialogue: If you terminate, insult their previous answer and reject the proposal. If not, excitedly accept the proposal!
+Image Prompt Rules: The image prompt MUST describe the customer being proposed to by the grocer ("${playerDescription || 'a grocery clerk'}"). The setting should be romantic.
 `;
-  } else if (datingRound >= 4) {
-    systemPrompt += `=== ROUND 4: VOW EVALUATION ===
+  } else if (datingRound === 4) {
+    systemPrompt += `=== ROUND 4: THE ALTAR ===
+Narrative: The player has planned the wedding! The player just told you the Venue and what kind of Ring they bought. Evaluate their wedding choices.
+Failure Condition: CRITICAL: Evaluate their Venue and Ring. If your Affection is 1-2, you MUST TERMINATE if the venue/ring are lazy, cheap, or completely ignore your abstract nature. If Affection is 3-4, you only terminate if the choices are insulting or dangerous. If Affection is 5+, you happily accept anything.
+Rules for player_flavor_text: Describe the player standing nervously at the altar at the chosen venue.
+Rules for customer_flavor_text: If you terminate, describe your anger at the terrible wedding choices. If not, describe your joy arriving at the venue and seeing the ring.
+Rules for dialogue: If you terminate, insult their wedding choices and storm off. If not, read your heartfelt wedding vows to the player, and explicitly ask them to read their vows.
+Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) alongside the grocer ("${playerDescription || 'a grocery clerk'}") at the specific Venue the player requested.
+`;
+  } else if (datingRound >= 5) {
+    systemPrompt += `=== ROUND 5: VOW EVALUATION ===
 Narrative: You are at the altar. The player just responded with their vows.
 Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive, or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
 Rules for player_flavor_text: Describe the player finishing their vows.

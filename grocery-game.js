@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     datingLocation: "",
     datingOutfit: "",
     datingGift: "",
+    weddingVenue: "",
+    weddingRing: "",
     obstacleTarget: "",
     obstacleCount: 0
   };
@@ -65,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
       datingLocation: "",
       datingOutfit: "",
       datingGift: "",
+      weddingVenue: "",
+      weddingRing: "",
       obstacleTarget: "",
       obstacleCount: 0
     };
@@ -1193,8 +1197,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (state.datingRound >= 4) {
-        // Round 4 is the Vow Evaluation. If we didn't terminate, we won!
+      if (state.datingRound >= 5) {
+        // Round 5 is the Vow Evaluation. If we didn't terminate, we won!
         finishDating(false, data.image_prompt);
         return;
       }
@@ -1206,9 +1210,21 @@ document.addEventListener('DOMContentLoaded', () => {
         await imagePromise;
       }
 
-      state.phase = "DATING_WAIT_USER";
-      gameInput.disabled = false;
-      gameInput.focus();
+      if (state.datingRound === 4) {
+        // Transition directly into Wedding Planning minigames
+        state.phase = "DATING_WEDDING_VENUE";
+        const venuePrompt = async () => {
+          gameInput.disabled = true;
+          await addLogTypewriter(`[SUBCONSCIOUS] They said yes! The big day is approaching. Where are you hosting the wedding?`, "log-gm", 15);
+          gameInput.disabled = false;
+          gameInput.focus();
+        };
+        venuePrompt();
+      } else {
+        state.phase = "DATING_WAIT_USER";
+        gameInput.disabled = false;
+        gameInput.focus();
+      }
 
     } catch (e) {
       addLog(`Dating Error: ${e.message}`, "log-error");
@@ -1495,6 +1511,23 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           addLog(`> FAILED! Type '${state.obstacleTarget}'!`, "log-error");
         }
+      }
+      else if (state.phase === "DATING_WEDDING_VENUE") {
+        state.weddingVenue = val;
+        state.phase = "DATING_WEDDING_RING";
+        const ringPrompt = async () => {
+          gameInput.disabled = true;
+          await addLogTypewriter(`[SUBCONSCIOUS] You need a ring. What kind of bizarre ring do you present them with?`, "log-gm", 15);
+          gameInput.disabled = false;
+          gameInput.focus();
+        };
+        ringPrompt();
+      }
+      else if (state.phase === "DATING_WEDDING_RING") {
+        state.weddingRing = val;
+        state.phase = "DATING_GENERATING"; // lock input
+        const packageMsg = `We are getting married at ${state.weddingVenue} and I got you a ${state.weddingRing}.`;
+        callDatingMaster(packageMsg);
       }
       else if (state.phase === "DATING_FINISHED") {
         finishDating();
