@@ -193,15 +193,15 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const osc = audioCtx.createOscillator();
       osc.type = 'square';
-      osc.frequency.setValueAtTime(300 + Math.random() * 50, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(400 + Math.random() * 50, audioCtx.currentTime);
       
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.value = 600;
+      filter.frequency.value = 1000;
       
       const env = audioCtx.createGain();
       env.gain.setValueAtTime(0, audioCtx.currentTime);
-      env.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.005);
+      env.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.005);
       env.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
       
       osc.connect(filter);
