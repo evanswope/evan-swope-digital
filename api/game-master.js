@@ -18,6 +18,8 @@ CUSTOMER RULES:
 - If Level is 1 through 4: Generate a corporeal (physical/living) but extremely silly and bizarre customer. Examples: a clam with 4 legs, a clown experiencing religion for the first time, a talking dog with a law degree, a llama that really enjoys true crime, an aloof little girl with a fire poker.
 - If Level is 5 (or higher): Generate a highly conceptual, abstract, or obscure customer. Examples: a shadow, a thought bubble, a wisp, a stolen page from a diary, a developing third-world nation.
 
+CRITICAL RULE REGARDING EXAMPLES: The examples provided above are for TONAL INSPIRATION ONLY. You are STRICTLY FORBIDDEN from generating a clam, a clown, a dog, a llama, a little girl, a shadow, a thought bubble, a wisp, a page, a nation, or anything closely resembling them (like a mace, a flail, or a loveseat). You MUST invent entirely new, completely unique concepts every single time. 
+
 CRITICAL: Even though the customers are highly abstract or silly, their requested base grocery item MUST BE COMPLETELY MUNDANE and standard (e.g. "a jar of mayonnaise", "kielbasas", "dish soap"). DO NOT add adjectives like sparkly, wet, or large to the base item.
 ANY bizarre conditions, emotional twists, or strange requirements MUST be placed exclusively in the "emotional_need" section.
 
