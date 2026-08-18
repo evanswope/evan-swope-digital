@@ -34,10 +34,11 @@ CRITICAL ANTI-HALLUCINATION RULE: DO NOT INVENT actions, locations, or vows on b
   if (datingRound === 1) {
     systemPrompt += `=== ROUND 1: THE CALL ===
 Narrative: The player is calling you on the phone to ask you out. 
-Rules for player_flavor_text: Write a brief THIRD-PERSON description of the player nervously calling you on the phone.
-Rules for customer_flavor_text: Write a brief THIRD-PERSON description of your current situation in your natural habitat and how you answer the phone based on your Affection.
+CRITICAL CONTEXT: You have already left the grocery store. You are currently AT HOME or in your native environment (e.g., the ocean, the astral plane, a living room). You are absolutely NOT in the grocery store.
+Rules for player_flavor_text: Write a brief THIRD-PERSON description of the player nervously calling you from the store.
+Rules for customer_flavor_text: Write a brief THIRD-PERSON description of your current situation at home/in your native environment, and how you answer the phone based on your Affection.
 Rules for dialogue: You must explicitly end your speech by asking the player where they want to take you for this date.
-Image Prompt Rules: The image prompt MUST describe the customer ALONE on a phone call in their natural habitat/home. DO NOT include the grocer (the player) in this image. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
+Image Prompt Rules: The image prompt MUST describe the customer ALONE on a phone call at home or in their native environment. DO NOT include the grocer (the player) in this image. DO NOT mention a grocery store. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
 - Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
 `;
   } else if (datingRound === 2) {
