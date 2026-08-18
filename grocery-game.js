@@ -35,7 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedCustomer: null,
     datingHistory: [],
     isAce: false,
-    isTrueLove: false
+    isTrueLove: false,
+    datingLocation: "",
+    datingOutfit: "",
+    datingGift: "",
+    obstacleTarget: "",
+    obstacleCount: 0
   };
 
   function resetGame() {
@@ -56,7 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedCustomer: null,
       datingHistory: [],
       isAce: false,
-      isTrueLove: false
+      isTrueLove: false,
+      datingLocation: "",
+      datingOutfit: "",
+      datingGift: "",
+      obstacleTarget: "",
+      obstacleCount: 0
     };
     updateStatsUI();
     logArea.innerHTML = '';
@@ -1043,6 +1053,87 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.focus();
   }
 
+  // Phase: Obstacle Minigame
+  async function callObstacleMaster() {
+    try {
+      const res = await fetch('/api/obstacle-master', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: state.datingLocation,
+          customer: state.selectedCustomer
+        })
+      });
+      if (!res.ok) throw new Error("API Error");
+      const data = await res.json();
+      
+      state.obstacleTarget = data.verb.toUpperCase();
+      state.obstacleCount = 0;
+      
+      await addLogTypewriter(`> ${data.narrative}`, "log-error", 15);
+      await addLogTypewriter(`> TYPE '${state.obstacleTarget}' 3 TIMES TO FIX IT!`, "log-error", 10);
+      
+      state.phase = "DATING_OBSTACLE";
+      document.body.classList.add('alarm-flashing');
+      playKlaxon();
+
+      gameInput.disabled = false;
+      gameInput.focus();
+    } catch (e) {
+      state.obstacleTarget = "FIX";
+      state.obstacleCount = 0;
+      await addLogTypewriter(`> Your ride stalls! Type 'FIX' 3 times!`, "log-error", 10);
+      state.phase = "DATING_OBSTACLE";
+      document.body.classList.add('alarm-flashing');
+      playKlaxon();
+      gameInput.disabled = false;
+      gameInput.focus();
+    }
+  }
+
+  let klaxonInterval = null;
+  function playKlaxon() {
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      klaxonInterval = setInterval(() => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+        const env = audioCtx.createGain();
+        env.gain.setValueAtTime(0, audioCtx.currentTime);
+        env.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05);
+        env.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+        osc.connect(env);
+        env.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      }, 500);
+    } catch (e) {}
+  }
+
+  function stopKlaxon() {
+    if (klaxonInterval) clearInterval(klaxonInterval);
+    document.body.classList.remove('alarm-flashing');
+  }
+
+  function handleObstacleSuccess() {
+    state.obstacleCount++;
+    playScannerBeep();
+    gameInput.value = '';
+    
+    if (state.obstacleCount >= 3) {
+      stopKlaxon();
+      addLog(`> Fixed! Arriving at the date...`, "log-system");
+      state.phase = "DATING_GENERATING";
+      const packageMsg = `I want to go to ${state.datingLocation}. I am wearing ${state.datingOutfit} and I brought you ${state.datingGift}.`;
+      callDatingMaster(packageMsg);
+    } else {
+      addLog(`> ${state.obstacleTarget} (${state.obstacleCount}/3)`, "log-user");
+    }
+  }
+
   // Phase: Dating Logic
   async function callDatingMaster(userMessage) {
     state.phase = "DATING_GENERATING";
@@ -1076,6 +1167,13 @@ document.addEventListener('DOMContentLoaded', () => {
         imagePromise = generateCharacterImage(data.image_prompt, 'character', state.selectedCustomer.seed);
       }
 
+      if (data.player_flavor_text) {
+        await addLogTypewriter(`> ${data.player_flavor_text}`, "log-gm", 15);
+      }
+      if (data.customer_flavor_text) {
+        await addLogTypewriter(`> ${data.customer_flavor_text}`, "log-system", 15);
+      }
+      // fallback just in case
       if (data.flavor_text) {
         await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
       }
@@ -1358,7 +1456,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       else if (state.phase === "DATING_WAIT_USER") {
-        callDatingMaster(val);
+        if (state.datingRound === 2) {
+          state.datingLocation = val;
+          state.phase = "DATING_WARDROBE";
+          addLogTypewriter(`> You have 30 minutes to get ready. What are you wearing tonight?`, "log-system", 15);
+        } else {
+          callDatingMaster(val);
+        }
+      }
+      else if (state.phase === "DATING_WARDROBE") {
+        state.datingOutfit = val;
+        state.playerDescription = `${state.playerDescription}, wearing ${val}`;
+        state.phase = "DATING_GIFT";
+        addLogTypewriter(`> You have $${state.cash}. You should buy a gift on the way. What do you buy?`, "log-system", 15);
+      }
+      else if (state.phase === "DATING_GIFT") {
+        state.datingGift = val;
+        addLogTypewriter(`> Packing your bags and heading out...`, "log-system", 15);
+        state.phase = "DATING_GENERATING"; // lock input
+        callObstacleMaster();
+      }
+      else if (state.phase === "DATING_OBSTACLE") {
+        if (val.trim().toUpperCase() === state.obstacleTarget) {
+          handleObstacleSuccess();
+        } else {
+          addLog(`> FAILED! Type '${state.obstacleTarget}'!`, "log-error");
+        }
       }
       else if (state.phase === "DATING_FINISHED") {
         finishDating();
@@ -1392,6 +1515,14 @@ document.addEventListener('DOMContentLoaded', () => {
       gameInput.focus();
     });
   }
+
+  gameInput.addEventListener('input', () => {
+    if (state.phase === "DATING_OBSTACLE") {
+      if (gameInput.value.trim().toUpperCase() === state.obstacleTarget) {
+        handleObstacleSuccess();
+      }
+    }
+  });
 
   // Leaderboard Button
   const btnLeaderboard = document.getElementById('btn-leaderboard');
