@@ -210,6 +210,22 @@ document.addEventListener('DOMContentLoaded', () => {
       
       osc.start();
       osc.stop(audioCtx.currentTime + 0.03);
+
+      // Add a tiny noise transient for a "clack"
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = getNoiseBuffer();
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.value = 1000;
+      const noiseEnv = audioCtx.createGain();
+      noiseEnv.gain.setValueAtTime(0, audioCtx.currentTime);
+      noiseEnv.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.005);
+      noiseEnv.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+      
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseEnv);
+      noiseEnv.connect(audioCtx.destination);
+      noise.start();
     } catch(e) {}
   }
 
@@ -1185,6 +1201,32 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.disabled = false;
     gameInput.focus();
   }
+
+  let noiseBuffer = null;
+  function getNoiseBuffer() {
+    if (noiseBuffer) return noiseBuffer;
+    const bufferSize = audioCtx.sampleRate * 0.05; // 50ms
+    noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    return noiseBuffer;
+  }
+
+  // Initialization
+  async function init() {
+    await addLogTypewriter(`> LOADING GROCERY DATING SIM v1.10.0...`, "log-system", 10);
+    await addLogTypewriter(`> NOW WITH: SFX & HIGH SCORES`, "log-system", 10);
+    await addLogTypewriter(`> CONNECTING TO NEURAL NET... SUCCESS.`, "log-system", 10);
+    await addLogTypewriter(`Welcome weary local grocer! Are you looking for love? Or just cash? Why not both...`, "log-gm", 15);
+    await addLogTypewriter(`Provide your customers with the grocery items they need, add a twist to help them emotionally, and you may just end up falling in love!`, "log-gm", 15);
+    await addLogTypewriter(`TYPE "START" OR HIT ENTER TO BEGIN SHIFT.`, "log-gm", 15);
+    state.phase = "START";
+    gameInput.disabled = false;
+    gameInput.focus();
+  }
+
   // Input Handler
   gameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
@@ -1198,23 +1240,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioCtx.state === 'suspended') audioCtx.resume();
       } catch (err) {}
 
-      const val = gameInput.value.trim();
+      let val = gameInput.value.trim();
       
       if (!val) {
-        // Allow empty enter for NEXT or GIVE
-        if (state.phase === "START" && state.level > 1) {
-          callGameMaster();
+        // Handle empty enter logic depending on phase
+        if (state.phase === "START") {
+          if (state.level > 1) {
+            callGameMaster();
+            return;
+          } else {
+            val = 'start'; // Simulate typing 'start' to run the init block below
+          }
         } else if (state.phase === "HAND_OVER_ITEM") {
           appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
+          return;
         } else if (state.phase === "BADGE_HOLD") {
           addLog("> Booting register...", "log-system");
           callGameMaster();
+          return;
+        } else if (state.phase === "DATING_PROMPT") {
+          val = 'date'; // Simulate dating choice
+        } else if (state.phase === "COMPLAINT") {
+          val = 'restart'; // Simulate restarting
+        } else {
+          return; // Ignore empty enter for mandatory prompts (grocery item, player setup, dating chat)
         }
-        return;
+      } else {
+        addLog(val, "log-user");
       }
 
       gameInput.value = '';
-      addLog(val, "log-user");
 
       if (state.phase === "START") {
         if (val.toLowerCase() === 'start') {
