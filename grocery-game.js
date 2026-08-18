@@ -1460,7 +1460,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.datingRound === 2) {
           state.datingLocation = val;
           state.phase = "DATING_WARDROBE";
-          addLogTypewriter(`> You have 30 minutes to get ready. What are you wearing tonight?`, "log-system", 15);
+          const wardrobePrompt = async () => {
+            gameInput.disabled = true;
+            await addLogTypewriter(`[SUBCONSCIOUS] Time freezes for a moment. You need to prepare before you meet them. What are you going to wear?`, "log-gm", 15);
+            gameInput.disabled = false;
+            gameInput.focus();
+          };
+          wardrobePrompt();
         } else {
           callDatingMaster(val);
         }
@@ -1469,7 +1475,13 @@ document.addEventListener('DOMContentLoaded', () => {
         state.datingOutfit = val;
         state.playerDescription = `${state.playerDescription}, wearing ${val}`;
         state.phase = "DATING_GIFT";
-        addLogTypewriter(`> You have $${state.cash}. You should buy a gift on the way. What do you buy?`, "log-system", 15);
+        const giftPrompt = async () => {
+          gameInput.disabled = true;
+          await addLogTypewriter(`[SUBCONSCIOUS] And you'll need a gift. You have $${state.cash}. What do you buy?`, "log-gm", 15);
+          gameInput.disabled = false;
+          gameInput.focus();
+        };
+        giftPrompt();
       }
       else if (state.phase === "DATING_GIFT") {
         state.datingGift = val;
