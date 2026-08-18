@@ -1587,4 +1587,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  init();
 });
