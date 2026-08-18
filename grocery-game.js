@@ -92,11 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Disable input while typing
     gameInput.disabled = true;
     
+    const isSpeech = className.includes('log-customer');
+    
     for (let i = 0; i < text.length; i++) {
       p.textContent += text[i];
       logArea.scrollTop = logArea.scrollHeight;
       // Skip wait on spaces for slight speedup
       if (text[i] !== ' ') {
+        if (i % 2 === 0) {
+          if (isSpeech) playSpeechBleep(text[i]);
+          else playConsoleBleep();
+        }
         await new Promise(r => setTimeout(r, delayMs));
       }
     }
@@ -178,6 +184,65 @@ document.addEventListener('DOMContentLoaded', () => {
       addLog(`> AUDIO ERROR: Failed to play ${type} SFX.`, "log-error");
       console.warn(`Failed to play ${type} SFX`, e);
     }
+  }
+
+  function playConsoleBleep() {
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(300 + Math.random() * 50, audioCtx.currentTime);
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 600;
+      
+      const env = audioCtx.createGain();
+      env.gain.setValueAtTime(0, audioCtx.currentTime);
+      env.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.005);
+      env.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+      
+      osc.connect(filter);
+      filter.connect(env);
+      env.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.03);
+    } catch(e) {}
+  }
+
+  function playSpeechBleep(char) {
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      osc.type = 'triangle';
+      
+      const charCode = char.toLowerCase().charCodeAt(0);
+      let freq = 500;
+      if (charCode >= 97 && charCode <= 122) {
+        freq = 300 + (charCode - 97) * 15;
+      } else {
+        freq = 400 + Math.random() * 200;
+      }
+      
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.8, audioCtx.currentTime + 0.04);
+      
+      const env = audioCtx.createGain();
+      env.gain.setValueAtTime(0, audioCtx.currentTime);
+      env.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.01);
+      env.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+      
+      osc.connect(env);
+      env.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.04);
+    } catch(e) {}
   }
 
   function playScannerBeep() {
