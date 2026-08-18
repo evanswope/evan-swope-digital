@@ -23,7 +23,8 @@ export default async function handler(req, res) {
         input: {
           image: image,
           prompt: prompt + ", a single unified photograph, seamless composition, cohesive scene, masterpiece, highly detailed",
-          prompt_strength: prompt_strength || 0.85, // Cranked up to break the collage boundaries
+          negative_prompt: "collage, borders, split screen, multiple panels, grid, separate frames, white borders, margins, panels",
+          prompt_strength: 0.95, // 0.95 means it will almost entirely redraw the image
           num_inference_steps: 30
         }
       })
