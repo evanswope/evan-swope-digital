@@ -1303,16 +1303,16 @@ document.addEventListener('DOMContentLoaded', () => {
         scores.sort((a, b) => b.score - a.score); // highest first
         const topScores = scores.slice(0, 10); // take top 10
 
-        let html = '<table style="width:100%; text-align:left; border-collapse:collapse;">';
-        html += '<tr style="border-bottom:1px solid gold; color:gold;"><th>Rank</th><th>Photo</th><th>Name</th><th>Partner</th><th>Score</th></tr>';
+        let html = '<table style="width:100%; text-align:left; border-collapse:collapse; table-layout: fixed;">';
+        html += '<tr style="border-bottom:1px solid gold; color:gold;"><th style="width:10%;">Rank</th><th style="width:12%;">Photo</th><th style="width:25%;">Name</th><th style="width:43%;">Partner</th><th style="width:10%;">Score</th></tr>';
         
         topScores.forEach((s, idx) => {
           html += `
             <tr style="border-bottom:1px solid #333;">
               <td style="padding:0.5rem; font-size:1.5rem;">#${idx+1}</td>
               <td style="padding:0.5rem;"><img src="${s.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${s.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
-              <td style="padding:0.5rem; color:#fff;">${s.name.substring(0,20)}</td>
-              <td style="padding:0.5rem; color:#ff7eb3;">${s.customer}</td>
+              <td style="padding:0.5rem; color:#fff; word-break: break-all;">${s.name.substring(0,20)}</td>
+              <td style="padding:0.5rem; color:#ff7eb3; line-height:1.2;">${s.customer}</td>
               <td style="padding:0.5rem; color:#33ff33;">${s.score}</td>
             </tr>
           `;
