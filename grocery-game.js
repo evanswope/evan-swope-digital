@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const env = audioCtx.createGain();
       env.gain.setValueAtTime(0, audioCtx.currentTime);
-      env.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.005);
+      env.gain.linearRampToValueAtTime(0.07, audioCtx.currentTime + 0.005);
       env.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
       
       osc.connect(filter);
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       noiseFilter.frequency.value = 1000;
       const noiseEnv = audioCtx.createGain();
       noiseEnv.gain.setValueAtTime(0, audioCtx.currentTime);
-      noiseEnv.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.005);
+      noiseEnv.gain.linearRampToValueAtTime(0.035, audioCtx.currentTime + 0.005);
       noiseEnv.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
       
       noise.connect(noiseFilter);
