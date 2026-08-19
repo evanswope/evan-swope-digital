@@ -952,13 +952,17 @@
       itemImage.onerror = null;
       itemImage.style.opacity = '0.3';
       
-      if (type === 'badge') {
-        scannerStatus.textContent = "PRINTING ID BADGE...";
-        
-      } else {
-        
-        scannerStatus.textContent = "VISUALIZING ENTITY...";
-      }
+      const _noText = document.getElementById('no-item-text');
+        if (_noText) {
+          _noText.style.display = 'block';
+          if (type === 'badge') {
+            _noText.innerHTML = 'PRINTING<br>ID BADGE...';
+            scannerStatus.textContent = "PRINTING ID BADGE...";
+          } else {
+            _noText.innerHTML = 'FABRICATING<br>ENTITY...';
+            scannerStatus.textContent = "VISUALIZING ENTITY...";
+          }
+        }
       scannerStatus.style.color = "#00ffcc";
     }
 
