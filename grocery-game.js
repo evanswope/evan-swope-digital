@@ -1880,31 +1880,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Reconstruct what the user has correctly typed so far
-      let cleanVal = val.replace(/X/g, '').replace(/[^0-9\-]/g, '');
+      // Reconstruct what the user has correctly typed by isolating digits
+      let userDigits = val.replace(/[^0-9]/g, '');
+      let targetDigits = state.barcodeTarget.replace(/[^0-9]/g, '');
 
       let isCorrectSoFar = true;
-      for (let i = 0; i < cleanVal.length; i++) {
-        if (cleanVal[i] !== state.barcodeTarget[i]) {
+      for (let i = 0; i < userDigits.length; i++) {
+        if (userDigits[i] !== targetDigits[i]) {
           isCorrectSoFar = false;
           break;
         }
       }
 
-      let currentCleanLength = state.barcodeCurrent.replace(/X/g, '').length;
+      let currentCleanLength = state.barcodeCurrent.replace(/[^0-9]/g, '').length;
 
       if (isCorrectSoFar) {
-         // Auto-fill hyphens
-         while (cleanVal.length < state.barcodeTarget.length && state.barcodeTarget[cleanVal.length] === '-') {
-            cleanVal += '-';
+         // Reconstruct the masked barcode using the target template
+         let masked = "";
+         let digitIndex = 0;
+         for (let i = 0; i < state.barcodeTarget.length; i++) {
+           if (state.barcodeTarget[i] === '-') {
+             masked += '-';
+           } else {
+             if (digitIndex < userDigits.length) {
+               masked += userDigits[digitIndex];
+               digitIndex++;
+             } else {
+               masked += 'X';
+             }
+           }
          }
          
-         let masked = cleanVal;
-         while (masked.length < state.barcodeTarget.length) {
-           masked += state.barcodeTarget[masked.length] === '-' ? '-' : 'X';
-         }
-         
-         if (cleanVal.length > currentCleanLength) {
+         if (userDigits.length > currentCleanLength) {
             playScannerBeep();
          }
          state.barcodeCurrent = masked;
