@@ -1298,9 +1298,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const playerContext = state.playerDescription ? `from a grocery clerk described as: ${state.playerDescription}. The clerk is clearly visible in frame` : `from a grocery clerk`;
 
       if (data.approved) {
-        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} happily receiving the item "${userPrompt}" ${playerContext}. Happy, vibrant, successful, grocery store background.`;
+        reactionPrompt = `A surreal photograph of ${state.currentCustomerDesc} happily receiving the item "${userPrompt}" ${playerContext}. Happy, vibrant, successful, grocery store background.`;
       } else {
-        reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit, with the rejected item "${userPrompt}" thrown on the ground in disgust. They are yelling at the clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
+        reactionPrompt = `A surreal photograph of ${state.currentCustomerDesc} angrily yelling and throwing a fit, with the rejected item "${userPrompt}" thrown on the ground in disgust. They are yelling at the clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
       }
 
       // Always use Flux-schnell for the reaction! Img2Img with collages just produces collages or chimeras.
