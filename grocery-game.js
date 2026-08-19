@@ -1237,7 +1237,7 @@
     if (affectionGained >= 10) {
       state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc, seed: state.currentCustomerSeed, imageUrl: state.customerImageUrl };
       addLog(`\n===========================================`, "log-system");
-      addLog(`> ðŸ’˜ TRUE LOVE! ðŸ’˜`, "log-system");
+      addLog(`> 💕 TRUE LOVE! 💕`, "log-system");
       addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
       addLog(`> Type "I'm Ace" or "I'm Aro" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
       state.phase = "TRUE_LOVE_PROMPT";
@@ -1348,7 +1348,7 @@
     state.customersServed.sort((a, b) => b.affectionGained - a.affectionGained);
 
     state.customersServed.forEach((c, idx) => {
-      addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}ðŸ’– | Wanted: ${c.request}`, "log-user");
+      addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}💖 | Wanted: ${c.request}`, "log-user");
     });
 
     addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" / "I'm Aro" to just hang out as friends.`, "log-gm");
@@ -1603,7 +1603,7 @@
       const newScoreRef = push(ref(db, 'leaderboard'));
       await Promise.race([set(newScoreRef, scoreData), timeoutPromise]);
       localStorage.setItem('myGroceryHighScoreId', newScoreRef.key);
-      addLog("> Successfully immortalized! ðŸ†", "log-system");
+      addLog("> Successfully immortalized! 🏆", "log-system");
 
     } catch (e) {
       console.error(e);
@@ -2022,7 +2022,7 @@
 
     topScores.forEach((s, idx) => {
       if (s.id === myId) myScoreInTop = true;
-      const nameHtml = s.id === myId ? `${s.name.substring(0,20)} <span class="heart-pulse">ðŸ’• That's You!</span>` : s.name.substring(0,20);
+      const nameHtml = s.id === myId ? `${s.name.substring(0,20)} <span class="heart-pulse">💕 That's You!</span>` : s.name.substring(0,20);
       
       html += `
         <tr style="border-bottom:1px solid #333;">
@@ -2048,7 +2048,7 @@
             <tr style="border-bottom:1px solid #333;">
               <td class="lb-td lb-td-rank" style="font-size:1.5rem;">${displayRank}</td>
               <td class="lb-td lb-td-photo"><img src="${myScore.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${myScore.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
-              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${myScore.name.substring(0,20)} <br><span class="heart-pulse" style="margin:0;">ðŸ’• That's You!</span></td>
+              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${myScore.name.substring(0,20)} <br><span class="heart-pulse" style="margin:0;">💕 That's You!</span></td>
               <td class="lb-td lb-td-partner" style="color:#ff7eb3; line-height:1.2;">${myScore.customer}</td>
               <td class="lb-td lb-td-score" style="color:#33ff33;">${myScore.score}</td>
             </tr>
