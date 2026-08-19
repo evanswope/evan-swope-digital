@@ -611,11 +611,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  async function generateReactionCollageImg2Img(customerUrl, badgeUrl, itemUrl, reactionPrompt) {
-    loadingOverlay.style.display = 'flex';
-    scannerStatus.textContent = "COMPOSITING MEMORIES...";
-    itemImage.style.opacity = '0.3';
-    scannerStatus.style.color = "#00ffcc";
+  async function generateReactionCollageImg2Img(customerUrl, badgeUrl, itemUrl, reactionPrompt, returnUrlOnly = false) {
+    if (!returnUrlOnly) {
+      loadingOverlay.style.display = 'flex';
+      scannerStatus.textContent = "COMPOSITING MEMORIES...";
+      itemImage.style.opacity = '0.3';
+      scannerStatus.style.color = "#00ffcc";
+    }
 
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
@@ -649,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const base64Collage = canvas.toDataURL('image/jpeg', 0.9);
 
-      scannerStatus.textContent = "SYNTHESIZING COLLAGE...";
+      if (!returnUrlOnly) scannerStatus.textContent = "SYNTHESIZING COLLAGE...";
       
       const res = await fetch('/api/img2img', {
         method: 'POST',
@@ -665,6 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       
       const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(data.url)}`;
+      if (returnUrlOnly) return proxyUrl;
+
       return new Promise((resolve) => {
         itemImage.onload = () => {
           loadingOverlay.style.display = 'none';
@@ -684,9 +688,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (e) {
       console.error("Img2Img Error:", e);
-      loadingOverlay.style.display = 'none';
-      scannerStatus.textContent = "SYNTHESIS FAILED";
-      scannerStatus.style.color = "#ff3333";
+      if (!returnUrlOnly) {
+        loadingOverlay.style.display = 'none';
+        scannerStatus.textContent = "SYNTHESIS FAILED";
+        scannerStatus.style.color = "#ff3333";
+      }
+      return null;
     }
   }
 
@@ -924,20 +931,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function generateCharacterImage(prompt, type = 'character', seed = undefined) {
-    // Do NOT disable game input or change phase, as this runs in parallel with text
-    itemImage.onload = null;
-    itemImage.onerror = null;
-    itemImage.style.opacity = '0.3';
-    
-    if (type === 'badge') {
-      scannerStatus.textContent = "PRINTING ID BADGE...";
-      loadingOverlay.style.display = 'none';
-    } else {
-      loadingOverlay.style.display = 'flex';
-      scannerStatus.textContent = "VISUALIZING ENTITY...";
+  async function generateCharacterImage(prompt, type = 'character', seed = undefined, returnUrlOnly = false) {
+    if (!returnUrlOnly) {
+      itemImage.onload = null;
+      itemImage.onerror = null;
+      itemImage.style.opacity = '0.3';
+      
+      if (type === 'badge') {
+        scannerStatus.textContent = "PRINTING ID BADGE...";
+        loadingOverlay.style.display = 'none';
+      } else {
+        loadingOverlay.style.display = 'flex';
+        scannerStatus.textContent = "VISUALIZING ENTITY...";
+      }
+      scannerStatus.style.color = "#00ffcc";
     }
-    scannerStatus.style.color = "#00ffcc";
 
     let attempt = 1;
     const maxAttempts = 3;
@@ -987,8 +995,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(outputUrl)}`;
         if (type === 'badge') state.badgeImageUrl = proxyUrl;
-        else if (type === 'character') state.customerImageUrl = proxyUrl;
+        else if (type === 'character' && !returnUrlOnly) state.customerImageUrl = proxyUrl;
         
+        if (returnUrlOnly) return proxyUrl;
+
         let imageLoadAttempts = 0;
 
         return new Promise((resolve) => {
@@ -1024,11 +1034,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
-    // If we exhaust attempts
-    loadingOverlay.style.display = 'none';
-    scannerStatus.textContent = "VISUALIZATION FAILED";
-    scannerStatus.style.color = "#ff3333";
-    return false;
+    if (!returnUrlOnly) {
+      loadingOverlay.style.display = 'none';
+      scannerStatus.textContent = "VISUALIZATION FAILED";
+      scannerStatus.style.color = "#ff3333";
+    }
+    return null;
   }
 
   // Phase: Checkout Minigames
@@ -1070,6 +1081,10 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.value = "";
     addLog(`> BAGGED`, "log-system");
     
+    // AUDIO/VISUAL FLAIR: Start hand animation
+    const handOverlay = document.getElementById('hand-overlay');
+    if (handOverlay) handOverlay.style.display = 'block';
+
     const data = state.pendingAppraisalData;
     const imagePromise = state.pendingAppraisalImagePromise;
 
@@ -1077,7 +1092,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (imagePromise) {
       scannerStatus.textContent = "WAITING ON VISUALIZATION...";
       drumroll = playDrumroll();
-      await imagePromise;
+      
+      const imgUrl = await imagePromise;
+      if (imgUrl && typeof imgUrl === 'string') {
+        await new Promise((resolve) => {
+          itemImage.onload = () => {
+            itemImage.style.opacity = '';
+            itemImage.style.display = 'block';
+            itemImage.classList.add('loaded');
+            scannerStatus.textContent = "VISUALIZATION COMPLETE";
+            scannerStatus.style.color = "#00ffcc";
+            resolve();
+          };
+          itemImage.onerror = () => {
+            scannerStatus.textContent = "IMAGE LOAD ERROR";
+            scannerStatus.style.color = "#ff3333";
+            resolve();
+          };
+          itemImage.src = imgUrl;
+        });
+      }
+      
       if (drumroll && drumroll.stop) await drumroll.stop();
     }
     
@@ -1125,7 +1160,6 @@ document.addEventListener('DOMContentLoaded', () => {
       affectionGained: affectionGained
     });
 
-    const handOverlay = document.getElementById('hand-overlay');
     if (handOverlay) handOverlay.style.display = 'none';
 
     document.body.classList.remove('alarm-flashing');
@@ -1207,18 +1241,14 @@ document.addEventListener('DOMContentLoaded', () => {
         reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit, with the rejected grocery item thrown on the ground in disgust. They are yelling at the clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
       }
 
-      // AUDIO/VISUAL FLAIR: Start hand animation
-      const handOverlay = document.getElementById('hand-overlay');
-      if (handOverlay) handOverlay.style.display = 'block';
-      
       // Request generation in the background without awaiting it
       let imagePromise;
       if (state.customersServed.length === 0 && state.customerImageUrl && state.badgeImageUrl && state.lastItemUrl) {
         // Test Img2Img on Customer 1
-        imagePromise = generateReactionCollageImg2Img(state.customerImageUrl, state.badgeImageUrl, state.lastItemUrl, reactionPrompt);
+        imagePromise = generateReactionCollageImg2Img(state.customerImageUrl, state.badgeImageUrl, state.lastItemUrl, reactionPrompt, true);
       } else {
         // Fallback to standard generation
-        imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed);
+        imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed, false, true);
       }
 
       state.pendingAppraisalData = data;
@@ -1230,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.barcodeCurrent = "XXX-XXX-XXX";
       
       await addLogTypewriter(`[SYSTEM] The customer stares intently at the item. Ring them up!`, "log-system", 15);
-      await addLogTypewriter(`> BARCODE SCANNER: TYPE TO SCAN`, "log-system", 15);
+      await addLogTypewriter(`> BARCODE SCANNER: TYPE '${state.barcodeTarget}' TO SCAN`, "log-error", 15);
       
       gameInput.value = state.barcodeCurrent;
       gameInput.disabled = false;
