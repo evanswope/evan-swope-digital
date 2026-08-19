@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const masterGain = audioCtx.createGain();
       masterGain.connect(audioCtx.destination);
-      masterGain.gain.value = 0.3; // keep it subtle
+      masterGain.gain.value = 0.1; // keep it subtle
 
       const osc = audioCtx.createOscillator();
       osc.type = 'square';
@@ -331,8 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const env = audioCtx.createGain();
       env.gain.setValueAtTime(0, audioCtx.currentTime);
-      env.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.02);
-      env.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+      env.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
+      env.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
 
       osc.connect(env);
 
