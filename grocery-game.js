@@ -1049,7 +1049,30 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.value = "";
     addLog(`> BARCODE ACCEPTED`, "log-system");
     
-    await addLogTypewriter(`[SUBCONSCIOUS] Does this object really look like what they wanted? Will it actually help them achieve ${state.currentCustomerNeed}?`, "log-gm", 15);
+    const sub1Options = [
+      `Does this object really look like what they wanted? Will it actually help them achieve ${state.currentCustomerNeed}?`,
+      `I hope I didn't mess this up. Are they really going to use this for ${state.currentCustomerNeed}?`,
+      `This feels a bit unorthodox, but maybe unorthodox is exactly what ${state.currentCustomerNeed} requires.`,
+      `They look skeptical. Or maybe they always look like that. Either way, ${state.currentCustomerNeed} is a tall order.`,
+      `I should have asked more questions. Is this really the key to ${state.currentCustomerNeed}?`,
+      `My hands are shaking a little. I just really want them to succeed at ${state.currentCustomerNeed}.`,
+      `Did I grab the right item? The label is smudged. I hope it helps with ${state.currentCustomerNeed}.`,
+      `Sometimes you just have to trust your gut. And my gut says this is perfect for ${state.currentCustomerNeed}.`,
+      `They have such intense eyes. I wonder if they can tell I'm guessing about how to solve ${state.currentCustomerNeed}.`,
+      `This job is mostly psychology anyway. This item is just a placebo for ${state.currentCustomerNeed}.`,
+      `If this doesn't help with ${state.currentCustomerNeed}, they are definitely going to ask for a manager.`,
+      `I can see the hesitation in their posture. They doubt this will accomplish ${state.currentCustomerNeed}.`,
+      `Why do I care so much? It's just groceries. But ${state.currentCustomerNeed} seems so important to them.`,
+      `I swear I saw this work in a dream once. It's guaranteed to resolve ${state.currentCustomerNeed}.`,
+      `They are judging me. I know it. But wait until they see how well this handles ${state.currentCustomerNeed}.`,
+      `I feel a strange connection to this customer. I genuinely hope this item is the answer to ${state.currentCustomerNeed}.`,
+      `Maybe I'm overthinking this. It's a simple transaction. They asked for help with ${state.currentCustomerNeed}, I provided.`,
+      `This is either going to be a total disaster or a brilliant solution to ${state.currentCustomerNeed}. No in-between.`,
+      `I'm sweating. Why is the AC always broken? Let's just hope this solves ${state.currentCustomerNeed}.`,
+      `If they return this, I'm going to hide in the stockroom. But it HAS to work for ${state.currentCustomerNeed}.`
+    ];
+    const pick1 = sub1Options[Math.floor(Math.random() * sub1Options.length)];
+    await addLogTypewriter(`[SUBCONSCIOUS] ${pick1}`, "log-gm", 15);
     
     state.phase = "CHECKOUT_COUPON";
     const word = couponWords[Math.floor(Math.random() * couponWords.length)];
@@ -1067,7 +1090,30 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.value = "";
     addLog(`> COUPON ACCEPTED`, "log-system");
     
-    await addLogTypewriter(`[SUBCONSCIOUS] They are staring right through me. I wonder what they are thinking right now...`, "log-gm", 15);
+    const sub2Options = [
+      `They are staring right through me. I wonder what they are thinking right now...`,
+      `The silence between us is deafening. I should bag this faster.`,
+      `Are they looking at my nametag? Or the stain on my apron?`,
+      `I can hear the hum of the fluorescent lights. And their breathing.`,
+      `Why do they look so sad? Or is that just how their face is?`,
+      `I wonder if they have a family. I wonder if anyone is waiting for them at home.`,
+      `We are just two ships passing in the night. Or two souls trapped in a grocery store.`,
+      `I should say something. No, keep quiet. Just bag the items.`,
+      `They haven't blinked in a solid minute. It's starting to unnerve me.`,
+      `I can feel their impatience radiating off them like heat.`,
+      `What if I just walked away right now? Just left the register and never came back?`,
+      `They look like they belong in a different century.`,
+      `I wonder what their voice sounds like when they aren't asking for groceries.`,
+      `Is it hot in here, or is it just the tension of this mundane interaction?`,
+      `I bet they have a really interesting secret.`,
+      `They look exhausted. Or maybe I'm projecting.`,
+      `I should smile more. But my face feels frozen.`,
+      `If they sigh one more time, I might actually cry.`,
+      `I wonder if they remember my face from the last time they were here.`,
+      `This is taking too long. I can feel the fabric of reality thinning.`
+    ];
+    const pick2 = sub2Options[Math.floor(Math.random() * sub2Options.length)];
+    await addLogTypewriter(`[SUBCONSCIOUS] ${pick2}`, "log-gm", 15);
     
     state.phase = "CHECKOUT_BAG";
     await addLogTypewriter(`> BAG THE GROCERIES: TYPE 'BAG'`, "log-error", 15);
