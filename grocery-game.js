@@ -56,6 +56,7 @@
     selectedCustomer: null,
     datingHistory: [],
     isAce: false,
+      isAro: false,
     isTrueLove: false,
     datingLocation: "",
     datingOutfit: "",
@@ -1238,7 +1239,7 @@
       addLog(`\n===========================================`, "log-system");
       addLog(`> ðŸ’˜ TRUE LOVE! ðŸ’˜`, "log-system");
       addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
-      addLog(`> Type "I'm Ace" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
+      addLog(`> Type "I'm Ace" or "I'm Aro" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
       state.phase = "TRUE_LOVE_PROMPT";
       gameInput.disabled = false;
       gameInput.focus();
@@ -1350,7 +1351,7 @@
       addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}ðŸ’– | Wanted: ${c.request}`, "log-user");
     });
 
-    addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" to just hang out as friends.`, "log-gm");
+    addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" / "I'm Aro" to just hang out as friends.`, "log-gm");
     gameInput.disabled = false;
     gameInput.focus();
   }
@@ -1458,7 +1459,7 @@
           userMessage: userMessage,
           datingRound: state.datingRound,
           datingHistory: state.datingHistory,
-          isAce: state.isAce,
+          isAce: state.isAce || state.isAro,
           playerDescription: state.playerDescription
         })
       });
@@ -1551,7 +1552,7 @@
     addLog(won ? `GAME OVER - YOU WON!` : `GAME OVER - YOU LOST!`, "log-system");
     
     if (won) {
-      addLog(`> Type your name to immortalize your ${state.isAce ? 'friendship' : 'romance'} on the Leaderboard, or type "NO" to skip.`, "log-gm");
+      addLog(`> Type your name to immortalize your ${(state.isAce || state.isAro) ? 'friendship' : 'romance'} on the Leaderboard, or type "NO" to skip.`, "log-gm");
       state.phase = "LEADERBOARD_PROMPT";
     } else {
       addLog(`Type a complaint to management, or hit ENTER to RESTART and play again.`, "log-gm");
@@ -1886,6 +1887,21 @@
   }
 
   gameInput.addEventListener('input', () => {
+    let lowerVal = gameInput.value.toLowerCase().trim();
+    if (state.phase === "LEDGER") {
+      if (lowerVal === "i'm ace" || lowerVal === "im ace" || lowerVal === "ace" || lowerVal === "i'm aro" || lowerVal === "im aro" || lowerVal === "aro") {
+         const e = new KeyboardEvent('keypress', { key: 'Enter' });
+         gameInput.dispatchEvent(e);
+      } else if (['1','2','3','4','5'].includes(lowerVal)) {
+         const e = new KeyboardEvent('keypress', { key: 'Enter' });
+         gameInput.dispatchEvent(e);
+      }
+    } else if (state.phase === "TRUE_LOVE_PROMPT") {
+      if (lowerVal === "i'm ace" || lowerVal === "im ace" || lowerVal === "ace" || lowerVal === "i'm aro" || lowerVal === "im aro" || lowerVal === "aro") {
+         const e = new KeyboardEvent('keypress', { key: 'Enter' });
+         gameInput.dispatchEvent(e);
+      }
+    }
     if (state.phase === "DATING_OBSTACLE") {
       if (gameInput.value.trim().toUpperCase() === state.obstacleTarget) {
         handleObstacleSuccess();
