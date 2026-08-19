@@ -362,6 +362,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function playSadBeep() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+      
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      
+      const delay = audioCtx.createDelay();
+      delay.delayTime.value = 0.25;
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = 0.4;
+      
+      delay.connect(feedback);
+      feedback.connect(delay);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      gain.connect(delay);
+      delay.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.4);
+    } catch (e) {
+      console.warn("Audio error:", e);
+    }
+  }
+
   // Web Audio Drumroll Synthesis (Lookahead Scheduler)
   let snareBuffer = null;
   let isDrumrolling = false;
@@ -1038,9 +1073,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const data = state.pendingAppraisalData;
     const imagePromise = state.pendingAppraisalImagePromise;
 
+    let drumroll = null;
     if (imagePromise) {
       scannerStatus.textContent = "WAITING ON VISUALIZATION...";
+      drumroll = playDrumroll();
       await imagePromise;
+      if (drumroll && drumroll.stop) await drumroll.stop();
     }
     
     if (data.flavor_text) {
@@ -1169,10 +1207,9 @@ document.addEventListener('DOMContentLoaded', () => {
         reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit, with the rejected grocery item thrown on the ground in disgust. They are yelling at the clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
       }
 
-      // AUDIO/VISUAL FLAIR: Start the drumroll and hand animation
+      // AUDIO/VISUAL FLAIR: Start hand animation
       const handOverlay = document.getElementById('hand-overlay');
       if (handOverlay) handOverlay.style.display = 'block';
-      const drumroll = playDrumroll();
       
       // Request generation in the background without awaiting it
       let imagePromise;
@@ -1186,9 +1223,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       state.pendingAppraisalData = data;
       state.pendingAppraisalImagePromise = imagePromise;
-      if (drumroll) {
-        try { drumroll.stop(); } catch(e){} 
-      }
 
       state.phase = "CHECKOUT_BARCODE";
       const rand3 = () => String(Math.floor(Math.random() * 900) + 100);
@@ -1549,14 +1583,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             gameInput.value = state.barcodeCurrent;
-            try { playSFX('success'); } catch(e){}
+            playScannerBeep();
             
             if (!state.barcodeCurrent.includes('X')) {
               handleBarcodeSuccess();
             }
           } else {
             // Wrong
-            try { playSFX('fail'); } catch(e){}
+            playSadBeep();
             gameInput.classList.add('shake');
             setTimeout(() => gameInput.classList.remove('shake'), 200);
           }
@@ -1656,13 +1690,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
-      }
-      else if (state.phase === "CHECKOUT_COUPON") {
-        if (val.trim().toUpperCase() === state.couponTarget.toUpperCase()) {
-          handleCouponSuccess();
-        } else {
-          addLog(`> INVALID COUPON! Type '${state.couponTarget}'!`, "log-error");
-        }
       }
       else if (state.phase === "CHECKOUT_BAG") {
         if (val.trim().toUpperCase() === "BAG") {
@@ -1802,6 +1829,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.phase === "DATING_OBSTACLE") {
       if (gameInput.value.trim().toUpperCase() === state.obstacleTarget) {
         handleObstacleSuccess();
+      }
+    } else if (state.phase === "CHECKOUT_COUPON") {
+      if (gameInput.value.trim().toUpperCase() === state.couponTarget.toUpperCase()) {
+        handleCouponSuccess();
       }
     }
   });
