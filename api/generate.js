@@ -16,11 +16,12 @@ export default async function handler(req, res) {
 
   // Model Routing
   let modelOwnerName = "";
+  let versionHash = "";
   let input = {};
 
   switch(model_id) {
     case 'sd15':
-      modelOwnerName = "runwayml/stable-diffusion-v1.5";
+      versionHash = "a9758cbfbd5f3c20444707b6e6ac2e435529282f40b2f9db154868f0655c829e";
       input = {
         prompt: prompt,
         width: width || 512,
@@ -55,23 +56,23 @@ export default async function handler(req, res) {
       break;
 
     case 'sdxl-lightning':
-      modelOwnerName = "bytedance/sdxl-lightning-4step";
+      versionHash = "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637";
       input = { prompt, width, height, num_inference_steps: 4, guidance_scale: 0 };
       break;
 
     case 'realvis':
-      modelOwnerName = "adirik/realvisxl-v4.0";
+      versionHash = "85a58cc71587cc27539b7c83eb1ce4aea02feedfb9a9fae0598cebc110a3d695";
       input = { prompt, negative_prompt, width, height, num_inference_steps, guidance_scale };
       break;
 
     case 'playground':
-      modelOwnerName = "playgroundai/playground-v2.5-1024px-aesthetic";
+      versionHash = "a45f82a1382bed5c7aeb861dac7c7d191b0fdf74d8d57c4a0e6ed7d4d0bf7d24";
       input = { prompt, negative_prompt, width, height, num_inference_steps, guidance_scale };
       break;
 
     case 'sdxl':
     default:
-      modelOwnerName = "stability-ai/sdxl";
+      versionHash = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b";
       input = {
         prompt: prompt,
         negative_prompt: negative_prompt || "",
@@ -85,13 +86,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://api.replicate.com/v1/models/${modelOwnerName}/predictions`, {
+    const endpoint = versionHash 
+      ? 'https://api.replicate.com/v1/predictions' 
+      : `https://api.replicate.com/v1/models/${modelOwnerName}/predictions`;
+      
+    const reqBody = versionHash 
+      ? { version: versionHash, input } 
+      : { input };
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ input })
+      body: JSON.stringify(reqBody)
     });
 
     if (response.status !== 201) {
