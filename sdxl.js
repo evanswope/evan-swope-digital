@@ -97,12 +97,52 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   btnGenerate.addEventListener('click', async () => {
-    const prompt = promptInput.value.trim();
+    let prompt = promptInput.value.trim();
     if (!prompt) {
-      placeholder.style.display = 'block';
-      placeholder.style.color = '#ff4d4d';
-      placeholder.innerHTML = `ERROR:<br><span style="color:#aaa; font-size:0.65rem;">PLEASE ENTER A PROMPT FIRST!</span>`;
-      return;
+      prompt = promptInput.placeholder;
+      
+      // Typewriter effect to turn placeholder into actual pink text
+      promptInput.value = "";
+      btnGenerate.disabled = true;
+      btnGenerate.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> THINKING...`;
+      
+      for (let i = 0; i < prompt.length; i++) {
+        promptInput.value += prompt[i];
+        await new Promise(r => setTimeout(r, 20)); // Fast typing
+      }
+      
+      // Show pink tooltip over canvas (once per session)
+      if (!window.hasShownSdxlTooltip) {
+        window.hasShownSdxlTooltip = true;
+        const tooltip = document.createElement('div');
+        tooltip.textContent = "I expected you to be more creative";
+        tooltip.style.position = 'absolute';
+        tooltip.style.top = '50%';
+        tooltip.style.left = '50%';
+        tooltip.style.transform = 'translate(-50%, -50%)';
+        tooltip.style.backgroundColor = '#ff7eb3';
+        tooltip.style.color = '#111';
+        tooltip.style.padding = '0.5rem 1rem';
+        tooltip.style.borderRadius = '4px';
+        tooltip.style.fontFamily = 'var(--font-mono)';
+        tooltip.style.fontSize = '0.85rem';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.style.zIndex = '100';
+        tooltip.style.transition = 'opacity 0.5s ease-out';
+        tooltip.style.textAlign = 'center';
+        
+        const canvasContainer = document.querySelector('.sdxl-output-container');
+        if (canvasContainer) {
+          canvasContainer.appendChild(tooltip);
+          setTimeout(() => {
+            tooltip.style.opacity = '0';
+            setTimeout(() => tooltip.remove(), 500);
+          }, 2000);
+        }
+      }
+      
+      btnGenerate.disabled = false;
+      btnGenerate.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE IMAGE`;
     }
 
     const aspect = aspectSelect ? aspectSelect.value : '1:1';
