@@ -1303,15 +1303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reactionPrompt = `A surreal painting of ${state.currentCustomerDesc} angrily yelling and throwing a fit, with the rejected item "${userPrompt}" thrown on the ground in disgust. They are yelling at the clerk. The clerk is described as: ${state.playerDescription || 'a grocery clerk'} and is clearly visible in frame. Dramatic, chaotic, angry, grocery store background.`;
       }
 
-      // Request generation in the background without awaiting it
-      let imagePromise;
-      if (state.customerImageUrl && state.badgeImageUrl && state.lastItemUrl) {
-        // Use IP-Adapter Img2Img
-        imagePromise = generateReactionCollageImg2Img(state.customerImageUrl, state.badgeImageUrl, state.lastItemUrl, reactionPrompt, true);
-      } else {
-        // Fallback to standard generation
-        imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed, false, true);
-      }
+      // Always use Flux-schnell for the reaction! Img2Img with collages just produces collages or chimeras.
+      let imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed, false, true);
 
       state.pendingAppraisalData = data;
       state.pendingAppraisalImagePromise = imagePromise;
