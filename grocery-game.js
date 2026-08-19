@@ -769,13 +769,19 @@
     itemImage.onerror = null;
     
     itemImage.style.opacity = '0.3';
-    loadingOverlay.style.display = 'flex';
-    scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
-
-    const noItemText = document.getElementById('no-item-text');
-    if (noItemText && !isDating) {
-      noItemText.innerHTML = 'SEARCHING<br>FOR PRODUCT';
-      noItemText.style.display = 'block';
+    if (!isCheckout) {
+      loadingOverlay.style.display = 'none';
+      scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
+      const noItemText = document.getElementById('no-item-text');
+      if (noItemText && !isDating) {
+        noItemText.innerHTML = 'SEARCHING<br>FOR PRODUCT';
+        noItemText.style.display = 'block';
+      }
+    } else {
+      loadingOverlay.style.display = 'flex';
+      scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
+      const noItemText = document.getElementById('no-item-text');
+      if (noItemText) noItemText.style.display = 'none';
     }
 
     // If dating, use the LLM's full prompt (no white background requirement). 
