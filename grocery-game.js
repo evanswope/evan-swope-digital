@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
   // UI Elements
   const logArea = document.getElementById('log-area');
   const gameInput = document.getElementById('game-input');
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           source.start(nextNoteTime);
 
-          // 1/32 note is roughly 0.05s. Add slight swing randomness (±0.005)
+          // 1/32 note is roughly 0.05s. Add slight swing randomness (Â±0.005)
           nextNoteTime += 0.05 + (Math.random() * 0.01 - 0.005);
         }
         if (isDrumrolling) {
@@ -1138,7 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // AUDIO/VISUAL FLAIR: Start hand animation
     const handOverlay = document.getElementById('hand-overlay');
-    if (handOverlay) handOverlay.style.display = 'block';
+    if (handOverlay) { handOverlay.style.display = 'none'; void handOverlay.offsetWidth; handOverlay.style.display = 'block'; }
 
     const data = state.pendingAppraisalData;
     const imagePromise = state.pendingAppraisalImagePromise;
@@ -1156,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 185000))
       ]);
       
-      if (imgUrl && typeof imgUrl === 'string') {
+      if (imgUrl && typeof imgUrl === 'string') { await new Promise(r => setTimeout(r, 1250));
         await new Promise((resolve) => {
           itemImage.onload = () => {
             itemImage.style.opacity = '';
@@ -1236,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (affectionGained >= 10) {
       state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc, seed: state.currentCustomerSeed, imageUrl: state.customerImageUrl };
       addLog(`\n===========================================`, "log-system");
-      addLog(`> 💘 TRUE LOVE! 💘`, "log-system");
+      addLog(`> ðŸ’˜ TRUE LOVE! ðŸ’˜`, "log-system");
       addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
       addLog(`> Type "I'm Ace" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
       state.phase = "TRUE_LOVE_PROMPT";
@@ -1347,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.customersServed.sort((a, b) => b.affectionGained - a.affectionGained);
 
     state.customersServed.forEach((c, idx) => {
-      addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}💖 | Wanted: ${c.request}`, "log-user");
+      addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}ðŸ’– | Wanted: ${c.request}`, "log-user");
     });
 
     addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" to just hang out as friends.`, "log-gm");
@@ -1602,7 +1602,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const newScoreRef = push(ref(db, 'leaderboard'));
       await Promise.race([set(newScoreRef, scoreData), timeoutPromise]);
       localStorage.setItem('myGroceryHighScoreId', newScoreRef.key);
-      addLog("> Successfully immortalized! 🏆", "log-system");
+      addLog("> Successfully immortalized! ðŸ†", "log-system");
 
     } catch (e) {
       console.error(e);
@@ -1985,7 +1985,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     topScores.forEach((s, idx) => {
       if (s.id === myId) myScoreInTop = true;
-      const nameHtml = s.id === myId ? `${s.name.substring(0,20)} <span class="heart-pulse">💕 That's You!</span>` : s.name.substring(0,20);
+      const nameHtml = s.id === myId ? `${s.name.substring(0,20)} <span class="heart-pulse">ðŸ’• That's You!</span>` : s.name.substring(0,20);
       
       html += `
         <tr style="border-bottom:1px solid #333;">
@@ -2006,12 +2006,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         html += `
             <tr style="border-bottom: none; opacity: 0.7;">
-              <td colspan="5" style="text-align:center; padding:1rem; color:gold; font-size:1.5rem; letter-spacing:5px;">≀≀≀≀≀≀≀</td>
+              <td colspan="5" style="text-align:center; padding:1rem; color:gold; font-size:1.5rem; letter-spacing:5px;">â‰€â‰€â‰€â‰€â‰€â‰€â‰€</td>
             </tr>
             <tr style="border-bottom:1px solid #333;">
               <td class="lb-td lb-td-rank" style="font-size:1.5rem;">${displayRank}</td>
               <td class="lb-td lb-td-photo"><img src="${myScore.imageUrl}" class="leaderboard-thumbnail" data-fullsrc="${myScore.imageUrl}" style="width:50px; height:50px; object-fit:cover; border:1px solid gold; border-radius:5px; cursor:pointer;" /></td>
-              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${myScore.name.substring(0,20)} <br><span class="heart-pulse" style="margin:0;">💕 That's You!</span></td>
+              <td class="lb-td lb-td-name" style="color:#fff; word-break: break-all;">${myScore.name.substring(0,20)} <br><span class="heart-pulse" style="margin:0;">ðŸ’• That's You!</span></td>
               <td class="lb-td lb-td-partner" style="color:#ff7eb3; line-height:1.2;">${myScore.customer}</td>
               <td class="lb-td lb-td-score" style="color:#33ff33;">${myScore.score}</td>
             </tr>
