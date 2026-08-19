@@ -20,17 +20,6 @@ export default async function handler(req, res) {
   let input = {};
 
   switch(model_id) {
-    case 'sd15':
-      versionHash = "a9758cbfbd5f3c20444707b6e6ac2e435529282f40b2f9db154868f0655c829e";
-      input = {
-        prompt: prompt,
-        width: width || 512,
-        height: height || 512,
-        num_inference_steps: num_inference_steps || 20,
-        guidance_scale: guidance_scale || 7.5
-      };
-      break;
-
     case 'flux-schnell':
       modelOwnerName = "black-forest-labs/flux-schnell";
       input = {
@@ -42,7 +31,19 @@ export default async function handler(req, res) {
       };
       if (seed !== undefined) input.seed = seed;
       break;
-    
+
+    case 'flux-dev':
+      modelOwnerName = "black-forest-labs/flux-dev";
+      input = {
+        prompt: prompt,
+        aspect_ratio: aspect_ratio || "1:1",
+        output_format: "webp",
+        go_fast: true,
+        disable_safety_checker: true
+      };
+      if (seed !== undefined) input.seed = seed;
+      break;
+      
     case 'sd3':
       modelOwnerName = "stability-ai/stable-diffusion-3";
       input = {
@@ -58,16 +59,6 @@ export default async function handler(req, res) {
     case 'sdxl-lightning':
       versionHash = "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637";
       input = { prompt, width, height, num_inference_steps: 4, guidance_scale: 0 };
-      break;
-
-    case 'realvis':
-      versionHash = "85a58cc71587cc27539b7c83eb1ce4aea02feedfb9a9fae0598cebc110a3d695";
-      input = { prompt, negative_prompt, width, height, num_inference_steps, guidance_scale };
-      break;
-
-    case 'playground':
-      versionHash = "a45f82a1382bed5c7aeb861dac7c7d191b0fdf74d8d57c4a0e6ed7d4d0bf7d24";
-      input = { prompt, negative_prompt, width, height, num_inference_steps, guidance_scale };
       break;
 
     case 'sdxl':

@@ -1,6 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
   const btnGenerate = document.getElementById('btn-sdxl-generate');
   const promptInput = document.getElementById('sdxl-prompt');
+  
+  if (promptInput) {
+    const placeholderPrompts = [
+      "A romantic candlelit dinner between a sentient block of cheddar and a lonely cracker in aisle 4, photorealistic",
+      "A dramatic soap opera scene where a bottle of ketchup discovers its mustard partner has been cheating with relish",
+      "A jar of pickles proposing to a cucumber in the produce section, lit by fluorescent humming lights",
+      "Two cans of soup holding hands on a checkout conveyor belt, emotional, cinematic lighting",
+      "A loaf of bread and a stick of butter slow dancing in the freezer aisle, romantic mist rising from the ice",
+      "A heartbroken banana peeling away from an apple who didn't reciprocate its feelings",
+      "A bottle of hot sauce aggressively flirting with a carton of milk, tension, grocery store background",
+      "A romantic comedy poster featuring a mop and a bucket finding love in the cleaning supplies aisle",
+      "A lonely bag of frozen peas finding a soulmate in a bag of frozen corn, 4k resolution",
+      "Two avocados touching pits in a tender moment of connection, surreal grocery store romance",
+      "A bottle of cheap wine and a block of gouda eloping in the self-checkout lane",
+      "A tragic Romeo and Juliet story between a Pepsi and a Coca-Cola separated by the soda aisle divider",
+      "A carton of eggs nervously asking a whisk out on a date, photorealistic macro photography",
+      "A romantic picnic in the shopping cart between a box of cereal and a gallon of milk",
+      "A slice of frozen pizza passionately kissing a microwave dinner under the freezer glow",
+      "A bunch of grapes serenading a watermelon in the produce section, cinematic lighting",
+      "A box of tissues comforting a weeping onion who just got broken up with",
+      "Two toothbrushes finding love at first sight across the pharmacy aisle",
+      "A jar of peanut butter and a jar of jelly finally reuniting after being stocked on different shelves",
+      "A dramatic breakup between a sponge and a bottle of dish soap, rain pouring down in the sink aisle",
+      "A romantic gondola ride in a spilled puddle of juice featuring two romantic strawberries",
+      "A roll of paper towels rescuing a spill, falling deeply in love with the counter spray",
+      "A passionate embrace between a bottle of olive oil and a bottle of balsamic vinegar",
+      "A lonely potato finding true love with a sour cream tub in the baked potato section",
+      "A bag of flour and a bag of sugar getting married by a priest who is a measuring cup",
+      "Two coffee beans staring longingly at each other before being ground up together, romantic tragedy",
+      "A romantic sunset walk across the conveyer belt by a bag of chips and a jar of salsa",
+      "A bottle of shampoo and conditioner holding hands while facing their destiny at the checkout",
+      "A heroic garlic clove rescuing a basil leaf from the clearance bin, romantic adventure",
+      "A tub of ice cream melting from the intense romantic gaze of a bottle of chocolate syrup"
+    ];
+    promptInput.placeholder = placeholderPrompts[Math.floor(Math.random() * placeholderPrompts.length)];
+  }
   const loadingDiv = document.getElementById('sdxl-loading');
   const resultImg = document.getElementById('sdxl-result');
   const placeholder = document.getElementById('sdxl-placeholder');
@@ -26,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (modelSelect) {
     modelSelect.addEventListener('change', (e) => {
       const model = e.target.value;
-      if (model === 'flux-schnell') {
+      if (model === 'flux-schnell' || model === 'flux-dev') {
         if (settingNegative) settingNegative.style.display = 'none';
         if (settingSteps) settingSteps.style.display = 'none';
         if (settingGuidance) settingGuidance.style.display = 'none';
