@@ -16,12 +16,13 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "226c6bf67a75a129b0f978e518fed33e1fb13956e15761c1ac53c9d2f898c9af",
+        version: "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
         input: {
           image: image,
           prompt: prompt + ", a single unified photograph, seamless composition, cohesive scene, masterpiece, highly detailed",
           negative_prompt: "collage, borders, split screen, multiple panels, grid, separate frames, white borders, margins, panels",
-          scale: 0.65, // IP-Adapter scale
+          prompt_strength: req.body.prompt_strength || 0.65,
+          num_inference_steps: 30
         }
       })
     });
