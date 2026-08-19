@@ -1151,8 +1151,12 @@
     const imagePromise = state.pendingAppraisalImagePromise;
 
     let drumroll = null;
+    let preloadedImgUrl = null;
+    let drumrollStartTime = 0;
+
     if (imagePromise) {
       scannerStatus.textContent = "WAITING ON VISUALIZATION...";
+      drumrollStartTime = Date.now();
       drumroll = playDrumroll();
       
       const imgUrl = await Promise.race([
@@ -1163,64 +1167,85 @@
         }, 185000))
       ]);
       
-      if (imgUrl && typeof imgUrl === 'string') { await new Promise(r => setTimeout(r, 1250));
+      if (imgUrl && typeof imgUrl === 'string') {
+        preloadedImgUrl = imgUrl;
+        
+        // Dim the old image and show the red overlay text
+        const _noText = document.getElementById('no-item-text');
+        if (_noText) {
+          _noText.style.display = 'block';
+          _noText.innerHTML = 'COMPOSITING<br>MEMORIES...';
+        }
+        itemImage.style.opacity = '0.3';
+        
+        // Preload the new image secretly in the background
         await new Promise((resolve) => {
-          itemImage.onload = () => {
-              const _noText = document.getElementById('no-item-text');
-              if (_noText) _noText.style.display = 'none';
-            itemImage.style.opacity = '';
-            itemImage.style.display = 'block';
-            itemImage.classList.add('loaded');
-            scannerStatus.textContent = "VISUALIZATION COMPLETE";
-            scannerStatus.style.color = "#00ffcc";
-            resolve();
-          };
-          itemImage.onerror = () => {
-            scannerStatus.textContent = "IMAGE LOAD ERROR";
-            scannerStatus.style.color = "#ff3333";
-            resolve();
-          };
-          itemImage.src = imgUrl;
+          const tempImg = new Image();
+          tempImg.onload = resolve;
+          tempImg.onerror = resolve;
+          tempImg.src = imgUrl;
         });
       }
     }
     
+    if (drumrollStartTime > 0) {
+      const elapsed = Date.now() - drumrollStartTime;
+      if (elapsed < 1500) await new Promise(r => setTimeout(r, 1500 - elapsed));
+    }
+
     if (data.flavor_text) {
       await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
     } else {
       await addLogTypewriter(`> The clerk hands over the item.`, "log-system", 15);
     }
     
+    // Stop the drumroll
+    if (drumroll && drumroll.stop) await drumroll.stop();
+
+    // Play outcome sound effect
+    try {
+      if (data.approved) playSFX('success');
+      else playSFX('fail');
+    } catch (err) {}
+
+    // Reveal the preloaded image INSTANTLY
+    if (preloadedImgUrl) {
+      itemImage.src = preloadedImgUrl;
+      const _noText = document.getElementById('no-item-text');
+      if (_noText) _noText.style.display = 'none';
+      itemImage.style.opacity = '';
+      itemImage.style.display = 'block';
+      itemImage.classList.add('loaded');
+      scannerStatus.textContent = "VISUALIZATION COMPLETE";
+      scannerStatus.style.color = "#00ffcc";
+    }
+
     await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.reaction}`, "log-customer", 25);
     
     let affectionGained = 0;
 
     if (data.approved) {
-      scannerStatus.textContent = `APPROVED: $${data.value}`;
+      scannerStatus.textContent = `APPROVED: ${data.value}`;
       scannerStatus.style.color = "#33ff33";
       state.cash += data.value;
       state.popularity += 1;
-      
-      affectionGained = data.affection || 1;
-      state.affection += affectionGained;
-      
-      if (data.bonus) {
-        addLog(`> BONUS! You creatively solved their problem! (+${affectionGained} Affection)`, "log-system");
-        state.cash += data.value * 2;
-      } else {
-        addLog(`> Item sold. (+${affectionGained} Affection)`, "log-system");
+      affectionGained = data.affection_change;
+      if (affectionGained > 0) {
+        state.affection += affectionGained;
+        addLog(`> Affection increased! (+${affectionGained})`, "log-system");
+        spawnParticle('heart');
       }
-
+      addLog(`> Item accepted. (+${data.value})`, "log-system");
       state.trust = Math.min(100, state.trust + 5);
-      for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
-      if (data.value > 1000) spawnParticle('heart');
     } else {
       scannerStatus.textContent = `REJECTED`;
       scannerStatus.style.color = "#ff3333";
-      state.popularity -= 1;
+      document.body.classList.add('alarm-flashing');
+      state.popularity = Math.max(0, state.popularity - 1);
       state.trust -= 10;
       addLog(`> Item rejected. (-10 Trust)`, "log-system");
     }
+    
     state.customersServed.push({
       id: state.currentCustomerSeed,
       name: state.currentCustomerName,
@@ -1232,14 +1257,6 @@
     if (handOverlay) handOverlay.style.display = 'none';
 
     document.body.classList.remove('alarm-flashing');
-
-    if (drumroll && drumroll.stop) await drumroll.stop();
-
-    // Play outcome sound effect
-    try {
-      if (data.approved) playSFX('success');
-      else playSFX('fail');
-    } catch (err) {}
 
     // True Love instant-win condition
     if (affectionGained >= 10) {
