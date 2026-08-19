@@ -653,6 +653,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!returnUrlOnly) scannerStatus.textContent = "SYNTHESIZING COLLAGE...";
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 40000); // 40 seconds max
+
       const res = await fetch('/api/img2img', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -660,10 +663,16 @@ document.addEventListener('DOMContentLoaded', () => {
           image: base64Collage,
           prompt: reactionPrompt,
           prompt_strength: 0.65
-        })
+        }),
+        signal: controller.signal
       });
 
-      if (!res.ok) throw new Error("Img2Img API Error");
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Img2Img API Error: ${errText}`);
+      }
       const data = await res.json();
       
       const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(data.url)}`;
@@ -1139,7 +1148,14 @@ document.addEventListener('DOMContentLoaded', () => {
       scannerStatus.textContent = "WAITING ON VISUALIZATION...";
       drumroll = playDrumroll();
       
-      const imgUrl = await imagePromise;
+      const imgUrl = await Promise.race([
+        imagePromise,
+        new Promise(resolve => setTimeout(() => {
+          console.error("imagePromise fallback timeout triggered.");
+          resolve(null);
+        }, 45000))
+      ]);
+      
       if (imgUrl && typeof imgUrl === 'string') {
         await new Promise((resolve) => {
           itemImage.onload = () => {
