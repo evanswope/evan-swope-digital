@@ -9,19 +9,19 @@ export default async function handler(req, res) {
   if (!token) return res.status(500).json({ message: 'Missing API Token' });
 
   try {
-    const replicateResponse = await fetch("https://api.replicate.com/v1/models/chigozienri/ip_adapter-sdxl/predictions", {
+    const replicateResponse = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
         "Authorization": `Token ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        version: "226c6bf67a75a129b0f978e518fed33e1fb13956e15761c1ac53c9d2f898c9af",
         input: {
           image: image,
           prompt: prompt + ", a single unified photograph, seamless composition, cohesive scene, masterpiece, highly detailed",
           negative_prompt: "collage, borders, split screen, multiple panels, grid, separate frames, white borders, margins, panels",
           scale: 0.65, // IP-Adapter scale
-          num_inference_steps: 30
         }
       })
     });
