@@ -1516,15 +1516,26 @@
       }
 
       if (state.datingRound === 4) {
-        // Transition directly into Wedding Planning minigames
-        state.phase = "DATING_WEDDING_VENUE";
-        const venuePrompt = async () => {
-          gameInput.disabled = true;
-          await addLogTypewriter(`[SUBCONSCIOUS] They said yes! The big day is approaching. Where are you hosting the wedding?`, "log-gm", 15);
-          gameInput.disabled = false;
-          gameInput.focus();
-        };
-        venuePrompt();
+        if (state.isAce || state.isAro) {
+          state.phase = "DATING_HANGOUT_VENUE";
+          const venuePrompt = async () => {
+            gameInput.disabled = true;
+            await addLogTypewriter(`[SUBCONSCIOUS] They want to hang out again! Where should you two go next?`, "log-gm", 15);
+            gameInput.disabled = false;
+            gameInput.focus();
+          };
+          venuePrompt();
+        } else {
+          // Transition directly into Wedding Planning minigames
+          state.phase = "DATING_WEDDING_VENUE";
+          const venuePrompt = async () => {
+            gameInput.disabled = true;
+            await addLogTypewriter(`[SUBCONSCIOUS] They said yes! The big day is approaching. Where are you hosting the wedding?`, "log-gm", 15);
+            gameInput.disabled = false;
+            gameInput.focus();
+          };
+          venuePrompt();
+        }
       } else {
         state.phase = "DATING_WAIT_USER";
         gameInput.disabled = false;
@@ -1806,7 +1817,7 @@
         state.phase = "DATING_GIFT";
         const giftPrompt = async () => {
           gameInput.disabled = true;
-          await addLogTypewriter(`[SUBCONSCIOUS] And you'll need a gift. You have $${state.cash}. What do you buy?`, "log-gm", 15);
+          await addLogTypewriter(`[SUBCONSCIOUS] And you'll need a ${state.isAce || state.isAro ? 'gift or snack' : 'gift'}. You have ${state.cash}. What do you buy?`, "log-gm", 15);
           gameInput.disabled = false;
           gameInput.focus();
         };

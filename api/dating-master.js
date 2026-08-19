@@ -31,8 +31,10 @@ CRITICAL ANTI-HALLUCINATION RULE: DO NOT INVENT actions, locations, or vows on b
   }
 
   // Round specific logic
-  if (datingRound === 1) {
-    systemPrompt += `=== ROUND 1: THE CALL ===
+  if (!isAce) {
+    // ROMANTIC PATHWAY
+    if (datingRound === 1) {
+      systemPrompt += `=== ROUND 1: THE CALL ===
 Narrative: The player is calling you on the phone to ask you out. 
 CRITICAL CONTEXT: You have already left the grocery store. You are currently AT HOME or in your native environment (e.g., the ocean, the astral plane, a living room). You are absolutely NOT in the grocery store.
 Rules for player_flavor_text: Write a brief THIRD-PERSON description of the player nervously calling you from the store.
@@ -41,8 +43,8 @@ Rules for dialogue: You must explicitly end your speech by asking the player whe
 Image Prompt Rules: The image prompt MUST describe the customer ALONE on a phone call at home or in their native environment. DO NOT include the grocer (the player) in this image. DO NOT mention a grocery store. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
 - Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
 `;
-  } else if (datingRound === 2) {
-    systemPrompt += `=== ROUND 2: EVALUATING THE DATE PACKAGE ===
+    } else if (datingRound === 2) {
+      systemPrompt += `=== ROUND 2: EVALUATING THE DATE PACKAGE ===
 Narrative: The player just suggested a location, described their outfit, and brought a gift. Evaluate their overall date package. 
 Failure Condition: CRITICAL: Evaluate their suggested location and gift. If your Affection is 0, you hate the player and MUST TERMINATE the date (set terminate: true) unless the location and gift are absolutely perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the package is lazy, generic, or unrelated to your emotional needs. If your Affection is 3-4, you only terminate if the package is completely terrible/dangerous. If Affection is 5+, you will happily agree to anything.
 Rules for player_flavor_text: Describe the player arriving in their outfit, handing over the gift.
@@ -50,8 +52,8 @@ Rules for customer_flavor_text: Describe your internal reaction to their outfit 
 Rules for dialogue: If you terminate, insult their choices and leave. If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about your connection, hope for the future, or your original emotional needs.
 Image Prompt Rules: If you terminate, the image should show the customer angrily leaving. If you DO NOT terminate, the image MUST describe the customer at the specified date location alongside the grocer. The grocer is described exactly as: "${playerDescription || 'a grocery clerk'}". The grocer should be holding the gift.
 `;
-  } else if (datingRound === 3) {
-    systemPrompt += `=== ROUND 3: THE MONTAGE & PROPOSAL ===
+    } else if (datingRound === 3) {
+      systemPrompt += `=== ROUND 3: THE MONTAGE & PROPOSAL ===
 Narrative: First, evaluate the player's answer to your deep question from the date. If they passed, the date was a success. Time passes, and the player proposes to you!
 Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy.
 Rules for player_flavor_text: Describe the player nervously dropping to one knee to propose after some time has passed.
@@ -59,8 +61,8 @@ Rules for customer_flavor_text: Describe how the relationship has been going (if
 Rules for dialogue: If you terminate, insult their previous answer and reject the proposal. If not, excitedly accept the proposal!
 Image Prompt Rules: The image prompt MUST describe the customer being proposed to by the grocer ("${playerDescription || 'a grocery clerk'}"). The setting should be romantic.
 `;
-  } else if (datingRound === 4) {
-    systemPrompt += `=== ROUND 4: THE ALTAR ===
+    } else if (datingRound === 4) {
+      systemPrompt += `=== ROUND 4: THE ALTAR ===
 Narrative: The player has planned the wedding! The player just told you the Venue and what kind of Ring they bought. Evaluate their wedding choices.
 Failure Condition: CRITICAL: Evaluate their Venue and Ring. If your Affection is 1-2, you MUST TERMINATE if the venue/ring are lazy, cheap, or completely ignore your abstract nature. If Affection is 3-4, you only terminate if the choices are insulting or dangerous. If Affection is 5+, you happily accept anything.
 Rules for player_flavor_text: Describe the player standing nervously at the altar at the chosen venue.
@@ -68,8 +70,8 @@ Rules for customer_flavor_text: If you terminate, describe your anger at the ter
 Rules for dialogue: If you terminate, insult their wedding choices and storm off. If not, read your heartfelt wedding vows to the player, and explicitly ask them to read their vows.
 Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) alongside the grocer ("${playerDescription || 'a grocery clerk'}") at the specific Venue the player requested.
 `;
-  } else if (datingRound >= 5) {
-    systemPrompt += `=== ROUND 5: VOW EVALUATION ===
+    } else if (datingRound >= 5) {
+      systemPrompt += `=== ROUND 5: VOW EVALUATION ===
 Narrative: You are at the altar. The player just responded with their vows.
 Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive, or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
 Rules for player_flavor_text: Describe the player finishing their vows.
@@ -77,7 +79,58 @@ Rules for customer_flavor_text: Describe your reaction to their vows.
 Rules for dialogue: Give your final reaction to their vows.
 Image Prompt Rules: The image prompt MUST describe the customer happily married in their wedding attire alongside the grocer ("${playerDescription || 'a grocery clerk'}").
 `;
+    }
+  } else {
+    // PLATONIC (ARO/ACE) PATHWAY
+    if (datingRound === 1) {
+      systemPrompt += `=== ROUND 1: THE CALL ===
+Narrative: The player is calling you on the phone to ask if you want to hang out as friends. 
+CRITICAL CONTEXT: You have already left the grocery store. You are currently AT HOME or in your native environment. You are absolutely NOT in the grocery store.
+Rules for player_flavor_text: Write a brief THIRD-PERSON description of the player nervously calling you from the store to hang out.
+Rules for customer_flavor_text: Write a brief THIRD-PERSON description of your current situation at home/in your native environment, and how you answer the phone based on your Affection.
+Rules for dialogue: You must explicitly end your speech by asking the player where they want to hang out.
+Image Prompt Rules: The image prompt MUST describe the customer ALONE on a phone call at home or in their native environment. DO NOT include the grocer (the player) in this image. DO NOT mention a grocery store. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
+- Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
+`;
+    } else if (datingRound === 2) {
+      systemPrompt += `=== ROUND 2: EVALUATING THE HANGOUT PLAN ===
+Narrative: The player just suggested a hangout location, described their outfit, and brought a gift/snack. Evaluate their overall hangout package. 
+Failure Condition: CRITICAL: Evaluate their suggested location and gift. If your Affection is 0, you hate the player and MUST TERMINATE the hangout (set terminate: true) unless the location and gift are absolutely perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the package is lazy, generic, or unrelated to your emotional needs. If your Affection is 3-4, you only terminate if the package is completely terrible/dangerous. If Affection is 5+, you will happily agree to anything.
+Rules for player_flavor_text: Describe the player arriving in their outfit, handing over the gift/snack.
+Rules for customer_flavor_text: Describe your internal reaction to their outfit and gift. If you are terminating, describe your disgust. If you are NOT terminating, describe your appreciation.
+Rules for dialogue: If you terminate, insult their choices and leave. If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about friendship, hobbies, or your original emotional needs.
+Image Prompt Rules: If you terminate, the image should show the customer angrily leaving. If you DO NOT terminate, the image MUST describe the customer at the specified location alongside the grocer. The grocer is described exactly as: "${playerDescription || 'a grocery clerk'}". The grocer should be holding the gift/snack.
+`;
+    } else if (datingRound === 3) {
+      systemPrompt += `=== ROUND 3: THE MONTAGE & BEST FRIEND PROPOSAL ===
+Narrative: First, evaluate the player's answer to your deep question from the hangout. If they passed, the hangout was a success. Time passes, and the player proposes that you become Best Friends Forever!
+Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy.
+Rules for player_flavor_text: Describe the player enthusiastically asking to be Best Friends Forever.
+Rules for customer_flavor_text: Describe how the friendship has been going (if Affection is 5+, it's been amazing; if low, it's rocky) and describe your reaction to the BFF proposal. If you terminate, describe your disgust and rejection.
+Rules for dialogue: If you terminate, insult their previous answer and reject the friendship. If not, excitedly accept the BFF proposal!
+Image Prompt Rules: The image prompt MUST describe the customer hanging out happily with the grocer ("${playerDescription || 'a grocery clerk'}"). The setting should be fun and platonic.
+`;
+    } else if (datingRound === 4) {
+      systemPrompt += `=== ROUND 4: THE BEST FRIEND CEREMONY ===
+Narrative: The player has planned a Best Friend Ceremony! The player just told you the Venue and what kind of Snack they brought. Evaluate their choices.
+Failure Condition: CRITICAL: Evaluate their Venue and Snack. If your Affection is 1-2, you MUST TERMINATE if the venue/snack are lazy, cheap, or completely ignore your abstract nature. If Affection is 3-4, you only terminate if the choices are insulting or dangerous. If Affection is 5+, you happily accept anything.
+Rules for player_flavor_text: Describe the player hanging out at the chosen venue.
+Rules for customer_flavor_text: If you terminate, describe your anger at the terrible choices. If not, describe your joy arriving at the venue and seeing the snack.
+Rules for dialogue: If you terminate, insult their choices and storm off. If not, read your heartfelt friendship vows to the player, and explicitly ask them to read theirs.
+Image Prompt Rules: The image prompt MUST describe the customer hanging out alongside the grocer ("${playerDescription || 'a grocery clerk'}") at the specific Venue the player requested, with the snack present.
+`;
+    } else if (datingRound >= 5) {
+      systemPrompt += `=== ROUND 5: FRIENDSHIP VOW EVALUATION ===
+Narrative: You are at the hangout spot. The player just responded with their friendship vows.
+Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive, or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
+Rules for player_flavor_text: Describe the player finishing their vows.
+Rules for customer_flavor_text: Describe your reaction to their vows.
+Rules for dialogue: Give your final reaction to their vows.
+Image Prompt Rules: The image prompt MUST describe the customer happily being best friends alongside the grocer ("${playerDescription || 'a grocery clerk'}").
+`;
+    }
   }
+
 
   systemPrompt += `
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks).
