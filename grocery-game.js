@@ -1248,9 +1248,9 @@
     if (state.level >= 5) {
       updateStatsUI();
       if (data.approved) {
-        addLog(`> Success! Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+        addLog(`> Success! Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
       } else {
-        addLog(`> Too bad. Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+        addLog(`> Too bad. Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
       }
       state.phase = "WAIT_LEDGER";
       gameInput.disabled = false;
@@ -1259,9 +1259,9 @@
       state.level++;
       updateStatsUI();
       if (data.approved) {
-        addLog(`> Success! Type "NEXT" to serve the next customer.`, "log-gm");
+        addLog(`> Success! Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
       } else {
-        addLog(`> Too bad. Type "NEXT" to serve the next customer.`, "log-gm");
+        addLog(`> Too bad. Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
       }
       state.phase = "START";
       gameInput.disabled = false;
@@ -1551,10 +1551,10 @@
     addLog(won ? `GAME OVER - YOU WON!` : `GAME OVER - YOU LOST!`, "log-system");
     
     if (won) {
-      addLog(`> Type your name to immortalize your romance on the Leaderboard, or type "NO" to skip.`, "log-gm");
+      addLog(`> Type your name to immortalize your ${state.isAce ? 'friendship' : 'romance'} on the Leaderboard, or type "NO" to skip.`, "log-gm");
       state.phase = "LEADERBOARD_PROMPT";
     } else {
-      addLog(`Type a complaint to management, or type RESTART to play again.`, "log-gm");
+      addLog(`Type a complaint to management, or hit ENTER to RESTART and play again.`, "log-gm");
       state.phase = "COMPLAINT";
     }
     gameInput.disabled = false;
@@ -1677,6 +1677,10 @@
           return;
         } else if (state.phase === "DATING_PROMPT") {
           val = 'date'; // Simulate dating choice
+        } else if (state.phase === "WAIT_LEDGER") {
+          val = 'ledger';
+        } else if (state.phase === "TRUE_LOVE_PROMPT") {
+          val = 'date';
         } else if (state.phase === "COMPLAINT") {
           val = 'restart'; // Simulate restarting
         } else {
@@ -1813,6 +1817,23 @@
         } else {
           addLog(`> FAILED! Type '${state.obstacleTarget}'!`, "log-error");
         }
+      }
+      else if (state.phase === "DATING_HANGOUT_VENUE") {
+        state.weddingVenue = val;
+        state.phase = "DATING_HANGOUT_SNACK";
+        const ringPrompt = async () => {
+          gameInput.disabled = true;
+          await addLogTypewriter(`[SUBCONSCIOUS] You'll need to bring a snack to share. What weird snack do you grab?`, "log-gm", 15);
+          gameInput.disabled = false;
+          gameInput.focus();
+        };
+        ringPrompt();
+      }
+      else if (state.phase === "DATING_HANGOUT_SNACK") {
+        state.weddingRing = val;
+        state.phase = "DATING_GENERATING"; // lock input
+        const packageMsg = `We are hanging out at ${state.weddingVenue} and I brought ${state.weddingRing} to snack on.`;
+        callDatingMaster(packageMsg);
       }
       else if (state.phase === "DATING_WEDDING_VENUE") {
         state.weddingVenue = val;
