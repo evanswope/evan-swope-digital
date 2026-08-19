@@ -1304,7 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Always use Flux-schnell for the reaction! Img2Img with collages just produces collages or chimeras.
-      let imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed, false, true);
+      let imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed, true);
 
       state.pendingAppraisalData = data;
       state.pendingAppraisalImagePromise = imagePromise;
