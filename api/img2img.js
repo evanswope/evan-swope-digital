@@ -27,6 +27,9 @@ export default async function handler(req, res) {
     });
 
     const prediction = await replicateResponse.json();
+    if (!replicateResponse.ok) {
+      throw new Error(prediction.detail || prediction.error || JSON.stringify(prediction));
+    }
     if (prediction.error) throw new Error(prediction.error);
 
     const getPrediction = async (url) => {
