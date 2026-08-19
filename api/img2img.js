@@ -33,7 +33,9 @@ export default async function handler(req, res) {
     if (prediction.error) throw new Error(prediction.error);
 
     const getPrediction = async (url) => {
+      let loops = 0;
       while (true) {
+        if (loops > 125) throw new Error("Replicate API timeout (180s)");
         const statusRes = await fetch(url, {
           headers: { "Authorization": `Token ${token}` }
         });
@@ -41,8 +43,11 @@ export default async function handler(req, res) {
         if (status.status === 'succeeded') {
           return Array.isArray(status.output) ? status.output[0] : status.output;
         }
-        if (status.status === 'failed') throw new Error(status.error);
+        if (status.status === 'failed') throw new Error(status.error || "Prediction failed");
+        if (status.status === 'canceled') throw new Error("Prediction canceled");
+        
         await new Promise(r => setTimeout(r, 1500));
+        loops++;
       }
     };
 

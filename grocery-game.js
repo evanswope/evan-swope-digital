@@ -654,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!returnUrlOnly) scannerStatus.textContent = "SYNTHESIZING COLLAGE...";
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 40000); // 40 seconds max
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 180 seconds max
 
       const res = await fetch('/api/img2img', {
         method: 'POST',
@@ -1153,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         new Promise(resolve => setTimeout(() => {
           console.error("imagePromise fallback timeout triggered.");
           resolve(null);
-        }, 45000))
+        }, 185000))
       ]);
       
       if (imgUrl && typeof imgUrl === 'string') {
