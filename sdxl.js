@@ -117,9 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const tooltip = document.createElement('div');
         tooltip.textContent = "I expected you to be more creative";
         tooltip.style.position = 'absolute';
-        tooltip.style.top = '50%';
+        tooltip.style.top = '15%';
         tooltip.style.left = '50%';
-        tooltip.style.transform = 'translate(-50%, -50%)';
+        tooltip.style.opacity = '0';
+        tooltip.style.transform = 'translate(-50%, -15px)';
         tooltip.style.backgroundColor = '#ff7eb3';
         tooltip.style.color = '#111';
         tooltip.style.padding = '0.5rem 1rem';
@@ -128,15 +129,26 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltip.style.fontSize = '0.85rem';
         tooltip.style.pointerEvents = 'none';
         tooltip.style.zIndex = '100';
-        tooltip.style.transition = 'opacity 0.5s ease-out';
+        tooltip.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
         tooltip.style.textAlign = 'center';
         
         const canvasContainer = document.querySelector('.sdxl-output-container');
         if (canvasContainer) {
           canvasContainer.appendChild(tooltip);
+          
+          // Trigger the slide/fade in
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              tooltip.style.opacity = '1';
+              tooltip.style.transform = 'translate(-50%, 0)';
+            });
+          });
+
+          // Slide/fade out after 2 seconds
           setTimeout(() => {
             tooltip.style.opacity = '0';
-            setTimeout(() => tooltip.remove(), 500);
+            tooltip.style.transform = 'translate(-50%, 15px)';
+            setTimeout(() => tooltip.remove(), 400);
           }, 2000);
         }
       }
