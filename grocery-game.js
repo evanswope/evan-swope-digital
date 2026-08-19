@@ -1112,8 +1112,6 @@ document.addEventListener('DOMContentLoaded', () => {
           itemImage.src = imgUrl;
         });
       }
-      
-      if (drumroll && drumroll.stop) await drumroll.stop();
     }
     
     if (data.flavor_text) {
@@ -1163,6 +1161,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (handOverlay) handOverlay.style.display = 'none';
 
     document.body.classList.remove('alarm-flashing');
+
+    if (drumroll && drumroll.stop) await drumroll.stop();
 
     // Play outcome sound effect
     try {
