@@ -10,7 +10,6 @@
   const statAffection = document.getElementById('stat-affection');
 
   const itemImage = document.getElementById('item-image');
-  const loadingOverlay = document.getElementById('loading-overlay');
   const scannerStatus = document.getElementById('scanner-status');
 
   // Coupon Word List
@@ -614,7 +613,7 @@
 
   async function generateReactionCollageImg2Img(customerUrl, badgeUrl, itemUrl, reactionPrompt, returnUrlOnly = false) {
     if (!returnUrlOnly) {
-      loadingOverlay.style.display = 'flex';
+      
       scannerStatus.textContent = "COMPOSITING MEMORIES...";
       itemImage.style.opacity = '0.3';
       scannerStatus.style.color = "#00ffcc";
@@ -681,7 +680,7 @@
 
       return new Promise((resolve) => {
         itemImage.onload = () => {
-          loadingOverlay.style.display = 'none';
+          
           itemImage.style.opacity = '';
           itemImage.style.display = 'block';
           itemImage.classList.add('loaded');
@@ -689,7 +688,7 @@
           resolve();
         };
         itemImage.onerror = () => {
-          loadingOverlay.style.display = 'none';
+          
           scannerStatus.textContent = "IMAGE LOAD ERROR";
           resolve();
         };
@@ -699,7 +698,7 @@
     } catch (e) {
       console.error("Img2Img Error:", e);
       if (!returnUrlOnly) {
-        loadingOverlay.style.display = 'none';
+        
         scannerStatus.textContent = "SYNTHESIS FAILED";
         scannerStatus.style.color = "#ff3333";
       }
@@ -770,7 +769,7 @@
     
     itemImage.style.opacity = '0.3';
     if (!isCheckout) {
-      loadingOverlay.style.display = 'none';
+      
       scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
       const noItemText = document.getElementById('no-item-text');
       if (noItemText && !isDating) {
@@ -778,7 +777,7 @@
         noItemText.style.display = 'block';
       }
     } else {
-      loadingOverlay.style.display = 'flex';
+      
       scannerStatus.textContent = isDating ? "VISUALIZING SCENARIO..." : "FABRICATING ITEM...";
       const noItemText = document.getElementById('no-item-text');
       if (noItemText) noItemText.style.display = 'none';
@@ -850,7 +849,7 @@
 
         itemImage.src = proxyUrl;
         itemImage.onload = () => {
-          loadingOverlay.style.display = 'none';
+          
           itemImage.style.opacity = '';
           const noItemText = document.getElementById('no-item-text');
           if (noItemText) noItemText.style.display = 'none';
@@ -913,7 +912,7 @@
               itemImage.src = proxyUrl + '&retry=' + Date.now();
             }, 1000);
           } else {
-            loadingOverlay.style.display = 'none';
+            
             scannerStatus.textContent = "IMAGE LOAD ERROR";
             state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
             gameInput.disabled = false;
@@ -927,7 +926,7 @@
         
         if (!isRateLimit || attempt === maxAttempts) {
           addLog(`Generation Error: ${e.message}`, "log-error");
-          loadingOverlay.style.display = 'none';
+          
           scannerStatus.textContent = "ERROR";
           state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
           gameInput.disabled = false;
@@ -955,9 +954,9 @@
       
       if (type === 'badge') {
         scannerStatus.textContent = "PRINTING ID BADGE...";
-        loadingOverlay.style.display = 'none';
+        
       } else {
-        loadingOverlay.style.display = 'flex';
+        
         scannerStatus.textContent = "VISUALIZING ENTITY...";
       }
       scannerStatus.style.color = "#00ffcc";
@@ -1019,7 +1018,7 @@
 
         return new Promise((resolve) => {
           itemImage.onload = () => {
-            if (type !== 'badge') loadingOverlay.style.display = 'none';
+            if (type !== 'badge') 
             itemImage.style.opacity = '';
             itemImage.style.display = 'block';
             itemImage.classList.add('loaded');
@@ -1035,7 +1034,7 @@
                 itemImage.src = proxyUrl + '&retry=' + Date.now();
               }, 1000);
             } else {
-              if (type !== 'badge') loadingOverlay.style.display = 'none';
+              if (type !== 'badge') 
               scannerStatus.textContent = "IMAGE LOAD FAILED";
               scannerStatus.style.color = "#ff3333";
               resolve(false);
@@ -1051,7 +1050,7 @@
     }
     
     if (!returnUrlOnly) {
-      loadingOverlay.style.display = 'none';
+      
       scannerStatus.textContent = "VISUALIZATION FAILED";
       scannerStatus.style.color = "#ff3333";
     }
