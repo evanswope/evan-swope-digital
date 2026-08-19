@@ -680,6 +680,8 @@
 
       return new Promise((resolve) => {
         itemImage.onload = () => {
+              const _noText = document.getElementById('no-item-text');
+              if (_noText) _noText.style.display = 'none';
           
           itemImage.style.opacity = '';
           itemImage.style.display = 'block';
@@ -849,6 +851,8 @@
 
         itemImage.src = proxyUrl;
         itemImage.onload = () => {
+              const _noText = document.getElementById('no-item-text');
+              if (_noText) _noText.style.display = 'none';
           
           itemImage.style.opacity = '';
           const noItemText = document.getElementById('no-item-text');
@@ -1018,7 +1022,8 @@
 
         return new Promise((resolve) => {
           itemImage.onload = () => {
-            if (type !== 'badge') 
+              const _noText = document.getElementById('no-item-text');
+              if (_noText) _noText.style.display = 'none';
             itemImage.style.opacity = '';
             itemImage.style.display = 'block';
             itemImage.classList.add('loaded');
@@ -1165,6 +1170,8 @@
       if (imgUrl && typeof imgUrl === 'string') { await new Promise(r => setTimeout(r, 1250));
         await new Promise((resolve) => {
           itemImage.onload = () => {
+              const _noText = document.getElementById('no-item-text');
+              if (_noText) _noText.style.display = 'none';
             itemImage.style.opacity = '';
             itemImage.style.display = 'block';
             itemImage.classList.add('loaded');
