@@ -2126,6 +2126,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // If they aren't clicking on a button, link, or inside a modal, refocus input
     if (e.target.tagName !== 'BUTTON' 
         && e.target.tagName !== 'A' 
+        && !e.target.closest('header')
+        && !e.target.closest('.mobile-nav-overlay')
         && !e.target.closest('#leaderboard-modal')
         && !e.target.closest('#image-modal')
         && !e.target.classList.contains('leaderboard-thumbnail')) {
