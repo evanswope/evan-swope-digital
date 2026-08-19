@@ -13,6 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadingOverlay = document.getElementById('loading-overlay');
   const scannerStatus = document.getElementById('scanner-status');
 
+  // Coupon Word List
+  const couponWords = [
+    "BAROQUE", "MACAQUE", "GANGRENE", "PULCHRITUDE", "BUMFUZZLE", "CATtywampus", "GOBBLEDYGOOK", "MALARKEY", 
+    "NINCOMPOOP", "SHENANIGANS", "SKEDADDLE", "SNIGGER", "TARADIDDLE", "WIDDERSHINS", "KERFUFFLE", "FLUMMOX", 
+    "BAMBOOZLE", "CANOODLE", "DISCOMBOBULATE", "FLABBERGAST", "HORNSWOGGLE", "LOLLYGAG", "SNITTY", "SQUABBLE", 
+    "SQUEAMISH", "SQUIGGLE", "SQUIRM", "SWAGGER", "SWINDLE", "SWOON", "SYCOPHANT", "TANTALIZE", "TIZZY", 
+    "TOPSY", "TURVY", "WADDLE", "WAFFLE", "WHIMSICAL", "WHISPER", "WOBBLE", "ZIGZAG", "ZIPPER", "ZOMBIE", 
+    "BLUBBER", "BLUNDER", "BLUSTER", "BOBODDY", "BOGGLE", "BOHICA", "BOINK", "BONKERS", "BOOGALOO", "BOONDOGGLE", 
+    "BOOYAH", "BOSSY", "BOUJEE", "BROHAHA", "BUBBLE", "BUCKAROO", "BUGABOO", "BULBOUS", "BULLY", "BUMBLE", 
+    "BUMPKIN", "BUNCOMBE", "BUNKUM", "BURBLE", "BURP", "BUSHWHACK", "BUSTLE", "BUTTER", "BUZZ", "CABBAGE", 
+    "CACOPHONY", "CAHOOTS", "CALAMITY", "CALLIOPE", "CANARY", "CANTANKEROUS", "CAPER", "CAPRICIOUS", "CARBUNCLE", 
+    "CARCASS", "CAROUSE", "CATERWAUL", "CAVORT", "CHAGRIN", "CHORTLE", "CHUCKLE", "CHUMP", "CHUTZPAH", "CLAMOR", 
+    "CLAPTRAP", "CLINCH", "CLIQUE", "CLOBBER", "CLOCKWORK", "CLODHOPPER", "CLOG", "CLOISTER", "CLUCK", "CLUNKER", 
+    "COCKAMAMIE", "CODFISH", "CODGER", "CODSWALLOP", "COLLOP", "COMBUSTION", "COMEDOWN", "COMFIT", "CONCERN", 
+    "CONCOCT", "CONTRAPTION", "CONUNDRUM", "COOT", "CORNUCOPIA", "CORPULENT", "CORUSCATE", "COSMIC", "COSSACK", 
+    "COTTON", "COUCH", "COUGH", "COVE", "COWPOKE", "CRABBY", "CRACKPOT", "CRANKY", "CRAPSHOOT", "CRAWL", "CREEP", 
+    "CRESS", "CRICKET", "CRINGE", "CRINKLE", "CRIPPLE", "CRISPY", "CROAK", "CRONY", "CROON", "CROTCHETY", "CRUMPET", 
+    "CRUMPLE", "CRUNCH", "CRUSADE", "CRUSTY", "CRYBABY", "CUDDLE", "CUDGEL", "CURMUDGEON", "CYBORG", "CYCLONE"
+  ];
+  const couponNumbers = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80, 90];
+
   // Game State
   let state = {
     level: 1,
@@ -45,7 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
     obstacleCount: 0,
     badgeImageUrl: null,
     customerImageUrl: null,
-    lastItemUrl: null
+    lastItemUrl: null,
+    barcodeCurrent: "",
+    barcodeTarget: "",
+    couponTarget: "",
+    pendingAppraisalData: null,
+    pendingAppraisalImagePromise: null
   };
 
   function resetGame() {
@@ -76,7 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
       obstacleCount: 0,
       badgeImageUrl: null,
       customerImageUrl: null,
-      lastItemUrl: null
+      lastItemUrl: null,
+      barcodeCurrent: "",
+      barcodeTarget: "",
+      couponTarget: "",
+      pendingAppraisalData: null,
+      pendingAppraisalImagePromise: null
     };
     updateStatsUI();
     logArea.innerHTML = '';
@@ -965,6 +996,145 @@ document.addEventListener('DOMContentLoaded', () => {
     return false;
   }
 
+  // Phase: Checkout Minigames
+  async function handleBarcodeSuccess() {
+    state.phase = "CHECKOUT_BARCODE_DONE";
+    gameInput.disabled = true;
+    gameInput.value = "";
+    addLog(`> BARCODE ACCEPTED`, "log-system");
+    
+    await addLogTypewriter(`[SUBCONSCIOUS] Does this object really look like what they wanted? Will it actually help them achieve ${state.currentCustomerNeed}?`, "log-gm", 15);
+    
+    state.phase = "CHECKOUT_COUPON";
+    const word = couponWords[Math.floor(Math.random() * couponWords.length)];
+    const num = couponNumbers[Math.floor(Math.random() * couponNumbers.length)];
+    state.couponTarget = `${word}${num}`;
+    
+    await addLogTypewriter(`> THEY SLAM A CRUMPLED COUPON ON THE COUNTER: ENTER '${state.couponTarget}'`, "log-error", 15);
+    gameInput.disabled = false;
+    gameInput.focus();
+  }
+
+  async function handleCouponSuccess() {
+    state.phase = "CHECKOUT_COUPON_DONE";
+    gameInput.disabled = true;
+    gameInput.value = "";
+    addLog(`> COUPON ACCEPTED`, "log-system");
+    
+    await addLogTypewriter(`[SUBCONSCIOUS] They are staring right through me. I wonder what they are thinking right now...`, "log-gm", 15);
+    
+    state.phase = "CHECKOUT_BAG";
+    await addLogTypewriter(`> BAG THE GROCERIES: TYPE 'BAG'`, "log-error", 15);
+    gameInput.disabled = false;
+    gameInput.focus();
+  }
+
+  async function handleBagSuccess() {
+    state.phase = "CHECKOUT_OUTCOME";
+    gameInput.disabled = true;
+    gameInput.value = "";
+    addLog(`> BAGGED`, "log-system");
+    
+    const data = state.pendingAppraisalData;
+    const imagePromise = state.pendingAppraisalImagePromise;
+
+    if (imagePromise) {
+      scannerStatus.textContent = "WAITING ON VISUALIZATION...";
+      await imagePromise;
+    }
+    
+    if (data.flavor_text) {
+      await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
+    } else {
+      await addLogTypewriter(`> The clerk hands over the item.`, "log-system", 15);
+    }
+    
+    await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.reaction}`, "log-customer", 25);
+    
+    let affectionGained = 0;
+
+    if (data.approved) {
+      scannerStatus.textContent = `APPROVED: $${data.value}`;
+      scannerStatus.style.color = "#33ff33";
+      state.cash += data.value;
+      state.popularity += 1;
+      
+      affectionGained = data.affection || 1;
+      state.affection += affectionGained;
+      
+      if (data.bonus) {
+        addLog(`> BONUS! You creatively solved their problem! (+${affectionGained} Affection)`, "log-system");
+        state.cash += data.value * 2;
+      } else {
+        addLog(`> Item sold. (+${affectionGained} Affection)`, "log-system");
+      }
+
+      state.trust = Math.min(100, state.trust + 5);
+      for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
+      if (data.value > 1000) spawnParticle('heart');
+    } else {
+      scannerStatus.textContent = `REJECTED`;
+      scannerStatus.style.color = "#ff3333";
+      state.popularity -= 1;
+      state.trust -= 10;
+      addLog(`> Item rejected. (-10 Trust)`, "log-system");
+    }
+    state.customersServed.push({
+      id: state.currentCustomerSeed,
+      name: state.currentCustomerName,
+      desc: state.currentCustomerDesc,
+      request: state.currentCustomerRequest,
+      affectionGained: affectionGained
+    });
+
+    const handOverlay = document.getElementById('hand-overlay');
+    if (handOverlay) handOverlay.style.display = 'none';
+
+    document.body.classList.remove('alarm-flashing');
+
+    // Play outcome sound effect
+    try {
+      if (data.approved) playSFX('success');
+      else playSFX('fail');
+    } catch (err) {}
+
+    // True Love instant-win condition
+    if (affectionGained >= 10) {
+      state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc, seed: state.currentCustomerSeed, imageUrl: state.customerImageUrl };
+      addLog(`\n===========================================`, "log-system");
+      addLog(`> 💘 TRUE LOVE! 💘`, "log-system");
+      addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
+      addLog(`> Type "I'm Ace" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
+      state.phase = "TRUE_LOVE_PROMPT";
+      gameInput.disabled = false;
+      gameInput.focus();
+      return;
+    }
+
+    if (state.level >= 5) {
+      updateStatsUI();
+      if (data.approved) {
+        addLog(`> Success! Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+      } else {
+        addLog(`> Too bad. Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
+      }
+      state.phase = "WAIT_LEDGER";
+      gameInput.disabled = false;
+      gameInput.focus();
+    } else {
+      state.level++;
+      updateStatsUI();
+      if (data.approved) {
+        addLog(`> Success! Type "NEXT" to serve the next customer.`, "log-gm");
+      } else {
+        addLog(`> Too bad. Type "NEXT" to serve the next customer.`, "log-gm");
+      }
+      state.phase = "START";
+      gameInput.disabled = false;
+      gameInput.focus();
+    }
+  }
+
   // Phase: Vision Appraisal
   async function appraiseItem(imageUrl, userPrompt) {
     state.phase = "APPRAISING";
@@ -1014,115 +1184,28 @@ document.addEventListener('DOMContentLoaded', () => {
         imagePromise = generateCharacterImage(reactionPrompt, 'character', state.currentCustomerSeed);
       }
 
-      if (data.flavor_text) {
-        await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
-      } else {
-        await addLogTypewriter(`> The clerk hands over the item.`, "log-system", 15);
+      state.pendingAppraisalData = data;
+      state.pendingAppraisalImagePromise = imagePromise;
+      if (drumroll) {
+        try { drumroll.stop(); } catch(e){} 
       }
+
+      state.phase = "CHECKOUT_BARCODE";
+      const rand3 = () => String(Math.floor(Math.random() * 900) + 100);
+      state.barcodeTarget = `${rand3()}-${rand3()}-${rand3()}`;
+      state.barcodeCurrent = "XXX-XXX-XXX";
       
-      await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.reaction}`, "log-customer", 25);
+      await addLogTypewriter(`[SYSTEM] The customer stares intently at the item. Ring them up!`, "log-system", 15);
+      await addLogTypewriter(`> BARCODE SCANNER: TYPE TO SCAN`, "log-system", 15);
       
-      let affectionGained = 0;
-
-      if (data.approved) {
-        scannerStatus.textContent = `APPROVED: $${data.value}`;
-        scannerStatus.style.color = "#33ff33";
-        state.cash += data.value;
-        state.popularity += 1;
-        
-        affectionGained = data.affection || 1;
-        state.affection += affectionGained;
-        
-        if (data.bonus) {
-          addLog(`> BONUS! You creatively solved their problem! (+${affectionGained} Affection)`, "log-system");
-          state.cash += data.value * 2; // Massive cash multiplier for being clever
-        } else {
-          addLog(`> Item sold. (+${affectionGained} Affection)`, "log-system");
-        }
-
-        state.trust = Math.min(100, state.trust + 5);
-        for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
-        if (data.value > 1000) spawnParticle('heart');
-      } else {
-        scannerStatus.textContent = `REJECTED`;
-        scannerStatus.style.color = "#ff3333";
-        state.trust = Math.max(0, state.trust - 10);
-      }
-
-      // Save customer to ledger
-      state.customersServed.push({
-        name: state.currentCustomerName,
-        desc: state.currentCustomerDesc,
-        request: state.currentCustomerRequest,
-        affectionGained: affectionGained,
-        seed: state.currentCustomerSeed
-      });
-
-      updateStatsUI();
-      
-      if (imagePromise) {
-        await imagePromise;
-      }
-
-      // The image has loaded! Crescendo drumroll, then stop
-      if (drumroll && drumroll.stop) {
-        await drumroll.stop();
-      }
-
-      if (handOverlay) handOverlay.style.display = 'none';
-
-      // Play outcome sound effect
-      try {
-        if (data.approved) {
-          playSFX('success');
-        } else {
-          playSFX('fail');
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-
-      // True Love instant-win condition
-      if (affectionGained >= 10) {
-        state.selectedCustomer = { request: state.currentCustomerRequest, desc: state.currentCustomerDesc };
-        addLog(`\n===========================================`, "log-system");
-        addLog(`> 💘 TRUE LOVE! 💘`, "log-system");
-        addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
-        addLog(`> Type "I'm Ace" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
-        state.phase = "TRUE_LOVE_PROMPT";
-        gameInput.disabled = false;
-        gameInput.focus();
-        return;
-      }
-
-      if (state.level >= 5) {
-        updateStatsUI();
-        if (data.approved) {
-          addLog(`> Success! Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
-        } else {
-          addLog(`> Too bad. Shift completed. Type "LEDGER" to review your customers.`, "log-gm");
-        }
-        state.phase = "WAIT_LEDGER";
-        gameInput.disabled = false;
-        gameInput.focus();
-      } else {
-        state.level++;
-        updateStatsUI();
-        if (data.approved) {
-          addLog(`> Success! Type "NEXT" to serve the next customer.`, "log-gm");
-        } else {
-          addLog(`> Too bad. Type "NEXT" to serve the next customer.`, "log-gm");
-        }
-        state.phase = "START";
-        gameInput.disabled = false;
-        gameInput.focus();
-      }
+      gameInput.value = state.barcodeCurrent;
+      gameInput.disabled = false;
+      gameInput.focus();
 
     } catch (e) {
       addLog(`Appraisal Error: ${e.message}`, "log-error");
       scannerStatus.textContent = "SCANNER ERROR";
-      addLog(`> What grocery item do you slide across the scanner?`, "log-gm");
-      state.phase = "WAITING_FOR_USER";
+      state.phase = "START";
       gameInput.disabled = false;
     }
   }
@@ -1438,7 +1521,50 @@ document.addEventListener('DOMContentLoaded', () => {
     gameInput.focus();
   }
 
-  // Input Handler
+  // Input Handlers
+  gameInput.addEventListener('keydown', (e) => {
+    if (state.phase === "CHECKOUT_BARCODE") {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault();
+        return;
+      }
+      
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const currentIndex = state.barcodeCurrent.indexOf('X');
+        if (currentIndex !== -1) {
+          const expectedChar = state.barcodeTarget[currentIndex];
+          if (e.key === expectedChar || (expectedChar === '-' && e.key === '-')) {
+            // Correct
+            let arr = state.barcodeCurrent.split('');
+            arr[currentIndex] = expectedChar;
+            state.barcodeCurrent = arr.join('');
+            
+            // Auto-fill hyphens
+            const nextIndex = state.barcodeCurrent.indexOf('X');
+            if (nextIndex !== -1 && state.barcodeTarget[nextIndex] === '-') {
+              let arr2 = state.barcodeCurrent.split('');
+              arr2[nextIndex] = '-';
+              state.barcodeCurrent = arr2.join('');
+            }
+            
+            gameInput.value = state.barcodeCurrent;
+            try { playSFX('success'); } catch(e){}
+            
+            if (!state.barcodeCurrent.includes('X')) {
+              handleBarcodeSuccess();
+            }
+          } else {
+            // Wrong
+            try { playSFX('fail'); } catch(e){}
+            gameInput.classList.add('shake');
+            setTimeout(() => gameInput.classList.remove('shake'), 200);
+          }
+        }
+      }
+    }
+  });
+
   gameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       // AUDIO UNLOCK: Must happen synchronously in the event handler
@@ -1530,6 +1656,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
+      }
+      else if (state.phase === "CHECKOUT_COUPON") {
+        if (val.trim().toUpperCase() === state.couponTarget.toUpperCase()) {
+          handleCouponSuccess();
+        } else {
+          addLog(`> INVALID COUPON! Type '${state.couponTarget}'!`, "log-error");
+        }
+      }
+      else if (state.phase === "CHECKOUT_BAG") {
+        if (val.trim().toUpperCase() === "BAG") {
+          handleBagSuccess();
+        } else {
+          addLog(`> JUST TYPE 'BAG'!`, "log-error");
+        }
       }
       else if (state.phase === "LEDGER") {
         const lower = val.toLowerCase();
