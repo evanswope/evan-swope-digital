@@ -9,22 +9,18 @@ export default async function handler(req, res) {
   if (!token) return res.status(500).json({ message: 'Missing API Token' });
 
   try {
-    // using stability-ai/sdxl for img2img
-    const modelVersion = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; 
-    
-    const replicateResponse = await fetch("https://api.replicate.com/v1/predictions", {
+    const replicateResponse = await fetch("https://api.replicate.com/v1/models/chigozienri/ip_adapter-sdxl/predictions", {
       method: "POST",
       headers: {
         "Authorization": `Token ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: modelVersion,
         input: {
           image: image,
           prompt: prompt + ", a single unified photograph, seamless composition, cohesive scene, masterpiece, highly detailed",
           negative_prompt: "collage, borders, split screen, multiple panels, grid, separate frames, white borders, margins, panels",
-          prompt_strength: 0.95, // 0.95 means it will almost entirely redraw the image
+          scale: 0.65, // IP-Adapter scale
           num_inference_steps: 30
         }
       })
@@ -39,7 +35,9 @@ export default async function handler(req, res) {
           headers: { "Authorization": `Token ${token}` }
         });
         const status = await statusRes.json();
-        if (status.status === 'succeeded') return status.output[0];
+        if (status.status === 'succeeded') {
+          return Array.isArray(status.output) ? status.output[0] : status.output;
+        }
         if (status.status === 'failed') throw new Error(status.error);
         await new Promise(r => setTimeout(r, 1500));
       }
