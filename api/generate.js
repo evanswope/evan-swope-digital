@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
     case 'sdxl-lightning':
       versionHash = "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637";
-      input = { prompt, width, height, num_inference_steps: 4, guidance_scale: 0 };
+      input = { prompt, width: width || 1024, height: height || 1024, num_inference_steps: 4, guidance_scale: 0 };
       break;
 
     case 'sdxl':

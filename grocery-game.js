@@ -591,7 +591,7 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model_id: 'sdxl-lightning',
+        model_id: 'sdxl',
         prompt: "A blank white square",
         aspect_ratio: '1:1'
       })
@@ -803,7 +803,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model_id: 'sdxl-lightning',
+            model_id: 'sdxl',
             prompt: finalPrompt,
             aspect_ratio: '1:1'
           }),
@@ -978,7 +978,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model_id: 'sdxl-lightning',
+            model_id: 'sdxl',
             prompt: prompt,
             aspect_ratio: '1:1',
             seed: seed
