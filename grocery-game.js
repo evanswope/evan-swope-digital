@@ -1587,46 +1587,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Input Handlers
   gameInput.addEventListener('keydown', (e) => {
-    if (state.phase === "CHECKOUT_BARCODE") {
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        e.preventDefault();
-        return;
-      }
-      
-      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault();
-        const currentIndex = state.barcodeCurrent.indexOf('X');
-        if (currentIndex !== -1) {
-          const expectedChar = state.barcodeTarget[currentIndex];
-          if (e.key === expectedChar || (expectedChar === '-' && e.key === '-')) {
-            // Correct
-            let arr = state.barcodeCurrent.split('');
-            arr[currentIndex] = expectedChar;
-            state.barcodeCurrent = arr.join('');
-            
-            // Auto-fill hyphens
-            const nextIndex = state.barcodeCurrent.indexOf('X');
-            if (nextIndex !== -1 && state.barcodeTarget[nextIndex] === '-') {
-              let arr2 = state.barcodeCurrent.split('');
-              arr2[nextIndex] = '-';
-              state.barcodeCurrent = arr2.join('');
-            }
-            
-            gameInput.value = state.barcodeCurrent;
-            playScannerBeep();
-            
-            if (!state.barcodeCurrent.includes('X')) {
-              handleBarcodeSuccess();
-            }
-          } else {
-            // Wrong
-            playSadBeep();
-            gameInput.classList.add('shake');
-            setTimeout(() => gameInput.classList.remove('shake'), 200);
-          }
-        }
-      }
-    }
+    // Other keydown logic if any (none exist for now, we can leave it empty or remove it)
   });
 
   gameInput.addEventListener('keypress', (e) => {
@@ -1860,6 +1821,58 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (state.phase === "CHECKOUT_BAG") {
       if (gameInput.value.trim().toUpperCase() === "BAG") {
         handleBagSuccess();
+      }
+    } else if (state.phase === "CHECKOUT_BARCODE") {
+      let val = gameInput.value.toUpperCase();
+      
+      // Allow instant win (for copy paste or full typing)
+      if (val === state.barcodeTarget) {
+        state.barcodeCurrent = state.barcodeTarget;
+        gameInput.value = state.barcodeCurrent;
+        playScannerBeep();
+        handleBarcodeSuccess();
+        return;
+      }
+
+      // Reconstruct what the user has correctly typed so far
+      let cleanVal = val.replace(/X/g, '').replace(/[^0-9\-]/g, '');
+
+      let isCorrectSoFar = true;
+      for (let i = 0; i < cleanVal.length; i++) {
+        if (cleanVal[i] !== state.barcodeTarget[i]) {
+          isCorrectSoFar = false;
+          break;
+        }
+      }
+
+      let currentCleanLength = state.barcodeCurrent.replace(/X/g, '').length;
+
+      if (isCorrectSoFar) {
+         // Auto-fill hyphens
+         while (cleanVal.length < state.barcodeTarget.length && state.barcodeTarget[cleanVal.length] === '-') {
+            cleanVal += '-';
+         }
+         
+         let masked = cleanVal;
+         while (masked.length < state.barcodeTarget.length) {
+           masked += state.barcodeTarget[masked.length] === '-' ? '-' : 'X';
+         }
+         
+         if (cleanVal.length > currentCleanLength) {
+            playScannerBeep();
+         }
+         state.barcodeCurrent = masked;
+         gameInput.value = state.barcodeCurrent;
+         
+         if (!state.barcodeCurrent.includes('X')) {
+            handleBarcodeSuccess();
+         }
+      } else {
+         // Wrong character typed
+         playSadBeep();
+         gameInput.classList.add('shake');
+         setTimeout(() => gameInput.classList.remove('shake'), 200);
+         gameInput.value = state.barcodeCurrent; // reject change
       }
     }
   });
