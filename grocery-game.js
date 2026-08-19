@@ -662,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({
           image: base64Collage,
           prompt: reactionPrompt,
-          prompt_strength: 0.65
+          prompt_strength: 0.85
         }),
         signal: controller.signal
       });
