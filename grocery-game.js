@@ -1243,8 +1243,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Request generation in the background without awaiting it
       let imagePromise;
-      if (state.customersServed.length === 0 && state.customerImageUrl && state.badgeImageUrl && state.lastItemUrl) {
-        // Test Img2Img on Customer 1
+      if (state.customerImageUrl && state.badgeImageUrl && state.lastItemUrl) {
+        // Use IP-Adapter Img2Img
         imagePromise = generateReactionCollageImg2Img(state.customerImageUrl, state.badgeImageUrl, state.lastItemUrl, reactionPrompt, true);
       } else {
         // Fallback to standard generation
