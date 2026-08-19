@@ -1721,13 +1721,6 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (state.phase === "WAITING_FOR_USER") {
         generateImage(val, false);
       }
-      else if (state.phase === "CHECKOUT_BAG") {
-        if (val.trim().toUpperCase() === "BAG") {
-          handleBagSuccess();
-        } else {
-          addLog(`> JUST TYPE 'BAG'!`, "log-error");
-        }
-      }
       else if (state.phase === "LEDGER") {
         const lower = val.toLowerCase();
         if (lower === "i'm ace" || lower === "im ace") {
@@ -1863,6 +1856,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (state.phase === "CHECKOUT_COUPON") {
       if (gameInput.value.trim().toUpperCase() === state.couponTarget.toUpperCase()) {
         handleCouponSuccess();
+      }
+    } else if (state.phase === "CHECKOUT_BAG") {
+      if (gameInput.value.trim().toUpperCase() === "BAG") {
+        handleBagSuccess();
       }
     }
   });
