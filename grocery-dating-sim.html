@@ -122,16 +122,21 @@
         border: none !important;
         text-shadow: 1px 0 rgba(255,0,0,0.8), -1px 0 rgba(0,0,255,0.8) !important;
       }
-      .mobile-menu-btn {
-        display: block !important;
-        font-family: 'VT323', monospace !important; 
-        font-size: 1.2rem !important;
-        margin-top: 0.3rem !important;
-        padding: 0.3rem 0.6rem !important;
-        color: var(--game-bg) !important;
+      .mobile-icon-row {
+        display: flex !important;
+        gap: 0.3rem !important;
+        margin-bottom: 0.2rem !important;
+      }
+      .mobile-icon-btn {
+        background: transparent !important;
         border: 1px solid var(--game-border) !important;
-        background: var(--game-border) !important;
+        color: var(--game-text) !important;
+        padding: 0.2rem 0.35rem !important;
+        font-size: 0.9rem !important;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       /* TOP ROW: Column 2 */
@@ -152,11 +157,17 @@
         padding-bottom: 0.1rem !important;
       }
       .canvas-container {
-        width: 15vh !important;
-        height: 15vh !important;
-        max-width: 130px !important;
-        max-height: 130px !important;
+        width: 100% !important;
+        height: auto !important;
+        max-width: 180px !important;
+        aspect-ratio: 16/9 !important;
         margin: 0 auto !important;
+        overflow: hidden;
+      }
+      #item-image {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
       }
       #no-item-text {
         font-size: 1.2rem !important;
@@ -551,6 +562,26 @@
     .kb-space {
       flex: 4;
     }
+  
+    /* Game Mode Mobile Nav Override */
+    #mobile-nav-overlay.game-mode-nav {
+      background: rgba(0, 10, 0, 0.95);
+      border: 2px solid var(--game-border);
+    }
+    #mobile-nav-overlay.game-mode-nav .mobile-nav-link {
+      font-family: 'VT323', monospace;
+      color: var(--game-text);
+      font-size: 2rem;
+      border-bottom: 1px dashed var(--game-border);
+    }
+    #mobile-nav-overlay.game-mode-nav .mobile-menu-close {
+      color: var(--game-text);
+      font-size: 2rem;
+    }
+    .mobile-icon-btn:active {
+      background: var(--game-text) !important;
+      color: #000 !important;
+    }
   </style>
 </head>
 <body>
@@ -745,8 +776,12 @@
     
     <div class="game-container">
       <div class="game-header-mobile">
+        <div class="mobile-icon-row">
+          <button id="in-game-menu-btn" class="mobile-icon-btn"><i class="fa-solid fa-bars"></i></button>
+          <button id="leaderboard-btn" class="mobile-icon-btn"><i class="fa-solid fa-trophy"></i></button>
+          <button id="sound-toggle-btn" class="mobile-icon-btn"><i id="sound-icon" class="fa-solid fa-volume-up"></i></button>
+        </div>
         <h1 class="mobile-vhs-title">GROCERY<br>DATING<br>SIM</h1>
-        <button id="in-game-menu-btn" class="mobile-menu-btn"><i class="fa-solid fa-bars"></i></button>
       </div>
     
     <div class="game-stats">
@@ -898,7 +933,7 @@
     const inGameMenuBtn = document.getElementById('in-game-menu-btn');
     if(inGameMenuBtn) {
       inGameMenuBtn.addEventListener('click', () => {
-        document.getElementById('mobile-nav-overlay').classList.add('active');
+        document.getElementById('mobile-nav-overlay').classList.add('game-mode-nav', 'active');
       });
     }
   });

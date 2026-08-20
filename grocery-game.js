@@ -9,6 +9,47 @@
   const statPop = document.getElementById('stat-pop');
   const statAffection = document.getElementById('stat-affection');
 
+  
+window.isMuted = false;
+document.addEventListener('DOMContentLoaded', () => {
+  const soundBtn = document.getElementById('sound-toggle-btn');
+  const soundIcon = document.getElementById('sound-icon');
+  if (soundBtn && soundIcon) {
+    soundBtn.addEventListener('click', () => {
+      window.isMuted = !window.isMuted;
+      if (window.isMuted) {
+        soundIcon.classList.remove('fa-volume-up');
+        soundIcon.classList.add('fa-volume-mute');
+      } else {
+        soundIcon.classList.remove('fa-volume-mute');
+        soundIcon.classList.add('fa-volume-up');
+      }
+    });
+  }
+
+  const mobileLbBtn = document.getElementById('leaderboard-btn');
+  const desktopLbBtn = document.getElementById('btn-leaderboard');
+  const modalLeaderboard = document.getElementById('modal-leaderboard');
+  const contentLeaderboard = document.getElementById('leaderboard-content');
+  
+  const openLb = async (e) => {
+    if (e) e.preventDefault();
+    modalLeaderboard.style.display = 'flex';
+    contentLeaderboard.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading legends...</div>';
+    
+    if (!window.FirebaseAPI) {
+      contentLeaderboard.innerHTML = '<div style="color:red; text-align:center;">Firebase not loaded yet.</div>';
+      return;
+    }
+    const scores = await window.FirebaseAPI.getTopScores(50);
+    renderLeaderboard(scores);
+  };
+  
+  if (mobileLbBtn) mobileLbBtn.addEventListener('click', openLb);
+  // Re-bind desktop lb btn just in case we override the old one
+  if (desktopLbBtn) desktopLbBtn.addEventListener('click', openLb);
+});
+
   const itemImage = document.getElementById('item-image');
   const scannerStatus = document.getElementById('scanner-status');
 
@@ -346,6 +387,7 @@
   }
 
   function playScannerBeep() {
+    if (window.isMuted) return;
     try {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -396,6 +438,7 @@
   }
 
   function playSadBeep() {
+    if (window.isMuted) return;
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -461,6 +504,7 @@
   }
 
   function playDrumroll() {
+    if (window.isMuted) return Promise.resolve();
     try {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1595,6 +1639,7 @@
 
   let klaxonInterval = null;
   function playKlaxon() {
+    if (window.isMuted) return;
     if (!audioCtx) return;
     try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
