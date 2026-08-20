@@ -130,7 +130,36 @@
   }
 
   // Helper: Add text to log
-  function addLog(text, className) {
+  const persistentBox = document.getElementById('persistent-box');
+  
+    async function setPersistentPrompt(text, type = 'log-gm') {
+      if (!text) {
+        persistentBox.style.display = 'none';
+        persistentBox.innerHTML = '';
+        return;
+      }
+      persistentBox.style.display = 'block';
+      if (type === 'log-gm') {
+         persistentBox.style.color = '#33ff33';
+      } else if (type === 'log-subconscious') {
+         persistentBox.style.color = '#ffb86c';
+         persistentBox.style.fontStyle = 'italic';
+      } else {
+         persistentBox.style.color = '#fff';
+      }
+      
+      persistentBox.innerHTML = '';
+      
+      for (let i = 0; i < text.length; i++) {
+        persistentBox.innerHTML += text[i];
+        if (text[i] !== ' ' && i % 2 === 0) {
+          playConsoleBleep();
+          await new Promise(r => setTimeout(r, 10));
+        }
+      }
+    }
+
+    function addLog(text, className) {
     const p = document.createElement('div');
     p.className = `log-msg ${className}`;
     p.textContent = text;
@@ -752,6 +781,7 @@
         state.conversationHistory.push({ role: 'assistant', content: state.customerFirstLine });
       }
 
+      setPersistentPrompt("> Type to ask them about what they need, or type ITEM to find the item now.", "log-gm");
       state.phase = "WAITING_FOR_PLAYER_GREETING";
       gameInput.disabled = false;
       gameInput.focus();
@@ -773,13 +803,14 @@
          await addLogTypewriter(`> Customer Wants: ${state.itemRevealed ? state.currentCustomerRequest.toUpperCase() : "UNKNOWN"}`, "log-system", 10);
          await addLogTypewriter(`> Hint: ${state.needRevealed ? state.currentCustomerNeed : "UNKNOWN"}`, "log-system", 10);
       }
-      await addLogTypewriter(`> What grocery item do you slide across the scanner?`, "log-gm", 10);
+      await setPersistentPrompt(`> What grocery item do you slide across the scanner?`, "log-gm");
       gameInput.disabled = false;
       gameInput.focus();
       return;
     }
 
-    state.phase = "WAITING_FOR_GM_RESPONSE";
+    setPersistentPrompt("");
+      state.phase = "WAITING_FOR_GM_RESPONSE";
     gameInput.disabled = true;
     state.conversationHistory.push({ role: 'user', content: val });
     
@@ -814,11 +845,12 @@
       }
 
       if (data.subconscious_impression && (data.revealed_item || data.revealed_need)) {
-        await addLogTypewriter(`[SUBCONSCIOUS] ${data.subconscious_impression}`, "log-gm", 25);
+        await setPersistentPrompt(`[SUBCONSCIOUS] ${data.subconscious_impression}`, 'log-subconscious');
       }
 
-      await addLogTypewriter(`> Type to ask them about what they need, or type ITEM to find the item now.`, "log-gm", 10);
       
+      
+      setPersistentPrompt("> Type to ask them about what they need, or type ITEM to find the item now.", "log-gm");
       state.phase = "WAITING_FOR_PLAYER_GREETING";
       gameInput.disabled = false;
       gameInput.focus();
@@ -831,6 +863,7 @@
   }
   // Phase: Generate Image
   async function generateImage(prompt, isDating = false, fullPromptOverride = null) {
+      setPersistentPrompt("");
     const originalPhase = state.phase;
     state.phase = isDating ? "DATING_GENERATING" : "GENERATING";
     gameInput.disabled = true;
@@ -1293,7 +1326,7 @@
     let affectionGained = 0;
 
     if (data.approved) {
-      scannerStatus.textContent = `APPROVED: ${data.value}`;
+      scannerStatus.textContent = `APPROVED: $${data.value}`;
       scannerStatus.style.color = "#33ff33";
       state.cash += data.value;
       state.popularity += 1;

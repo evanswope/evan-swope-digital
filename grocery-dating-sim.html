@@ -152,6 +152,16 @@
     .log-system { color: #888; font-style: italic; }
     .log-error { color: var(--game-error); }
 
+    .persistent-box {
+      background: #151515;
+      border-top: 1px dashed var(--game-border);
+      padding: 0.5rem 1rem;
+      color: #ffb86c;
+      font-size: 1.1rem;
+      display: none;
+      font-style: normal;
+    }
+    
     .input-area {
       display: flex;
       border-top: 2px solid var(--game-border);
@@ -513,6 +523,7 @@
     <div class="game-console">
       <div class="log-area" id="log-area">
       </div>
+      <div id="persistent-box" class="persistent-box"></div>
       <div class="input-area">
         <span class="prompt-arrow">&gt;</span>
         <input type="text" class="game-input" id="game-input" placeholder="Type here and press ENTER..." autocomplete="off" spellcheck="false" disabled>
