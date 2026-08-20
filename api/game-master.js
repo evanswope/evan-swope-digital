@@ -86,8 +86,10 @@ CUSTOMER RULES:
 CRITICAL RULE REGARDING EXAMPLES: The examples provided above are for TONAL INSPIRATION ONLY. You are STRICTLY FORBIDDEN from generating a clam, a clown, a dog, a llama, a little girl, a shadow, a thought bubble, a wisp, a page, a nation, or anything closely resembling them (like a mace, a flail, or a loveseat). You MUST invent entirely new, completely unique concepts every single time. 
 
 EMOTIONAL NEED RULES:
-- If Level is 1 through 4: Keep the emotional needs relatively grounded, basic, and relatable, even if the customer is bizarre. Examples: a nap, a place to sneeze, a hug, a snack, a good cry, a place to let out their anger, a sly wink, a squeeze. Use these as tonal inspiration for simple human needs without going overboard.
-- If Level is 5 (or higher): You may get esoteric, highly conceptual, or overly dramatic with the emotional needs (e.g., comfort in another geometric plane, the desire to un-see the dawn of time).
+- The emotional need MUST ALWAYS be extremely mundane, basic, human, and grounded, REGARDLESS of how bizarre the customer is or what Level the player is.
+- Good Examples: a nap, a place to sneeze, a hug, a snack, a good cry, a place to let out their anger, a sly wink, a squeeze, to feel pretty, to relieve an itch.
+- Bad Examples (DO NOT USE THESE): "simplicity in a multidimensional space", "comfort in another geometric plane", "the desire to un-see the dawn of time", "existential grounding".
+- STRICT RULE: Keep it strictly to basic, relatable, simple human urges or physical feelings. Do NOT use complex philosophical, dimensional, or existential concepts.
 
 CRITICAL: Even though the customers are highly abstract or silly, their requested base grocery item MUST BE COMPLETELY MUNDANE and standard (e.g. "a jar of mayonnaise", "kielbasas", "dish soap"). DO NOT add adjectives like sparkly, wet, or large to the base item.
 ANY bizarre conditions, emotional twists, or strange requirements MUST be placed exclusively in the "emotional_need" section.
