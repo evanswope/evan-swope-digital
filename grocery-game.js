@@ -2373,33 +2373,84 @@
 
   init();
 
-  // Virtual Keyboard Logic
+  
+
+
+  // Advanced Virtual Keyboard Logic (Fast-tap & Long-press)
   const virtualKeys = document.querySelectorAll('.kb-key');
-  virtualKeys.forEach(keyBtn => {
-    keyBtn.addEventListener('click', (e) => {
-      e.preventDefault(); // Prevent focus loss
+  let pressTimer = null;
+  let isLongPress = false;
+  
+  const handleKeyInput = (keyVal) => {
+    if (gameInput.disabled) return;
+    if (keyVal === 'ENTER') {
+      const evt = new KeyboardEvent('keypress', { key: 'Enter' });
+      gameInput.dispatchEvent(evt);
+    } else if (keyVal === 'DEL') {
+      gameInput.value = gameInput.value.slice(0, -1);
+      gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+    } else if (keyVal === 'SPACE') {
+      gameInput.value += ' ';
+      gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+    } else if (keyVal === 'ALT') {
+      const mainKb = document.getElementById('mobile-keyboard-main');
+      const altKb = document.getElementById('mobile-keyboard-alt');
+      if (mainKb.style.display === 'none') {
+        mainKb.style.display = 'flex';
+        altKb.style.display = 'none';
+      } else {
+        mainKb.style.display = 'none';
+        altKb.style.display = 'flex';
+      }
+    } else {
+      gameInput.value += keyVal;
+      gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    gameInput.scrollLeft = gameInput.scrollWidth;
+  };
+
+  virtualKeys.forEach(btn => {
+    // We use pointer events for responsive touch without 300ms delay
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); // Prevents mouse emulation and focus loss
       if (gameInput.disabled) return;
       
-      const keyVal = keyBtn.textContent;
+      btn.classList.add('active-key');
+      isLongPress = false;
       
-      if (keyVal === 'ENTER') {
-        // Trigger exact same flow as physical enter key
-        const evt = new KeyboardEvent('keypress', { key: 'Enter' });
-        gameInput.dispatchEvent(evt);
-      } else if (keyVal === 'DEL') {
-        gameInput.value = gameInput.value.slice(0, -1);
-        gameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      } else if (keyVal === 'SPACE') {
-        gameInput.value += ' ';
-        gameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      } else {
-        gameInput.value += keyVal;
-        gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      const altChar = btn.getAttribute('data-alt');
+      if (altChar) {
+        pressTimer = setTimeout(() => {
+          isLongPress = true;
+          handleKeyInput(altChar);
+        }, 400); // 400ms threshold for long press
       }
-      
-      // Keep focus off native keyboard but scroll to end of input if needed
-      gameInput.scrollLeft = gameInput.scrollWidth;
     });
+
+    const triggerUp = (e) => {
+      e.preventDefault();
+      btn.classList.remove('active-key');
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      if (!isLongPress && !gameInput.disabled) {
+        const keyVal = btn.getAttribute('data-key') || btn.textContent;
+        handleKeyInput(keyVal);
+      }
+      isLongPress = false;
+    };
+
+    btn.addEventListener('pointerup', triggerUp);
+    btn.addEventListener('pointerleave', (e) => {
+      btn.classList.remove('active-key');
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+    });
+    // Prevent default touchstart to stop zooming or native context menus
+    btn.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
   });
 
 });

@@ -534,18 +534,18 @@
       user-select: none;
       border-radius: 4px;
     }
-    .kb-key:active {
+    .kb-key.active-key {
       background: var(--game-text);
       color: #000;
       transform: scale(0.95);
     }
-    .kb-enter, .kb-del {
+    .kb-enter, .kb-del, .kb-alt-toggle {
       flex: 1.5;
-      font-size: 1rem;
+      font-size: 0.9rem;
       background: #002200;
     }
     .kb-space {
-      flex: 5;
+      flex: 4;
     }
   </style>
 </head>
@@ -800,21 +800,46 @@
   
     
     <!-- VIRTUAL KEYBOARD -->
-    <div id="mobile-keyboard" class="mobile-keyboard">
-      <div class="kb-row">
-        <button class="kb-key">1</button><button class="kb-key">2</button><button class="kb-key">3</button><button class="kb-key">4</button><button class="kb-key">5</button><button class="kb-key">6</button><button class="kb-key">7</button><button class="kb-key">8</button><button class="kb-key">9</button><button class="kb-key">0</button>
+    <div id="virtual-keyboard-container">
+      <div id="mobile-keyboard-main" class="mobile-keyboard">
+        <div class="kb-row">
+          <button class="kb-key" data-alt="!">1</button><button class="kb-key" data-alt="@">2</button><button class="kb-key" data-alt="#">3</button><button class="kb-key" data-alt="$">4</button><button class="kb-key" data-alt="%">5</button><button class="kb-key" data-alt="^">6</button><button class="kb-key" data-alt="&amp;">7</button><button class="kb-key" data-alt="*">8</button><button class="kb-key" data-alt="(">9</button><button class="kb-key" data-alt=")">0</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key" data-alt="-">Q</button><button class="kb-key" data-alt="_">W</button><button class="kb-key" data-alt="=">E</button><button class="kb-key" data-alt="+">R</button><button class="kb-key" data-alt="[">T</button><button class="kb-key" data-alt="]">Y</button><button class="kb-key" data-alt="{">U</button><button class="kb-key" data-alt="}">I</button><button class="kb-key" data-alt="O">O</button><button class="kb-key" data-alt="P">P</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key" data-alt=";">A</button><button class="kb-key" data-alt=":">S</button><button class="kb-key" data-alt="'">D</button><button class="kb-key" data-alt='"'>F</button><button class="kb-key">G</button><button class="kb-key">H</button><button class="kb-key">J</button><button class="kb-key">K</button><button class="kb-key">L</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key">Z</button><button class="kb-key">X</button><button class="kb-key">C</button><button class="kb-key">V</button><button class="kb-key">B</button><button class="kb-key">N</button><button class="kb-key">M</button><button class="kb-key">,</button><button class="kb-key">.</button><button class="kb-key kb-del" data-key="DEL">DEL</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key kb-alt-toggle" data-key="ALT">?123</button>
+          <button class="kb-key kb-space" data-key="SPACE">SPACE</button>
+          <button class="kb-key kb-enter" data-key="ENTER">ENTER</button>
+        </div>
       </div>
-      <div class="kb-row">
-        <button class="kb-key">Q</button><button class="kb-key">W</button><button class="kb-key">E</button><button class="kb-key">R</button><button class="kb-key">T</button><button class="kb-key">Y</button><button class="kb-key">U</button><button class="kb-key">I</button><button class="kb-key">O</button><button class="kb-key">P</button>
-      </div>
-      <div class="kb-row">
-        <button class="kb-key">A</button><button class="kb-key">S</button><button class="kb-key">D</button><button class="kb-key">F</button><button class="kb-key">G</button><button class="kb-key">H</button><button class="kb-key">J</button><button class="kb-key">K</button><button class="kb-key">L</button>
-      </div>
-      <div class="kb-row">
-        <button class="kb-key kb-enter">ENTER</button><button class="kb-key">Z</button><button class="kb-key">X</button><button class="kb-key">C</button><button class="kb-key">V</button><button class="kb-key">B</button><button class="kb-key">N</button><button class="kb-key">M</button><button class="kb-key kb-del">DEL</button>
-      </div>
-      <div class="kb-row">
-        <button class="kb-key kb-space">SPACE</button>
+
+      <div id="mobile-keyboard-alt" class="mobile-keyboard" style="display:none;">
+        <div class="kb-row">
+          <button class="kb-key">!</button><button class="kb-key">@</button><button class="kb-key">#</button><button class="kb-key">$</button><button class="kb-key">%</button><button class="kb-key">^</button><button class="kb-key">&amp;</button><button class="kb-key">*</button><button class="kb-key">(</button><button class="kb-key">)</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key">-</button><button class="kb-key">_</button><button class="kb-key">=</button><button class="kb-key">+</button><button class="kb-key">[</button><button class="kb-key">]</button><button class="kb-key">{</button><button class="kb-key">}</button><button class="kb-key">\</button><button class="kb-key">|</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key">;</button><button class="kb-key">:</button><button class="kb-key">'</button><button class="kb-key">"</button><button class="kb-key">&lt;</button><button class="kb-key">&gt;</button><button class="kb-key">/</button><button class="kb-key">?</button><button class="kb-key">~</button><button class="kb-key">`</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-spacer" style="flex: 7; background: transparent; border: none;"></button>
+          <button class="kb-key kb-del" data-key="DEL">DEL</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key kb-alt-toggle" data-key="ALT">ABC</button>
+          <button class="kb-key kb-space" data-key="SPACE">SPACE</button>
+          <button class="kb-key kb-enter" data-key="ENTER">ENTER</button>
+        </div>
       </div>
     </div>
   </div> <!-- End Wrapper -->
