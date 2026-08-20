@@ -122,16 +122,16 @@
         border: none !important;
         text-shadow: 1px 0 rgba(255,0,0,0.8), -1px 0 rgba(0,0,255,0.8) !important;
       }
-      .mobile-exit-btn {
+      .mobile-menu-btn {
         display: block !important;
         font-family: 'VT323', monospace !important; 
-        font-size: 0.9rem !important;
+        font-size: 1.2rem !important;
         margin-top: 0.3rem !important;
-        padding: 0.1rem 0.3rem !important;
-        color: var(--game-text) !important;
+        padding: 0.3rem 0.6rem !important;
+        color: var(--game-bg) !important;
         border: 1px solid var(--game-border) !important;
-        background: rgba(255, 0, 0, 0.2) !important;
-        text-decoration: none !important;
+        background: var(--game-border) !important;
+        cursor: pointer;
       }
 
       /* TOP ROW: Column 2 */
@@ -207,16 +207,18 @@
         grid-column: 1 / -1 !important;
         grid-row: 2 !important;
         height: auto !important;
-        min-height: 0 !important;
+        min-height: 0 !important; /* Critical so it shrinks inside flex */
         border-width: 1px !important;
         padding: 0.25rem !important;
         display: flex;
         flex-direction: column;
+        overflow: hidden !important; /* Let log-area scroll */
       }
       .log-area {
         flex: 1;
         padding: 0.25rem !important;
         gap: 0.25rem !important;
+        overflow-y: auto !important; /* Extremely important for scrollable logs */
       }
       .log-msg {
         margin: 0;
@@ -252,8 +254,144 @@
       .mobile-keyboard {
         display: flex !important;
       }
+      
+      .kb-key {
+        padding: 0.25rem 0 !important; /* Reduce padding slightly for 5 rows */
+      }
+    }
+/* Stats Bar */
+    .game-stats {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      background: var(--game-bg);
+      border: 2px solid var(--game-border);
+      padding: 1rem;
+      color: var(--game-text);
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
     }
     
+    .stat-box {
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    /* Text Log / MUD area */
+    .game-console {
+      background: var(--game-bg);
+      border: 2px solid var(--game-border);
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
+    }
+
+    .log-area {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    
+    
+    .log-area::-webkit-scrollbar {
+      width: 10px;
+    }
+    .log-area::-webkit-scrollbar-track {
+      background: rgba(51, 255, 51, 0.05);
+      border-left: 1px solid rgba(51, 255, 51, 0.2);
+    }
+    .log-area::-webkit-scrollbar-thumb {
+      background: var(--game-border);
+      border: 1px solid var(--game-bg);
+    }
+    .log-area::-webkit-scrollbar-thumb:hover {
+      background: #fff;
+    }
+
+    .log-msg {
+      margin: 0;
+      font-size: 0.98rem !important;
+      line-height: 1.2 !important;
+      margin-bottom: 0.25rem !important;
+    }
+
+    @media (min-width: 600px) {
+      .log-msg {
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 0.45rem !important;
+      }
+    }
+
+    .log-gm { color: var(--game-text); }
+    .log-customer { color: #ff7eb3; }
+    .log-user { color: #fff; opacity: 0.8; }
+    .log-system { color: #888; font-style: italic; }
+    .log-error { color: var(--game-error); }
+
+    .persistent-box {
+      background: #151515;
+      border-top: 1px dashed var(--game-border);
+      padding: 0.5rem 1rem;
+      color: #ffb86c;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      min-height: 2.5rem;
+      font-style: normal;
+    }
+    
+    .input-area {
+      display: flex;
+      border-top: 2px solid var(--game-border);
+      padding: 0.5rem;
+      background: #0a0a0a;
+      align-items: center;
+    }
+
+    .input-area > span {
+      color: var(--game-border);
+      padding: 0.5rem;
+    }
+
+    #game-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: 'VT323', monospace;
+      font-size: 1.4rem;
+      outline: none;
+      padding: 0.5rem;
+    }
+    
+    #btn-submit {
+      background: transparent;
+      border: none;
+      color: var(--game-border);
+      cursor: pointer;
+      font-size: 1.4rem;
+      padding: 0.5rem;
+      transition: color 0.2s;
+    }
+    #btn-submit:hover {
+      color: #fff;
+    }
+
     /* Image Display Area */
     .game-vision {
       background: var(--game-bg);
@@ -604,7 +742,7 @@
     <div class="game-container">
       <div class="game-header-mobile">
         <h1 class="mobile-vhs-title">GROCERY<br>DATING<br>SIM</h1>
-        <a href="index.html" class="mobile-exit-btn">[X] EXIT</a>
+        <button id="in-game-menu-btn" class="mobile-menu-btn"><i class="fa-solid fa-bars"></i></button>
       </div>
     
     <div class="game-stats">
@@ -660,8 +798,12 @@
 
   </div> <!-- End Game Container -->
   
+    
     <!-- VIRTUAL KEYBOARD -->
     <div id="mobile-keyboard" class="mobile-keyboard">
+      <div class="kb-row">
+        <button class="kb-key">1</button><button class="kb-key">2</button><button class="kb-key">3</button><button class="kb-key">4</button><button class="kb-key">5</button><button class="kb-key">6</button><button class="kb-key">7</button><button class="kb-key">8</button><button class="kb-key">9</button><button class="kb-key">0</button>
+      </div>
       <div class="kb-row">
         <button class="kb-key">Q</button><button class="kb-key">W</button><button class="kb-key">E</button><button class="kb-key">R</button><button class="kb-key">T</button><button class="kb-key">Y</button><button class="kb-key">U</button><button class="kb-key">I</button><button class="kb-key">O</button><button class="kb-key">P</button>
       </div>
@@ -721,5 +863,17 @@
       });
     }
   </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const inGameMenuBtn = document.getElementById('in-game-menu-btn');
+    if(inGameMenuBtn) {
+      inGameMenuBtn.addEventListener('click', () => {
+        document.getElementById('mobile-nav-overlay').classList.add('active');
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
