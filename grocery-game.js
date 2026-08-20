@@ -19,29 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mobileSoundBtn) mobileSoundBtn.addEventListener('click', toggleSound);
   if (desktopSoundBtn) desktopSoundBtn.addEventListener('click', toggleSound);
 
-  // Leaderboard
-  const mobileLbBtn = document.getElementById('leaderboard-btn');
-  const desktopLbBtn = document.getElementById('leaderboard-btn-desktop');
-  const legacyLbBtn = document.getElementById('btn-leaderboard');
-  const modalLeaderboard = document.getElementById('modal-leaderboard');
-  const contentLeaderboard = document.getElementById('leaderboard-content');
   
-  const openLb = async (e) => {
-    if (e) e.preventDefault();
-    modalLeaderboard.style.display = 'flex';
-    contentLeaderboard.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading legends...</div>';
-    
-    if (!window.FirebaseAPI) {
-      contentLeaderboard.innerHTML = '<div style="color:red; text-align:center;">Firebase not loaded yet.</div>';
-      return;
-    }
-    const scores = await window.FirebaseAPI.getTopScores(50);
-    renderLeaderboard(scores);
-  };
-  
-  if (mobileLbBtn) mobileLbBtn.addEventListener('click', openLb);
-  if (desktopLbBtn) desktopLbBtn.addEventListener('click', openLb);
-  if (legacyLbBtn) legacyLbBtn.addEventListener('click', openLb);
 
   // Info Modal
   const mobileInfoBtn = document.getElementById('info-btn-mobile');
@@ -2240,6 +2218,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Leaderboard Button
   const btnLeaderboard = document.getElementById('btn-leaderboard');
+    const mobileLbBtn = document.getElementById('leaderboard-btn');
+    const desktopLbBtn = document.getElementById('leaderboard-btn-desktop');
   const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
   const modalLeaderboard = document.getElementById('leaderboard-modal');
   const contentLeaderboard = document.getElementById('leaderboard-content');
@@ -2343,8 +2323,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (btnLeaderboard && modalLeaderboard) {
-    btnLeaderboard.addEventListener('click', async (e) => {
+  if (modalLeaderboard) {
+      const openLbHandler = async (e) => {
       e.preventDefault();
       modalLeaderboard.style.display = 'flex';
       contentLeaderboard.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading legends...</div>';
@@ -2390,7 +2370,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(err);
         contentLeaderboard.innerHTML = `<div style="color:red; text-align:center;">Error loading scores: ${err.message}</div>`;
       }
-    });
+    };
+    
+    // Bind the handler to all buttons
+    if (btnLeaderboard) btnLeaderboard.addEventListener('click', openLbHandler);
+    if (mobileLbBtn) mobileLbBtn.addEventListener('click', openLbHandler);
+    if (desktopLbBtn) desktopLbBtn.addEventListener('click', openLbHandler);
+
 
     btnCloseLeaderboard.addEventListener('click', () => {
       modalLeaderboard.style.display = 'none';
