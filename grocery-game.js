@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === modalInfo) modalInfo.style.display = 'none';
     });
   }
-});
 
   const itemImage = document.getElementById('item-image');
   const scannerStatus = document.getElementById('scanner-status');
