@@ -251,8 +251,9 @@
       .leaderboard-wrapper {
         display: none !important;
       }
-      .mobile-keyboard {
+      #virtual-keyboard-container {
         display: flex !important;
+        flex-direction: column;
       }
       
       .kb-key {
@@ -506,8 +507,11 @@
       text-align: center;
       margin-bottom: 2rem;
     }
-    .mobile-keyboard {
+    #virtual-keyboard-container {
       display: none; /* hidden on desktop */
+    }
+    .mobile-keyboard {
+      display: flex; /* overridden inline for alt keyboard */
       flex-direction: column;
       gap: 0.25rem;
       margin-top: 0.25rem;
