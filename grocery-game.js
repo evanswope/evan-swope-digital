@@ -69,7 +69,9 @@
     lastItemUrl: null,
     barcodeCurrent: "",
     barcodeTarget: "",
-    couponTarget: "",
+      couponTarget: "",
+      itemRevealed: false,
+      needRevealed: false,
     pendingAppraisalData: null,
     pendingAppraisalImagePromise: null
   };
@@ -106,6 +108,8 @@
       barcodeCurrent: "",
       barcodeTarget: "",
       couponTarget: "",
+      itemRevealed: false,
+      needRevealed: false,
       pendingAppraisalData: null,
       pendingAppraisalImagePromise: null
     };
@@ -733,6 +737,8 @@
       state.currentCustomerNeed = data.emotional_need;
       state.currentCustomerSeed = Math.floor(Math.random() * 1000000);
       state.customerFirstLine = data.customer_first_line || "What are you staring at?";
+      state.itemRevealed = false;
+      state.needRevealed = false;
       
       // Start image generation in the background!
       let portraitPrompt = `A surreal portrait of ${state.currentCustomerDesc} standing at a grocery store checkout counter. Cinematic, vibrant.`;
@@ -758,19 +764,40 @@
   }
 
   async function handlePlayerGreeting(val) {
+    if (val.trim().toUpperCase() === 'ITEM') {
+      state.phase = "WAITING_FOR_USER";
+      if (!state.itemRevealed && !state.needRevealed) {
+         await addLogTypewriter(`> Customer Wants: UNKNOWN`, "log-system", 10);
+         await addLogTypewriter(`> Hint: UNKNOWN`, "log-system", 10);
+      } else {
+         await addLogTypewriter(`> Customer Wants: ${state.itemRevealed ? state.currentCustomerRequest.toUpperCase() : "UNKNOWN"}`, "log-system", 10);
+         await addLogTypewriter(`> Hint: ${state.needRevealed ? state.currentCustomerNeed : "UNKNOWN"}`, "log-system", 10);
+      }
+      await addLogTypewriter(`> What grocery item do you slide across the scanner?`, "log-gm", 10);
+      gameInput.disabled = false;
+      gameInput.focus();
+      return;
+    }
+
     state.phase = "WAITING_FOR_GM_RESPONSE";
     gameInput.disabled = true;
     state.conversationHistory.push({ role: 'user', content: val });
     
     try {
+      let rollItem = Math.random();
+      let rollNeed = Math.random();
+
       let data = await fetchWithRetry('/api/game-master', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           state, 
-          step: 'response',
+          step: 'chat',
           customer_first_line: state.customerFirstLine,
-          player_response: val
+          player_response: val,
+          roll_item: rollItem,
+          roll_need: rollNeed,
+          trust_val: state.trust
         })
       });
 
@@ -779,23 +806,20 @@
         state.conversationHistory.push({ role: 'assistant', content: data.customer_response_line });
       }
 
-      if (data.subconscious_impression) {
+      if (data.revealed_item && !state.itemRevealed) {
+        state.itemRevealed = true;
+      }
+      if (data.revealed_need && !state.needRevealed) {
+        state.needRevealed = true;
+      }
+
+      if (data.subconscious_impression && (data.revealed_item || data.revealed_need)) {
         await addLogTypewriter(`[SUBCONSCIOUS] ${data.subconscious_impression}`, "log-gm", 25);
       }
 
-      if (state.trust >= 70 || state.level === 1) {
-        await addLogTypewriter(`> Customer Wants: ${state.currentCustomerRequest.toUpperCase()}`, "log-system", 10);
-        await addLogTypewriter(`> Hint: ${state.currentCustomerNeed}`, "log-system", 10);
-      } else if (state.trust >= 30) {
-        await addLogTypewriter(`> Customer Wants: ???`, "log-system", 10);
-        await addLogTypewriter(`> Hint: ${state.currentCustomerNeed}`, "log-system", 10);
-      } else {
-        await addLogTypewriter(`> Customer Wants: ???`, "log-system", 10);
-        await addLogTypewriter(`> Hint: ???`, "log-system", 10);
-      }
-
-      await addLogTypewriter(`> What grocery item do you slide across the scanner?`, "log-gm", 10);
-      state.phase = "WAITING_FOR_USER";
+      await addLogTypewriter(`> Type to ask them about what they need, or type ITEM to find the item now.`, "log-gm", 10);
+      
+      state.phase = "WAITING_FOR_PLAYER_GREETING";
       gameInput.disabled = false;
       gameInput.focus();
 
@@ -805,7 +829,6 @@
       gameInput.disabled = false;
     }
   }
-
   // Phase: Generate Image
   async function generateImage(prompt, isDating = false, fullPromptOverride = null) {
     const originalPhase = state.phase;
@@ -1290,7 +1313,7 @@
         addLog(`> Item sold. (+${affectionGained} Affection)`, "log-system");
       }
 
-      state.trust = Math.min(100, state.trust + 5);
+      state.trust = Math.min(100, state.trust + 10);
       for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
       if (data.value > 1000) spawnParticle('heart');
     } else {
@@ -1298,8 +1321,8 @@
       scannerStatus.style.color = "#ff3333";
       document.body.classList.add('alarm-flashing');
       state.popularity -= 1;
-      state.trust -= 10;
-      addLog(`> Item rejected. (-10 Trust)`, "log-system");
+      state.trust = Math.max(0, state.trust - 20);
+      addLog(`> Item rejected. (-20 Trust)`, "log-system");
     }
     
     state.customersServed.push({

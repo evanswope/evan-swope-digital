@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { state, step, player_response, customer_first_line } = req.body;
+  const { state, step, customer_first_line, player_response, roll_item, roll_need, trust_val } = req.body;
   const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
@@ -11,34 +11,64 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (step === 'response') {
+    if (step === 'response' || step === 'chat') {
       const systemPrompt = `You are the Game Master for a surreal text-based Grocery Dating Sim RPG.
-The player is a clerk at an otherworldly grocery store.
-The current customer is: ${state.currentCustomerName} (${state.currentCustomerDesc}).
-They secretly want to buy: ${state.currentCustomerRequest}.
-Their secret emotional need is: ${state.currentCustomerNeed}.
+The player is a clerk at an otherworldly grocery store interacting with a customer.
+Customer: ${state.currentCustomerName} (${state.currentCustomerDesc}).
+Secret item they want: ${state.currentCustomerRequest}
+Secret emotional need: ${state.currentCustomerNeed}
 
-The customer just arrived and said: "${customer_first_line}"
-The player (grocer) replied: "${player_response}"
+Probability Mechanics for revealing secrets:
+- Base Trust Level: ${trust_val} (ranges 0 to 100)
+- Did the player directly ask what item they want to buy? If YES, Item Threshold = ${Math.max(5, trust_val)}. If NO, Item Threshold = ${Math.max(5, trust_val * 0.2)}.
+- Did the player directly ask about their emotional needs/feelings? If YES, Need Threshold = ${Math.max(5, trust_val)}. If NO, Need Threshold = ${Math.max(5, trust_val * 0.2)}.
 
-Generate the customer's response to the player, and a brief thought from the grocer's subconscious.
+RNG Rolls (0.0 to 1.0):
+- roll_item = ${roll_item} (Threshold to beat: Item Threshold / 100)
+- roll_need = ${roll_need} (Threshold to beat: Need Threshold / 100)
+
+If roll_item < Item Threshold/100, "revealed_item" MUST be true, and the customer must clearly state the base item they want.
+If roll_need < Need Threshold/100, "revealed_need" MUST be true, and the customer must clearly explain their emotional need.
+If both fail, they deflect, ramble, or answer cryptically without giving away the exact secret.
+
 You MUST respond ONLY with a raw JSON object. Do not use double quotes inside text fields.
 JSON Schema:
 {
-  "customer_response_line": "A short, funny response from the customer to the player. They shouldn't explicitly give away exactly what they want unless they are forced to, they should hint at it.",
+  "revealed_item": boolean,
+  "revealed_need": boolean,
+  "customer_response_line": "A short, funny response from the customer to the player.",
   "subconscious_impression": "A short internal thought from the grocer's subconscious about this customer, in italics."
 }`;
+
+      // Convert the conversation history into OpenAI message objects
+      const messages = [{ role: "system", content: systemPrompt }];
+      if (state.conversationHistory && state.conversationHistory.length > 0) {
+        // limit history to last 6 messages
+        const recentHistory = state.conversationHistory.slice(-6);
+        for (const msg of recentHistory) {
+          messages.push({ role: msg.role, content: msg.content });
+        }
+      } else {
+        if (customer_first_line) messages.push({ role: 'assistant', content: customer_first_line });
+        if (player_response) messages.push({ role: 'user', content: player_response });
+      }
 
       const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           model: "gpt-4o-mini",
-          messages: [{ role: "system", content: systemPrompt }],
+          messages: messages,
           response_format: { type: "json_object" },
           temperature: 1.15
         })
       });
+      
+      if (!response.ok) {
+         const error = await response.json();
+         return res.status(500).json({ message: error.error?.message || 'OpenAI API error' });
+      }
+
       const prediction = await response.json();
       let parsed = JSON.parse(prediction.choices[0].message.content);
       return res.status(200).json(parsed);
