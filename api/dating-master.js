@@ -3,158 +3,172 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { customer, userMessage, datingRound, datingHistory, isAce, isTrueLove, playerDescription } = req.body;
-  const token = process.env.OPENAI_API_KEY;
+  const { state, step, userMessage, datingHistory } = req.body;
+  const token = process.env.OPENAI_API_TOKEN;
 
   if (!token) {
-    return res.status(500).json({ message: 'Missing OPENAI_API_KEY' });
+    return res.status(500).json({ message: 'Server configuration error: Missing API Token' });
   }
 
-  const affection = customer.affectionGained || 0;
-  
-  let relationshipType = isAce ? "a deep, platonic friendship hangout" : "a romantic date";
-  
-  let systemPrompt = `You are playing the role of a highly abstract, bizarre customer in a Grocery Store game who is currently on ${relationshipType} with the grocery clerk (the player).
-The customer is described as: "${customer.desc || customer.description}"
-They originally came into the store wanting: "${customer.request}"
-The customer's current Affection for the player is: ${affection} (Scale: 0 is lowest, 5+ is very high).
+  const customerName = state.selectedCustomer?.name || 'Customer';
+  const customerDesc = state.selectedCustomer?.desc || 'A strange entity';
+  const playerDescription = state.playerDescription || 'a grocery clerk';
+  const affection = state.selectedCustomer?.affection || 0;
+  const isRomance = !state.isAce && !state.isAro;
+  const relationshipType = isRomance ? 'romantic date' : 'platonic hangout';
 
-We are on round ${datingRound} out of 3 of the date/hangout.
-Your job is to respond to the player's last message, judge if their response was good/charming/funny, and present the next conversational beat.
+  let systemPrompt = `You are a Game Master for a surreal, text-based dating/hangout simulator.
+The player (described as: "${playerDescription}") is pursuing a ${relationshipType} with a customer from their grocery store.
+Customer Name: ${customerName}
+Customer Description: ${customerDesc}
+Customer's Original Grocery Request: ${state.selectedCustomer?.request}
+Customer's Current Affection Level: ${affection} (Scale: 0 is hateful, 1-2 is skeptical, 3-4 is warm, 5+ is madly in love)
 
-CRITICAL ANTI-HALLUCINATION RULE: DO NOT INVENT actions, locations, or vows on behalf of the player. You must strictly evaluate exactly what the player typed in their last message. If the player typed a lazy non-answer (like "Yes", "whatever", "okay", "I don't know"), treat it exactly as a lazy non-answer and aggressively apply your Failure Conditions. You cannot put words in the player's mouth to save the date.
+NARRATIVE TONE RULES (CRITICAL):
+- The flavor text ('player_flavor_text' and 'customer_flavor_text') must be written in a dark, poetic, existential, and introspective style.
+- The clerk's internal world is a decaying, cynical, hyper-analytical wasteland. Focus on existential dread, visceral decay, and hyper-fixation on mundane physical sensations. Talk about the "body", the "spirit", the "spine", or the "mind" in revolt against the awkwardness of the situation.
+- CRITICAL CONTRAST: The customer themselves must remain bright, bubbly, whimsical, silly, and utterly oblivious to the clerk's internal suffering. Do not make the customer dark. The humor relies entirely on the stark contrast between the customer's cartoonish absurdity and the clerk's bleak, poetic misery.
+- The 'dialogue' field (what the customer says) should remain in the customer's whimsical, silly, or absurd character voice. Only the narration is dark and poetic.
 
 `;
 
-  if (isTrueLove) {
-    systemPrompt += `CRITICAL INSTRUCTION: THIS CUSTOMER EXPERIENCED TRUE LOVE AT FIRST SIGHT! They are absolutely, madly, overwhelmingly infatuated with the player. You MUST give them an approval score of 1, never terminate, and your dialogue should reflect their obsessive infatuation.\n\n`;
+  let jsonSchema = {};
+
+  if (step === 'init_call') {
+    systemPrompt += `=== ACT 1: INITIAL CALL ===
+Narrative: The player is calling the customer from home to set up the first date/hangout.
+Your Task: Generate an 'ideal_location' for this hangout based on the customer's personality, and provide flavor text describing the customer picking up the phone.
+CRITICAL AVOIDANCE for image_prompt: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object. Instead say "a phone is resting on the ground next to them". Do NOT include the grocer in this image.`;
+
+    jsonSchema = `{
+  "ideal_location": "A short phrase describing a bizarre or specific location they want to go to.",
+  "customer_flavor_text": "A brief narrated description of the customer answering the phone.",
+  "dialogue": "The customer's opening line on the phone.",
+  "image_prompt": "A vivid, colorful image prompt of the customer ALONE on a phone call in their native environment."
+}`;
+  } 
+  else if (step === 'chat_call') {
+    systemPrompt += `=== ACT 1: CALL CHAT LOOP ===
+Narrative: The player is chatting with the customer to figure out their 'ideal_location' for the date/hangout.
+Hidden Ideal Location: ${state.idealLocation}
+Mechanics: If the player asks about where they want to go, provide hints. If Affection is 5+, they outright tell them. If Affection is 1-4, they are vague, distracted, or cryptically poetic.
+Your Task: Respond in character, and set 'revealed_location' to true ONLY if they gave a solid hint or outright stated the location in this turn.`;
+
+    jsonSchema = `{
+  "dialogue": "The customer's response.",
+  "revealed_location": true or false
+}`;
+  } 
+  else if (step === 'eval_call') {
+    systemPrompt += `=== ACT 1: EVALUATE LOCATION ===
+Narrative: The player proposed a location for the hangout.
+Ideal Location: ${state.idealLocation}
+Player's Proposed Location: ${userMessage}
+Mechanics: If Affection is 0, TERMINATE unless the location perfectly matches the ideal location. If Affection is 1-2, TERMINATE if the location is lazy or completely ignores their hints. If Affection is 3+, accept any reasonable attempt, but express immense joy if it matches the ideal location.`;
+
+    jsonSchema = `{
+  "customer_flavor_text": "A brief description of the customer's reaction to the location.",
+  "dialogue": "The customer's response.",
+  "terminate": true or false,
+  "image_prompt": "If terminate is true, show them hanging up angrily. If false, show them cheering on the phone."
+}`;
   }
+  else if (step === 'init_date') {
+    systemPrompt += `=== ACT 2: ARRIVAL AT LOCATION ===
+Narrative: The player arrived at the location, wearing their outfit and bringing a gift/snack.
+Player's Outfit: ${state.datingOutfit}
+Player's Gift: ${state.datingGift}
+Your Task: Evaluate their outfit and gift. React to them in flavor text/dialogue. Generate a 'secret_desire' (a deep, weird philosophical question or emotional insecurity they want the player to answer).`;
 
-  // Round specific logic
-  if (!isAce) {
-    // ROMANTIC PATHWAY
-    if (datingRound === 1) {
-      systemPrompt += `=== ROUND 1: THE CALL ===
-Narrative: The player is calling you on the phone to ask you out. 
-CRITICAL CONTEXT: You have already left the grocery store. You are currently AT HOME or in your native environment (e.g., the ocean, the astral plane, a living room). You are absolutely NOT in the grocery store.
-Rules for player_flavor_text: Write a brief THIRD-PERSON description of the player nervously calling you from the store.
-Rules for customer_flavor_text: Write a brief THIRD-PERSON description of your current situation at home/in your native environment, and how you answer the phone based on your Affection.
-Rules for dialogue: You must explicitly end your speech by asking the player where they want to take you for this date.
-Image Prompt Rules: The image prompt MUST describe the customer ALONE on a phone call at home or in their native environment. DO NOT include the grocer (the player) in this image. DO NOT mention a grocery store. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
-- Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
-`;
-    } else if (datingRound === 2) {
-      systemPrompt += `=== ROUND 2: EVALUATING THE DATE PACKAGE ===
-Narrative: The player just suggested a location, described their outfit, and brought a gift. Evaluate their overall date package. 
-Failure Condition: CRITICAL: Evaluate their suggested location and gift. If your Affection is 0, you hate the player and MUST TERMINATE the date (set terminate: true) unless the location and gift are absolutely perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the package is lazy, generic, or unrelated to your emotional needs. If your Affection is 3-4, you only terminate if the package is completely terrible/dangerous. If Affection is 5+, you will happily agree to anything.
-Rules for player_flavor_text: Describe the player arriving in their outfit, handing over the gift.
-Rules for customer_flavor_text: Describe your internal reaction to their outfit and gift. If you are terminating, describe your disgust. If you are NOT terminating, describe your appreciation.
-Rules for dialogue: If you terminate, insult their choices and leave. If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about your connection, hope for the future, or your original emotional needs.
-Image Prompt Rules: If you terminate, the image should show the customer angrily leaving. If you DO NOT terminate, the image MUST describe the customer at the specified date location alongside the grocer. The grocer is described exactly as: "${playerDescription || 'a grocery clerk'}". The grocer should be holding the gift.
-`;
-    } else if (datingRound === 3) {
-      systemPrompt += `=== ROUND 3: THE MONTAGE & PROPOSAL ===
-Narrative: First, evaluate the player's answer to your deep question from the date. If they passed, the date was a success. Time passes, and the player proposes to you!
-Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy.
-Rules for player_flavor_text: Describe the player nervously dropping to one knee to propose after some time has passed.
-Rules for customer_flavor_text: Describe how the relationship has been going (if Affection is 5+, it's a whirlwind romance; if low, it's rocky) and describe your reaction to the proposal. If you terminate, describe your disgust and rejection.
-Rules for dialogue: If you terminate, insult their previous answer and reject the proposal. If not, excitedly accept the proposal!
-Image Prompt Rules: The image prompt MUST describe the customer being proposed to by the grocer ("${playerDescription || 'a grocery clerk'}"). The setting should be romantic.
-`;
-    } else if (datingRound === 4) {
-      systemPrompt += `=== ROUND 4: THE ALTAR ===
-Narrative: The player has planned the wedding! The player just told you the Venue and what kind of Ring they bought. Evaluate their wedding choices.
-Failure Condition: CRITICAL: Evaluate their Venue and Ring. If your Affection is 1-2, you MUST TERMINATE if the venue/ring are lazy, cheap, or completely ignore your abstract nature. If Affection is 3-4, you only terminate if the choices are insulting or dangerous. If Affection is 5+, you happily accept anything.
-Rules for player_flavor_text: Describe the player standing nervously at the altar at the chosen venue.
-Rules for customer_flavor_text: If you terminate, describe your anger at the terrible wedding choices. If not, describe your joy arriving at the venue and seeing the ring.
-Rules for dialogue: If you terminate, insult their wedding choices and storm off. If not, read your heartfelt wedding vows to the player, and explicitly ask them to read their vows.
-Image Prompt Rules: The image prompt MUST describe the customer in wedding wear (tuxedo/suit or gown) alongside the grocer ("${playerDescription || 'a grocery clerk'}") at the specific Venue the player requested.
-`;
-    } else if (datingRound >= 5) {
-      systemPrompt += `=== ROUND 5: VOW EVALUATION ===
-Narrative: You are at the altar. The player just responded with their vows.
-Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive, or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
-Rules for player_flavor_text: Describe the player finishing their vows.
-Rules for customer_flavor_text: Describe your reaction to their vows.
-Rules for dialogue: Give your final reaction to their vows.
-Image Prompt Rules: The image prompt MUST describe the customer happily married in their wedding attire alongside the grocer ("${playerDescription || 'a grocery clerk'}").
-`;
-    }
-  } else {
-    // PLATONIC (ARO/ACE) PATHWAY
-    if (datingRound === 1) {
-      systemPrompt += `=== ROUND 1: THE CALL ===
-Narrative: The player is calling you on the phone to ask if you want to hang out as friends. 
-CRITICAL CONTEXT: You have already left the grocery store. You are currently AT HOME or in your native environment. You are absolutely NOT in the grocery store.
-Rules for player_flavor_text: Write a brief THIRD-PERSON description of the player nervously calling you from the store to hang out.
-Rules for customer_flavor_text: Write a brief THIRD-PERSON description of your current situation at home/in your native environment, and how you answer the phone based on your Affection.
-Rules for dialogue: You must explicitly end your speech by asking the player where they want to hang out.
-Image Prompt Rules: The image prompt MUST describe the customer ALONE on a phone call at home or in their native environment. DO NOT include the grocer (the player) in this image. DO NOT mention a grocery store. CRITICAL AVOIDANCE: Do NOT use phrases like "holding a phone" or "using a phone" if the customer is an animal or object, because the image generator will draw a human holding it! Instead, say "a phone is resting on the ground next to them" or "talking into a nearby phone".
-- Facial Expression based on Affection: If Affection is 5+, they are giggling and smiling. If 3-4, gently smiling. If 1-2, suspicious, annoyed, or reluctant. If 0, scowling.
-`;
-    } else if (datingRound === 2) {
-      systemPrompt += `=== ROUND 2: EVALUATING THE HANGOUT PLAN ===
-Narrative: The player just suggested a hangout location, described their outfit, and brought a gift/snack. Evaluate their overall hangout package. 
-Failure Condition: CRITICAL: Evaluate their suggested location and gift. If your Affection is 0, you hate the player and MUST TERMINATE the hangout (set terminate: true) unless the location and gift are absolutely perfect for your emotional needs. If your Affection is 1-2, you are highly skeptical and MUST TERMINATE if the package is lazy, generic, or unrelated to your emotional needs. If your Affection is 3-4, you only terminate if the package is completely terrible/dangerous. If Affection is 5+, you will happily agree to anything.
-Rules for player_flavor_text: Describe the player arriving in their outfit, handing over the gift/snack.
-Rules for customer_flavor_text: Describe your internal reaction to their outfit and gift. If you are terminating, describe your disgust. If you are NOT terminating, describe your appreciation.
-Rules for dialogue: If you terminate, insult their choices and leave. If you don't terminate, you MUST end your speech by asking the player a deep, meaningful question about friendship, hobbies, or your original emotional needs.
-Image Prompt Rules: If you terminate, the image should show the customer angrily leaving. If you DO NOT terminate, the image MUST describe the customer at the specified location alongside the grocer. The grocer is described exactly as: "${playerDescription || 'a grocery clerk'}". The grocer should be holding the gift/snack.
-`;
-    } else if (datingRound === 3) {
-      systemPrompt += `=== ROUND 3: THE MONTAGE & BEST FRIEND PROPOSAL ===
-Narrative: First, evaluate the player's answer to your deep question from the hangout. If they passed, the hangout was a success. Time passes, and the player proposes that you become Best Friends Forever!
-Failure Condition: CRITICAL: If your Affection is 0, you hate the player and MUST TERMINATE (set terminate: true). If your Affection is 1-2, you MUST TERMINATE if their answer to your deep question was lazy or ignored your emotional needs. If your Affection is 3-4, you MUST TERMINATE if their answer was outright insulting, terrible, or lazy.
-Rules for player_flavor_text: Describe the player enthusiastically asking to be Best Friends Forever.
-Rules for customer_flavor_text: Describe how the friendship has been going (if Affection is 5+, it's been amazing; if low, it's rocky) and describe your reaction to the BFF proposal. If you terminate, describe your disgust and rejection.
-Rules for dialogue: If you terminate, insult their previous answer and reject the friendship. If not, excitedly accept the BFF proposal!
-Image Prompt Rules: The image prompt MUST describe the customer hanging out happily with the grocer ("${playerDescription || 'a grocery clerk'}"). The setting should be fun and platonic.
-`;
-    } else if (datingRound === 4) {
-      systemPrompt += `=== ROUND 4: THE BEST FRIEND CEREMONY ===
-Narrative: The player has planned a Best Friend Ceremony! The player just told you the Venue and what kind of Snack they brought. Evaluate their choices.
-Failure Condition: CRITICAL: Evaluate their Venue and Snack. If your Affection is 1-2, you MUST TERMINATE if the venue/snack are lazy, cheap, or completely ignore your abstract nature. If Affection is 3-4, you only terminate if the choices are insulting or dangerous. If Affection is 5+, you happily accept anything.
-Rules for player_flavor_text: Describe the player hanging out at the chosen venue.
-Rules for customer_flavor_text: If you terminate, describe your anger at the terrible choices. If not, describe your joy arriving at the venue and seeing the snack.
-Rules for dialogue: If you terminate, insult their choices and storm off. If not, read your heartfelt friendship vows to the player, and explicitly ask them to read theirs.
-Image Prompt Rules: The image prompt MUST describe the customer hanging out alongside the grocer ("${playerDescription || 'a grocery clerk'}") at the specific Venue the player requested, with the snack present.
-`;
-    } else if (datingRound >= 5) {
-      systemPrompt += `=== ROUND 5: FRIENDSHIP VOW EVALUATION ===
-Narrative: You are at the hangout spot. The player just responded with their friendship vows.
-Failure Condition: CRITICAL: You are empowered to say no. If your Affection is 1-4, the player's vows MUST explicitly and deeply address your original emotional need. If their vows are short, lazy, dismissive, or ignore your need entirely, you MUST TERMINATE. You cannot excuse bad vows. If Affection is 5+, any vow is accepted.
-Rules for player_flavor_text: Describe the player finishing their vows.
-Rules for customer_flavor_text: Describe your reaction to their vows.
-Rules for dialogue: Give your final reaction to their vows.
-Image Prompt Rules: The image prompt MUST describe the customer happily being best friends alongside the grocer ("${playerDescription || 'a grocery clerk'}").
-`;
-    }
+    jsonSchema = `{
+  "secret_desire": "A short phrase describing a deep emotional question or insecurity they have.",
+  "customer_flavor_text": "A description of the customer waiting at the location and reacting to the player's arrival, outfit, and gift.",
+  "dialogue": "The customer's greeting, reacting to the outfit/gift.",
+  "image_prompt": "The customer and the grocer at the location, with the gift."
+}`;
   }
+  else if (step === 'chat_date') {
+    systemPrompt += `=== ACT 2: DATE CHAT LOOP ===
+Narrative: The player is chatting with the customer on the date.
+Secret Desire / Deep Question: ${state.secretDesire}
+Mechanics: The customer should steer the conversation toward their secret desire/question. If the player asks them deep questions, give hints about what answer they want to hear. Set 'revealed_desire' to true if they gave a clear hint about what they want the player to say.`;
 
+    jsonSchema = `{
+  "dialogue": "The customer's response.",
+  "revealed_desire": true or false
+}`;
+  }
+  else if (step === 'eval_date') {
+    systemPrompt += `=== ACT 2: EVALUATE DEEP ANSWER ===
+Narrative: The player has provided their deep answer / divulged their feelings.
+Secret Desire / Question: ${state.secretDesire}
+Player's Answer: ${userMessage}
+Mechanics: Evaluate their answer against the secret desire. If Affection is 0-2, TERMINATE if the answer is shallow or misses the point entirely. If Affection 3+, accept unless it is outright insulting.`;
+
+    jsonSchema = `{
+  "customer_flavor_text": "The customer's reaction to the answer.",
+  "dialogue": "The customer's response to the answer.",
+  "terminate": true or false,
+  "image_prompt": "If terminate is true, the customer leaving angrily. If false, the customer looking deeply touched."
+}`;
+  }
+  else if (step === 'init_altar') {
+    systemPrompt += `=== ACT 3: MONTAGE & CEREMONY ARRIVAL ===
+Narrative: The previous date was a success. Time has passed. A relationship has blossomed. The player has planned a final commitment ceremony (Wedding or Best Friend Ceremony).
+Player's Venue: ${state.datingVenue}
+Player's Ring/Token: ${state.datingRing}
+Your Task: Write 'montage_flavor_text' describing the passage of time and the deepening of the relationship in the dark, existential tone. Then evaluate the Venue and Ring. Generate a 'vow_requirement' (the exact emotional validation they need to hear in the final vows).`;
+
+    jsonSchema = `{
+  "vow_requirement": "A short phrase describing what they need to hear in the vows to feel secure.",
+  "montage_flavor_text": "A paragraph describing the passage of time, the deepening relationship, and the visceral reality of the new venue.",
+  "dialogue": "The customer reacting to the venue and the ring/token.",
+  "image_prompt": "The customer and grocer at the final venue, holding the ring/token."
+}`;
+  }
+  else if (step === 'chat_altar') {
+    systemPrompt += `=== ACT 3: ALTAR CHAT LOOP ===
+Narrative: The player is standing at the altar/ceremony spot, chatting before giving their vows.
+Vow Requirement: ${state.vowRequirement}
+Mechanics: The customer is nervous. They should hint at their 'vow_requirement'. Set 'revealed_vow' to true if they clearly hinted at what they need to hear.`;
+
+    jsonSchema = `{
+  "dialogue": "The customer's nervous response.",
+  "revealed_vow": true or false
+}`;
+  }
+  else if (step === 'eval_altar') {
+    systemPrompt += `=== ACT 3: EVALUATE VOW ===
+Narrative: The player has given their final vows.
+Vow Requirement: ${state.vowRequirement}
+Player's Vow: ${userMessage}
+Mechanics: Evaluate the vow against the vow requirement. If Affection 0-3, TERMINATE if the vow completely ignores the requirement. If Affection 4+, accept any loving/friendly vow.`;
+
+    jsonSchema = `{
+  "customer_flavor_text": "The customer's reaction to the vows.",
+  "dialogue": "The customer's final words (either rejecting them, or saying I Do / Best Friends Forever).",
+  "terminate": true or false,
+  "image_prompt": "If terminate is true, leaving the altar crying. If false, a beautiful triumphant celebration of their union/friendship."
+}`;
+  }
 
   systemPrompt += `
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks).
 CRITICAL: Do NOT use double quotes inside your text fields. Use single quotes instead if needed.
 JSON Schema:
-{
-  "player_flavor_text": "A brief narrated description from the perspective of the player/grocer.",
-  "customer_flavor_text": "A brief narrated description from the perspective of the customer. Do NOT use first-person ('I', 'my') and do NOT mention game mechanics or the word 'Affection'.",
-  "dialogue": "Your response to the player. CRITICAL: This must ONLY be spoken dialogue.",
-  "terminate": true or false,
-  "approval": 1 or 0,
-  "image_prompt": "A vivid, dramatic, colorful, full-background image generation prompt describing the current scene."
-}`;
+${jsonSchema}`;
 
   let messages = [{ role: "system", content: systemPrompt }];
   
   if (datingHistory && datingHistory.length > 0) {
     datingHistory.forEach(msg => {
-      // Ensure roles map to OpenAI's accepted roles (assistant/user)
       let role = msg.role === 'customer' || msg.role === 'assistant' ? 'assistant' : 'user';
       messages.push({ role: role, content: msg.content });
     });
   }
-  messages.push({ role: "user", content: userMessage });
+  if (userMessage && (step.startsWith('eval_') || step.startsWith('chat_'))) {
+    messages.push({ role: "user", content: userMessage });
+  }
 
   try {
     const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
@@ -178,48 +192,7 @@ JSON Schema:
 
     const prediction = await response.json();
     let rawText = prediction.choices[0].message.content;
-
-    let parsed;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (parseError) {
-      console.warn("JSON Parse Failed, attempting regex extraction. Raw text:", rawText);
-      try {
-        const extractString = (field) => {
-          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\})`);
-          const match = rawText.match(regex);
-          return match ? match[1].replace(/"/g, "'").trim() : "";
-        };
-        const extractBool = (field) => {
-          const regex = new RegExp(`"${field}"\\s*:\\s*(true|false)`);
-          const match = rawText.match(regex);
-          return match ? match[1] === "true" : false;
-        };
-        const extractInt = (field, defaultVal) => {
-          const regex = new RegExp(`"${field}"\\s*:\\s*([0-9]+)`);
-          const match = rawText.match(regex);
-          return match ? parseInt(match[1], 10) : defaultVal;
-        };
-
-        parsed = {
-          player_flavor_text: extractString("player_flavor_text") || "The player waits anxiously.",
-          customer_flavor_text: extractString("customer_flavor_text") || "The customer stares blankly.",
-          dialogue: extractString("dialogue") || "I... I can't quite articulate my feelings right now. Let's just sit in silence.",
-          terminate: extractBool("terminate"),
-          approval: extractInt("approval", 1),
-          image_prompt: extractString("image_prompt") || "A beautiful, silent moment between two abstract entities in a surreal, quiet landscape, cinematic lighting, masterpiece"
-        };
-      } catch (regexError) {
-        parsed = {
-          player_flavor_text: "The player waits anxiously.",
-          customer_flavor_text: "The customer stares blankly.",
-          dialogue: "I... I can't quite articulate my feelings right now. Let's just sit in silence.",
-          terminate: false,
-          approval: 1,
-          image_prompt: "A beautiful, silent moment between two abstract entities in a surreal, quiet landscape, cinematic lighting, masterpiece"
-        };
-      }
-    }
+    let parsed = JSON.parse(rawText);
     res.status(200).json(parsed);
 
   } catch (err) {

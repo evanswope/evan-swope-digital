@@ -1637,14 +1637,13 @@
   }
 
   // Phase: Dating Logic
-  async function callDatingMaster(userMessage) {
+  async function callDatingMaster(step, userMessage) {
     state.phase = "DATING_GENERATING";
     gameInput.disabled = true;
+    setPersistentPrompt("");
 
-    if (userMessage) {
+    if (userMessage && (step.startsWith('eval_') || step.startsWith('chat_'))) {
       state.datingHistory.push({ role: "user", content: userMessage });
-    } else {
-      userMessage = "*Calls the customer on the phone*";
     }
 
     addLog("Waiting for response...", "log-system");
@@ -1654,40 +1653,41 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customer: state.selectedCustomer,
+          state: state,
+          step: step,
           userMessage: userMessage,
-          datingRound: state.datingRound,
-          datingHistory: state.datingHistory,
-          isAce: state.isAce || state.isAro,
-          playerDescription: state.playerDescription
+          datingHistory: state.datingHistory
         })
       });
 
-      // Trigger image generation in the background
+      if (data.ideal_location) state.idealLocation = data.ideal_location;
+      if (data.secret_desire) state.secretDesire = data.secret_desire;
+      if (data.vow_requirement) state.vowRequirement = data.vow_requirement;
+
       let imagePromise = null;
       if (data.image_prompt) {
         imagePromise = generateCharacterImage(data.image_prompt, 'character', state.selectedCustomer.seed);
       }
 
-      if (data.player_flavor_text) {
-        await addLogTypewriter(`> ${data.player_flavor_text}`, "log-gm", 15);
-      }
-      if (data.customer_flavor_text) {
-        await addLogTypewriter(`> ${data.customer_flavor_text}`, "log-system", 15);
-      }
-      // fallback just in case
-      if (data.flavor_text) {
-        await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
-      }
+      if (data.montage_flavor_text) await addLogTypewriter(`> ${data.montage_flavor_text}`, "log-system", 15);
+      if (data.customer_flavor_text) await addLogTypewriter(`> ${data.customer_flavor_text}`, "log-system", 15);
+      
       if (data.dialogue) {
         const customerName = state.selectedCustomer && state.selectedCustomer.name ? state.selectedCustomer.name.toUpperCase() : "DATE";
         await addLogTypewriter(`[${customerName}] ${data.dialogue}`, "log-customer", 25);
-        state.datingHistory.push({ role: "assistant", content: data.dialogue });
+        if (step.startsWith('eval_') || step.startsWith('chat_')) {
+           state.datingHistory.push({ role: "assistant", content: data.dialogue });
+        }
       }
-      
-      if (data.approval === 1) {
-        state.datingScore++;
-        spawnParticle('heart');
+
+      if (data.revealed_location) {
+         await addLogTypewriter(`[SUBCONSCIOUS] They really want to go to ${state.idealLocation}.`, "log-subconscious", 20);
+      }
+      if (data.revealed_desire) {
+         await addLogTypewriter(`[SUBCONSCIOUS] They are desperate to hear about ${state.secretDesire}.`, "log-subconscious", 20);
+      }
+      if (data.revealed_vow) {
+         await addLogTypewriter(`[SUBCONSCIOUS] To commit forever, they need you to promise ${state.vowRequirement}.`, "log-subconscious", 20);
       }
 
       if (data.terminate) {
@@ -1695,50 +1695,33 @@
         return;
       }
 
-      if (state.datingRound >= 5) {
-        // Round 5 is the Vow Evaluation. If we didn't terminate, we won!
-        finishDating(false, data.image_prompt);
-        return;
+      if (step === 'init_call' || step === 'chat_call') {
+         state.phase = "DATING_CALL_CHAT";
+         setPersistentPrompt(`> Chat with them, or type "ASK ON DATE" to propose a location.`, "log-gm");
+      } else if (step === 'eval_call') {
+         state.phase = "DATING_PREP_OUTFIT";
+         setPersistentPrompt(`> What are you going to wear?`, "log-gm");
+      } else if (step === 'init_date' || step === 'chat_date') {
+         state.phase = "DATING_DATE_CHAT";
+         setPersistentPrompt(`> Chat with them, or type "DIVULGE FEELINGS" to answer deeply.`, "log-gm");
+      } else if (step === 'eval_date') {
+         state.phase = "DATING_PREP_VENUE";
+         setPersistentPrompt(`> Where are you hosting the final ceremony?`, "log-gm");
+      } else if (step === 'init_altar' || step === 'chat_altar') {
+         state.phase = "DATING_ALTAR_CHAT";
+         setPersistentPrompt(`> Reassure them, or type "MAKE A VOW" to commit.`, "log-gm");
+      } else if (step === 'eval_altar') {
+         finishDating(false, data.image_prompt);
+         return;
       }
 
-      // Automatically advance round since we don't block on generateImage anymore
-      state.datingRound++;
-      
-      if (imagePromise) {
-        await imagePromise;
-      }
-
-      if (state.datingRound === 4) {
-        if (state.isAce || state.isAro) {
-          state.phase = "DATING_HANGOUT_VENUE";
-          const venuePrompt = async () => {
-            gameInput.disabled = true;
-            setPersistentPrompt(`> Where should you two go next?`, "log-gm");
-            gameInput.disabled = false;
-            gameInput.focus();
-          };
-          venuePrompt();
-        } else {
-          // Transition directly into Wedding Planning minigames
-          state.phase = "DATING_WEDDING_VENUE";
-          const venuePrompt = async () => {
-            gameInput.disabled = true;
-            setPersistentPrompt(`> Where are you hosting the wedding?`, "log-gm");
-            gameInput.disabled = false;
-            gameInput.focus();
-          };
-          venuePrompt();
-        }
-      } else {
-        state.phase = "DATING_WAIT_USER";
-        gameInput.disabled = false;
-        gameInput.focus();
-      }
+      gameInput.disabled = false;
+      gameInput.focus();
 
     } catch (e) {
       addLog(`Dating Error: ${e.message}`, "log-error");
-      state.phase = "DATING_WAIT_USER";
       gameInput.disabled = false;
+      gameInput.focus();
     }
   }
 
