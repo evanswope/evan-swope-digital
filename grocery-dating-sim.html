@@ -77,6 +77,9 @@
       .site-header, .site-footer {
         display: none !important;
       }
+      .desktop-title {
+        display: none !important;
+      }
       .game-wrapper {
         margin: 0 !important;
         padding: 0.25rem !important;
@@ -85,19 +88,17 @@
         flex-direction: column !important;
         box-sizing: border-box;
       }
-      
-      
-      
       .game-container {
-        flex: 1; /* Take remaining space above keyboard */
+        flex: 1;
         display: grid !important;
-        
+        grid-template-columns: 1fr 140px 70px !important;
         grid-template-rows: min-content 1fr !important;
         gap: 0.25rem !important;
         padding: 0 !important;
         overflow: hidden !important;
       }
       
+      /* TOP ROW: Column 1 */
       .game-header-mobile {
         grid-column: 1 / 2 !important;
         grid-row: 1 !important;
@@ -105,76 +106,35 @@
         flex-direction: column !important;
         justify-content: space-evenly !important;
         align-items: flex-start !important;
-        border-bottom: none !important;
         margin: 0 !important;
-        padding: 0.2rem !important;
-        border: 1px solid var(--game-border) !important;
+        padding: 0.1rem 0.2rem !important;
+        background: transparent !important;
+        border: none !important;
       }
-      .game-header-mobile .vhs-title {
-        font-size: 1rem !important;
-        line-height: 0.9 !important;
+      .mobile-vhs-title {
+        font-family: 'VT323', monospace !important; 
+        color: var(--game-text) !important;
+        font-size: 1.2rem !important;
+        line-height: 1 !important;
         text-align: left !important;
-        white-space: normal !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        text-shadow: 1px 0 rgba(255,0,0,0.8), -1px 0 rgba(0,0,255,0.8) !important;
       }
       .mobile-exit-btn {
         display: block !important;
+        font-family: 'VT323', monospace !important; 
+        font-size: 0.9rem !important;
+        margin-top: 0.3rem !important;
+        padding: 0.1rem 0.3rem !important;
         color: var(--game-text) !important;
-        text-decoration: none !important;
-        font-family: 'VT323', monospace !important;
         border: 1px solid var(--game-border) !important;
         background: rgba(255, 0, 0, 0.2) !important;
-        font-size: 0.8rem !important;
-        margin-top: 0.5rem !important;
-        padding: 0.1rem 0.2rem !important;
-      }
-      .game-container {
-        grid-template-columns: 1fr max-content 70px !important;
-      }
-      .game-vision {
-        grid-column: 2 / 3 !important;
-      }
-      .game-stats {
-        grid-column: 3 / 4 !important;
-      }
-      
-      /* Shrink persistent box */
-      .persistent-box {
-        font-size: 0.75rem !important;
-        line-height: 1 !important;
-        padding: 0.15rem !important;
-        margin-bottom: 0.15rem !important;
-      }
-      
-      /* Shrink input area */
-      .input-area {
-        padding: 0.1rem 0.2rem !important;
-      }
-      .input-area > span {
-        padding: 0.1rem 0.2rem !important;
-        font-size: 1rem !important;
-      }
-      #game-input {
-        font-size: 1rem !important;
-        padding: 0 !important;
-      }
-      #btn-submit {
-        padding: 0.2rem 0.4rem !important;
-        font-size: 0.8rem !important;
-      }
-      
-      /* Fix #no-item-text */
-      #no-item-text {
-        font-size: 1rem !important;
-        line-height: 1 !important;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100%;
+        text-decoration: none !important;
       }
 
+      /* TOP ROW: Column 2 */
       .game-vision {
         grid-column: 2 / 3 !important;
         grid-row: 1 !important;
@@ -184,6 +144,7 @@
         flex-direction: column !important;
         justify-content: center !important;
         align-items: center !important;
+        background: transparent !important;
       }
       .game-vision h3 {
         font-size: 0.7rem !important;
@@ -193,16 +154,29 @@
       .canvas-container {
         width: 15vh !important;
         height: 15vh !important;
-        max-width: 120px !important;
-        max-height: 120px !important;
+        max-width: 130px !important;
+        max-height: 130px !important;
         margin: 0 auto !important;
+      }
+      #no-item-text {
+        font-size: 1.2rem !important;
+        line-height: 1 !important;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100%;
       }
       .status-text {
         font-size: 0.6rem !important;
         margin-top: 0.1rem !important;
       }
+
+      /* TOP ROW: Column 3 */
       .game-stats {
-        grid-column: 2 / 3 !important;
+        grid-column: 3 / 4 !important;
         grid-row: 1 !important;
         display: flex !important;
         flex-direction: column !important;
@@ -227,6 +201,8 @@
         margin-top: 0 !important;
         line-height: 1 !important;
       }
+
+      /* BOTTOM ROW */
       .game-console {
         grid-column: 1 / -1 !important;
         grid-row: 2 !important;
@@ -238,7 +214,7 @@
         flex-direction: column;
       }
       .log-area {
-        flex: 1; /* Scrollable logs */
+        flex: 1;
         padding: 0.25rem !important;
         gap: 0.25rem !important;
       }
@@ -249,151 +225,35 @@
         margin-bottom: 0.15rem !important;
       }
       .persistent-box {
-        padding: 0.25rem !important;
-        margin-bottom: 0.25rem !important;
-        font-size: 0.9rem !important;
+        font-size: 0.75rem !important;
+        line-height: 1 !important;
+        padding: 0.15rem !important;
+        margin-bottom: 0.15rem !important;
       }
+      .input-area {
+        padding: 0.1rem 0.2rem !important;
+      }
+      .input-area > span {
+        padding: 0.1rem 0.2rem !important;
+        font-size: 1rem !important;
+      }
+      #game-input {
+        font-size: 1rem !important;
+        padding: 0 !important;
+      }
+      #btn-submit {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.8rem !important;
+      }
+
       .leaderboard-wrapper {
-        display: none !important; /* Hide leaderboard on mobile to save space */
+        display: none !important;
       }
       .mobile-keyboard {
         display: flex !important;
       }
     }
-
-    /* Stats Bar */
-    .game-stats {
-      grid-column: 1 / -1;
-      display: flex;
-      justify-content: space-between;
-      background: var(--game-bg);
-      border: 2px solid var(--game-border);
-      padding: 1rem;
-      color: var(--game-text);
-      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
-    }
     
-    .stat-box {
-      text-align: center;
-    }
-    
-    .stat-label {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      text-transform: uppercase;
-    }
-    
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    /* Text Log / MUD area */
-    .game-console {
-      background: var(--game-bg);
-      border: 2px solid var(--game-border);
-      display: flex;
-      flex-direction: column;
-      height: 500px;
-      box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
-    }
-
-    .log-area {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    
-    
-    .log-area::-webkit-scrollbar {
-      width: 10px;
-    }
-    .log-area::-webkit-scrollbar-track {
-      background: rgba(51, 255, 51, 0.05);
-      border-left: 1px solid rgba(51, 255, 51, 0.2);
-    }
-    .log-area::-webkit-scrollbar-thumb {
-      background: var(--game-border);
-      border: 1px solid var(--game-bg);
-    }
-    .log-area::-webkit-scrollbar-thumb:hover {
-      background: #fff;
-    }
-
-    .log-msg {
-      margin: 0;
-      font-size: 0.98rem !important;
-      line-height: 1.2 !important;
-      margin-bottom: 0.25rem !important;
-    }
-
-    @media (min-width: 600px) {
-      .log-msg {
-        font-size: 1.2rem !important;
-        line-height: 1.2 !important;
-        margin-bottom: 0.45rem !important;
-      }
-    }
-
-    .log-gm { color: var(--game-text); }
-    .log-customer { color: #ff7eb3; }
-    .log-user { color: #fff; opacity: 0.8; }
-    .log-system { color: #888; font-style: italic; }
-    .log-error { color: var(--game-error); }
-
-    .persistent-box {
-      background: #151515;
-      border-top: 1px dashed var(--game-border);
-      padding: 0.5rem 1rem;
-      color: #ffb86c;
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      min-height: 2.5rem;
-      font-style: normal;
-    }
-    
-    .input-area {
-      display: flex;
-      border-top: 2px solid var(--game-border);
-      padding: 0.5rem;
-      background: #0a0a0a;
-      align-items: center;
-    }
-
-    .input-area > span {
-      color: var(--game-border);
-      padding: 0.5rem;
-    }
-
-    #game-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-family: 'VT323', monospace;
-      font-size: 1.4rem;
-      outline: none;
-      padding: 0.5rem;
-    }
-    
-    #btn-submit {
-      background: transparent;
-      border: none;
-      color: var(--game-border);
-      cursor: pointer;
-      font-size: 1.4rem;
-      padding: 0.5rem;
-      transition: color 0.2s;
-    }
-    #btn-submit:hover {
-      color: #fff;
-    }
-
     /* Image Display Area */
     .game-vision {
       background: var(--game-bg);
@@ -614,10 +474,12 @@
   </div>
 
   <div class="game-wrapper" style="max-width: 1000px; margin: 120px auto 40px; padding: 0 1rem;">
+    <div class="desktop-title">
     <h2 class="vhs-title">
       Grocery Dating Sim
       <div class="vhs-scanline"></div>
     </h2>
+  </div>
     <style>
       .vhs-title {
         font-family: 'VT323', monospace; 
@@ -740,6 +602,10 @@
     </style>
     
     <div class="game-container">
+      <div class="game-header-mobile">
+        <h1 class="mobile-vhs-title">GROCERY<br>DATING<br>SIM</h1>
+        <a href="index.html" class="mobile-exit-btn">[X] EXIT</a>
+      </div>
     
     <div class="game-stats">
       <div class="stat-box">
