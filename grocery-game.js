@@ -899,7 +899,7 @@
           subLine += needPhrases[Math.floor(Math.random() * needPhrases.length)].replace('{need}', state.currentCustomerNeed);
         }
         
-        await setPersistentPrompt(`[SUBCONSCIOUS] ${subLine}`, 'log-subconscious');
+        await addLogTypewriter(`[SUBCONSCIOUS] ${subLine}`, 'log-subconscious', 20);
       }
 
       

@@ -130,6 +130,28 @@
       flex-direction: column;
       gap: 0.5rem;
     }
+    
+    .log-area::after {
+      content: "";
+      display: block;
+      min-height: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .log-area::-webkit-scrollbar {
+      width: 10px;
+    }
+    .log-area::-webkit-scrollbar-track {
+      background: rgba(51, 255, 51, 0.05);
+      border-left: 1px solid rgba(51, 255, 51, 0.2);
+    }
+    .log-area::-webkit-scrollbar-thumb {
+      background: var(--game-border);
+      border: 1px solid var(--game-bg);
+    }
+    .log-area::-webkit-scrollbar-thumb:hover {
+      background: #fff;
+    }
 
     .log-msg {
       margin: 0;
