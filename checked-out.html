@@ -582,6 +582,38 @@
       background: var(--game-text) !important;
       color: #000 !important;
     }
+  
+    .game-header-mobile { display: none; }
+    
+    .desktop-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--game-border);
+      padding-bottom: 0.5rem;
+    }
+    
+    .desktop-icon-row {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .desktop-icon-btn {
+      background: transparent;
+      border: 1px dashed var(--game-border);
+      color: var(--game-text);
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .desktop-icon-btn:hover {
+      background: var(--game-text);
+      color: #000;
+    }
   </style>
 </head>
 <body>
@@ -648,11 +680,16 @@
 
   <div class="game-wrapper" style="max-width: 1000px; margin: 120px auto 40px; padding: 0 1rem;">
     <div class="desktop-title">
-    <h2 class="vhs-title">
-      Checked Out
-      <div class="vhs-scanline"></div>
-    </h2>
-  </div>
+      <h2 class="vhs-title" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+        CHECKED OUT
+        <div class="vhs-scanline"></div>
+      </h2>
+      <div class="desktop-icon-row">
+        <button id="info-btn-desktop" class="desktop-icon-btn"><i class="fa-solid fa-circle-info"></i> INFO</button>
+        <button id="leaderboard-btn-desktop" class="desktop-icon-btn"><i class="fa-solid fa-trophy"></i> HIGH SCORES</button>
+        <button id="sound-toggle-desktop" class="desktop-icon-btn"><i id="sound-icon-desktop" class="fa-solid fa-volume-up"></i> SOUND</button>
+      </div>
+    </div>
     <style>
       .vhs-title {
         font-family: 'VT323', monospace; 
@@ -778,6 +815,7 @@
       <div class="game-header-mobile">
         <div class="mobile-icon-row">
           <button id="in-game-menu-btn" class="mobile-icon-btn"><i class="fa-solid fa-bars"></i></button>
+          <button id="info-btn-mobile" class="mobile-icon-btn"><i class="fa-solid fa-circle-info"></i></button>
           <button id="leaderboard-btn" class="mobile-icon-btn"><i class="fa-solid fa-trophy"></i></button>
           <button id="sound-toggle-btn" class="mobile-icon-btn"><i id="sound-icon" class="fa-solid fa-volume-up"></i></button>
         </div>

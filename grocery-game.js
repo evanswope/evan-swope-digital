@@ -1,34 +1,28 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
-  // UI Elements
-  const logArea = document.getElementById('log-area');
-  const gameInput = document.getElementById('game-input');
-  
-  const statLevel = document.getElementById('stat-level');
-  const statCash = document.getElementById('stat-cash');
-  const statTrust = document.getElementById('stat-trust');
-  const statPop = document.getElementById('stat-pop');
-  const statAffection = document.getElementById('stat-affection');
-
-  
-window.isMuted = false;
+﻿window.isMuted = false;
 document.addEventListener('DOMContentLoaded', () => {
-  const soundBtn = document.getElementById('sound-toggle-btn');
-  const soundIcon = document.getElementById('sound-icon');
-  if (soundBtn && soundIcon) {
-    soundBtn.addEventListener('click', () => {
-      window.isMuted = !window.isMuted;
-      if (window.isMuted) {
-        soundIcon.classList.remove('fa-volume-up');
-        soundIcon.classList.add('fa-volume-mute');
-      } else {
-        soundIcon.classList.remove('fa-volume-mute');
-        soundIcon.classList.add('fa-volume-up');
-      }
-    });
-  }
+  // Audio
+  const mobileSoundBtn = document.getElementById('sound-toggle-btn');
+  const desktopSoundBtn = document.getElementById('sound-toggle-desktop');
+  const mobileSoundIcon = document.getElementById('sound-icon');
+  const desktopSoundIcon = document.getElementById('sound-icon-desktop');
+  
+  const toggleSound = () => {
+    window.isMuted = !window.isMuted;
+    const icons = [mobileSoundIcon, desktopSoundIcon].filter(Boolean);
+    if (window.isMuted) {
+      icons.forEach(i => { i.classList.remove('fa-volume-up'); i.classList.add('fa-volume-mute'); });
+    } else {
+      icons.forEach(i => { i.classList.remove('fa-volume-mute'); i.classList.add('fa-volume-up'); });
+    }
+  };
+  
+  if (mobileSoundBtn) mobileSoundBtn.addEventListener('click', toggleSound);
+  if (desktopSoundBtn) desktopSoundBtn.addEventListener('click', toggleSound);
 
+  // Leaderboard
   const mobileLbBtn = document.getElementById('leaderboard-btn');
-  const desktopLbBtn = document.getElementById('btn-leaderboard');
+  const desktopLbBtn = document.getElementById('leaderboard-btn-desktop');
+  const legacyLbBtn = document.getElementById('btn-leaderboard');
   const modalLeaderboard = document.getElementById('modal-leaderboard');
   const contentLeaderboard = document.getElementById('leaderboard-content');
   
@@ -46,8 +40,33 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   
   if (mobileLbBtn) mobileLbBtn.addEventListener('click', openLb);
-  // Re-bind desktop lb btn just in case we override the old one
   if (desktopLbBtn) desktopLbBtn.addEventListener('click', openLb);
+  if (legacyLbBtn) legacyLbBtn.addEventListener('click', openLb);
+
+  // Info Modal
+  const mobileInfoBtn = document.getElementById('info-btn-mobile');
+  const desktopInfoBtn = document.getElementById('info-btn-desktop');
+  const modalInfo = document.getElementById('modal-info');
+  const closeInfo = document.getElementById('close-info');
+
+  const openInfo = (e) => {
+    if (e) e.preventDefault();
+    modalInfo.style.display = 'flex';
+  };
+
+  if (mobileInfoBtn) mobileInfoBtn.addEventListener('click', openInfo);
+  if (desktopInfoBtn) desktopInfoBtn.addEventListener('click', openInfo);
+  
+  if (closeInfo) {
+    closeInfo.addEventListener('click', () => {
+      modalInfo.style.display = 'none';
+    });
+  }
+  if (modalInfo) {
+    modalInfo.addEventListener('click', (e) => {
+      if (e.target === modalInfo) modalInfo.style.display = 'none';
+    });
+  }
 });
 
   const itemImage = document.getElementById('item-image');
