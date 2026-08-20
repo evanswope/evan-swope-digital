@@ -1139,27 +1139,22 @@
     addLog(`> BARCODE ACCEPTED`, "log-system");
     
     const sub1Options = [
-      `Does this object really look like what they wanted? Will it actually help them achieve ${state.currentCustomerNeed}?`,
-      `I hope I didn't mess this up. Are they really going to use this for ${state.currentCustomerNeed}?`,
-      `This feels a bit unorthodox, but maybe unorthodox is exactly what ${state.currentCustomerNeed} requires.`,
-      `They look skeptical. Or maybe they always look like that. Either way, ${state.currentCustomerNeed} is a tall order.`,
-      `I should have asked more questions. Is this really the key to ${state.currentCustomerNeed}?`,
-      `My hands are shaking a little. I just really want them to succeed at ${state.currentCustomerNeed}.`,
-      `Did I grab the right item? The label is smudged. I hope it helps with ${state.currentCustomerNeed}.`,
-      `Sometimes you just have to trust your gut. And my gut says this is perfect for ${state.currentCustomerNeed}.`,
-      `They have such intense eyes. I wonder if they can tell I'm guessing about how to solve ${state.currentCustomerNeed}.`,
-      `This job is mostly psychology anyway. This item is just a placebo for ${state.currentCustomerNeed}.`,
-      `If this doesn't help with ${state.currentCustomerNeed}, they are definitely going to ask for a manager.`,
-      `I can see the hesitation in their posture. They doubt this will accomplish ${state.currentCustomerNeed}.`,
-      `Why do I care so much? It's just groceries. But ${state.currentCustomerNeed} seems so important to them.`,
-      `I swear I saw this work in a dream once. It's guaranteed to resolve ${state.currentCustomerNeed}.`,
-      `They are judging me. I know it. But wait until they see how well this handles ${state.currentCustomerNeed}.`,
-      `I feel a strange connection to this customer. I genuinely hope this item is the answer to ${state.currentCustomerNeed}.`,
-      `Maybe I'm overthinking this. It's a simple transaction. They asked for help with ${state.currentCustomerNeed}, I provided.`,
-      `This is either going to be a total disaster or a brilliant solution to ${state.currentCustomerNeed}. No in-between.`,
-      `I'm sweating. Why is the AC always broken? Let's just hope this solves ${state.currentCustomerNeed}.`,
-      `If they return this, I'm going to hide in the stockroom. But it HAS to work for ${state.currentCustomerNeed}.`
-    ];
+        `Does this object really look like what they wanted? Will it actually help them?`,
+        `I hope I didn't mess this up. Are they really going to use this?`,
+        `This feels a bit unorthodox, but maybe unorthodox is exactly what they need right now.`,
+        `They look skeptical. Or maybe they always look like that. Either way, this is a tall order.`,
+        `I should have asked more questions. Is this really the key to their problems?`,
+        `My hands are shaking a little. I just really want them to be satisfied.`,
+        `Did I grab the right item? The label is smudged. I hope it helps.`,
+        `Sometimes you just have to trust your gut. And my gut says this is perfect for them.`,
+        `They have such intense eyes. I wonder if they can tell I'm guessing.`,
+        `This job is mostly psychology anyway. This item is just a placebo for whatever they are going through.`,
+        `If this doesn't help them, they are definitely going to ask for a manager.`,
+        `I can see the hesitation in their posture. They doubt this will accomplish anything.`,
+        `Why do I care so much? It's just groceries. But they seem so stressed.`,
+        `I swear I saw this work in a dream once. It's guaranteed to resolve their bizarre situation.`,
+        `I should probably not stare. Let's just focus on ringing this up.`
+      ];
     const pick1 = sub1Options[Math.floor(Math.random() * sub1Options.length)];
     await addLogTypewriter(`[SUBCONSCIOUS] ${pick1}`, "log-gm", 15);
     
