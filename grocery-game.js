@@ -297,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function playSFX(type) {
+      if (window.isMuted) return;
     if (!audioCtx) {
       addLog("> AUDIO ERROR: audioCtx not initialized.", "log-error");
       return;
@@ -318,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function playConsoleBleep() {
+      if (window.isMuted) return;
     if (!audioCtx) return;
     try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -361,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function playSpeechBleep(char) {
+      if (window.isMuted) return;
     if (!audioCtx) return;
     try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
