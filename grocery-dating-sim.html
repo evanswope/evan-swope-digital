@@ -65,20 +65,58 @@
     }
 
     @media (max-width: 768px) {
-      .game-container {
-        grid-template-columns: 1fr 90px !important;
-        gap: 0.25rem !important;
-        padding: 0.25rem !important;
+      body {
+        position: fixed !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #000 !important;
+      }
+      .site-header, .site-footer {
+        display: none !important;
       }
       .game-wrapper {
-        margin-top: 50px !important;
-        margin-bottom: 10px !important;
+        margin: 0 !important;
+        padding: 0.25rem !important;
+        height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box;
+      }
+      .game-header-mobile {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding-bottom: 0.2rem !important;
+        margin-bottom: 0.2rem !important;
+        border-bottom: 1px solid var(--game-border);
       }
       .vhs-title {
-        font-size: 1.5rem !important;
-        line-height: 1 !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+      }
+      .mobile-exit-btn {
+        display: block !important;
+        color: var(--game-text);
+        text-decoration: none;
+        font-family: 'VT323', monospace;
+        font-size: 1rem;
+        border: 1px solid var(--game-border);
+        padding: 0.1rem 0.3rem;
+        background: rgba(255, 0, 0, 0.2);
+      }
+      .game-container {
+        flex: 1; /* Take remaining space above keyboard */
+        display: grid !important;
+        grid-template-columns: 1fr 80px !important;
+        grid-template-rows: min-content 1fr !important;
+        gap: 0.25rem !important;
+        padding: 0 !important;
+        overflow: hidden !important;
       }
       .game-vision {
         grid-column: 1 / 2 !important;
@@ -91,19 +129,20 @@
         align-items: center !important;
       }
       .game-vision h3 {
-        font-size: 0.8rem !important;
-        margin: 0 0 0.2rem 0 !important;
-        padding-bottom: 0.2rem !important;
+        font-size: 0.7rem !important;
+        margin: 0 0 0.1rem 0 !important;
+        padding-bottom: 0.1rem !important;
       }
       .canvas-container {
-        width: 150px !important;
-        height: 150px !important;
-        max-width: 100% !important;
+        width: 15vh !important;
+        height: 15vh !important;
+        max-width: 120px !important;
+        max-height: 120px !important;
         margin: 0 auto !important;
       }
       .status-text {
-        font-size: 0.7rem !important;
-        margin-top: 0.2rem !important;
+        font-size: 0.6rem !important;
+        margin-top: 0.1rem !important;
       }
       .game-stats {
         grid-column: 2 / 3 !important;
@@ -111,8 +150,8 @@
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-evenly !important;
-        gap: 0.2rem !important;
-        padding: 0.2rem !important;
+        gap: 0.1rem !important;
+        padding: 0.1rem !important;
         border: 1px solid var(--game-border) !important;
         box-shadow: none !important;
       }
@@ -123,26 +162,45 @@
         align-items: center !important;
       }
       .stat-label {
-        font-size: 0.6rem !important;
+        font-size: 0.55rem !important;
         line-height: 1 !important;
       }
       .stat-value {
-        font-size: 1rem !important;
+        font-size: 0.9rem !important;
         margin-top: 0 !important;
         line-height: 1 !important;
       }
       .game-console {
         grid-column: 1 / -1 !important;
         grid-row: 2 !important;
-        height: 60vh !important;
-        min-height: 250px !important;
+        height: auto !important;
+        min-height: 0 !important;
         border-width: 1px !important;
-        padding: 0.5rem !important;
+        padding: 0.25rem !important;
+        display: flex;
+        flex-direction: column;
+      }
+      .log-area {
+        flex: 1; /* Scrollable logs */
+        padding: 0.25rem !important;
+        gap: 0.25rem !important;
+      }
+      .log-msg {
+        margin: 0;
+        font-size: 0.85rem !important;
+        line-height: 1.1 !important;
+        margin-bottom: 0.15rem !important;
+      }
+      .persistent-box {
+        padding: 0.25rem !important;
+        margin-bottom: 0.25rem !important;
+        font-size: 0.9rem !important;
       }
       .leaderboard-wrapper {
-        grid-column: 1 / -1 !important;
-        grid-row: 3 !important;
-        margin-top: 0.5rem !important;
+        display: none !important; /* Hide leaderboard on mobile to save space */
+      }
+      .mobile-keyboard {
+        display: flex !important;
       }
     }
 
@@ -385,6 +443,55 @@
       100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
     }
 
+  
+    .mobile-exit-btn {
+      display: none;
+    }
+    .game-header-mobile {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .mobile-keyboard {
+      display: none; /* hidden on desktop */
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      padding: 0.25rem;
+      background: #000;
+      border: 1px solid var(--game-border);
+      touch-action: manipulation; /* Prevent double-tap zoom on keys */
+    }
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.25rem;
+    }
+    .kb-key {
+      background: var(--game-bg);
+      color: var(--game-text);
+      border: 1px solid var(--game-border);
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      padding: 0.5rem 0;
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 4px;
+    }
+    .kb-key:active {
+      background: var(--game-text);
+      color: #000;
+      transform: scale(0.95);
+    }
+    .kb-enter, .kb-del {
+      flex: 1.5;
+      font-size: 1rem;
+      background: #002200;
+    }
+    .kb-space {
+      flex: 5;
+    }
   </style>
 </head>
 <body>
@@ -606,7 +713,7 @@
       <div id="persistent-box" class="persistent-box"></div>
       <div class="input-area">
         <span class="prompt-arrow">&gt;</span>
-        <input type="text" class="game-input" id="game-input" placeholder="Type here and press ENTER..." autocomplete="off" spellcheck="false" disabled>
+        <input type="text" class="game-input" id="game-input" inputmode="none" placeholder="Type here and press ENTER..." autocomplete="off" spellcheck="false" disabled>
         <button id="btn-submit"><i class="fa-solid fa-arrow-right"></i></button>
       </div>
     </div>
@@ -629,6 +736,22 @@
     </div>
 
   </div> <!-- End Game Container -->
+  
+    <!-- VIRTUAL KEYBOARD -->
+    <div id="mobile-keyboard" class="mobile-keyboard">
+      <div class="kb-row">
+        <button class="kb-key">Q</button><button class="kb-key">W</button><button class="kb-key">E</button><button class="kb-key">R</button><button class="kb-key">T</button><button class="kb-key">Y</button><button class="kb-key">U</button><button class="kb-key">I</button><button class="kb-key">O</button><button class="kb-key">P</button>
+      </div>
+      <div class="kb-row">
+        <button class="kb-key">A</button><button class="kb-key">S</button><button class="kb-key">D</button><button class="kb-key">F</button><button class="kb-key">G</button><button class="kb-key">H</button><button class="kb-key">J</button><button class="kb-key">K</button><button class="kb-key">L</button>
+      </div>
+      <div class="kb-row">
+        <button class="kb-key kb-enter">ENTER</button><button class="kb-key">Z</button><button class="kb-key">X</button><button class="kb-key">C</button><button class="kb-key">V</button><button class="kb-key">B</button><button class="kb-key">N</button><button class="kb-key">M</button><button class="kb-key kb-del">DEL</button>
+      </div>
+      <div class="kb-row">
+        <button class="kb-key kb-space">SPACE</button>
+      </div>
+    </div>
   </div> <!-- End Wrapper -->
 
   <audio id="sfx-success" src="success.mp3" preload="auto"></audio>

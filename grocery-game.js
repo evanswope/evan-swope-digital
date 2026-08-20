@@ -2372,4 +2372,34 @@
   });
 
   init();
+
+  // Virtual Keyboard Logic
+  const virtualKeys = document.querySelectorAll('.kb-key');
+  virtualKeys.forEach(keyBtn => {
+    keyBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent focus loss
+      if (gameInput.disabled) return;
+      
+      const keyVal = keyBtn.textContent;
+      
+      if (keyVal === 'ENTER') {
+        // Trigger exact same flow as physical enter key
+        const evt = new KeyboardEvent('keypress', { key: 'Enter' });
+        gameInput.dispatchEvent(evt);
+      } else if (keyVal === 'DEL') {
+        gameInput.value = gameInput.value.slice(0, -1);
+        gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      } else if (keyVal === 'SPACE') {
+        gameInput.value += ' ';
+        gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        gameInput.value += keyVal;
+        gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      
+      // Keep focus off native keyboard but scroll to end of input if needed
+      gameInput.scrollLeft = gameInput.scrollWidth;
+    });
+  });
+
 });
