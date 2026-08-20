@@ -92,12 +92,13 @@ EMOTIONAL NEED RULES:
 
 NARRATIVE TONE RULES (CRITICAL):
 - The flavor text ('scene_flavor', 'customer_arrival_flavor') and 'subconscious_line' must be written in a dark, poetic, existential, and introspective style.
-- The clerk's internal world is a decaying, cynical, hyper-analytical wasteland. Focus on the visceral grime of the store, the existential dread of retail, the oppressive hum of the fluorescent lights, and hyper-fixation on mundane physical sensations or decay.
-- Talk about the "body", the "spirit", the "spine", or the "mind" in revolt against the job.
-- CRITICAL CONTRAST: The customer themselves must remain bright, bubbly, whimsical, silly, and utterly oblivious to the clerk's internal suffering. Do not make the customer dark. The humor relies entirely on the stark contrast between the customer's cartoonish absurdity and the clerk's bleak, poetic misery.
+- CRITICAL DISTINCTION: 'scene_flavor' and 'subconscious_line' must serve completely different purposes so they do not sound redundant.
+- 'scene_flavor' is STRICTLY external and physical. Focus purely on the grotesque, visceral reality of the store's environment, sights, sounds, and smells. Do NOT include internal thoughts or philosophizing here.
+- 'subconscious_line' is STRICTLY internal and biological. Focus purely on bizarre, hyper-specific bodily sensations, reptilian brain demands, or the physical breakdown of the clerk's body (e.g., the spine, the nervous system, the lungs).
+- CRITICAL CONTRAST: The customer themselves must remain bright, bubbly, whimsical, silly, and utterly oblivious to the clerk's internal suffering. The humor relies entirely on the stark contrast between the customer's cartoonish absurdity and the clerk's bleak, poetic misery.
 
-EXAMPLE SCENE FLAVOR: "The barcode scanner blinks with the agonizing, rhythmic pulse of a dying star. You drag a damp rag across the conveyor belt. It smells like sour milk and giving up. Your spine aches in a language you don't speak."
-EXAMPLE SUBCONSCIOUS: "Your body begs you to lie down on the linoleum and let the dust mites claim you. But you can't. You have to sell groceries."
+EXAMPLE SCENE FLAVOR: "The barcode scanner blinks with the agonizing, rhythmic pulse of a dying star. You drag a damp rag across the conveyor belt. It smells like sour milk and giving up."
+EXAMPLE SUBCONSCIOUS: "Your nervous system begs you to lie flat on the cold linoleum and let the dust mites claim you, but the social contract prevents it."
 EXAMPLE ARRIVAL FLAVOR: "The automatic doors wrench open, flooding your rotting sanctuary with daylight. A bouncy, fluorescent-colored anomaly bounds into the aisle, utterly destroying the silence."
 
 CRITICAL: Even though the customers are highly abstract or silly, their requested base grocery item MUST BE COMPLETELY MUNDANE and standard (e.g. "a jar of mayonnaise", "kielbasas", "dish soap"). DO NOT add adjectives like sparkly, wet, or large to the base item.
@@ -113,8 +114,8 @@ JSON Schema:
   "desc": "A short, strictly physical description of what the customer looks like for an image generator. CRITICAL RULE: DO NOT describe them holding, wearing, or being made of the grocery item they are asking for, as they haven't received it yet!",
   "base_item": "A short phrase describing the exact base grocery item they want to buy",
   "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution",
-  "scene_flavor": "A brief narrated description of the clerk performing a tedious, thankless grocery store task.",
-  "subconscious_line": "A short internal thought from the grocer's subconscious right before the customer arrives.",
+  "scene_flavor": "A brief physical description of the grim, visceral, malfunctioning grocery store environment or a grotesque physical task the clerk is performing. NO internal thoughts here.",
+  "subconscious_line": "A short internal sensation or bizarre biological demand from the clerk's exhausted body/brain right before the customer arrives.",
   "customer_arrival_flavor": "A brief narrated description of the customer abruptly bursting into the store and interrupting the clerk.",
   "customer_first_line": "The customer's opening line of dialogue. They shouldn't explicitly state what they want yet, but they can complain about their situation."
 }`;
