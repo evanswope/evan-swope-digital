@@ -662,11 +662,28 @@
   <div id="modal-info" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:var(--game-bg); border:2px solid #33ff33; padding:2rem; width:90%; max-width:500px; box-shadow:0 0 20px rgba(51,255,51,0.3); font-family: 'VT323', monospace; position:relative;">
       <button id="close-info" style="position:absolute; top:10px; right:15px; background:transparent; border:none; color:#33ff33; font-size:1.5rem; cursor:pointer;">X</button>
-      <h2 style="color: #33ff33; text-align: center; margin-top:0;">SYSTEM.INFO</h2>
+      <h2 style="color: #33ff33; text-align: center; margin-top:0;">ABOUT CHECKED OUT</h2>
       <p style="font-size: 1.3rem; line-height: 1.5; color: var(--game-text); margin-top: 1.5rem;">
-        <strong>Checked Out</strong> is a surreal intersection of retro MUD mechanics, existential retail dread, and AI-driven absurdism.<br><br>
-        Created by <strong>Evan Swope</strong> in <strong>August 2026</strong> as an experimental narrative experience, exploring the transactional nature of human connection under capitalism.<br><br>
-        <em>Proudly built with the assistance of <strong>Antigravity</strong>.</em>
+        <strong>Checked Out</strong> is a nasty cauldron of text-based gaming mechanics, existential retail dread, and AI-driven absurdism.
+      </p>
+      <p style="font-size: 1.3rem; line-height: 1.5; color: var(--game-text); margin-top: 1rem;">
+        Created by <strong>Evan Swope</strong> as an experimental narrative experience using AI APIs for text & image generation, as well as computer vision for analyzing its own inputs and outputs. As you know... AI frequently gets things wrong. Don't email me if you generated an image you don't like. I don't wanna see it either.
+      </p>
+      
+      <div style="display:flex; justify-content:center; gap: 1rem; margin: 2rem 0; flex-wrap: wrap;">
+        <button onclick="window.open('https://' + atob('Y2FzaC5hcHAvJHRoZXN3b3Bl'), '_blank')" class="desktop-icon-btn" style="border-color:#00D632; color:#00D632; border-style: solid; font-size: 1.5rem; padding: 0.5rem 1rem;">
+          <i class="fa-solid fa-dollar-sign"></i> CASHAPP
+        </button>
+        <button onclick="window.open('https://' + atob('dmVubW8uY29tL3RoZXN3b3Bl'), '_blank')" class="desktop-icon-btn" style="border-color:#008CFF; color:#008CFF; border-style: solid; font-size: 1.5rem; padding: 0.5rem 1rem;">
+          <i class="fa-solid fa-v"></i> VENMO
+        </button>
+        <button onclick="window.location.href = 'mailto:' + atob('ZXZhbmxzd29wZQ==') + '@' + atob('Z21haWwuY29t')" class="desktop-icon-btn" style="border-color:#FF9900; color:#FF9900; border-style: solid; font-size: 1.5rem; padding: 0.5rem 1rem;">
+          <i class="fa-solid fa-envelope"></i> EMAIL
+        </button>
+      </div>
+
+      <p style="font-size: 1.3rem; line-height: 1.5; color: var(--game-text); margin-top: 1rem; text-align: center;">
+        Built with <strong>Antigravity</strong>.
       </p>
     </div>
   </div>
