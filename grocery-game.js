@@ -1868,7 +1868,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialization
   async function init() {
-    await addLogTypewriter(`> LOADING GROCERY DATING SIM v1.14.0...`, "log-system", 10);
+    await addLogTypewriter(`> LOADING CHECKED OUT v1.14.0...`, "log-system", 10);
     await addLogTypewriter(`> NOW WITH: MOBILE LAYOUT & 3-ACT DATING LOOPS`, "log-system", 10);
     await addLogTypewriter(`> CONNECTING TO NEURAL NET... SUCCESS.`, "log-system", 10);
     await addLogTypewriter(`Welcome weary local grocer! Are you looking for love? Or just cash? Why not both...`, "log-gm", 15);
