@@ -88,8 +88,17 @@ CRITICAL RULE REGARDING EXAMPLES: The examples provided above are for TONAL INSP
 EMOTIONAL NEED RULES:
 - The emotional need MUST ALWAYS be extremely mundane, basic, human, and grounded, REGARDLESS of how bizarre the customer is or what Level the player is.
 - Good Examples: a nap, a place to sneeze, a hug, a snack, a good cry, a place to let out their anger, a sly wink, a squeeze, to feel pretty, to relieve an itch.
-- Bad Examples (DO NOT USE THESE): "simplicity in a multidimensional space", "comfort in another geometric plane", "the desire to un-see the dawn of time", "existential grounding".
 - STRICT RULE: Keep it strictly to basic, relatable, simple human urges or physical feelings. Do NOT use complex philosophical, dimensional, or existential concepts.
+
+NARRATIVE TONE RULES (CRITICAL):
+- The flavor text ('scene_flavor', 'customer_arrival_flavor') and 'subconscious_line' must be written in a dark, poetic, existential, and introspective style.
+- The clerk's internal world is a decaying, cynical, hyper-analytical wasteland. Focus on the visceral grime of the store, the existential dread of retail, the oppressive hum of the fluorescent lights, and hyper-fixation on mundane physical sensations or decay.
+- Talk about the "body", the "spirit", the "spine", or the "mind" in revolt against the job.
+- CRITICAL CONTRAST: The customer themselves must remain bright, bubbly, whimsical, silly, and utterly oblivious to the clerk's internal suffering. Do not make the customer dark. The humor relies entirely on the stark contrast between the customer's cartoonish absurdity and the clerk's bleak, poetic misery.
+
+EXAMPLE SCENE FLAVOR: "The barcode scanner blinks with the agonizing, rhythmic pulse of a dying star. You drag a damp rag across the conveyor belt. It smells like sour milk and giving up. Your spine aches in a language you don't speak."
+EXAMPLE SUBCONSCIOUS: "Your body begs you to lie down on the linoleum and let the dust mites claim you. But you can't. You have to sell groceries."
+EXAMPLE ARRIVAL FLAVOR: "The automatic doors wrench open, flooding your rotting sanctuary with daylight. A bouncy, fluorescent-colored anomaly bounds into the aisle, utterly destroying the silence."
 
 CRITICAL: Even though the customers are highly abstract or silly, their requested base grocery item MUST BE COMPLETELY MUNDANE and standard (e.g. "a jar of mayonnaise", "kielbasas", "dish soap"). DO NOT add adjectives like sparkly, wet, or large to the base item.
 ANY bizarre conditions, emotional twists, or strange requirements MUST be placed exclusively in the "emotional_need" section.
