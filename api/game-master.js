@@ -3,14 +3,49 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { state } = req.body;
+  const { state, step, player_response, customer_first_line } = req.body;
   const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
     return res.status(500).json({ message: 'Missing OPENAI_API_KEY' });
   }
 
-  const systemPrompt = `You are the Game Master for a surreal, bizarre text-based Grocery Dating Sim RPG.
+  try {
+    if (step === 'response') {
+      const systemPrompt = `You are the Game Master for a surreal text-based Grocery Dating Sim RPG.
+The player is a clerk at an otherworldly grocery store.
+The current customer is: ${state.currentCustomerName} (${state.currentCustomerDesc}).
+They secretly want to buy: ${state.currentCustomerRequest}.
+Their secret emotional need is: ${state.currentCustomerNeed}.
+
+The customer just arrived and said: "${customer_first_line}"
+The player (grocer) replied: "${player_response}"
+
+Generate the customer's response to the player, and a brief thought from the grocer's subconscious.
+You MUST respond ONLY with a raw JSON object. Do not use double quotes inside text fields.
+JSON Schema:
+{
+  "customer_response_line": "A short, funny response from the customer to the player. They shouldn't explicitly give away exactly what they want unless they are forced to, they should hint at it.",
+  "subconscious_impression": "A short internal thought from the grocer's subconscious about this customer, in italics."
+}`;
+
+      const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: systemPrompt }],
+          response_format: { type: "json_object" },
+          temperature: 1.15
+        })
+      });
+      const prediction = await response.json();
+      let parsed = JSON.parse(prediction.choices[0].message.content);
+      return res.status(200).json(parsed);
+    }
+
+    // Default step: 'arrival'
+    const systemPrompt = `You are the Game Master for a surreal, bizarre text-based Grocery Dating Sim RPG.
 The player is a clerk at an otherworldly grocery store. 
 Based on the player's current Level, Cash, and Affection, invent a highly unusual, abstract, or absurd "customer" and a strange twist on a normal GROCERY ITEM they want to buy. 
 
@@ -29,42 +64,31 @@ ANY bizarre conditions, emotional twists, or strange requirements MUST be placed
 
 The requested grocery item should get more ridiculous and expensive as the player levels up.
 
-Rules for flavor_text: Briefly describe the player (the clerk) performing tedious, thankless grocery store tasks (e.g., mopping up a spill, restocking shelves, taking their lunch break, replacing lightbulbs, trying to hide in the back) right before they are abruptly interrupted by this specific customer bursting into the store.
-
 You MUST respond ONLY with a raw JSON object (no markdown formatting, no backticks, just the JSON string).
 CRITICAL: Do NOT use double quotes inside your text fields. This breaks JSON parsing. Use single quotes instead if needed.
 JSON Schema:
 {
-  "name": "A short, descriptive name and species/form of the customer (e.g. 'Wanda the Dog', 'Guillame the Pea', 'Jenny the Haunted Doll', 'Stan the Washbasin')",
-  "desc": "A short, strictly physical description of what the customer looks like for an image generator (e.g. 'A plump chicken wearing a top hat'). CRITICAL RULE: DO NOT describe them holding, wearing, or being made of the grocery item they are asking for, as they haven't received it yet!",
-  "flavor_text": "A brief narrated description of the clerk's busywork being interrupted by the customer.",
-  "dialogue": "A short, funny description of the abstract customer entering and what they say. MUST ONLY BE SPOKEN DIALOGUE.",
-  "base_item": "A short phrase describing the exact base grocery item they want to buy (e.g., 'a jar of mayo')",
-  "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution (e.g., 'companionship', 'a nap', 'help chewing')"
+  "name": "A short, descriptive name and species/form of the customer",
+  "desc": "A short, strictly physical description of what the customer looks like for an image generator. CRITICAL RULE: DO NOT describe them holding, wearing, or being made of the grocery item they are asking for, as they haven't received it yet!",
+  "base_item": "A short phrase describing the exact base grocery item they want to buy",
+  "emotional_need": "A short phrase describing their bizarre emotional need or problem that requires a creative bonus solution",
+  "scene_flavor": "A brief narrated description of the clerk performing a tedious, thankless grocery store task.",
+  "subconscious_line": "A short internal thought from the grocer's subconscious right before the customer arrives.",
+  "customer_arrival_flavor": "A brief narrated description of the customer abruptly bursting into the store and interrupting the clerk.",
+  "customer_first_line": "The customer's opening line of dialogue. They shouldn't explicitly state what they want yet, but they can complain about their situation."
 }`;
 
-  const randomNames = ["Balthazar", "Bruno", "Bernie", "Wanda", "Jenny", "Stan"];
-  const corporealThemes = [
-    "an aquatic animal", "a piece of furniture", "an insect", "a medieval weapon", 
-    "a root vegetable", "a mundane household appliance", "a disgruntled farm animal", 
-    "a discarded toy", "a body part", "a piece of clothing", "a piece of technology", 
-    "a vehicle", "a kind of stone", "a type of pottery", "a famous work of art", 
-    "a holiday decoration", "a plant", "a school supply", "an unusual occupation"
-  ];
-  const esotericThemes = [
-    "a weather phenomenon", "a mathematical concept", "a ghost", "a celestial body", 
-    "an abstract emotion", "a localized paradox", "a corrupted computer file", 
-    "a forgotten memory", "a group or throng", "an ex", "an embodiment of a former state", 
-    "a ghost of a famous historical figure"
-  ];
-  const randomItemAisles = ["Produce", "Dairy", "Frozen Foods", "Canned Goods", "Cleaning Supplies", "Hardware", "Bakery", "Meat", "Snacks", "Beverages", "Office Supplies"];
-  
-  const chosenThemeArray = state.level >= 5 ? esotericThemes : corporealThemes;
-  const chosenTheme = chosenThemeArray[Math.floor(Math.random() * chosenThemeArray.length)];
-  const chosenAisle = randomItemAisles[Math.floor(Math.random() * randomItemAisles.length)];
-  const seed = Math.floor(Math.random() * 999999);
+    const randomNames = ["Balthazar", "Bruno", "Bernie", "Wanda", "Jenny", "Stan"];
+    const corporealThemes = ["an aquatic animal", "a piece of furniture", "an insect", "a medieval weapon", "a root vegetable", "a mundane household appliance", "a disgruntled farm animal", "a discarded toy", "a body part", "a piece of clothing", "a piece of technology", "a vehicle", "a kind of stone", "a type of pottery", "a famous work of art", "a holiday decoration", "a plant", "a school supply", "an unusual occupation"];
+    const esotericThemes = ["a weather phenomenon", "a mathematical concept", "a ghost", "a celestial body", "an abstract emotion", "a localized paradox", "a corrupted computer file", "a forgotten memory", "a group or throng", "an ex", "an embodiment of a former state", "a ghost of a famous historical figure"];
+    const randomItemAisles = ["Produce", "Dairy", "Frozen Foods", "Canned Goods", "Cleaning Supplies", "Hardware", "Bakery", "Meat", "Snacks", "Beverages", "Office Supplies"];
+    
+    const chosenThemeArray = state.level >= 5 ? esotericThemes : corporealThemes;
+    const chosenTheme = chosenThemeArray[Math.floor(Math.random() * chosenThemeArray.length)];
+    const chosenAisle = randomItemAisles[Math.floor(Math.random() * randomItemAisles.length)];
+    const seed = Math.floor(Math.random() * 999999);
 
-  const userPrompt = `Current Game State:
+    const userPrompt = `Current Game State:
 Level: ${state.level}
 Cash: $${state.cash}
 Affection: ${state.affection}
@@ -79,62 +103,19 @@ CRITICAL DIVERSITY REQUIREMENT (Seed: ${seed}):
 
 Generate the next customer encounter. RETURN ONLY RAW JSON.`;
 
-  try {
     const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
         response_format: { type: "json_object" },
         temperature: 1.15
       })
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      return res.status(500).json({ message: error.error?.message || 'OpenAI API error' });
-    }
-
     const prediction = await response.json();
-    let rawText = prediction.choices[0].message.content;
-    
-    let parsed;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (parseError) {
-      console.warn("JSON Parse Failed, attempting regex extraction. Raw text:", rawText);
-      try {
-        const extractString = (field) => {
-          const regex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"(?:\\s*,\\s*"|\\s*\\}|$)`);
-          const match = rawText.match(regex);
-          return match ? match[1].replace(/"/g, "'").trim() : "";
-        };
-        parsed = {
-          name: extractString("name") || "A Glitched Entity",
-          desc: extractString("desc") || extractString("dialogue") || "A glowing orb of glitching light",
-          flavor_text: extractString("flavor_text") || "You are wiping down the checkout counter when the doors violently burst open.",
-          dialogue: extractString("dialogue") || "My reality is breaking apart. I require something simple.",
-          base_item: extractString("base_item") || "a single egg",
-          emotional_need: extractString("emotional_need") || "stability in a chaotic world"
-        };
-      } catch (regexError) {
-        parsed = {
-          name: "A Glitched Entity",
-          desc: "A glowing orb of glitching light",
-          flavor_text: "You are wiping down the checkout counter when the doors violently burst open.",
-          dialogue: "My reality is completely broken. I require something simple.",
-          base_item: "a single egg",
-          emotional_need: "stability in a chaotic world"
-        };
-      }
-    }
+    let parsed = JSON.parse(prediction.choices[0].message.content);
     res.status(200).json(parsed);
 
   } catch (err) {

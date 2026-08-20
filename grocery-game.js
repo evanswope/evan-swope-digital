@@ -723,40 +723,86 @@
         data = await fetchWithRetry('/api/game-master', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ state })
+          body: JSON.stringify({ state, step: 'arrival' })
         });
       }
 
       state.currentCustomerName = data.name || "A Mysterious Entity";
-      state.currentCustomerDesc = data.desc || data.dialogue;
+      state.currentCustomerDesc = data.desc || data.dialogue || "A glitched orb";
       state.currentCustomerRequest = data.base_item;
       state.currentCustomerNeed = data.emotional_need;
       state.currentCustomerSeed = Math.floor(Math.random() * 1000000);
+      state.customerFirstLine = data.customer_first_line || "What are you staring at?";
       
       // Start image generation in the background!
       let portraitPrompt = `A surreal portrait of ${state.currentCustomerDesc} standing at a grocery store checkout counter. Cinematic, vibrant.`;
       generateCharacterImage(portraitPrompt, 'character', state.currentCustomerSeed);
 
-      // Use typewriter effect to buy time while image generates
-      if (data.flavor_text) {
-        await addLogTypewriter(`> ${data.flavor_text}`, "log-system", 15);
+      if (data.scene_flavor) await addLogTypewriter(`> ${data.scene_flavor}`, "log-system", 15);
+      if (data.subconscious_line) await addLogTypewriter(`[SUBCONSCIOUS] ${data.subconscious_line}`, "log-gm", 25);
+      if (data.customer_arrival_flavor) await addLogTypewriter(`> ${data.customer_arrival_flavor}`, "log-system", 15);
+      if (state.customerFirstLine) {
+        await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${state.customerFirstLine}`, "log-customer", 25);
+        state.conversationHistory.push({ role: 'assistant', content: state.customerFirstLine });
       }
-      
-      await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.dialogue}`, "log-customer", 20);
-      state.conversationHistory.push({ role: 'assistant', content: data.dialogue });
 
-      await addLogTypewriter(`> Customer Wants: ${data.base_item.toUpperCase()}`, "log-system", 10);
-      await addLogTypewriter(`> With: ${data.emotional_need}`, "log-system", 10);
+      state.phase = "WAITING_FOR_PLAYER_GREETING";
+      gameInput.disabled = false;
+      gameInput.focus();
+
+    } catch (e) {
+      addLog(`Game Master Error: ${e.message}`, "log-error");
+      state.phase = "START";
+      gameInput.disabled = false;
+    }
+  }
+
+  async function handlePlayerGreeting(val) {
+    state.phase = "WAITING_FOR_GM_RESPONSE";
+    gameInput.disabled = true;
+    state.conversationHistory.push({ role: 'user', content: val });
+    
+    try {
+      let data = await fetchWithRetry('/api/game-master', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          state, 
+          step: 'response',
+          customer_first_line: state.customerFirstLine,
+          player_response: val
+        })
+      });
+
+      if (data.customer_response_line) {
+        await addLogTypewriter(`[${state.currentCustomerName.toUpperCase()}] ${data.customer_response_line}`, "log-customer", 25);
+        state.conversationHistory.push({ role: 'assistant', content: data.customer_response_line });
+      }
+
+      if (data.subconscious_impression) {
+        await addLogTypewriter(`[SUBCONSCIOUS] ${data.subconscious_impression}`, "log-gm", 25);
+      }
+
+      if (state.trust >= 70 || state.level === 1) {
+        await addLogTypewriter(`> Customer Wants: ${state.currentCustomerRequest.toUpperCase()}`, "log-system", 10);
+        await addLogTypewriter(`> Hint: ${state.currentCustomerNeed}`, "log-system", 10);
+      } else if (state.trust >= 30) {
+        await addLogTypewriter(`> Customer Wants: ???`, "log-system", 10);
+        await addLogTypewriter(`> Hint: ${state.currentCustomerNeed}`, "log-system", 10);
+      } else {
+        await addLogTypewriter(`> Customer Wants: ???`, "log-system", 10);
+        await addLogTypewriter(`> Hint: ???`, "log-system", 10);
+      }
+
       await addLogTypewriter(`> What grocery item do you slide across the scanner?`, "log-gm", 10);
-
       state.phase = "WAITING_FOR_USER";
       gameInput.disabled = false;
       gameInput.focus();
 
     } catch (e) {
-      addLog(`Error: ${e.message}`, "log-error");
-      gameInput.disabled = false;
+      addLog(`Game Master Error: ${e.message}`, "log-error");
       state.phase = "START";
+      gameInput.disabled = false;
     }
   }
 
@@ -1727,7 +1773,10 @@
         } else if (state.phase === "HAND_OVER_ITEM") {
           appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
           return;
-        } else if (state.phase === "BADGE_HOLD") {
+        } else if (state.phase === "WAITING_FOR_PLAYER_GREETING") {
+          handlePlayerGreeting(val);
+        }
+        else if (state.phase === "BADGE_HOLD") {
           addLog("> Booting register...", "log-system");
           callGameMaster();
           return;
@@ -1789,7 +1838,10 @@
           gameInput.focus();
         });
       }
-      else if (state.phase === "BADGE_HOLD") {
+      else if (state.phase === "WAITING_FOR_PLAYER_GREETING") {
+          handlePlayerGreeting(val);
+        }
+        else if (state.phase === "BADGE_HOLD") {
         gameInput.value = "";
         addLog("> Booting register...", "log-system");
         callGameMaster();
