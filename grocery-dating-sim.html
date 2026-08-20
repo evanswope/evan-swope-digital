@@ -66,8 +66,8 @@
 
     @media (max-width: 768px) {
       .game-container {
-        grid-template-columns: 1fr 140px !important;
-        gap: 0.5rem !important;
+        grid-template-columns: 1fr 90px !important;
+        gap: 0.25rem !important;
         padding: 0.25rem !important;
       }
       .game-wrapper {
@@ -80,34 +80,11 @@
         margin-bottom: 0.2rem !important;
         padding-bottom: 0.2rem !important;
       }
-      .game-stats {
+      .game-vision {
         grid-column: 1 / 2 !important;
         grid-row: 1 !important;
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 0.2rem !important;
         padding: 0.25rem !important;
-        border-width: 1px !important;
-        align-content: center !important;
-      }
-      .stat-box {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-      }
-      .stat-label {
-        font-size: 0.65rem !important;
-      }
-      .stat-value {
-        font-size: 1rem !important;
-        margin-top: 0 !important;
-      }
-      .game-vision {
-        grid-column: 2 / 3 !important;
-        grid-row: 1 !important;
-        padding: 0.25rem !important;
-        border-width: 1px !important;
+        border: 1px solid var(--game-border) !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -120,18 +97,44 @@
       }
       .canvas-container {
         width: 100% !important;
-        max-width: 120px !important;
+        max-width: 250px !important;
         margin: 0 auto !important;
       }
       .status-text {
-        font-size: 0.6rem !important;
+        font-size: 0.7rem !important;
         margin-top: 0.2rem !important;
+      }
+      .game-stats {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-evenly !important;
+        gap: 0.2rem !important;
+        padding: 0.2rem !important;
+        border: 1px solid var(--game-border) !important;
+        box-shadow: none !important;
+      }
+      .stat-box {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+      }
+      .stat-label {
+        font-size: 0.6rem !important;
+        line-height: 1 !important;
+      }
+      .stat-value {
+        font-size: 1rem !important;
+        margin-top: 0 !important;
+        line-height: 1 !important;
       }
       .game-console {
         grid-column: 1 / -1 !important;
         grid-row: 2 !important;
-        height: 50vh !important;
-        min-height: 300px !important;
+        height: 48vh !important;
+        min-height: 250px !important;
         border-width: 1px !important;
         padding: 0.5rem !important;
       }
