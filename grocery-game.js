@@ -1233,19 +1233,25 @@
       scannerStatus.style.color = "#33ff33";
       state.cash += data.value;
       state.popularity += 1;
-      affectionGained = data.affection_change;
-      if (affectionGained > 0) {
-        state.affection += affectionGained;
-        addLog(`> Affection increased! (+${affectionGained})`, "log-system");
-        spawnParticle('heart');
+      
+      affectionGained = data.affection || 1;
+      state.affection += affectionGained;
+      
+      if (data.bonus) {
+        addLog(`> BONUS! You creatively solved their problem! (+${affectionGained} Affection)`, "log-system");
+        state.cash += data.value * 2;
+      } else {
+        addLog(`> Item sold. (+${affectionGained} Affection)`, "log-system");
       }
-      addLog(`> Item accepted. (+${data.value})`, "log-system");
+
       state.trust = Math.min(100, state.trust + 5);
+      for(let i=0; i<3; i++) setTimeout(() => spawnParticle('cash'), i*200);
+      if (data.value > 1000) spawnParticle('heart');
     } else {
       scannerStatus.textContent = `REJECTED`;
       scannerStatus.style.color = "#ff3333";
       document.body.classList.add('alarm-flashing');
-      state.popularity = Math.max(0, state.popularity - 1);
+      state.popularity -= 1;
       state.trust -= 10;
       addLog(`> Item rejected. (-10 Trust)`, "log-system");
     }
