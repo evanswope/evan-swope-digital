@@ -1346,9 +1346,18 @@
       state.pendingAppraisalImagePromise = imagePromise;
 
       state.phase = "CHECKOUT_BARCODE";
-      const rand3 = () => String(Math.floor(Math.random() * 900) + 100);
-      state.barcodeTarget = `${rand3()}-${rand3()}-${rand3()}`;
-      state.barcodeCurrent = "XXX-XXX-XXX";
+      const schemas = ["XXXX", "XXXXX", "XX-X-XX", "XXX-XXX", "XX-XX-X", "XXX-XXXX", "XXX-XX-XX", "XXX-XXX-XXX"];
+        const chosenSchema = schemas[Math.floor(Math.random() * schemas.length)];
+        let target = "";
+        for (let i = 0; i < chosenSchema.length; i++) {
+          if (chosenSchema[i] === 'X') {
+            target += Math.floor(Math.random() * 10).toString();
+          } else {
+            target += chosenSchema[i];
+          }
+        }
+        state.barcodeTarget = target;
+        state.barcodeCurrent = chosenSchema;
       
       await addLogTypewriter(`[SYSTEM] The customer stares intently at the item. Ring them up!`, "log-system", 15);
       await addLogTypewriter(`> BARCODE SCANNER: TYPE '${state.barcodeTarget}' TO SCAN`, "log-error", 15);
