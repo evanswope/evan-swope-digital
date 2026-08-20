@@ -837,15 +837,69 @@
         state.conversationHistory.push({ role: 'assistant', content: data.customer_response_line });
       }
 
-      if (data.revealed_item && !state.itemRevealed) {
-        state.itemRevealed = true;
-      }
-      if (data.revealed_need && !state.needRevealed) {
-        state.needRevealed = true;
-      }
+      let newlyRevealedItem = data.revealed_item && !state.itemRevealed;
+      let newlyRevealedNeed = data.revealed_need && !state.needRevealed;
 
-      if (data.subconscious_impression && (data.revealed_item || data.revealed_need)) {
-        await setPersistentPrompt(`[SUBCONSCIOUS] ${data.subconscious_impression}`, 'log-subconscious');
+      if (newlyRevealedItem) state.itemRevealed = true;
+      if (newlyRevealedNeed) state.needRevealed = true;
+
+      if (newlyRevealedItem || newlyRevealedNeed) {
+        const itemPhrases = [
+          "Got it. They're looking for {item}.",
+          "Okay, so the base item is {item}.",
+          "I knew it. They want {item}.",
+          "Ah, {item}. A classic choice.",
+          "Finally got it out of them: {item}.",
+          "Looks like I'll need to generate {item}.",
+          "So they came all this way for {item}.",
+          "They're after {item}. Easy enough.",
+          "Target acquired: {item}.",
+          "Understood. The secret ingredient is {item}.",
+          "Okay, mental note: grab {item}.",
+          "They just want {item}? I can do that.",
+          "Right, so it's {item} they're hunting for.",
+          "Gotcha. {item} coming right up.",
+          "I should have guessed it was {item}.",
+          "Good to know. They need {item}.",
+          "So the request is actually just {item}.",
+          "Alright, {item} is what I need to bag.",
+          "That solves one mystery. They want {item}.",
+          "Noted. {item}."
+        ];
+        
+        const needPhrases = [
+          "And they need it for {need}.",
+          "Makes sense, considering they want {need}.",
+          "So their true motive is {need}.",
+          "Ah, the old '{need}' problem.",
+          "Looks like they're dealing with {need}.",
+          "Wow, they just want {need}.",
+          "I guess {need} is weighing heavily on them.",
+          "They're just trying to find {need}.",
+          "And the underlying issue is {need}.",
+          "So it's all about {need}.",
+          "I can definitely sympathize with {need}.",
+          "Their emotional core right now is {need}.",
+          "It seems {need} is driving them today.",
+          "That explains why they're so fixated on {need}.",
+          "Aha, they need help with {need}.",
+          "They're secretly hoping for {need}.",
+          "The subtext here is definitely {need}.",
+          "Turns out they just want {need}.",
+          "So their real struggle is {need}.",
+          "I need to make sure this helps with {need}."
+        ];
+
+        let subLine = "";
+        if (newlyRevealedItem) {
+          subLine += itemPhrases[Math.floor(Math.random() * itemPhrases.length)].replace('{item}', state.currentCustomerRequest);
+        }
+        if (newlyRevealedNeed) {
+          if (subLine) subLine += " ";
+          subLine += needPhrases[Math.floor(Math.random() * needPhrases.length)].replace('{need}', state.currentCustomerNeed);
+        }
+        
+        await setPersistentPrompt(`[SUBCONSCIOUS] ${subLine}`, 'log-subconscious');
       }
 
       

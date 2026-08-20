@@ -37,7 +37,7 @@ JSON Schema:
   "revealed_item": boolean,
   "revealed_need": boolean,
   "customer_response_line": "A short, funny response from the customer to the player.",
-  "subconscious_impression": "A short internal thought from the grocer's subconscious about this customer, in italics."
+  
 }`;
 
       // Convert the conversation history into OpenAI message objects
@@ -60,7 +60,7 @@ JSON Schema:
           model: "gpt-4o-mini",
           messages: messages,
           response_format: { type: "json_object" },
-          temperature: 1.15
+          temperature: 1
         })
       });
       
@@ -142,7 +142,7 @@ Generate the next customer encounter. RETURN ONLY RAW JSON.`;
         model: "gpt-4o-mini",
         messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
         response_format: { type: "json_object" },
-        temperature: 1.15
+        temperature: 1
       })
     });
 
