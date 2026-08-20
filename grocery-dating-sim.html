@@ -58,30 +58,87 @@
       font-family: 'VT323', monospace;
       font-size: 1.2rem;
     }
+    .leaderboard-wrapper {
+      grid-column: 2 / 3;
+      text-align: center;
+      margin-top: 1rem;
+    }
 
     @media (max-width: 768px) {
       .game-container {
-        grid-template-columns: 1fr;
-        padding: 0.5rem;
+        grid-template-columns: 1fr 140px !important;
+        gap: 0.5rem !important;
+        padding: 0.25rem !important;
       }
       .game-wrapper {
-        margin-top: 100px !important;
+        margin-top: 70px !important;
         margin-bottom: 20px !important;
       }
       .vhs-title {
-        font-size: 2rem !important;
+        font-size: 1.8rem !important;
         line-height: 0.9 !important;
-        margin-bottom: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-      }
-      .game-console {
-        height: 350px !important;
+        margin-bottom: 0.2rem !important;
+        padding-bottom: 0.2rem !important;
       }
       .game-stats {
-        padding: 0.5rem !important;
+        grid-column: 1 / 2 !important;
+        grid-row: 1 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.2rem !important;
+        padding: 0.25rem !important;
+        border-width: 1px !important;
+        align-content: center !important;
+      }
+      .stat-box {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+      }
+      .stat-label {
+        font-size: 0.65rem !important;
       }
       .stat-value {
-        font-size: 1.2rem !important;
+        font-size: 1rem !important;
+        margin-top: 0 !important;
+      }
+      .game-vision {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 !important;
+        padding: 0.25rem !important;
+        border-width: 1px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+      }
+      .game-vision h3 {
+        font-size: 0.8rem !important;
+        margin: 0 0 0.2rem 0 !important;
+        padding-bottom: 0.2rem !important;
+      }
+      .canvas-container {
+        width: 100% !important;
+        max-width: 120px !important;
+        margin: 0 auto !important;
+      }
+      .status-text {
+        font-size: 0.6rem !important;
+        margin-top: 0.2rem !important;
+      }
+      .game-console {
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+        height: 50vh !important;
+        min-height: 300px !important;
+        border-width: 1px !important;
+        padding: 0.5rem !important;
+      }
+      .leaderboard-wrapper {
+        grid-column: 1 / -1 !important;
+        grid-row: 3 !important;
+        margin-top: 0.5rem !important;
       }
     }
 
@@ -561,9 +618,10 @@
       </div>
       <div class="status-text" id="scanner-status">WAITING FOR ITEM...</div>
       
-      <div style="text-align: center; margin-top: 1.5rem;">
-        <button id="btn-leaderboard" style="background: transparent; border: 2px solid gold; color: gold; padding: 0.5rem 1rem; font-family: 'VT323', monospace; font-size: 1.2rem; cursor: pointer; transition: all 0.2s;"><i class="fa-solid fa-trophy"></i> LEADERBOARD</button>
-      </div>
+        </div>
+    
+    <div class="leaderboard-wrapper">
+      <button id="btn-leaderboard" style="background: transparent; border: 2px solid gold; color: gold; padding: 0.5rem 1rem; font-family: 'VT323', monospace; font-size: 1.2rem; cursor: pointer; transition: all 0.2s;"><i class="fa-solid fa-trophy"></i> LEADERBOARD</button>
     </div>
 
   </div> <!-- End Game Container -->
