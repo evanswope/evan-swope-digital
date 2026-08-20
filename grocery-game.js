@@ -134,11 +134,11 @@
   
     async function setPersistentPrompt(text, type = 'log-gm') {
       if (!text) {
-        persistentBox.style.display = 'none';
+        persistentBox.style.display = 'flex';
         persistentBox.innerHTML = '';
         return;
       }
-      persistentBox.style.display = 'block';
+      persistentBox.style.display = 'flex';
       if (type === 'log-gm') {
          persistentBox.style.color = '#33ff33';
       } else if (type === 'log-subconscious') {
@@ -1023,7 +1023,7 @@
 
           if (!isDating) {
             state.phase = "HAND_OVER_ITEM";
-            addLog(`> Item fabricated. Press ENTER or type "GIVE" to hand it over.`, "log-gm");
+            setPersistentPrompt(`> Item fabricated. Press ENTER or type "GIVE" to hand it over.`, "log-gm");
             
             state.pendingVisionData = fetchWithRetry('/api/vision', {
               method: 'POST',
@@ -1250,7 +1250,7 @@
     const num = couponNumbers[Math.floor(Math.random() * couponNumbers.length)];
     state.couponTarget = `${word}${num}`;
     
-    await addLogTypewriter(`> THEY SLAM A CRUMPLED COUPON ON THE COUNTER: ENTER '${state.couponTarget}'`, "log-error", 15);
+    setPersistentPrompt(`> COUPON EVENT: ENTER '${state.couponTarget}'`, "log-error");
     gameInput.disabled = false;
     gameInput.focus();
   }
@@ -1287,7 +1287,7 @@
     await addLogTypewriter(`[SUBCONSCIOUS] ${pick2}`, "log-gm", 15);
     
     state.phase = "CHECKOUT_BAG";
-    await addLogTypewriter(`> BAG THE GROCERIES: TYPE 'BAG'`, "log-error", 15);
+    setPersistentPrompt(`> BAG THE GROCERIES: TYPE 'BAG'`, "log-error");
     gameInput.disabled = false;
     gameInput.focus();
   }
@@ -1425,7 +1425,7 @@
       addLog(`\n===========================================`, "log-system");
       addLog(`> 💕 TRUE LOVE! 💕`, "log-system");
       addLog(`> This customer fell madly in love with you on the spot!`, "log-system");
-      addLog(`> Type "I'm Ace" or "I'm Aro" to just be best friends, or type anything else to go on a date right now!`, "log-gm");
+      setPersistentPrompt(`> Type "I'm Ace" or "I'm Aro" to be best friends, or anything else to date!`, "log-gm");
       state.phase = "TRUE_LOVE_PROMPT";
       gameInput.disabled = false;
       gameInput.focus();
@@ -1435,9 +1435,9 @@
     if (state.level >= 5) {
       updateStatsUI();
       if (data.approved) {
-        addLog(`> Success! Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
+        setPersistentPrompt(`> Success! Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
       } else {
-        addLog(`> Too bad. Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
+        setPersistentPrompt(`> Too bad. Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
       }
       state.phase = "WAIT_LEDGER";
       gameInput.disabled = false;
@@ -1446,9 +1446,9 @@
       state.level++;
       updateStatsUI();
       if (data.approved) {
-        addLog(`> Success! Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
+        setPersistentPrompt(`> Success! Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
       } else {
-        addLog(`> Too bad. Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
+        setPersistentPrompt(`> Too bad. Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
       }
       state.phase = "START";
       gameInput.disabled = false;
@@ -1511,7 +1511,7 @@
         state.barcodeCurrent = chosenSchema;
       
       await addLogTypewriter(`[SYSTEM] The customer stares intently at the item. Ring them up!`, "log-system", 15);
-      await addLogTypewriter(`> BARCODE SCANNER: TYPE '${state.barcodeTarget}' TO SCAN`, "log-error", 15);
+      setPersistentPrompt(`> BARCODE SCANNER: TYPE '${state.barcodeTarget}' TO SCAN`, "log-error");
       
       gameInput.value = state.barcodeCurrent;
       gameInput.disabled = false;
@@ -1546,7 +1546,7 @@
       addLog(`[${idx + 1}] ${c.name} | ${c.affectionGained}💖 | Wanted: ${c.request}`, "log-user");
     });
 
-    addLog(`> Who would you like to woo? Type a number 1-5, or type "I'm Ace" / "I'm Aro" to just hang out as friends.`, "log-gm");
+    setPersistentPrompt(`> Pick a customer 1-5, or type "I'm Ace" / "I'm Aro" to just be friends.`, "log-gm");
     gameInput.disabled = false;
     gameInput.focus();
   }
@@ -1569,7 +1569,7 @@
       state.obstacleCount = 0;
       
       await addLogTypewriter(`> ${data.narrative}`, "log-error", 15);
-      await addLogTypewriter(`> TYPE '${state.obstacleTarget}' 3 TIMES TO FIX IT!`, "log-error", 10);
+      setPersistentPrompt(`> TYPE '${state.obstacleTarget}' 3 TIMES TO FIX IT!`, "log-error");
       
       state.phase = "DATING_OBSTACLE";
       document.body.classList.add('alarm-flashing');
@@ -1580,7 +1580,7 @@
     } catch (e) {
       state.obstacleTarget = "FIX";
       state.obstacleCount = 0;
-      await addLogTypewriter(`> Your ride stalls! Type 'FIX' 3 times!`, "log-error", 10);
+      setPersistentPrompt(`> Your ride stalls! Type 'FIX' 3 times!`, "log-error");
       state.phase = "DATING_OBSTACLE";
       document.body.classList.add('alarm-flashing');
       playKlaxon();
@@ -1709,7 +1709,7 @@
           state.phase = "DATING_HANGOUT_VENUE";
           const venuePrompt = async () => {
             gameInput.disabled = true;
-            await addLogTypewriter(`[SUBCONSCIOUS] They want to hang out again! Where should you two go next?`, "log-gm", 15);
+            setPersistentPrompt(`> Where should you two go next?`, "log-gm");
             gameInput.disabled = false;
             gameInput.focus();
           };
@@ -1719,7 +1719,7 @@
           state.phase = "DATING_WEDDING_VENUE";
           const venuePrompt = async () => {
             gameInput.disabled = true;
-            await addLogTypewriter(`[SUBCONSCIOUS] They said yes! The big day is approaching. Where are you hosting the wedding?`, "log-gm", 15);
+            setPersistentPrompt(`> Where are you hosting the wedding?`, "log-gm");
             gameInput.disabled = false;
             gameInput.focus();
           };
@@ -1758,10 +1758,10 @@
     addLog(won ? `GAME OVER - YOU WON!` : `GAME OVER - YOU LOST!`, "log-system");
     
     if (won) {
-      addLog(`> Type your name to immortalize your ${(state.isAce || state.isAro) ? 'friendship' : 'romance'} on the Leaderboard, or type "NO" to skip.`, "log-gm");
+      setPersistentPrompt(`> Type your name for the Leaderboard, or type "NO" to skip.`, "log-gm");
       state.phase = "LEADERBOARD_PROMPT";
     } else {
-      addLog(`Type a complaint to management, or hit ENTER to RESTART and play again.`, "log-gm");
+      setPersistentPrompt(`> Type a complaint to management, or hit ENTER to RESTART`, "log-gm");
       state.phase = "COMPLAINT";
     }
     gameInput.disabled = false;
@@ -1816,7 +1816,7 @@
       addLog(`> Error saving to leaderboard: ${e.message}`, "log-error");
       addLog(`> (Memory saved locally instead!)`, "log-error");
     }
-    addLog(`\nType a complaint to management, or type RESTART to play again.`, "log-gm");
+    setPersistentPrompt(`> Type a complaint to management, or hit ENTER to RESTART`, "log-gm");
     state.phase = "COMPLAINT";
     gameInput.disabled = false;
     gameInput.focus();
@@ -1841,7 +1841,7 @@
     await addLogTypewriter(`> CONNECTING TO NEURAL NET... SUCCESS.`, "log-system", 10);
     await addLogTypewriter(`Welcome weary local grocer! Are you looking for love? Or just cash? Why not both...`, "log-gm", 15);
     await addLogTypewriter(`Provide your customers with the grocery items they need, add a twist to help them emotionally, and you may just end up falling in love!`, "log-gm", 15);
-    await addLogTypewriter(`TYPE "START" OR HIT ENTER TO BEGIN SHIFT.`, "log-gm", 15);
+    setPersistentPrompt(`TYPE "START" OR HIT ENTER TO BEGIN SHIFT.`, "log-gm");
     state.phase = "START";
     gameInput.disabled = false;
     gameInput.focus();
@@ -1915,18 +1915,18 @@
           if (redScanline) redScanline.classList.remove('active');
           
           state.phase = "PLAYER_SETUP";
-          addLog("> Welcome to your shift. Before we begin, please describe what you look like (e.g., 'a tired clerk with purple hair', 'a suave cashier wearing a tuxedo'). This will be used for your ID badge.", "log-system");
+          setPersistentPrompt("> Describe what you look like for your ID badge...", "log-system");
         } else if (val.toLowerCase() === 'next') {
           callGameMaster();
         } else {
-          addLog("Type 'start' or 'next' to continue.", "log-system");
+          setPersistentPrompt("Type 'start' or 'next' to continue.", "log-system");
         }
       }
       else if (state.phase === "HAND_OVER_ITEM") {
         if (val.toLowerCase() === 'give') {
           appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
         } else {
-          addLog("Press ENTER or type 'GIVE' to hand it over.", "log-system");
+          setPersistentPrompt("Press ENTER or type 'GIVE' to hand it over.", "log-system");
         }
       }
       else if (state.phase === "PLAYER_SETUP") {
@@ -1937,7 +1937,7 @@
         
         const badgePrompt = `${val}, smiling employee badge on white background with lanyard, high key lighting portrait photography`;
         generateCharacterImage(badgePrompt, 'badge', state.playerSeed).then(() => {
-          addLog("> Badge printed. Press ENTER to start your shift.", "log-system");
+          setPersistentPrompt("> Badge printed. Press ENTER to start your shift.", "log-system");
           state.phase = "BADGE_HOLD";
           gameInput.disabled = false;
           gameInput.focus();
@@ -1968,7 +1968,7 @@
             addLog(`> Calling up Customer #${num}...`, "log-gm");
             callDatingMaster(null);
           } else {
-            addLog("> Invalid choice. Pick 1-5 or 'I'm Ace'.", "log-error");
+            setPersistentPrompt("> Invalid choice. Pick 1-5 or 'I'm Ace'.", "log-error");
           }
         }
       }
@@ -1988,7 +1988,7 @@
         if (val.toLowerCase() === 'ledger' || val.toLowerCase() === 'next') {
           showLedger();
         } else {
-          addLog("Type 'ledger' to review your customers.", "log-system");
+          setPersistentPrompt("Type 'ledger' to review your customers.", "log-system");
         }
       }
       else if (state.phase === "DATING_WAIT_USER") {
@@ -1997,7 +1997,7 @@
           state.phase = "DATING_WARDROBE";
           const wardrobePrompt = async () => {
             gameInput.disabled = true;
-            await addLogTypewriter(`[SUBCONSCIOUS] Time freezes for a moment. You need to prepare before you meet them. What are you going to wear?`, "log-gm", 15);
+            setPersistentPrompt(`> What are you going to wear?`, "log-gm");
             gameInput.disabled = false;
             gameInput.focus();
           };
@@ -2012,7 +2012,7 @@
         state.phase = "DATING_GIFT";
         const giftPrompt = async () => {
           gameInput.disabled = true;
-          await addLogTypewriter(`[SUBCONSCIOUS] And you'll need a ${state.isAce || state.isAro ? 'gift or snack' : 'gift'}. You have ${state.cash}. What do you buy?`, "log-gm", 15);
+          setPersistentPrompt(`> You have ${state.cash}. What gift/snack do you bring?`, "log-gm");
           gameInput.disabled = false;
           gameInput.focus();
         };
@@ -2028,7 +2028,7 @@
         if (val.trim().toUpperCase() === state.obstacleTarget) {
           handleObstacleSuccess();
         } else {
-          addLog(`> FAILED! Type '${state.obstacleTarget}'!`, "log-error");
+          setPersistentPrompt(`> FAILED! Type '${state.obstacleTarget}'!`, "log-error");
         }
       }
       else if (state.phase === "DATING_HANGOUT_VENUE") {
@@ -2036,7 +2036,7 @@
         state.phase = "DATING_HANGOUT_SNACK";
         const ringPrompt = async () => {
           gameInput.disabled = true;
-          await addLogTypewriter(`[SUBCONSCIOUS] You'll need to bring a snack to share. What weird snack do you grab?`, "log-gm", 15);
+          setPersistentPrompt(`> What weird snack do you grab?`, "log-gm");
           gameInput.disabled = false;
           gameInput.focus();
         };
@@ -2053,7 +2053,7 @@
         state.phase = "DATING_WEDDING_RING";
         const ringPrompt = async () => {
           gameInput.disabled = true;
-          await addLogTypewriter(`[SUBCONSCIOUS] You need a ring. What kind of bizarre ring do you present them with?`, "log-gm", 15);
+          setPersistentPrompt(`> What kind of bizarre ring do you present them with?`, "log-gm");
           gameInput.disabled = false;
           gameInput.focus();
         };
