@@ -1206,8 +1206,12 @@
         });
 
       } catch (e) {
-        attempt++;
-      }
+          if (attempt < maxAttempts) {
+             console.warn("Image generation failed, retrying in 3s...", e);
+             await new Promise(r => setTimeout(r, 3000));
+          }
+          attempt++;
+        }
     }
     
     if (!returnUrlOnly) {
