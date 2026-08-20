@@ -1676,7 +1676,7 @@
 
   // Initialization
   async function init() {
-    await addLogTypewriter(`> LOADING GROCERY DATING SIM v1.12.0...`, "log-system", 10);
+    await addLogTypewriter(`> LOADING GROCERY DATING SIM v1.12.1...`, "log-system", 10);
     await addLogTypewriter(`> NOW WITH: ARO/ACE PLATONIC PATHWAYS & LEADERBOARD FLAGS`, "log-system", 10);
     await addLogTypewriter(`> CONNECTING TO NEURAL NET... SUCCESS.`, "log-system", 10);
     await addLogTypewriter(`Welcome weary local grocer! Are you looking for love? Or just cash? Why not both...`, "log-gm", 15);
