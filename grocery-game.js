@@ -1,5 +1,15 @@
 ﻿window.isMuted = false;
 document.addEventListener('DOMContentLoaded', () => {
+
+  // UI Elements
+  const logArea = document.getElementById('log-area');
+  const gameInput = document.getElementById('game-input');
+  const statLevel = document.getElementById('stat-level');
+  const statCash = document.getElementById('stat-cash');
+  const statTrust = document.getElementById('stat-trust');
+  const statPop = document.getElementById('stat-pop');
+  const statAffection = document.getElementById('stat-affection');
+
   // Audio
   const mobileSoundBtn = document.getElementById('sound-toggle-btn');
   const desktopSoundBtn = document.getElementById('sound-toggle-desktop');
