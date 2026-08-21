@@ -20,104 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.isMuted = !window.isMuted;
     const icons = [mobileSoundIcon, desktopSoundIcon].filter(Boolean);
     if (window.isMuted) {
-      icons.forEach(i => { i.classList.remove('fa-volume-up'); i.classList.add('fa-volume-mute'); 
-  // Image Viewer Modal & Export Logic
-  const magIcon = document.getElementById('mag-icon');
-  const cameraCanvas = document.querySelector('.canvas-container');
-  const imageModal = document.getElementById('image-modal');
-  const imageModalImg = document.getElementById('image-modal-img');
-  const btnCloseImage = document.getElementById('btn-close-image');
-  const btnDownloadImg = document.getElementById('btn-download-img');
-  const btnEmailImg = document.getElementById('btn-email-img');
-  const itemImageEl = document.getElementById('item-image'); // Local reference
-  
-  if (itemImageEl) {
-    let magTimer = null;
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
-          if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
-            if (magIcon) {
-              magIcon.style.transition = 'none';
-              magIcon.style.opacity = '1';
-              if (magTimer) clearTimeout(magTimer);
-              magTimer = setTimeout(() => {
-                magIcon.style.transition = 'opacity 1s';
-                magIcon.style.opacity = '0';
-              }, 3000);
-            }
-          }
-        }
-      });
-    });
-    observer.observe(itemImageEl, { attributes: true });
-    
-    if (cameraCanvas) {
-      cameraCanvas.style.cursor = 'pointer';
-      cameraCanvas.addEventListener('click', () => {
-        if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
-          imageModalImg.src = itemImageEl.src;
-          imageModal.style.display = 'flex';
-        }
-      });
-    }
-  }
-
-  if (btnCloseImage) {
-    btnCloseImage.addEventListener('click', () => imageModal.style.display = 'none');
-  }
-  if (imageModal) {
-    imageModal.addEventListener('click', (e) => {
-      if (e.target === imageModal) imageModal.style.display = 'none';
-    });
-  }
-
-  if (btnDownloadImg) {
-    btnDownloadImg.addEventListener('click', () => {
-      if (!imageModalImg.src || !imageModalImg.src.startsWith('http')) return;
-      fetch(imageModalImg.src)
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = 'checked-out-anomaly.jpg';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-        })
-        .catch(() => alert("Failed to download image. You may need to right-click and save it manually."));
-    });
-  }
-
-  if (btnEmailImg) {
-    btnEmailImg.addEventListener('click', () => {
-      const now = new Date();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const year = now.getFullYear();
-      const dateStr = `${month}${day}${year}`;
-      
-      const subject = `Smiling Cashier sent you an image ${dateStr}`;
-      
-      const prompt = window.lastImagePrompt || "An unknown grocery anomaly.";
-      const flavor = window.lastGameContext || "The user has incorrectly generated a grocery item again.";
-      
-      const body = `${prompt}\n\n${flavor}\n\n(You must manually attach your downloaded checked-out-anomaly.jpg file before hitting send!)`;
-      
-      window.location.href = `mailto:evanlswope@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    });
-  }
-
-});
-
+      icons.forEach(i => { i.classList.remove('fa-volume-up'); i.classList.add('fa-volume-mute'); });
     } else {
       icons.forEach(i => { i.classList.remove('fa-volume-mute'); i.classList.add('fa-volume-up'); });
     }
   };
-  
+
   if (mobileSoundBtn) mobileSoundBtn.addEventListener('click', toggleSound);
   if (desktopSoundBtn) desktopSoundBtn.addEventListener('click', toggleSound);
 
@@ -2510,23 +2418,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Image Modal Logic
-  const imageModal = document.getElementById('image-modal');
-  const btnCloseImage = document.getElementById('btn-close-image');
-  const imageModalContent = document.getElementById('image-modal-content');
-
-  if (imageModal) {
-    imageModal.addEventListener('click', (e) => {
-      // Close if they click the background, but not the image itself
-      if (e.target === imageModal) {
-        imageModal.style.display = 'none';
-      }
-    });
-    btnCloseImage.addEventListener('click', () => {
-      imageModal.style.display = 'none';
-    });
-  }
-
   // Global Auto-Focus Logic
   document.addEventListener('click', (e) => {
     // If they aren't clicking on a button, link, or inside a modal, refocus input
@@ -2622,5 +2513,95 @@ document.addEventListener('DOMContentLoaded', () => {
     // Prevent default touchstart to stop zooming or native context menus
     btn.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
   });
+  // Image Viewer Modal & Export Logic
+  const magIcon = document.getElementById('mag-icon');
+  const cameraCanvas = document.querySelector('.canvas-container');
+  const imageModal = document.getElementById('image-modal');
+  const imageModalImg = document.getElementById('image-modal-img');
+  const btnCloseImage = document.getElementById('btn-close-image');
+  const btnDownloadImg = document.getElementById('btn-download-img');
+  const btnEmailImg = document.getElementById('btn-email-img');
+  const itemImageEl = document.getElementById('item-image'); // Local reference
+  
+  if (itemImageEl) {
+    let magTimer = null;
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+          if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
+            if (magIcon) {
+              magIcon.style.transition = 'none';
+              magIcon.style.opacity = '1';
+              if (magTimer) clearTimeout(magTimer);
+              magTimer = setTimeout(() => {
+                magIcon.style.transition = 'opacity 1s';
+                magIcon.style.opacity = '0';
+              }, 3000);
+            }
+          }
+        }
+      });
+    });
+    observer.observe(itemImageEl, { attributes: true });
+    
+    if (cameraCanvas) {
+      cameraCanvas.style.cursor = 'pointer';
+      cameraCanvas.addEventListener('click', () => {
+        if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
+          imageModalImg.src = itemImageEl.src;
+          imageModal.style.display = 'flex';
+        }
+      });
+    }
+  }
+
+  if (btnCloseImage) {
+    btnCloseImage.addEventListener('click', () => imageModal.style.display = 'none');
+  }
+  if (imageModal) {
+    imageModal.addEventListener('click', (e) => {
+      if (e.target === imageModal) imageModal.style.display = 'none';
+    });
+  }
+
+  if (btnDownloadImg) {
+    btnDownloadImg.addEventListener('click', () => {
+      if (!imageModalImg.src || !imageModalImg.src.startsWith('http')) return;
+      fetch(imageModalImg.src)
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'checked-out-anomaly.jpg';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        })
+        .catch(() => alert("Failed to download image. You may need to right-click and save it manually."));
+    });
+  }
+
+  if (btnEmailImg) {
+    btnEmailImg.addEventListener('click', () => {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const year = now.getFullYear();
+      const dateStr = `${month}${day}${year}`;
+      
+      const subject = `Smiling Cashier sent you an image ${dateStr}`;
+      
+      const prompt = window.lastImagePrompt || "An unknown grocery anomaly.";
+      const flavor = window.lastGameContext || "The user has incorrectly generated a grocery item again.";
+      
+      const body = `${prompt}\n\n${flavor}\n\n(You must manually attach your downloaded checked-out-anomaly.jpg file before hitting send!)`;
+      
+      window.location.href = `mailto:evanlswope@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+  }
+
 
 });
