@@ -2525,10 +2525,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (itemImageEl) {
     let magTimer = null;
+    if (cameraCanvas) { cameraCanvas.style.cursor = 'default'; }
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
           if (itemImageEl.src && (itemImageEl.src.startsWith('http') || itemImageEl.src.startsWith('data:'))) {
+            if (cameraCanvas) cameraCanvas.style.cursor = 'pointer';
             if (magIcon) {
               magIcon.style.transition = 'none';
               magIcon.style.opacity = '1';
@@ -2538,6 +2540,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 magIcon.style.opacity = '0';
               }, 3000);
             }
+          } else {
+            if (cameraCanvas) cameraCanvas.style.cursor = 'default';
           }
         }
       });
@@ -2545,7 +2549,6 @@ document.addEventListener('DOMContentLoaded', () => {
     observer.observe(itemImageEl, { attributes: true });
     
     if (cameraCanvas) {
-      cameraCanvas.style.cursor = 'pointer';
       cameraCanvas.addEventListener('click', () => {
         if (itemImageEl.src && (itemImageEl.src.startsWith('http') || itemImageEl.src.startsWith('data:'))) {
           imageModalImg.src = itemImageEl.src;
@@ -2599,13 +2602,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const prompt = window.lastImagePrompt || "An unknown grocery anomaly.";
       const flavor = window.lastGameContext || "The user has incorrectly generated a grocery item again.";
-      const imageBase64 = imageModalImg.src; 
       
+      let playerDesc = state && state.playerDescription ? state.playerDescription : "Smiling Cashier";
+      if (playerDesc.length > 50) playerDesc = playerDesc.substring(0, 50) + "...";
+
       try {
+        // Convert image src to actual Base64 string
+        const fetchRes = await fetch(imageModalImg.src);
+        const blob = await fetchRes.blob();
+        const imageBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
         const response = await fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, flavor, imageBase64 })
+          body: JSON.stringify({ prompt, flavor, imageBase64, playerDesc })
         });
         
         if (response.ok) {
