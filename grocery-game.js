@@ -2528,7 +2528,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
-          if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
+          if (itemImageEl.src && (itemImageEl.src.startsWith('http') || itemImageEl.src.startsWith('data:'))) {
             if (magIcon) {
               magIcon.style.transition = 'none';
               magIcon.style.opacity = '1';
@@ -2547,7 +2547,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cameraCanvas) {
       cameraCanvas.style.cursor = 'pointer';
       cameraCanvas.addEventListener('click', () => {
-        if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
+        if (itemImageEl.src && (itemImageEl.src.startsWith('http') || itemImageEl.src.startsWith('data:'))) {
           imageModalImg.src = itemImageEl.src;
           imageModal.style.display = 'flex';
         }
@@ -2566,7 +2566,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnDownloadImg) {
     btnDownloadImg.addEventListener('click', () => {
-      if (!imageModalImg.src || !imageModalImg.src.startsWith('http')) return;
+      if (!imageModalImg.src || !(imageModalImg.src.startsWith('http') || imageModalImg.src.startsWith('data:'))) return;
       fetch(imageModalImg.src)
         .then(response => response.blob())
         .then(blob => {
