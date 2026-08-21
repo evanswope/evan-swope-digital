@@ -2584,22 +2584,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let emailsSentThisSession = 0;
+
   if (btnEmailImg) {
-    btnEmailImg.addEventListener('click', () => {
-      const now = new Date();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const year = now.getFullYear();
-      const dateStr = `${month}${day}${year}`;
+    btnEmailImg.addEventListener('click', async () => {
+      if (emailsSentThisSession >= 3) {
+        alert("You've already sent 3 images this session!");
+        return;
+      }
       
-      const subject = `Smiling Cashier sent you an image ${dateStr}`;
-      
+      const originalText = btnEmailImg.innerHTML;
+      btnEmailImg.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SENDING...';
+      btnEmailImg.disabled = true;
+
       const prompt = window.lastImagePrompt || "An unknown grocery anomaly.";
       const flavor = window.lastGameContext || "The user has incorrectly generated a grocery item again.";
+      const imageBase64 = imageModalImg.src; 
       
-      const body = `${prompt}\n\n${flavor}\n\n(You must manually attach your downloaded checked-out-anomaly.jpg file before hitting send!)`;
-      
-      window.location.href = `mailto:evanlswope@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      try {
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, flavor, imageBase64 })
+        });
+        
+        if (response.ok) {
+          emailsSentThisSession++;
+          btnEmailImg.innerHTML = '<i class="fa-solid fa-check"></i> EMAIL SENT!';
+          setTimeout(() => {
+            btnEmailImg.innerHTML = originalText;
+            btnEmailImg.disabled = false;
+          }, 3000);
+        } else {
+          alert("Failed to send email. Server rejected the request.");
+          btnEmailImg.innerHTML = originalText;
+          btnEmailImg.disabled = false;
+        }
+      } catch (e) {
+        alert("Network error.");
+        btnEmailImg.innerHTML = originalText;
+        btnEmailImg.disabled = false;
+      }
     });
   }
 
