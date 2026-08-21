@@ -20,7 +20,99 @@ document.addEventListener('DOMContentLoaded', () => {
     window.isMuted = !window.isMuted;
     const icons = [mobileSoundIcon, desktopSoundIcon].filter(Boolean);
     if (window.isMuted) {
-      icons.forEach(i => { i.classList.remove('fa-volume-up'); i.classList.add('fa-volume-mute'); });
+      icons.forEach(i => { i.classList.remove('fa-volume-up'); i.classList.add('fa-volume-mute'); 
+  // Image Viewer Modal & Export Logic
+  const magIcon = document.getElementById('mag-icon');
+  const cameraCanvas = document.getElementById('camera-canvas');
+  const imageModal = document.getElementById('image-modal');
+  const imageModalImg = document.getElementById('image-modal-img');
+  const btnCloseImage = document.getElementById('btn-close-image');
+  const btnDownloadImg = document.getElementById('btn-download-img');
+  const btnEmailImg = document.getElementById('btn-email-img');
+  const itemImageEl = document.getElementById('item-image'); // Local reference
+  
+  if (itemImageEl) {
+    let magTimer = null;
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+          if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
+            if (magIcon) {
+              magIcon.style.transition = 'none';
+              magIcon.style.opacity = '1';
+              if (magTimer) clearTimeout(magTimer);
+              magTimer = setTimeout(() => {
+                magIcon.style.transition = 'opacity 1s';
+                magIcon.style.opacity = '0';
+              }, 3000);
+            }
+          }
+        }
+      });
+    });
+    observer.observe(itemImageEl, { attributes: true });
+    
+    if (cameraCanvas) {
+      cameraCanvas.style.cursor = 'pointer';
+      cameraCanvas.addEventListener('click', () => {
+        if (itemImageEl.src && itemImageEl.src.startsWith('http')) {
+          imageModalImg.src = itemImageEl.src;
+          imageModal.style.display = 'flex';
+        }
+      });
+    }
+  }
+
+  if (btnCloseImage) {
+    btnCloseImage.addEventListener('click', () => imageModal.style.display = 'none');
+  }
+  if (imageModal) {
+    imageModal.addEventListener('click', (e) => {
+      if (e.target === imageModal) imageModal.style.display = 'none';
+    });
+  }
+
+  if (btnDownloadImg) {
+    btnDownloadImg.addEventListener('click', () => {
+      if (!imageModalImg.src || !imageModalImg.src.startsWith('http')) return;
+      fetch(imageModalImg.src)
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'checked-out-anomaly.jpg';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        })
+        .catch(() => alert("Failed to download image. You may need to right-click and save it manually."));
+    });
+  }
+
+  if (btnEmailImg) {
+    btnEmailImg.addEventListener('click', () => {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const year = now.getFullYear();
+      const dateStr = `${month}${day}${year}`;
+      
+      const subject = `Smiling Cashier sent you an image ${dateStr}`;
+      
+      const prompt = window.lastImagePrompt || "An unknown grocery anomaly.";
+      const flavor = window.lastGameContext || "The user has incorrectly generated a grocery item again.";
+      
+      const body = `${prompt}\n\n${flavor}\n\n(You must manually attach your downloaded checked-out-anomaly.jpg file before hitting send!)`;
+      
+      window.location.href = `mailto:evanlswope@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+  }
+
+});
+
     } else {
       icons.forEach(i => { i.classList.remove('fa-volume-mute'); i.classList.add('fa-volume-up'); });
     }
@@ -216,6 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Helper: Add text to log with typewriter effect
   async function addLogTypewriter(text, className, delayMs = 15) {
+  if (className === "log-system" || className === "log-customer") {
+    // Save the most recent interesting flavor text for the email export
+    const cleanText = text.replace(/^[>\[\]A-Z0-9 ]*\s*/, '').trim();
+    if (cleanText.length > 10) window.lastGameContext = cleanText;
+  }
     const p = document.createElement('div');
     p.className = `log-msg ${className}`;
     logArea.appendChild(p);
@@ -970,6 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Phase: Generate Image
   async function generateImage(prompt, isDating = false, fullPromptOverride = null) {
+  window.lastImagePrompt = fullPromptOverride || prompt;
       setPersistentPrompt("");
     const originalPhase = state.phase;
     state.phase = isDating ? "DATING_GENERATING" : "GENERATING";
@@ -1156,6 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function generateCharacterImage(prompt, type = 'character', seed = undefined, returnUrlOnly = false) {
+  window.lastImagePrompt = prompt;
     if (!returnUrlOnly) {
       itemImage.onload = null;
       itemImage.onerror = null;
