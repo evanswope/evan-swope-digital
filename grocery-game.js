@@ -306,9 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
-    }
 
-    function addLog(text, className) {
+  function addLog(text, className) {
     const p = document.createElement('div');
     p.className = `log-msg ${className}`;
     p.textContent = text;
