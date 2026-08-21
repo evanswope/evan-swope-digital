@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
       icons.forEach(i => { i.classList.remove('fa-volume-up'); i.classList.add('fa-volume-mute'); 
   // Image Viewer Modal & Export Logic
   const magIcon = document.getElementById('mag-icon');
-  const cameraCanvas = document.getElementById('camera-canvas');
+  const cameraCanvas = document.querySelector('.canvas-container');
   const imageModal = document.getElementById('image-modal');
   const imageModalImg = document.getElementById('image-modal-img');
   const btnCloseImage = document.getElementById('btn-close-image');
