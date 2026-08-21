@@ -271,7 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper: Add text to log
   const persistentBox = document.getElementById('persistent-box');
   
+    let currentPromptId = 0;
+    
     async function setPersistentPrompt(text, type = 'log-gm') {
+      currentPromptId++;
+      const thisPromptId = currentPromptId;
+
       if (!text) {
         persistentBox.style.display = 'flex';
         persistentBox.innerHTML = '';
@@ -283,6 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (type === 'log-subconscious') {
          persistentBox.style.color = '#ffb86c';
          persistentBox.style.fontStyle = 'italic';
+      } else if (type === 'log-error') {
+         persistentBox.style.color = '#ff3333';
       } else {
          persistentBox.style.color = '#fff';
       }
@@ -290,12 +297,15 @@ document.addEventListener('DOMContentLoaded', () => {
       persistentBox.innerHTML = '';
       
       for (let i = 0; i < text.length; i++) {
+        if (currentPromptId !== thisPromptId) return;
+        
         persistentBox.innerHTML += text[i];
         if (text[i] !== ' ' && i % 2 === 0) {
           playConsoleBleep();
           await new Promise(r => setTimeout(r, 10));
         }
       }
+    }
     }
 
     function addLog(text, className) {
