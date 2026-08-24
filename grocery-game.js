@@ -904,7 +904,33 @@ document.addEventListener('DOMContentLoaded', () => {
         state.conversationHistory.push({ role: 'assistant', content: data.customer_response_line });
       }
 
-      let newlyRevealedItem = data.revealed_item && !state.itemRevealed;
+      if (data.customer_leaves) {
+          await addLogTypewriter(`> The customer is deeply offended and storms out of the store. (-50 Trust)`, "log-error", 15);
+          state.trust = Math.max(0, state.trust - 50);
+          updateStatsUI();
+          state.customersServed.push({
+            id: state.currentCustomerSeed,
+            name: state.currentCustomerName,
+            desc: state.currentCustomerDesc,
+            request: state.currentCustomerRequest,
+            affectionGained: -100 // Massive penalty for leaving
+          });
+          
+          if (state.level >= 5) {
+             setPersistentPrompt(`> Shift completed. Type "LEDGER" or hit ENTER to review your customers.`, "log-gm");
+             state.phase = "WAIT_LEDGER";
+          } else {
+             state.level++;
+             updateStatsUI();
+             setPersistentPrompt(`> Type "NEXT" or hit ENTER to serve the next customer.`, "log-gm");
+             state.phase = "START";
+          }
+          gameInput.disabled = false;
+          gameInput.focus();
+          return;
+        }
+
+        let newlyRevealedItem = data.revealed_item && !state.itemRevealed;
       let newlyRevealedNeed = data.revealed_need && !state.needRevealed;
 
       if (newlyRevealedItem) state.itemRevealed = true;
@@ -1138,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             
             scannerStatus.textContent = "IMAGE LOAD ERROR";
-            state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
+            state.phase = originalPhase;
             gameInput.disabled = false;
             gameInput.focus();
             addLog(`> ERROR: The generated image failed to load. This can happen on mobile due to connection drops, strict browser privacy blocks, or adblockers. Try again!`, "log-error");
@@ -1152,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
           addLog(`Generation Error: ${e.message}`, "log-error");
           
           scannerStatus.textContent = "ERROR";
-          state.phase = isDating ? "DATING_WAIT_USER" : originalPhase;
+          state.phase = originalPhase;
           gameInput.disabled = false;
           gameInput.focus();
           return false;
@@ -1897,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await addLogTypewriter(`> NOW WITH: FULL-SCREEN IMAGE VIEWER & EXPORTS`, "log-system", 10);
     await addLogTypewriter(`> CONNECTING TO NEURAL NET... SUCCESS.`, "log-system", 10);
     await addLogTypewriter(`Welcome weary local grocer! Are you looking for love? Or just cash? Why not both...`, "log-gm", 15);
-    await addLogTypewriter(`Provide your customers with the grocery items they need, add a twist to help them emotionally, and you may just end up falling in love!`, "log-gm", 15);
+    await addLogTypewriter(`Provide your customers with the grocery items they need. But remember, the items you provide shape their emotional state. Talk to them. Figure them out. Increase their affection before your shift ends, and you might just score a date!`, "log-gm", 15);
     setPersistentPrompt(`TYPE "START" OR HIT ENTER TO BEGIN SHIFT.`, "log-gm");
     state.phase = "START";
     gameInput.disabled = false;
@@ -2017,13 +2043,13 @@ document.addEventListener('DOMContentLoaded', () => {
           state.isAce = true;
           state.selectedCustomer = state.customersServed[0];
           addLog(`> You decided to just make a friend. Calling up Customer #1...`, "log-gm");
-          callDatingMaster(null);
+          callDatingMaster('init_call', null);
         } else {
           const num = parseInt(val);
           if (num >= 1 && num <= 5) {
             state.selectedCustomer = state.customersServed[num - 1];
             addLog(`> Calling up Customer #${num}...`, "log-gm");
-            callDatingMaster(null);
+            callDatingMaster('init_call', null);
           } else {
             setPersistentPrompt("> Invalid choice. Pick 1-5 or 'I'm Ace'.", "log-error");
           }
@@ -2039,7 +2065,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Jump straight to dating round (pass a true love flag to the dating API)
         state.isTrueLove = true;
-        callDatingMaster(null);
+        callDatingMaster('init_call', null);
       }
       else if (state.phase === "WAIT_LEDGER") {
         if (val.toLowerCase() === 'ledger' || val.toLowerCase() === 'next') {
@@ -2048,83 +2074,35 @@ document.addEventListener('DOMContentLoaded', () => {
           setPersistentPrompt("Type 'ledger' to review your customers.", "log-system");
         }
       }
-      else if (state.phase === "DATING_WAIT_USER") {
-        if (state.datingRound === 2) {
-          state.datingLocation = val;
-          state.phase = "DATING_WARDROBE";
-          const wardrobePrompt = async () => {
-            gameInput.disabled = true;
-            setPersistentPrompt(`> What are you going to wear?`, "log-gm");
-            gameInput.disabled = false;
-            gameInput.focus();
-          };
-          wardrobePrompt();
-        } else {
-          callDatingMaster(val);
+      else if (state.phase === "DATING_CALL_CHAT") {
+          if (val.toUpperCase() === 'ASK ON DATE') {
+            callDatingMaster('eval_call', null);
+          } else {
+            callDatingMaster('chat_call', val);
+          }
         }
-      }
-      else if (state.phase === "DATING_WARDROBE") {
-        state.datingOutfit = val;
-        state.playerDescription = `${state.playerDescription}, wearing ${val}`;
-        state.phase = "DATING_GIFT";
-        const giftPrompt = async () => {
-          gameInput.disabled = true;
-          setPersistentPrompt(`> You have ${state.cash}. What gift/snack do you bring?`, "log-gm");
-          gameInput.disabled = false;
-          gameInput.focus();
-        };
-        giftPrompt();
-      }
-      else if (state.phase === "DATING_GIFT") {
-        state.datingGift = val;
-        addLogTypewriter(`> Packing your bags and heading out...`, "log-system", 15);
-        state.phase = "DATING_GENERATING"; // lock input
-        callObstacleMaster();
-      }
-      else if (state.phase === "DATING_OBSTACLE") {
-        if (val.trim().toUpperCase() === state.obstacleTarget) {
-          handleObstacleSuccess();
-        } else {
-          setPersistentPrompt(`> FAILED! Type '${state.obstacleTarget}'!`, "log-error");
+        else if (state.phase === "DATING_PREP_OUTFIT") {
+          state.playerDescription = `${state.playerDescription}, wearing ${val}`;
+          callDatingMaster('init_date', `I am wearing ${val}`);
         }
-      }
-      else if (state.phase === "DATING_HANGOUT_VENUE") {
-        state.weddingVenue = val;
-        state.phase = "DATING_HANGOUT_SNACK";
-        const ringPrompt = async () => {
-          gameInput.disabled = true;
-          setPersistentPrompt(`> What weird snack do you grab?`, "log-gm");
-          gameInput.disabled = false;
-          gameInput.focus();
-        };
-        ringPrompt();
-      }
-      else if (state.phase === "DATING_HANGOUT_SNACK") {
-        state.weddingRing = val;
-        state.phase = "DATING_GENERATING"; // lock input
-        const packageMsg = `We are hanging out at ${state.weddingVenue} and I brought ${state.weddingRing} to snack on.`;
-        callDatingMaster(packageMsg);
-      }
-      else if (state.phase === "DATING_WEDDING_VENUE") {
-        state.weddingVenue = val;
-        state.phase = "DATING_WEDDING_RING";
-        const ringPrompt = async () => {
-          gameInput.disabled = true;
-          setPersistentPrompt(`> What kind of bizarre ring do you present them with?`, "log-gm");
-          gameInput.disabled = false;
-          gameInput.focus();
-        };
-        ringPrompt();
-      }
-      else if (state.phase === "DATING_WEDDING_RING") {
-        state.weddingRing = val;
-        state.phase = "DATING_GENERATING"; // lock input
-        const packageMsg = `We are getting married at ${state.weddingVenue} and I got you a ${state.weddingRing}.`;
-        callDatingMaster(packageMsg);
-      }
-      else if (state.phase === "DATING_FINISHED") {
-        finishDating();
-      }
+        else if (state.phase === "DATING_DATE_CHAT") {
+          if (val.toUpperCase() === 'DIVULGE FEELINGS') {
+            callDatingMaster('eval_date', null);
+          } else {
+            callDatingMaster('chat_date', val);
+          }
+        }
+        else if (state.phase === "DATING_PREP_VENUE") {
+          state.weddingVenue = val;
+          callDatingMaster('init_altar', `We are hosting the ceremony at ${val}`);
+        }
+        else if (state.phase === "DATING_ALTAR_CHAT") {
+          if (val.toUpperCase() === 'MAKE A VOW') {
+            callDatingMaster('eval_altar', null);
+          } else {
+            callDatingMaster('chat_altar', val);
+          }
+        }
       else if (state.phase === "LEADERBOARD_PROMPT") {
         if (val.toLowerCase() === 'no') {
           addLog(`Type a complaint to management, or type RESTART to play again.`, "log-gm");

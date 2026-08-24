@@ -30,12 +30,14 @@ RNG Rolls (0.0 to 1.0):
 If roll_item < Item Threshold/100, "revealed_item" MUST be true, and the customer must clearly state the base item they want.
 If roll_need < Need Threshold/100, "revealed_need" MUST be true, and the customer must clearly explain their emotional need.
 If both fail, they deflect, ramble, or answer cryptically without giving away the exact secret.
+  - IMPORTANT: If the player is extremely rude, verbally abusive, or explicitly tells the customer to leave, set "customer_leaves" to true.
 
 You MUST respond ONLY with a raw JSON object. Do not use double quotes inside text fields.
 JSON Schema:
 {
   "revealed_item": boolean,
   "revealed_need": boolean,
+    "customer_leaves": boolean,
   "customer_response_line": "A short, funny response from the customer to the player.",
   
 }`;
