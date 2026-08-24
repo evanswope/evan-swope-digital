@@ -2082,8 +2082,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
         else if (state.phase === "DATING_PREP_OUTFIT") {
+          state.datingOutfit = val;
           state.playerDescription = `${state.playerDescription}, wearing ${val}`;
-          callDatingMaster('init_date', `I am wearing ${val}`);
+          callObstacleMaster();
         }
         else if (state.phase === "DATING_DATE_CHAT") {
           if (val.toUpperCase() === 'DIVULGE FEELINGS') {

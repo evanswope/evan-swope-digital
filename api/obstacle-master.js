@@ -3,26 +3,26 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { location, customer } = req.body;
+  const { outfit, customer } = req.body;
   const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
     return res.status(500).json({ message: 'Missing OPENAI_API_KEY' });
   }
 
-  const systemPrompt = `You are the Game Master for a bizarre Grocery Dating Sim.
-The player has just left their house to travel to a date location: "${location}".
-Their date is a bizarre entity described as: "${customer.desc || customer.description}".
+  const systemPrompt = `You are the Game Master for a bleak, existential Grocery Dating Sim (inspired by Disco Elysium).
+The player has just finished getting dressed in: "${outfit}" and is about to meet their bizarre date: "${customer.desc || customer.description}".
 
-Invent a highly absurd, unreliable, or dangerous mode of transportation the player is using to get there (e.g., a haunted submarine, a trebuchet, a rusted unicycle, a chariot pulled by flamingos).
-Then, invent a sudden crisis, breakdown, or obstacle that halts their journey.
-Finally, provide a single, capitalized ACTION VERB the player must rapidly perform to fix the situation.
+Instead of a typical travel obstacle, the player is suddenly overcome by an overwhelming, visceral internal crisis. Their body or mind is rebelling against the vulnerability of romance in a hopeless timeline.
+
+Invent a sudden, grotesque, or highly analytical physical panic attack. 
+Then, provide a single, capitalized ACTION VERB the player must rapidly perform to suppress their own biology and continue the date.
 
 You MUST respond ONLY with a raw JSON object (no markdown formatting).
 JSON Schema:
 {
-  "narrative": "A brief, dramatic, second-person description of the vehicle and the sudden crisis. (e.g. 'You hop into your rusted submarine, but halfway to the destination, a pipe bursts!')",
-  "verb": "A single capitalized action word to fix it (e.g. CRANK, PEDAL, LUBRICATE, PRAY, BAIL)"
+  "narrative": "A brief, dramatic, second-person description of the clerk's body revolting, organs failing, or existential dread setting in right before the date. (e.g. 'The sheer weight of being perceived crushes your sternum. Your lungs forget their automated rhythm. Your central nervous system demands a retreat.')",
+  "verb": "A single capitalized visceral action word to fix it (e.g. BREATHE, REPRESS, SWALLOW, CLENCH, DISASSOCIATE)"
 }`;
 
   try {
@@ -50,6 +50,6 @@ JSON Schema:
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error generating obstacle: ' + err.message });
+    res.status(500).json({ message: 'Error generating panic attack: ' + err.message });
   }
 }
