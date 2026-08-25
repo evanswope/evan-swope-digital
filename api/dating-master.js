@@ -4,10 +4,10 @@ export default async function handler(req, res) {
   }
 
   const { state, step, userMessage, datingHistory } = req.body;
-  const token = process.env.OPENAI_API_TOKEN;
+  const token = process.env.OPENAI_API_KEY;
 
   if (!token) {
-    return res.status(500).json({ message: 'Server configuration error: Missing API Token' });
+    return res.status(500).json({ message: 'Server configuration error: Missing OPENAI_API_KEY' });
   }
 
   const customerName = state.selectedCustomer?.name || 'Customer';
