@@ -408,4 +408,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Load sample headshot image by default for immediate visual demonstration
+  const sampleImg = new Image();
+  sampleImg.onload = () => {
+    if (!sourceImage) {
+      sourceImage = sampleImg;
+      window.lastAsciiFileName = "Evan Swope Headshot";
+      drawCurve();
+      processImage();
+    }
+  };
+  sampleImg.src = 'assets/images/headshot.jpg';
+
 });

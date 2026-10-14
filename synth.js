@@ -2698,6 +2698,10 @@ const modules = [
   {
     start: () => {},
     stop: () => {} // SDXL doesn't have active hardware processes to stop
+  },
+  {
+    start: () => {},
+    stop: () => {} // Camera Collage module
   }
 ];
 let currentIndex = 0;
@@ -2848,6 +2852,36 @@ window.addEventListener('message', (e) => {
     }
   }
 });
+
+// URL Hash Navigation for direct deep-linking to experiment cards
+function handleHashNavigation() {
+  const hash = window.location.hash.toLowerCase();
+  const routeMap = {
+    '#synth': 0,
+    '#waveshaper': 0,
+    '#life-sequencer': 1,
+    '#microbe-beats': 2,
+    '#ascii': 3,
+    '#ascii-portrait': 3,
+    '#sdxl': 4,
+    '#crank-ai': 4,
+    '#camera-collage': 5,
+    '#collage': 5,
+    '#scrambler': 5
+  };
+  if (routeMap.hasOwnProperty(hash)) {
+    const targetIdx = routeMap[hash];
+    if (targetIdx < modules.length) {
+      modules[currentIndex].stop();
+      currentIndex = targetIdx;
+      updateCarousel();
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', handleHashNavigation);
+window.addEventListener('hashchange', handleHashNavigation);
+setTimeout(handleHashNavigation, 150);
 
 // Header auto-hide logic removed by request
 

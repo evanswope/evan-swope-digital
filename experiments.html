@@ -456,6 +456,126 @@
                 </div>
               </div>
             </div>
+
+            <!-- SLIDE 6: Camera Collage -->
+            <div class="carousel-slide" id="slide-camera-collage">
+              <div class="generative-card collage-card" style="max-width: 860px; padding: 2rem;">
+                <svg class="synth-scribble-outline" preserveAspectRatio="none"><rect rx="10" style="filter: url(#scribble-filter);"></rect></svg>
+                
+                <div class="card-header" style="text-align: center; margin-bottom: 1.25rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">EXPERIMENTAL COMPUTER VISION · 5-PASS CV</span>
+                  <h2 class="card-title" style="color: #fff; font-size: clamp(1.8rem, 3.5vw, 2.5rem); margin: 0.25rem 0 0.25rem 0; font-weight: 900;">Camera Collage</h2>
+                  <div style="font-family: 'Permanent Marker', cursive, var(--font-mono); font-size: 1.15rem; color: #ff7eb3; transform: rotate(-1deg); margin-bottom: 0.75rem;">Using Memories to Rebuild Memories (Embarrassing)</div>
+                  <p class="card-desc" style="font-size: 0.85rem; line-height: 1.55; max-width: 680px; margin: 0 auto; color: #cbd5e1;">
+                    I gave Antigravity 3,333 unfiltered photos from my camera roll, and had it cache and index all the objects inside them, then fed it reference images to recreate in a multi-pass computer vision reality scrambler. Don't look too close! Or do. That's sorta the point of this isn't it, you little voyeur?
+                  </p>
+                </div>
+
+                <!-- Interactive Subject Selector -->
+                <div class="collage-subject-bar" style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+                  <button class="collage-subject-btn active" data-subject="blackcat"><i class="fa-solid fa-cat"></i> Black Cat &amp; Whiskers</button>
+                  <button class="collage-subject-btn" data-subject="spaceneedle"><i class="fa-solid fa-monument"></i> Seattle Space Needle</button>
+                  <button class="collage-subject-btn" data-subject="barex"><i class="fa-solid fa-beer-mug-empty"></i> Dual Portrait (Bar)</button>
+                  <button class="collage-subject-btn" data-subject="tomato"><i class="fa-solid fa-apple-whole"></i> Tomato Still Life</button>
+                </div>
+
+                <!-- Interactive View Mode Selector -->
+                <div class="collage-mode-bar" style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                  <button class="collage-mode-btn active" data-mode="side_by_side"><i class="fa-solid fa-columns"></i> Side-by-Side</button>
+                  <button class="collage-mode-btn" data-mode="zoom_quad"><i class="fa-solid fa-magnifying-glass-plus"></i> Macro Zoom</button>
+                  <button class="collage-mode-btn" data-mode="blur_test"><i class="fa-solid fa-eye-low-vision"></i> Gestalt Blur</button>
+                  <button class="collage-mode-btn" data-mode="evolution"><i class="fa-solid fa-layer-group"></i> 5-Pass Evolution</button>
+                </div>
+
+                <!-- Visual Display Frame -->
+                <div class="collage-display-frame">
+                  <img id="collage-display-img" src="assets/images/pyramidal_blackcat_side_by_side.png" alt="Black Cat Collage" />
+                  <div class="collage-caption-bar">
+                    <span id="collage-caption-text">1,338-Piece Physical Ephemera Collage vs. Reference (750x1000) · 3.95s on GPU</span>
+                    <span id="collage-caption-stat" style="color: #ff7eb3; font-weight: 700; white-space: nowrap;">-34.2% Error</span>
+                  </div>
+                </div>
+
+                <!-- Case Study Toggle & Drawer -->
+                <div style="display: flex; justify-content: center; margin-top: 1.25rem;">
+                  <button id="btn-toggle-case-study" class="start-btn" style="padding: 0.6rem 1.5rem; font-size: 0.85rem; border-radius: 50px; animation: none; display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+                    <i class="fa-solid fa-book-open"></i> <span>READ RESEARCH &amp; CASE STUDY</span>
+                  </button>
+                </div>
+
+                <!-- Collapsible Case Study Drawer -->
+                <div id="collage-case-study-drawer" class="collage-drawer" style="display: none; margin-top: 1.5rem;">
+                  <h3 style="color: #00f2fe; margin-top: 0;">The Premise: The Junk Drawer of Modern Life</h3>
+                  <p>Most digital photo mosaics are polite, sterile, and boring. They take a high-resolution image, chop it into an even grid of tiny squares, and fill those squares with carefully curated stock photos. The result usually feels like a glorified Photoshop filter—flat, predictable, and devoid of tactile life.</p>
+                  <p>This project started from a much messier, more human question: what happens when your artistic palette is purely the unfiltered junk drawer of your own life? Cursed memes, late-night selfies wearing smoky eyeshadow, bumper stickers (<em>"SUBARU"</em>, <em>"My life is WORTHLESS, I will KILL US both"</em>), torn grocery receipts, yellow clearance tags, Puget Sound ferries, and accidental close-up photos of thumbs.</p>
+                  
+                  <h3>The Secret: The Gestalt Blur Test</h3>
+                  <p>In human visual neuroscience, your Fusiform Face Area (FFA) and object-recognition pathways process <strong>low spatial frequency (LSF)</strong> information first. Before your eye detects a single sharp boundary, your brain reads the broad chiaroscuro landscape: the deep shadow of an eye socket, the glowing crest of a forehead, or the silhouetted wedge of a cat's ear. If the low-frequency foundation is broken, placing 10,000 tiny sharp cutouts will never save the image—it just turns into visual static.</p>
+                  <p>Every collage in this engine is evaluated through a massive Gaussian blur (σ=18, 61x61px kernel). If you squint or step 20 feet away, the blurred collage must be virtually indistinguishable from the blurred original reference.</p>
+
+                  <h3>The "Hollow C-Shaped Hairline" Crisis</h3>
+                  <p>Early runs had a bizarre bug: hair looked like a storm of floating yellow gaps. The engine reported 100% bounding box coverage, but when we zoomed in, the background was shining straight through! Segmented hairlines are often thin crescent C-shapes with empty alpha centers. We solved this with a real-time <strong>Physical Occupancy Accumulator (coverage_canvas)</strong> coupled with OpenCV's <code>distanceTransform</code>, querying solid ephemera (solidity ≥ 0.72) to infill Euclidean void centers until raw coverage exceeds 99.98%.</p>
+
+                  <h3>The Whisker Paradox</h3>
+                  <p>A 1px white whisker against deep black cat fur averages out to L ≈ 15 over any standard sampling block, causing standard algorithms to drop black pieces over them and erasing the whiskers entirely. We solved this with <strong>Tangent-Aligned Filament Chaining</strong>: isolating 238 ultra-slender white paper and receipt slivers (aspect ratios up to 14:1), extracting the topological skeleton via morphological top-hat filtering, solving local PCA screen-space tangents, and chaining overlapping filaments on the uppermost physical layer.</p>
+
+                  <h3>Quantitative Discrepancy Convergence Across Milestones</h3>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>Resolution</th>
+                        <th>Cutouts</th>
+                        <th>Initial ΔE</th>
+                        <th>Final ΔE</th>
+                        <th>Error Reduction</th>
+                        <th>GPU Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Black Cat &amp; Whiskers</strong></td>
+                        <td>750×1000</td>
+                        <td>1,338</td>
+                        <td>41.82</td>
+                        <td>27.52</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-34.2%</td>
+                        <td>3.95 s</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Seattle Space Needle</strong></td>
+                        <td>750×1000</td>
+                        <td>1,227</td>
+                        <td>48.39</td>
+                        <td>43.38</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-19.6% (90th%)</td>
+                        <td>3.35 s</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Dual Portrait (Bar)</strong></td>
+                        <td>1000×750</td>
+                        <td>1,272</td>
+                        <td>64.52</td>
+                        <td>39.48</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-38.8%</td>
+                        <td>3.17 s</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Tomato Still Life</strong></td>
+                        <td>1000×1000</td>
+                        <td>1,218</td>
+                        <td>88.88</td>
+                        <td>41.56</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-53.2%</td>
+                        <td>4.24 s</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+
           </div>
         </div>
         
@@ -464,6 +584,7 @@
       
       <div class="carousel-dots">
         <span class="dot active"></span>
+        <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
@@ -497,5 +618,6 @@
   <script src="synth.js?v=2"></script>
   <script src="ascii.js?v=2"></script>
   <script src="sdxl.js"></script>
+  <script src="collage.js"></script>
 </body>
 </html>

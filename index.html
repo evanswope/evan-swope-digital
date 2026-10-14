@@ -191,6 +191,236 @@
       </div>
     </section>
 
+    <!-- AI LAB DISPATCHES (Interactive Carousel Teaser) -->
+    <section id="ai-lab" class="lab-teaser-section">
+      <div class="section-header-container" style="text-align: center; margin-bottom: 2.5rem;">
+        <span class="lab-section-tag"><i class="fa-solid fa-flask" style="margin-right: 6px;"></i> AI LAB · EXPERIMENTAL SYSTEMS</span>
+        <h2 class="section-title">Dispatches from the Lab</h2>
+        <p class="section-subtitle">Playable code, reality scramblers, and creative chaos.</p>
+      </div>
+
+      <div class="lab-carousel-container">
+        <!-- Carousel Nav Buttons -->
+        <button class="lab-carousel-btn lab-prev" id="lab-carousel-prev" aria-label="Previous experiment" title="Previous experiment">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="lab-carousel-btn lab-next" id="lab-carousel-next" aria-label="Next experiment" title="Next experiment">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <div class="lab-carousel-viewport">
+          <div class="lab-carousel-track" id="lab-carousel-track">
+
+            <!-- SLIDE 0: Camera Collage -->
+            <div class="lab-carousel-slide" data-slide="0" id="card-camera-collage">
+              <article class="lab-feature-card">
+                
+                <!-- Left: Media Preview Slideshow -->
+                <div class="lab-card-media-wrapper">
+                  <div class="lab-card-media">
+                    <div class="lab-slideshow">
+                      <div class="lab-slide-img active" style="background-image: url('assets/images/pyramidal_blackcat_side_by_side.png');">
+                        <span class="lab-img-caption">1,338-Piece Feline Collage (Ref vs. Collage)</span>
+                      </div>
+                      <div class="lab-slide-img" style="background-image: url('assets/images/pyramidal_blackcat_zoom_quad.png');">
+                        <span class="lab-img-caption">Macro Zoom: Receipts as Eyebrows &amp; White Whiskers</span>
+                      </div>
+                      <div class="lab-slide-img" style="background-image: url('assets/images/pyramidal_needle_side_by_side.png');">
+                        <span class="lab-img-caption">Seattle Space Needle (1,227 Pieces from Camera Roll)</span>
+                      </div>
+                      <div class="lab-slide-img" style="background-image: url('assets/images/pyramidal_barex_side_by_side.png');">
+                        <span class="lab-img-caption">Dual Portrait Reunion (57 Facial Feature Coordinates)</span>
+                      </div>
+                    </div>
+                    <div class="lab-media-badge"><i class="fa-solid fa-camera-retro"></i> 3,333 PHOTOS INDEXED</div>
+                    <div class="lab-media-subbadge">5-PASS RESIDUAL CV</div>
+                  </div>
+                  <!-- Thumbnail / Slide dots for media preview -->
+                  <div class="lab-media-dots">
+                    <button class="lab-media-dot active" data-img-idx="0" aria-label="View Cat Full"></button>
+                    <button class="lab-media-dot" data-img-idx="1" aria-label="View Cat Zoom"></button>
+                    <button class="lab-media-dot" data-img-idx="2" aria-label="View Space Needle"></button>
+                    <button class="lab-media-dot" data-img-idx="3" aria-label="View Dual Portrait"></button>
+                  </div>
+                </div>
+
+                <!-- Right: Content & Copy -->
+                <div class="lab-card-content">
+                  <div class="lab-card-badge">EXPERIMENTAL COMPUTER VISION</div>
+                  <h3 class="lab-card-title">Camera Collage</h3>
+                  <div class="lab-card-subheader">Using Memories to Rebuild Memories (Embarrassing)</div>
+                  
+                  <p class="lab-card-premise">
+                    I gave Antigravity 3,333 unfiltered photos from my camera roll, and had it cache and index all the objects inside them, then fed it reference images to recreate in a multi-pass computer vision reality scrambler. Don't look too close! Or do. That's sorta the point of this isn't it, you little voyeur?
+                  </p>
+
+                  <div class="lab-tech-tags">
+                    <span class="lab-tech-pill"><i class="fa-solid fa-shapes"></i> FastSAM Features</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-eye"></i> Gestalt Blur Test</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-circle-nodes"></i> Whisker Chaining</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-bolt"></i> RTX 4060 Real-Time</span>
+                  </div>
+
+                  <div class="lab-card-action">
+                    <a href="experiments.html#camera-collage" class="lab-cta-btn">
+                      <span>ENTER THE SCRAMBLER</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <span class="lab-cta-subtext">Interactive viewer &amp; case study in AI Lab</span>
+                  </div>
+                </div>
+
+              </article>
+            </div>
+
+            <!-- SLIDE 1: Waveshaper Synth -->
+            <div class="lab-carousel-slide" data-slide="1" id="card-wavetable-synth">
+              <article class="lab-feature-card">
+                
+                <!-- Left: Video Preview -->
+                <div class="lab-card-media-wrapper">
+                  <div class="lab-card-media">
+                    <video class="lab-preview-video" autoplay loop muted playsinline poster="assets/images/preview_synth_poster.jpg">
+                      <source src="assets/images/preview_synth.webm" type="video/webm">
+                      <source src="assets/images/preview_synth.mp4" type="video/mp4">
+                    </video>
+                    <div class="lab-media-badge"><i class="fa-solid fa-wave-square"></i> WEB AUDIO API</div>
+                    <div class="lab-media-subbadge">REAL-TIME HARMONICS</div>
+                  </div>
+                </div>
+
+                <!-- Right: Content & Copy -->
+                <div class="lab-card-content">
+                  <div class="lab-card-badge">INTERACTIVE AUDIO SYNTHESIS</div>
+                  <h3 class="lab-card-title">Waveshaper</h3>
+                  <div class="lab-card-subheader">Distorting Pure Sines with Mathematical Sculpting</div>
+                  
+                  <p class="lab-card-premise">
+                    Distort raw sine waves with custom mathematical transfer functions, FM phase skew, wavefolding, and decimation. Explore organic harmonics through an auto-arpeggiator, chord generator, and responsive web audio synthesizer keyboard.
+                  </p>
+
+                  <div class="lab-tech-tags">
+                    <span class="lab-tech-pill"><i class="fa-solid fa-music"></i> Web Audio API</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-bezier-curve"></i> Chebyshev Polynomials</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-scissors"></i> Wavefolding</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-keyboard"></i> Microtonal Keys</span>
+                  </div>
+
+                  <div class="lab-card-action">
+                    <a href="experiments.html#synth" class="lab-cta-btn">
+                      <span>LAUNCH THE SYNTH</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <span class="lab-cta-subtext">Play live audio &amp; tweak harmonics</span>
+                  </div>
+                </div>
+
+              </article>
+            </div>
+
+            <!-- SLIDE 2: ASCII Portrait -->
+            <div class="lab-carousel-slide" data-slide="2" id="card-ascii-portrait">
+              <article class="lab-feature-card">
+                
+                <!-- Left: Video Preview -->
+                <div class="lab-card-media-wrapper">
+                  <div class="lab-card-media">
+                    <video class="lab-preview-video" autoplay loop muted playsinline poster="assets/images/preview_ascii_poster.jpg">
+                      <source src="assets/images/preview_ascii.webm" type="video/webm">
+                      <source src="assets/images/preview_ascii.mp4" type="video/mp4">
+                    </video>
+                    <div class="lab-media-badge"><i class="fa-solid fa-font"></i> CANVAS MATRIX</div>
+                    <div class="lab-media-subbadge">5-POINT TONE CURVE</div>
+                  </div>
+                </div>
+
+                <!-- Right: Content & Copy -->
+                <div class="lab-card-content">
+                  <div class="lab-card-badge">ALGORITHMIC TYPOGRAPHY</div>
+                  <h3 class="lab-card-title">ASCII Portrait Generator</h3>
+                  <div class="lab-card-subheader">Transforming Photons into Monospace Poetry</div>
+                  
+                  <p class="lab-card-premise">
+                    Turn any webcam feed or uploaded photo into high-density typographic art. Features a 5-point spline tone curve, real-time exposure &amp; dehaze matrix, and instant vector PNG export.
+                  </p>
+
+                  <div class="lab-tech-tags">
+                    <span class="lab-tech-pill"><i class="fa-solid fa-camera"></i> Live Webcam &amp; Upload</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-chart-line"></i> Spline Tone Curve</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-sliders"></i> Exposure &amp; Dehaze</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-download"></i> High-Res PNG Export</span>
+                  </div>
+
+                  <div class="lab-card-action">
+                    <a href="experiments.html#ascii" class="lab-cta-btn">
+                      <span>GENERATE ASCII</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <span class="lab-cta-subtext">Live interactive canvas in AI Lab</span>
+                  </div>
+                </div>
+
+              </article>
+            </div>
+
+            <!-- SLIDE 3: Checked Out -->
+            <div class="lab-carousel-slide" data-slide="3" id="card-checked-out">
+              <article class="lab-feature-card">
+                
+                <!-- Left: Video Preview -->
+                <div class="lab-card-media-wrapper">
+                  <div class="lab-card-media">
+                    <video class="lab-preview-video" autoplay loop muted playsinline poster="assets/images/preview_grocery_poster.jpg">
+                      <source src="assets/images/preview_grocery.webm" type="video/webm">
+                      <source src="assets/images/preview_grocery.mp4" type="video/mp4">
+                    </video>
+                    <div class="lab-media-badge"><i class="fa-solid fa-barcode"></i> AI VISION SCANNER</div>
+                    <div class="lab-media-subbadge">CRT VHS SIMULATOR</div>
+                  </div>
+                </div>
+
+                <!-- Right: Content & Copy -->
+                <div class="lab-card-content">
+                  <div class="lab-card-badge">ABSURDIST RETRO SIMULATION</div>
+                  <h3 class="lab-card-title">Checked Out</h3>
+                  <div class="lab-card-subheader">A Grocery Bagging &amp; Romance Simulator</div>
+                  
+                  <p class="lab-card-premise">
+                    A nasty cauldron of text-based gaming mechanics, existential retail dread, and AI-driven absurdism. Scan cursed items, navigate volatile customer flirtation, manage your trust and cash, and try not to get fired.
+                  </p>
+
+                  <div class="lab-tech-tags">
+                    <span class="lab-tech-pill"><i class="fa-solid fa-terminal"></i> Text Adventure RPG</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-heart"></i> Volatile Romance Meter</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-tv"></i> VHS Scanline Filter</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-fire"></i> Firebase Leaderboard</span>
+                  </div>
+
+                  <div class="lab-card-action">
+                    <a href="checked-out.html" class="lab-cta-btn">
+                      <span>CLOCK IN TO WORK</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <span class="lab-cta-subtext">Play the full browser game</span>
+                  </div>
+                </div>
+
+              </article>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Carousel Pagination Dots -->
+        <div class="lab-carousel-dots" id="lab-carousel-dots">
+          <button class="lab-dot active" data-slide-to="0" aria-label="Slide 1: Camera Collage"></button>
+          <button class="lab-dot" data-slide-to="1" aria-label="Slide 2: Waveshaper Synth"></button>
+          <button class="lab-dot" data-slide-to="2" aria-label="Slide 3: ASCII Portrait"></button>
+          <button class="lab-dot" data-slide-to="3" aria-label="Slide 4: Checked Out"></button>
+        </div>
+      </div>
+    </section>
+
     <!-- 2. LOOK AT MY WORK (Case Studies) -->
     <section id="work" class="work-section" style="padding: 6rem 0;">
       <div class="section-header-container" style="text-align: center; margin-bottom: 4rem;">

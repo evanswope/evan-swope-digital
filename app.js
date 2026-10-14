@@ -203,4 +203,129 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // --------------------------------------------------------------------------
+  // 5. AI LAB TEASER CAROUSEL & MEDIA SLIDESHOW CONTROLLER
+  // --------------------------------------------------------------------------
+  const labTrack = document.getElementById('lab-carousel-track');
+  const labSlides = document.querySelectorAll('.lab-carousel-slide');
+  const labDots = document.querySelectorAll('#lab-carousel-dots .lab-dot');
+  const labPrevBtn = document.getElementById('lab-carousel-prev');
+  const labNextBtn = document.getElementById('lab-carousel-next');
+
+  let currentLabIndex = 0;
+
+  function updateLabCarousel() {
+    if (!labTrack || labSlides.length === 0) return;
+    labTrack.style.transform = `translateX(-${currentLabIndex * 100}%)`;
+    labDots.forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === currentLabIndex);
+    });
+    // Video play/pause management for active slide
+    labSlides.forEach((slide, idx) => {
+      const video = slide.querySelector('video');
+      if (video) {
+        if (idx === currentLabIndex) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      }
+    });
+  }
+
+  if (labPrevBtn && labNextBtn) {
+    labPrevBtn.addEventListener('click', () => {
+      if (labSlides.length <= 1) return;
+      currentLabIndex = (currentLabIndex - 1 + labSlides.length) % labSlides.length;
+      updateLabCarousel();
+    });
+
+    labNextBtn.addEventListener('click', () => {
+      if (labSlides.length <= 1) return;
+      currentLabIndex = (currentLabIndex + 1) % labSlides.length;
+      updateLabCarousel();
+    });
+
+    // Dim navigation arrows if only 1 slide exists
+    if (labSlides.length <= 1) {
+      labPrevBtn.style.opacity = '0.35';
+      labPrevBtn.style.cursor = 'default';
+      labNextBtn.style.opacity = '0.35';
+      labNextBtn.style.cursor = 'default';
+    } else {
+      labPrevBtn.style.opacity = '1';
+      labPrevBtn.style.cursor = 'pointer';
+      labNextBtn.style.opacity = '1';
+      labNextBtn.style.cursor = 'pointer';
+    }
+  }
+
+  labDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const slideTo = parseInt(dot.getAttribute('data-slide-to'), 10);
+      if (!isNaN(slideTo)) {
+        currentLabIndex = slideTo;
+        updateLabCarousel();
+      }
+    });
+  });
+
+  // Touch Swipe for Mobile Carousel
+  let labTouchStartX = 0;
+  let labTouchEndX = 0;
+  if (labTrack) {
+    labTrack.addEventListener('touchstart', e => {
+      labTouchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    labTrack.addEventListener('touchend', e => {
+      labTouchEndX = e.changedTouches[0].screenX;
+      const diff = labTouchEndX - labTouchStartX;
+      if (Math.abs(diff) > 45) {
+        if (diff < 0) {
+          currentLabIndex = (currentLabIndex + 1) % labSlides.length;
+        } else {
+          currentLabIndex = (currentLabIndex - 1 + labSlides.length) % labSlides.length;
+        }
+        updateLabCarousel();
+      }
+    }, { passive: true });
+  }
+
+  // Inner Media Slideshow for Card Previews
+  document.querySelectorAll('.lab-card-media-wrapper').forEach(wrapper => {
+    const images = wrapper.querySelectorAll('.lab-slide-img');
+    const dots = wrapper.querySelectorAll('.lab-media-dot');
+    if (images.length <= 1) return;
+
+    let imgIdx = 0;
+    let slideTimer = null;
+
+    function showImage(index) {
+      imgIdx = index;
+      images.forEach((img, i) => img.classList.toggle('active', i === imgIdx));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === imgIdx));
+    }
+
+    function startAutoCycle() {
+      if (slideTimer) clearInterval(slideTimer);
+      slideTimer = setInterval(() => {
+        showImage((imgIdx + 1) % images.length);
+      }, 3500);
+    }
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        showImage(i);
+        startAutoCycle();
+      });
+    });
+
+    wrapper.addEventListener('mouseenter', () => clearInterval(slideTimer));
+    wrapper.addEventListener('mouseleave', startAutoCycle);
+
+    startAutoCycle();
+  });
+
 });
+
