@@ -2852,6 +2852,63 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   transform: scale(1);
 }
 
+/* Split Dual-Pane Slides (50/50 comparison) */
+.lab-slide-img.lab-slide-split {
+  display: flex;
+  flex-direction: row;
+  background-image: none !important;
+  background-color: #08080c;
+}
+
+.lab-slide-split .split-pane {
+  flex: 1 1 50%;
+  width: 50%;
+  height: 100%;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.lab-slide-split .split-divider {
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+.lab-slide-split .split-tag {
+  position: absolute;
+  top: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.75px;
+  text-transform: uppercase;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.lab-slide-split .split-ref .split-tag {
+  left: 0.65rem;
+  border-color: rgba(0, 242, 254, 0.4);
+  color: #00f2fe;
+}
+
+.lab-slide-split .split-art .split-tag {
+  right: 0.65rem;
+  border-color: rgba(255, 126, 179, 0.45);
+  color: #ff7eb3;
+}
+
 .lab-img-caption {
   position: absolute;
   bottom: 0;
@@ -2863,6 +2920,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   font-size: 0.75rem;
   color: #f1f5f9;
   letter-spacing: 0.5px;
+  z-index: 5;
 }
 
 .lab-media-badge {
