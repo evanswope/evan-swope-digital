@@ -27,52 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         stat: '5 Scale Tiers'
       }
     },
-    spaceneedle: {
-      name: 'Seattle Space Needle',
-      side_by_side: {
-        src: 'assets/images/pyramidal_needle_side_by_side.png',
-        caption: 'Seattle Space Needle in Morning Mist (750x1000) vs. Physical Camera Roll Collage · 3.35s on GPU',
-        stat: '-19.6% (90th%)'
-      },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_needle_zoom_quad.png',
-        caption: 'Macro Zoom: Flying saucer formed of airline ads; bare branches sculpted from vintage text.',
-        stat: 'Zonal Allocation'
-      },
-      blur_test: {
-        src: 'assets/images/pyramidal_needle_gestalt_blur_test.png',
-        caption: 'Gestalt Low-Frequency Blur Test: Vertical architectural thrust and canopy mass read clearly.',
-        stat: 'Gestalt Passed'
-      },
-      evolution: {
-        src: 'assets/images/pyramidal_needle_evolution_strip.png',
-        caption: '5-Pass Hierarchy: Ambient Mist → Tower Body → Tripod Legs → Branch Lattice → Spire Highlights.',
-        stat: '5 Scale Tiers'
-      }
-    },
-    barex: {
-      name: 'Dual Portrait (Bar Reunion)',
-      side_by_side: {
-        src: 'assets/images/pyramidal_barex_side_by_side.png',
-        caption: 'Dual Portrait Reunion at the Bar (1000x750) vs. 1,272-Piece Physical Collage · 3.17s on GPU',
-        stat: '-38.8% Error'
-      },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_barex_zoom_quad.png',
-        caption: 'Macro Zoom: Ex\'s crimson cap from red stickers; Evan\'s blond crest from candy wrappers; porcelain teeth.',
-        stat: '57 Feature Anchors'
-      },
-      blur_test: {
-        src: 'assets/images/pyramidal_barex_gestalt_blur_test.png',
-        caption: 'Gestalt Low-Frequency Blur Test: Dual smiles, red cap, coral shirt, and tavern ambient lighting.',
-        stat: 'Gestalt Passed'
-      },
-      evolution: {
-        src: 'assets/images/pyramidal_barex_evolution_strip.png',
-        caption: '5-Pass Hierarchy: Tavern Atmosphere → Figures → Facial Planes → Anatomical Lattice → Enamel Highlights.',
-        stat: '5 Scale Tiers'
-      }
-    },
     tomato: {
       name: 'Tomato Culinary Still Life',
       side_by_side: {
