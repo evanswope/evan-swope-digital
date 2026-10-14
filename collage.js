@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       zoom_quad: {
         src: 'assets/images/pyramidal_blackcat_zoom_quad.png',
-        caption: 'Macro Zoom: Grocery receipt eyebrows, amber glass irises, and chained white whisker slivers.',
-        stat: '238 Slender Ephemera'
+        caption: 'Strange Details Closeup: Grocery receipts as whiskers, porcelain toilet bowl, and late-night selfie cutouts.',
+        stat: 'Strange Details'
       },
       blur_test: {
         src: 'assets/images/pyramidal_blackcat_gestalt_blur_test.png',
@@ -36,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       zoom_quad: {
         src: 'assets/images/pyramidal_tomato_specular_zoom.png',
-        caption: 'Macro Zoom: Glistening gelatinous locule seed pockets, pale placental tissue, and glossy leaf glints.',
-        stat: 'Specular Catchlights'
+        caption: 'Strange Details Closeup: Yellow "REDUCED" supermarket price tags, pork ribs, and churros forming the locule seeds.',
+        stat: 'Strange Details'
       },
       blur_test: {
         src: 'assets/images/pyramidal_tomato_gestalt_blur_test.png',
