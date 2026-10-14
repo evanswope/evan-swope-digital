@@ -1659,6 +1659,11 @@ body.lens-hybrid .font-hybrid {
   content: "You've been wondering";
 }
 
+.lab-teaser-section .section-header-container::before {
+  content: 'MAKE THE ROBOTS DO IT';
+}
+
+
 
 .philosophy-grid {
   display: grid;
@@ -2879,19 +2884,25 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
 .lab-media-subbadge {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 2rem;
+  /* text-transform: capitalize; */
+  /* right: 2rem; */
   background: rgba(0, 242, 254, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 242, 254, 0.4);
+  /* backdrop-filter: blur(8px); */
+  /* border: 1px solid rgba(0, 242, 254, 0.4); */
   color: #00f2fe;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  padding: 0.35rem 0.7rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 6px;
   letter-spacing: 1px;
   z-index: 2;
+}
+
+.lab-card-media .lab-media-subbadge {
+  top: 1rem;
+  right: 1rem;
 }
 
 .lab-media-dots {
@@ -2938,7 +2949,8 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
 .lab-card-subheader {
   font-family: 'Permanent Marker', cursive, var(--font-mono);
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-size: clamp(1.1rem, 2.4vw, 2.75rem) !important;
+  line-height: 1.2;
   color: #ff7eb3;
   margin-bottom: 1.25rem;
   transform: rotate(-1deg);
@@ -2956,6 +2968,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 .lab-tech-tags {
   display: flex;
   flex-wrap: wrap;
+  margin-top: 2rem;
   gap: 0.5rem;
   margin-bottom: 2rem;
 }
@@ -2965,11 +2978,11 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   align-items: center;
   gap: 0.4rem;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
-  padding: 0.35rem 0.75rem;
+  /* border: 1px solid rgba(255, 255, 255, 0.12); */
+  color: #94A3B4;
+  padding: 0.3rem 0.7rem;
   border-radius: 6px;
 }
 
@@ -3073,6 +3086,11 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
 /* Mobile Responsive */
 @media (max-width: 900px) {
+  .lab-card-content .lab-media-subbadge {
+    position: static;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
   .lab-feature-card {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -3085,4 +3103,3 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
     padding: 0 1rem;
   }
 }
-

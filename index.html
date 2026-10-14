@@ -194,22 +194,20 @@
     <!-- AI LAB DISPATCHES (Interactive Carousel Teaser) -->
     <section id="ai-lab" class="lab-teaser-section">
       <div class="section-header-container" style="text-align: center; margin-bottom: 2.5rem;">
-        <span class="lab-section-tag"><i class="fa-solid fa-flask" style="margin-right: 6px;"></i> AI LAB · EXPERIMENTAL SYSTEMS</span>
-        <h2 class="section-title">Dispatches from the Lab</h2>
-        <p class="section-subtitle">Playable code, reality scramblers, and creative chaos.</p>
+        <h2 class="section-title">AI Experiments</h2>
       </div>
 
       <div class="lab-carousel-container">
         <!-- Carousel Nav Buttons -->
-        <button class="lab-carousel-btn lab-prev" id="lab-carousel-prev" aria-label="Previous experiment" title="Previous experiment">
+        <button class="lab-carousel-btn lab-prev" id="lab-carousel-prev" aria-label="Previous experiment" title="Previous experiment" style="opacity: 1; cursor: pointer;">
           <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <button class="lab-carousel-btn lab-next" id="lab-carousel-next" aria-label="Next experiment" title="Next experiment">
+        <button class="lab-carousel-btn lab-next" id="lab-carousel-next" aria-label="Next experiment" title="Next experiment" style="opacity: 1; cursor: pointer;">
           <i class="fa-solid fa-chevron-right"></i>
         </button>
 
         <div class="lab-carousel-viewport">
-          <div class="lab-carousel-track" id="lab-carousel-track">
+          <div class="lab-carousel-track" id="lab-carousel-track" style="transform: translateX(0%);">
 
             <!-- SLIDE 0: Camera Collage -->
             <div class="lab-carousel-slide" data-slide="0" id="card-camera-collage">
@@ -223,17 +221,15 @@
                         <span class="lab-img-caption">Black Cat: Original Photo vs. 1,338-Piece Collage</span>
                       </div>
                       <div class="lab-slide-img" style="background-image: url('assets/images/pyramidal_blackcat_zoom_quad.png');">
-                        <span class="lab-img-caption">Cat Detail Closeup: Receipts as Whiskers, Toilet Bowl, &amp; Selfies</span>
+                        <span class="lab-img-caption">Cat Detail Closeup</span>
                       </div>
                       <div class="lab-slide-img" style="background-image: url('assets/images/pyramidal_tomato_side_by_side.png');">
                         <span class="lab-img-caption">Tomato Still Life: Original Photo vs. 1,218-Piece Collage</span>
                       </div>
                       <div class="lab-slide-img" style="background-image: url('assets/images/pyramidal_tomato_specular_zoom.png');">
-                        <span class="lab-img-caption">Tomato Detail Closeup: "REDUCED" Meat Stickers, Ribs, &amp; Churros</span>
+                        <span class="lab-img-caption">Tomato Detail Closeup</span>
                       </div>
                     </div>
-                    <div class="lab-media-badge"><i class="fa-solid fa-camera-retro"></i> 3,333 PHOTOS INDEXED</div>
-                    <div class="lab-media-subbadge">5-PASS RESIDUAL CV</div>
                   </div>
                   <!-- Thumbnail / Slide dots for media preview -->
                   <div class="lab-media-dots">
@@ -246,27 +242,27 @@
 
                 <!-- Right: Content & Copy -->
                 <div class="lab-card-content">
-                  <div class="lab-card-badge">EXPERIMENTAL COMPUTER VISION</div>
-                  <h3 class="lab-card-title">Camera Collage</h3>
+                  <div class="lab-media-subbadge">Invasive Personal Collage Compiler</div>
+                  
                   <div class="lab-card-subheader">Using Memories to Rebuild Memories (Embarrassing)</div>
                   
                   <p class="lab-card-premise">
-                    I gave Antigravity 3,333 unfiltered photos from my camera roll, and had it cache and index all the objects inside them, then fed it reference images to recreate in a multi-pass computer vision reality scrambler. Don't look too close! Or do. That's sorta the point of this isn't it, you little voyeur?
+                    I gave Antigravity 3,333 unfiltered photos from my camera roll, and had it cache and index all the objects inside them, then fed it reference images to recreate in a multi-pass computer vision reality scrambler. Don't look too close! Or do.
+                  </p>
+                  <p class="lab-card-premise" style="font-weight: 900;">
+                    That's sorta the point isn't it, you little voyeur?
                   </p>
 
                   <div class="lab-tech-tags">
-                    <span class="lab-tech-pill"><i class="fa-solid fa-shapes"></i> FastSAM Features</span>
                     <span class="lab-tech-pill"><i class="fa-solid fa-eye"></i> Gestalt Blur Test</span>
-                    <span class="lab-tech-pill"><i class="fa-solid fa-circle-nodes"></i> Whisker Chaining</span>
                     <span class="lab-tech-pill"><i class="fa-solid fa-bolt"></i> RTX 4060 Real-Time</span>
                   </div>
 
                   <div class="lab-card-action">
                     <a href="experiments.html#camera-collage" class="lab-cta-btn">
-                      <span>ENTER THE SCRAMBLER</span>
+                      <span>SEE MORE</span>
                       <i class="fa-solid fa-arrow-right"></i>
                     </a>
-                    <span class="lab-cta-subtext">Interactive viewer &amp; case study in AI Lab</span>
                   </div>
                 </div>
 
@@ -280,7 +276,7 @@
                 <!-- Left: Video Preview -->
                 <div class="lab-card-media-wrapper">
                   <div class="lab-card-media">
-                    <video class="lab-preview-video" autoplay loop muted playsinline poster="assets/images/preview_synth_poster.jpg">
+                    <video class="lab-preview-video" autoplay="" loop="" muted="" playsinline="" poster="assets/images/preview_synth_poster.jpg">
                       <source src="assets/images/preview_synth.webm" type="video/webm">
                       <source src="assets/images/preview_synth.mp4" type="video/mp4">
                     </video>
@@ -325,7 +321,7 @@
                 <!-- Left: Video Preview -->
                 <div class="lab-card-media-wrapper">
                   <div class="lab-card-media">
-                    <video class="lab-preview-video" autoplay loop muted playsinline poster="assets/images/preview_ascii_poster.jpg">
+                    <video class="lab-preview-video" autoplay="" loop="" muted="" playsinline="" poster="assets/images/preview_ascii_poster.jpg">
                       <source src="assets/images/preview_ascii.webm" type="video/webm">
                       <source src="assets/images/preview_ascii.mp4" type="video/mp4">
                     </video>
@@ -370,7 +366,7 @@
                 <!-- Left: Video Preview -->
                 <div class="lab-card-media-wrapper">
                   <div class="lab-card-media">
-                    <video class="lab-preview-video" autoplay loop muted playsinline poster="assets/images/preview_grocery_poster.jpg">
+                    <video class="lab-preview-video" autoplay="" loop="" muted="" playsinline="" poster="assets/images/preview_grocery_poster.jpg">
                       <source src="assets/images/preview_grocery.webm" type="video/webm">
                       <source src="assets/images/preview_grocery.mp4" type="video/mp4">
                     </video>
