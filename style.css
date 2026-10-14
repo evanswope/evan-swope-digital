@@ -2908,11 +2908,14 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 .lab-media-dots {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .lab-media-dot {
-  width: 28px;
+  width: 20px;
   height: 4px;
   background: rgba(255, 255, 255, 0.2);
   border: none;
@@ -2924,7 +2927,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
 .lab-media-dot.active {
   background: #ff7eb3;
-  width: 42px;
+  width: 32px;
 }
 
 /* Content Box */

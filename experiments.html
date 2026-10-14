@@ -459,15 +459,15 @@
 
             <!-- SLIDE 6: Camera Collage -->
             <div class="carousel-slide" id="slide-camera-collage">
-              <div class="generative-card collage-card" style="max-width: 860px; padding: 2rem;">
+              <div class="generative-card collage-card" style="max-width: 880px; padding: 2rem;">
                 <svg class="synth-scribble-outline" preserveAspectRatio="none"><rect rx="10" style="filter: url(#scribble-filter);"></rect></svg>
                 
                 <div class="card-header" style="text-align: center; margin-bottom: 1.25rem;">
-                  <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">EXPERIMENTAL COMPUTER VISION · 5-PASS CV</span>
+                  <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">EXPERIMENTAL COMPUTER VISION · 14-PHASE PYRAMIDAL CV</span>
                   <h2 class="card-title" style="color: #fff; font-size: clamp(1.8rem, 3.5vw, 2.5rem); margin: 0.25rem 0 0.25rem 0; font-weight: 900;">Camera Collage</h2>
                   <div style="font-family: 'Permanent Marker', cursive, var(--font-mono); font-size: 1.15rem; color: #ff7eb3; transform: rotate(-1deg); margin-bottom: 0.75rem;">Using Memories to Rebuild Memories (Embarrassing)</div>
-                  <p class="card-desc" style="font-size: 0.85rem; line-height: 1.55; max-width: 680px; margin: 0 auto; color: #cbd5e1;">
-                    I gave Antigravity 3,333 unfiltered photos from my camera roll, and had it cache and index all the objects inside them, then fed it reference images to recreate in a multi-pass computer vision reality scrambler. Don't look too close! Or do. That's sorta the point of this isn't it, you little voyeur?
+                  <p class="card-desc" style="font-size: 0.85rem; line-height: 1.55; max-width: 720px; margin: 0 auto; color: #cbd5e1;">
+                    I gave Antigravity 3,333 unfiltered photos from my camera roll, indexed 7,933 distinct objects inside them, then fed it reference images to recreate in a multi-pass computer vision reality scrambler. Don't look too close! Or do. That's sorta the point of this isn't it, you little voyeur?
                   </p>
                 </div>
 
@@ -475,21 +475,48 @@
                 <div class="collage-subject-bar" style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
                   <button class="collage-subject-btn active" data-subject="blackcat"><i class="fa-solid fa-cat"></i> Black Cat &amp; Whiskers</button>
                   <button class="collage-subject-btn" data-subject="tomato"><i class="fa-solid fa-apple-whole"></i> Tomato Still Life</button>
+                  <button class="collage-subject-btn" data-subject="heavy"><i class="fa-solid fa-masks-theater"></i> Heavy (B&amp;W Drag)</button>
+                  <button class="collage-subject-btn" data-subject="wedding"><i class="fa-solid fa-user-tie"></i> Wedding Groom &amp; Tie</button>
+                  <button class="collage-subject-btn" data-subject="crushworthy"><i class="fa-solid fa-vest-patches"></i> Crushworthy Models</button>
                 </div>
 
                 <!-- Interactive View Mode Selector -->
                 <div class="collage-mode-bar" style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                  <button class="collage-mode-btn active" data-mode="side_by_side"><i class="fa-solid fa-columns"></i> Side-by-Side</button>
+                  <button class="collage-mode-btn active" data-mode="slider"><i class="fa-solid fa-sliders"></i> Interactive Slider</button>
+                  <button class="collage-mode-btn" data-mode="side_by_side"><i class="fa-solid fa-columns"></i> Side-by-Side</button>
                   <button class="collage-mode-btn" data-mode="zoom_quad"><i class="fa-solid fa-magnifying-glass-plus"></i> Strange Details Closeup</button>
                   <button class="collage-mode-btn" data-mode="blur_test"><i class="fa-solid fa-eye-low-vision"></i> Gestalt Blur</button>
-                  <button class="collage-mode-btn" data-mode="evolution"><i class="fa-solid fa-layer-group"></i> 5-Pass Evolution</button>
+                  <button class="collage-mode-btn" data-mode="evolution"><i class="fa-solid fa-layer-group"></i> Evolution Strip</button>
                 </div>
 
                 <!-- Visual Display Frame -->
                 <div class="collage-display-frame">
-                  <img id="collage-display-img" src="assets/images/pyramidal_blackcat_side_by_side.png" alt="Black Cat Collage" />
+                  <!-- Interactive Before/After Comparison Slider -->
+                  <div class="collage-comparison-slider" id="collage-comparison-slider">
+                    <!-- Bottom Layer: Collage Art -->
+                    <img id="slider-art-img" class="slider-img slider-art-img" src="assets/images/collage_cat_art.jpg" alt="Black Cat Collage Art" draggable="false" />
+                    <span class="slider-badge slider-badge-art">COLLAGE (MEMORY DUMP)</span>
+
+                    <!-- Top Layer: Original Reference Photo (Clipped by draggable slider handle) -->
+                    <div class="slider-ref-wrapper" id="slider-ref-wrapper">
+                      <img id="slider-ref-img" class="slider-img slider-ref-img" src="assets/images/collage_cat_ref.jpg" alt="Black Cat Reference Photo" draggable="false" />
+                      <span class="slider-badge slider-badge-ref">ORIGINAL PHOTO</span>
+                    </div>
+
+                    <!-- Draggable Divider Handle -->
+                    <div class="slider-handle" id="slider-handle">
+                      <div class="slider-handle-button" aria-label="Drag handle left or right to compare reference photo and collage">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Static View Image (for Side-by-Side, Closeup, Blur, Evolution) -->
+                  <img id="collage-display-img" src="assets/images/pyramidal_blackcat_side_by_side.png" alt="Black Cat Collage" style="display: none;" />
+
+                  <!-- Dynamic Caption Bar -->
                   <div class="collage-caption-bar">
-                    <span id="collage-caption-text">1,338-Piece Physical Ephemera Collage vs. Reference (750x1000) · 3.95s on GPU</span>
+                    <span id="collage-caption-text">Interactive Comparison Slider: Drag handle left and right to reveal the original reference photo vs. the 1,338-piece physical memory collage.</span>
                     <span id="collage-caption-stat" style="color: #ff7eb3; font-weight: 700; white-space: nowrap;">-34.2% Error</span>
                   </div>
                 </div>
@@ -506,26 +533,36 @@
                   <h3 style="color: #00f2fe; margin-top: 0;">The Premise: The Junk Drawer of Modern Life</h3>
                   <p>Most digital photo mosaics are polite, sterile, and boring. They take a high-resolution image, chop it into an even grid of tiny squares, and fill those squares with carefully curated stock photos. The result usually feels like a glorified Photoshop filter—flat, predictable, and devoid of tactile life.</p>
                   <p>This project started from a much messier, more human question: what happens when your artistic palette is purely the unfiltered junk drawer of your own life? Cursed memes, late-night selfies wearing smoky eyeshadow, bumper stickers (<em>"SUBARU"</em>, <em>"My life is WORTHLESS, I will KILL US both"</em>), torn grocery receipts, yellow clearance tags, Puget Sound ferries, and accidental close-up photos of thumbs.</p>
-                  
+                  <p>I gave Antigravity 3,333 unfiltered photos from my camera roll, indexed <strong>7,933 distinct segmented objects</strong>, and enforced a strict <strong>Zero Exclusion Rule</strong>: no filtering out embarrassing artifacts, weird eyes, or half-eaten sandwiches. If the CIELAB chroma and luma match, into the face it goes.</p>
+
+                  <h3>The Engine: Two-Phase Pyramidal Optical Feedback</h3>
+                  <p>Instead of placing cutouts on a rigid grid or blindly dropping images, the engine executes a hierarchical 7-scale pyramid running on an RTX 4060 GPU. Every scale tier executes a rigorous two-phase cycle:</p>
+                  <ul>
+                    <li><strong>Phase A (Structural Staging):</strong> Dense non-maximum suppression placement matching local spatial gradient tangents and optical luma.</li>
+                    <li><strong>Phase B (Heatmap Discrepancy Correction):</strong> The engine computes a real-time CIELAB error heatmap, isolates the highest residual discrepancy pockets, and lays down corrective cutouts at the <em>identical scale</em> before descending to finer detail passes.</li>
+                  </ul>
+                  <p>This feedback loop eliminates peak outliers (P90 error dropping by over 70%) and achieves recognizable likeness in 13 to 20 seconds of real-time GPU computation.</p>
+
                   <h3>The Secret: The Gestalt Blur Test</h3>
                   <p>In human visual neuroscience, your Fusiform Face Area (FFA) and object-recognition pathways process <strong>low spatial frequency (LSF)</strong> information first. Before your eye detects a single sharp boundary, your brain reads the broad chiaroscuro landscape: the deep shadow of an eye socket, the glowing crest of a forehead, or the silhouetted wedge of a cat's ear. If the low-frequency foundation is broken, placing 10,000 tiny sharp cutouts will never save the image—it just turns into visual static.</p>
-                  <p>Every collage in this engine is evaluated through a massive Gaussian blur (σ=18, 61x61px kernel). If you squint or step 20 feet away, the blurred collage must be virtually indistinguishable from the blurred original reference.</p>
+                  <p>Every collage in this engine is evaluated through a multi-scale Gaussian blur test (&sigma; &isin; {1, 3, 7, 15, 30}). If you squint or step 20 feet away, the blurred collage must be virtually indistinguishable from the blurred original reference.</p>
 
-                  <h3>The "Hollow C-Shaped Hairline" Crisis</h3>
-                  <p>Early runs had a bizarre bug: hair looked like a storm of floating yellow gaps. The engine reported 100% bounding box coverage, but when we zoomed in, the background was shining straight through! Segmented hairlines are often thin crescent C-shapes with empty alpha centers. We solved this with a real-time <strong>Physical Occupancy Accumulator (coverage_canvas)</strong> coupled with OpenCV's <code>distanceTransform</code>, querying solid ephemera (solidity ≥ 0.72) to infill Euclidean void centers until raw coverage exceeds 99.98%.</p>
+                  <h3>The 5 Subjects: From High-Contrast Drag to Intimate Vows</h3>
+                  <p><strong>1. Heavy (Theatrical Drag in Vintage Black-and-White Chiaroscuro):</strong> 10,735 pieces composited across 14 phases. The razor-sharp cat-eye wings, arched brows, and glossy lips are sculpted out of miniature candid faces, vintage camera lenses, and newspaper typography. Overexposed white gloves are built from overlapping supermarket receipts.</p>
+                  <p><strong>2. Wedding Groom (Friend Getting His Tie Tied):</strong> 6,348 pieces composited in 13.1 seconds. The groom's serene face is assembled from dozens of miniature candid portraits of friends; his burgundy floral tie is intricately woven from red text, wine labels, and clothing scraps; the sage green jacket features a jeweled bee pin on the lapel.</p>
+                  <p><strong>3. Crushworthy Pop Models (Dual Studio Portrait):</strong> 7,635 pieces in 13.2 seconds. High-key white studio paper scraps frame chartreuse mullet tips, hot-pink bandana doodles, and a cowboy tee with crisp edge transitions.</p>
+                  <p><strong>4. Black Cat &amp; Whiskers:</strong> 1,338 pieces solving the <em>Whisker Paradox</em> via Tangent-Aligned Filament Chaining of ultra-slender white paper slivers (up to 14:1 aspect ratios).</p>
+                  <p><strong>5. Tomato Still Life:</strong> 1,218 pieces with yellow clearance tags and pork ribs forming the locule seeds beneath translucent red pulp.</p>
 
-                  <h3>The Whisker Paradox</h3>
-                  <p>A 1px white whisker against deep black cat fur averages out to L ≈ 15 over any standard sampling block, causing standard algorithms to drop black pieces over them and erasing the whiskers entirely. We solved this with <strong>Tangent-Aligned Filament Chaining</strong>: isolating 238 ultra-slender white paper and receipt slivers (aspect ratios up to 14:1), extracting the topological skeleton via morphological top-hat filtering, solving local PCA screen-space tangents, and chaining overlapping filaments on the uppermost physical layer.</p>
-
-                  <h3>Quantitative Discrepancy Convergence Across Milestones</h3>
+                  <h3>Quantitative Discrepancy Convergence Across All 5 Milestones</h3>
                   <table>
                     <thead>
                       <tr>
                         <th>Subject</th>
                         <th>Resolution</th>
                         <th>Cutouts</th>
-                        <th>Initial ΔE</th>
-                        <th>Final ΔE</th>
+                        <th>Initial &Delta;E</th>
+                        <th>Final &Delta;E</th>
                         <th>Error Reduction</th>
                         <th>GPU Time</th>
                       </tr>
@@ -533,7 +570,7 @@
                     <tbody>
                       <tr>
                         <td><strong>Black Cat &amp; Whiskers</strong></td>
-                        <td>750×1000</td>
+                        <td>750&times;1000</td>
                         <td>1,338</td>
                         <td>41.82</td>
                         <td>27.52</td>
@@ -542,12 +579,39 @@
                       </tr>
                       <tr>
                         <td><strong>Tomato Still Life</strong></td>
-                        <td>1000×1000</td>
+                        <td>1000&times;1000</td>
                         <td>1,218</td>
                         <td>88.88</td>
                         <td>41.56</td>
                         <td style="color:#ff7eb3; font-weight:700;">-53.2%</td>
                         <td>4.24 s</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Heavy (B&amp;W Drag)</strong></td>
+                        <td>1000&times;1000</td>
+                        <td>10,735</td>
+                        <td>49.28</td>
+                        <td>32.94</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-33.1%</td>
+                        <td>20.2 s</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Wedding Groom &amp; Tie</strong></td>
+                        <td>1024&times;682</td>
+                        <td>6,348</td>
+                        <td>60.69</td>
+                        <td>27.78</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-54.2%</td>
+                        <td>13.1 s</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Crushworthy Pop Models</strong></td>
+                        <td>1024&times;1024</td>
+                        <td>7,635</td>
+                        <td>69.61</td>
+                        <td>26.09</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-62.5%</td>
+                        <td>13.2 s</td>
                       </tr>
                     </tbody>
                   </table>
