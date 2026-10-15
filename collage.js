@@ -13,10 +13,52 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Drag handle left and right to reveal the original reference photo vs. the 1,338-piece physical memory collage.',
         stat: '-34.2% Error'
       },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_blackcat_zoom_quad.png',
-        caption: 'Strange Details Closeup: Grocery receipts as whiskers, porcelain toilet bowl, and late-night selfie cutouts.',
-        stat: 'Strange Details'
+      details: {
+        src: 'assets/images/details/detail_cat.jpg',
+        caption: 'Strange Details Closeup: High-impact focus region on the muzzle and cheek revealing bizarre personal artifacts.',
+        stat: '5 Objects Revealed',
+        hotspots: [
+          {
+            id: 'cat-toilet',
+            num: 1,
+            x: 12,
+            y: 65,
+            title: 'Porcelain Toilet Bowl',
+            desc: 'Camera roll #1,402: A photo of a dive bar bathroom. Selected by the CIELAB matching algorithm to form the peach-beige specular highlight on the cat\'s left cheek.'
+          },
+          {
+            id: 'cat-whiskers',
+            num: 2,
+            x: 28,
+            y: 50,
+            title: 'Safeway Receipt Whiskers',
+            desc: 'Tangent-chained slivers of torn paper receipts (up to 14:1 aspect ratio) curving into white whisker filaments across the muzzle.'
+          },
+          {
+            id: 'cat-sperm',
+            num: 3,
+            x: 48,
+            y: 74,
+            title: '"Dental Sperm" Box',
+            desc: 'An unedited camera-roll mystery packaging photo with high-contrast red typography, placed directly beneath the cat\'s nose where red chroma was demanded.'
+          },
+          {
+            id: 'cat-selfie',
+            num: 4,
+            x: 10,
+            y: 28,
+            title: 'Late-Night Flash Selfies',
+            desc: 'Overexposed party selfies and anime stickers composited into the cat\'s cheek fur highlights and whisker base.'
+          },
+          {
+            id: 'cat-circuit',
+            num: 5,
+            x: 82,
+            y: 64,
+            title: 'Circuit Board & Barcodes',
+            desc: 'Dense green-grey electronic components and grocery barcode cutouts forming the right whisker pad silhouette.'
+          }
+        ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_blackcat_gestalt_blur_test.jpg',
@@ -41,10 +83,52 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Drag to scrub between fresh vine tomatoes and the 1,218-piece food & receipt collage.',
         stat: '-53.2% Error'
       },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_tomato_specular_zoom.png',
-        caption: 'Strange Details Closeup: Yellow "REDUCED" supermarket price tags, pork ribs, and churros forming the locule seeds.',
-        stat: 'Strange Details'
+      details: {
+        src: 'assets/images/details/detail_tomato.jpg',
+        caption: 'Strange Details Closeup: Sliced locule seed cavity revealing yellow discount grocery tags, rib bones, and specular desk glints.',
+        stat: '5 Objects Revealed',
+        hotspots: [
+          {
+            id: 'tom-reduced',
+            num: 1,
+            x: 74,
+            y: 18,
+            title: '"REDUCED" Markdown Sticker',
+            desc: 'A bright red supermarket meat counter clearance sticker serving as the firm outer pericarp tomato wall.'
+          },
+          {
+            id: 'tom-meattag',
+            num: 2,
+            x: 64,
+            y: 10,
+            title: '"Best Meat In Town" Tag',
+            desc: 'Neon yellow butcher markdown stickers with bold type masquerading as yellow seed gelatin inside the locule.'
+          },
+          {
+            id: 'tom-glint',
+            num: 3,
+            x: 52,
+            y: 32,
+            title: 'Sunset Postcard Glint',
+            desc: 'A glossy wooden desk postcard with a glowing white circle dot placed precisely on the tomato\'s primary specular reflection.'
+          },
+          {
+            id: 'tom-ribs',
+            num: 4,
+            x: 40,
+            y: 78,
+            title: 'Raw Marbled Pork Ribs',
+            desc: 'Striated butcher shop rib cuts and marbled pork meat providing the dark red muscle and fibrous pulp gradients.'
+          },
+          {
+            id: 'tom-puppet',
+            num: 5,
+            x: 24,
+            y: 38,
+            title: 'Eyelash Puppet Caricature',
+            desc: 'A surreal cartoon caricature with giant mascara eyelashes and a side-eye grin nestled into the tomato pulp.'
+          }
+        ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_tomato_gestalt_blur_test.jpg',
@@ -69,10 +153,52 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Vintage drag theatrical portrait vs. 10,735-piece monochrome memory reconstruction.',
         stat: '10,735 Pieces'
       },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_heavy_bw_zoom_quad.jpg',
-        caption: 'Strange Details Closeup: Cat-eye makeup sculpted from miniature candid faces, camera lenses, and newspaper typography.',
-        stat: 'Zero Exclusions'
+      details: {
+        src: 'assets/images/details/detail_heavy.jpg',
+        caption: 'Strange Details Closeup: Glossy lips and sculpted chin revealing a velvet living room armchair, cyan speedometer, and dive bar fixtures.',
+        stat: '5 Objects Revealed',
+        hotspots: [
+          {
+            id: 'heavy-armchair',
+            num: 1,
+            x: 52,
+            y: 68,
+            title: 'Vintage Velvet Armchair',
+            desc: 'A brown living room armchair nestled directly into the dark shadow and crease beneath the lower lip.'
+          },
+          {
+            id: 'heavy-gauge',
+            num: 2,
+            x: 15,
+            y: 65,
+            title: 'Glowing "00" Speedometer',
+            desc: 'An illuminated cyan vehicle instrument cluster dial on the left jawline providing cool midtone contrast.'
+          },
+          {
+            id: 'heavy-toilet',
+            num: 3,
+            x: 28,
+            y: 20,
+            title: 'Porcelain Toilet Fixture',
+            desc: 'Another dive bar plumbing fixture surfacing unexpectedly in the pale theatrical foundation highlight.'
+          },
+          {
+            id: 'heavy-puppy',
+            num: 4,
+            x: 32,
+            y: 52,
+            title: 'Sleeping Puppy Photo',
+            desc: 'A beloved family dog curled up asleep on a rug, forming the soft luma transition below the lower lip.'
+          },
+          {
+            id: 'heavy-exit',
+            num: 5,
+            x: 88,
+            y: 54,
+            title: 'Red Emergency Exit Sign',
+            desc: 'A high-contrast red warning sign adding punch to the right shadow contour, filtered by chiaroscuro luma matching.'
+          }
+        ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_heavy_bw_gestalt_blur_test.jpg',
@@ -106,10 +232,52 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Intimate wedding portrait vs. 6,348-piece full-color optical collage.',
         stat: '6,348 Pieces'
       },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_wedding_zoom_quad.jpg',
-        caption: 'Strange Details Closeup: Groom’s face formed from tiny candid portraits; tie knot woven from wine bottle labels; jeweled bee lapel pin.',
-        stat: 'Surreal Details'
+      details: {
+        src: 'assets/images/details/detail_wedding.jpg',
+        caption: 'Strange Details Closeup: Tie knot and collar revealing red wine bottle labels, guest portraits, and lapel pin.',
+        stat: '5 Objects Revealed',
+        hotspots: [
+          {
+            id: 'wed-wine',
+            num: 1,
+            x: 78,
+            y: 18,
+            title: 'Burgundy Wine Bottle Labels',
+            desc: 'Vintage red wine labels with rich typography ("NU", "RED", "latte") woven directly into the floral tie knot.'
+          },
+          {
+            id: 'wed-book',
+            num: 2,
+            x: 32,
+            y: 22,
+            title: '"Craft & Soul" Book Cover',
+            desc: 'Muted olive book packaging forming the left fold and shadow contour of the groom\'s dress shirt collar.'
+          },
+          {
+            id: 'wed-guests',
+            num: 3,
+            x: 50,
+            y: 38,
+            title: 'Party Guest Snapshots',
+            desc: 'Dozens of miniature smiling portraits of wedding guests and friends tucked inside the shadows of the neckline.'
+          },
+          {
+            id: 'wed-hands',
+            num: 4,
+            x: 80,
+            y: 35,
+            title: 'Friend\'s Adjusting Hands',
+            desc: 'The groom\'s best friend adjusting the tie knot, rendered from peach skin-tone cutouts of other party guests.'
+          },
+          {
+            id: 'wed-pin',
+            num: 5,
+            x: 22,
+            y: 72,
+            title: 'Jeweled Bee Lapel Pin',
+            desc: 'A gold and emerald brooch pin sparkling on the sage jacket lapel, surrounded by garden foliage cutouts.'
+          }
+        ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_wedding_gestalt_blur_test.jpg',
@@ -143,10 +311,52 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: High-key pop fashion portrait vs. 7,635-piece vibrant memory collage.',
         stat: '7,635 Pieces'
       },
-      zoom_quad: {
-        src: 'assets/images/pyramidal_crushworthy_zoom_quad.jpg',
-        caption: 'Strange Details Closeup: Chartreuse mullet tips and dark bangs made of faces and tickets; pink bandana formed of neon stickers; Desperado cowboy tee.',
-        stat: 'Pop Details'
+      details: {
+        src: 'assets/images/details/detail_crushworthy.jpg',
+        caption: 'Strange Details Closeup: Model portrait revealing a real city parking citation, cassette tape hair, and concert wristbands.',
+        stat: '5 Objects Revealed',
+        hotspots: [
+          {
+            id: 'crush-parking',
+            num: 1,
+            x: 20,
+            y: 78,
+            title: '"LOT S12064" Parking Ticket',
+            desc: 'An actual city parking violation citation with red "PARKING" header forming the sterile white photography cyclorama.'
+          },
+          {
+            id: 'crush-tapes',
+            num: 2,
+            x: 55,
+            y: 15,
+            title: 'Cassette Tapes & Radio Dials',
+            desc: 'Black plastic vintage audio gear and tuner knobs forming the dense dark silhouette of the shaggy bangs.'
+          },
+          {
+            id: 'crush-wristbands',
+            num: 3,
+            x: 50,
+            y: 76,
+            title: 'Neon Concert Wristbands',
+            desc: 'Saturated magenta festival wristbands and pink paper confetti forming the crisp folds of the bandana.'
+          },
+          {
+            id: 'crush-anime',
+            num: 4,
+            x: 48,
+            y: 52,
+            title: 'Anime Doodles & Stickers',
+            desc: 'Bright cartoon eye doodles and neon decals adding specular pop to the sunglasses and cheek contour.'
+          },
+          {
+            id: 'crush-receipts',
+            num: 5,
+            x: 22,
+            y: 24,
+            title: 'Cyclorama Paper Receipts',
+            desc: 'Overlapping torn grocery receipts and bill stubs providing the textured white backdrop around the models.'
+          }
+        ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_crushworthy_gestalt_blur_test.jpg',
@@ -188,6 +398,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const drawerToggleBtn = document.getElementById('btn-toggle-case-study');
   const drawerEl = document.getElementById('collage-case-study-drawer');
 
+  // Details View Elements
+  const detailsContainer = document.getElementById('collage-details-container');
+  const detailsImg = document.getElementById('collage-details-img');
+  const hotspotsOverlay = document.getElementById('collage-hotspots-overlay');
+  const objectsTray = document.getElementById('collage-objects-tray');
+  const objectsChipList = document.getElementById('objects-chip-list');
+  const btnToggleHotspots = document.getElementById('btn-toggle-hotspots');
+  const calloutCard = document.getElementById('object-callout-card');
+  const calloutCardNum = document.getElementById('callout-card-num');
+  const calloutCardTitle = document.getElementById('callout-card-title');
+  const calloutCardDesc = document.getElementById('callout-card-desc');
+  let hotspotsVisible = true;
+  let activeHotspotId = null;
+
   // Evolution Controller Elements
   const evoController = document.getElementById('collage-evolution-controller');
   const evoRangeSlider = document.getElementById('evo-range-slider');
@@ -210,6 +434,117 @@ document.addEventListener('DOMContentLoaded', () => {
   function preloadSubjectEvolution(subjectKey) {
     const steps = collageDataset[subjectKey]?.evolution || [];
     steps.forEach(step => preloadImage(step.src));
+  }
+
+  // Render Details Closeup with Interactive Hotspot Pins and Discovery Tray
+  function renderDetailsView(subjectKey) {
+    const subjectData = collageDataset[subjectKey];
+    if (!subjectData || !subjectData.details) return;
+
+    if (detailsImg) {
+      detailsImg.src = subjectData.details.src;
+      detailsImg.alt = `${subjectData.name} - Strange Details Closeup`;
+    }
+
+    if (!hotspotsOverlay || !objectsChipList) return;
+    hotspotsOverlay.innerHTML = '';
+    objectsChipList.innerHTML = '';
+
+    const hotspots = subjectData.details.hotspots || [];
+
+    hotspots.forEach((spot) => {
+      // 1. Create Hotspot Pin Button directly on image
+      const pin = document.createElement('button');
+      pin.className = 'collage-hotspot-pin';
+      pin.id = `pin-${spot.id}`;
+      pin.style.left = `${spot.x}%`;
+      pin.style.top = `${spot.y}%`;
+      pin.setAttribute('data-hotspot-id', spot.id);
+      pin.setAttribute('aria-label', `Object ${spot.num}: ${spot.title}`);
+      pin.innerHTML = `
+        <span>${spot.num}</span>
+        <div class="collage-hotspot-tooltip">${spot.title}</div>
+      `;
+
+      pin.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectHotspot(spot.id);
+      });
+
+      pin.addEventListener('mouseenter', () => {
+        selectHotspot(spot.id);
+      });
+
+      hotspotsOverlay.appendChild(pin);
+
+      // 2. Create Chip in Discovery Tray
+      const chip = document.createElement('button');
+      chip.className = 'object-chip';
+      chip.id = `chip-${spot.id}`;
+      chip.setAttribute('data-hotspot-id', spot.id);
+      chip.innerHTML = `
+        <span class="object-chip-num">${spot.num}</span>
+        <span>${spot.title}</span>
+      `;
+
+      chip.addEventListener('click', () => {
+        selectHotspot(spot.id);
+      });
+
+      objectsChipList.appendChild(chip);
+    });
+
+    if (hotspots.length > 0) {
+      selectHotspot(hotspots[0].id);
+    }
+  }
+
+  function selectHotspot(hotspotId) {
+    activeHotspotId = hotspotId;
+    const subjectData = collageDataset[currentSubject];
+    if (!subjectData || !subjectData.details) return;
+
+    const spot = subjectData.details.hotspots.find(h => h.id === hotspotId);
+    if (!spot) return;
+
+    // Update pin active states
+    document.querySelectorAll('.collage-hotspot-pin').forEach(pin => {
+      if (pin.dataset.hotspotId === hotspotId) {
+        pin.classList.add('is-active');
+      } else {
+        pin.classList.remove('is-active');
+      }
+    });
+
+    // Update chip active states
+    document.querySelectorAll('.object-chip').forEach(chip => {
+      if (chip.dataset.hotspotId === hotspotId) {
+        chip.classList.add('is-active');
+      } else {
+        chip.classList.remove('is-active');
+      }
+    });
+
+    // Update Callout Card
+    if (calloutCardNum) calloutCardNum.textContent = spot.num;
+    if (calloutCardTitle) calloutCardTitle.textContent = spot.title;
+    if (calloutCardDesc) calloutCardDesc.textContent = spot.desc;
+    if (captionStatEl) captionStatEl.textContent = `Object #${spot.num} Identified`;
+  }
+
+  if (btnToggleHotspots) {
+    btnToggleHotspots.addEventListener('click', () => {
+      hotspotsVisible = !hotspotsVisible;
+      if (hotspotsOverlay) {
+        if (hotspotsVisible) {
+          hotspotsOverlay.classList.remove('is-hidden');
+          btnToggleHotspots.innerHTML = '<i class="fa-solid fa-eye"></i> <span>Hide Callouts</span>';
+        } else {
+          hotspotsOverlay.classList.add('is-hidden');
+          btnToggleHotspots.innerHTML = '<i class="fa-solid fa-eye-slash"></i> <span>Show Callouts</span>';
+        }
+      }
+    });
   }
 
   // Initialize interactive comparison slider dragging
@@ -346,6 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentMode === 'slider') {
       if (imgEl) imgEl.style.display = 'none';
       if (evoController) evoController.style.display = 'none';
+      if (detailsContainer) detailsContainer.style.display = 'none';
+      if (objectsTray) objectsTray.style.display = 'none';
       if (sliderEl) {
         sliderEl.style.display = 'flex';
         sliderEl.style.setProperty('--slider-aspect', subjectData.aspectRatio || '1 / 1');
@@ -362,8 +699,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (captionTextEl) captionTextEl.textContent = subjectData.slider.caption;
       if (captionStatEl) captionStatEl.textContent = subjectData.slider.stat;
 
+    } else if (currentMode === 'details') {
+      if (sliderEl) sliderEl.style.display = 'none';
+      if (imgEl) imgEl.style.display = 'none';
+      if (evoController) evoController.style.display = 'none';
+      if (detailsContainer) detailsContainer.style.display = 'flex';
+      if (objectsTray) objectsTray.style.display = 'flex';
+
+      renderDetailsView(currentSubject);
+
+      if (captionTextEl) captionTextEl.textContent = subjectData.details.caption;
+      if (captionStatEl) captionStatEl.textContent = subjectData.details.stat;
+
     } else if (currentMode === 'evolution') {
       if (sliderEl) sliderEl.style.display = 'none';
+      if (detailsContainer) detailsContainer.style.display = 'none';
+      if (objectsTray) objectsTray.style.display = 'none';
       if (imgEl) imgEl.style.display = 'block';
       if (evoController) evoController.style.display = 'flex';
 
@@ -376,12 +727,14 @@ document.addEventListener('DOMContentLoaded', () => {
       applyEvolutionStep();
 
     } else {
-      // Zoom quad or Blur test
+      // Blur test
       if (sliderEl) sliderEl.style.display = 'none';
       if (evoController) evoController.style.display = 'none';
+      if (detailsContainer) detailsContainer.style.display = 'none';
+      if (objectsTray) objectsTray.style.display = 'none';
       if (imgEl) {
         imgEl.style.display = 'block';
-        const modeData = subjectData[currentMode];
+        const modeData = subjectData[currentMode] || subjectData.blur_test;
         if (modeData) {
           imgEl.style.opacity = '0';
           setTimeout(() => {
@@ -501,5 +854,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initComparisonSlider();
   preloadSubjectEvolution('blackcat');
+  [
+    'assets/images/details/detail_cat.jpg',
+    'assets/images/details/detail_tomato.jpg',
+    'assets/images/details/detail_heavy.jpg',
+    'assets/images/details/detail_wedding.jpg',
+    'assets/images/details/detail_crushworthy.jpg'
+  ].forEach(preloadImage);
   updateView();
 });
