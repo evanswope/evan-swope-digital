@@ -946,6 +946,160 @@ canvas#grid-canvas {
   z-index: 10;
 }
 
+/* Interactive Evolution Step Controller */
+.collage-evolution-controller {
+  margin-top: 0.85rem;
+  background: rgba(14, 14, 22, 0.95);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 12px;
+  padding: 0.85rem 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.evo-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.evo-ctrl-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+
+.evo-ctrl-btn:hover {
+  background: rgba(0, 242, 254, 0.18);
+  border-color: #00f2fe;
+  color: #00f2fe;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+}
+
+.evo-ctrl-btn.is-playing {
+  background: rgba(255, 126, 179, 0.25);
+  border-color: #ff7eb3;
+  color: #ff7eb3;
+  box-shadow: 0 0 15px rgba(255, 126, 179, 0.5);
+}
+
+.evo-slider-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.evo-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.evo-range-slider:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.evo-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #00f2fe;
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px #00f2fe;
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.evo-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 18px #00f2fe;
+}
+
+.evo-range-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.25);
+  box-shadow: 0 0 22px #00f2fe;
+}
+
+.evo-range-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #00f2fe;
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px #00f2fe;
+  cursor: grab;
+}
+
+.evo-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.evo-step-badge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  background: rgba(255, 126, 179, 0.15);
+  border: 1px solid rgba(255, 126, 179, 0.4);
+  color: #ff7eb3;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 0.7rem;
+}
+
+.evo-step-desc {
+  flex: 1;
+  color: #f1f5f9;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.evo-keyboard-hint {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .evo-keyboard-hint {
+    display: none;
+  }
+  .evo-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}
+
 .collage-drawer {
   background: #0e0e14;
   border: 1px solid rgba(255, 255, 255, 0.12);

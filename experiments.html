@@ -483,10 +483,9 @@
                 <!-- Interactive View Mode Selector -->
                 <div class="collage-mode-bar" style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem;">
                   <button class="collage-mode-btn active" data-mode="slider"><i class="fa-solid fa-sliders"></i> Interactive Slider</button>
-                  <button class="collage-mode-btn" data-mode="side_by_side"><i class="fa-solid fa-columns"></i> Side-by-Side</button>
-                  <button class="collage-mode-btn" data-mode="zoom_quad"><i class="fa-solid fa-magnifying-glass-plus"></i> Strange Details Closeup</button>
-                  <button class="collage-mode-btn" data-mode="blur_test"><i class="fa-solid fa-eye-low-vision"></i> Gestalt Blur</button>
-                  <button class="collage-mode-btn" data-mode="evolution"><i class="fa-solid fa-layer-group"></i> Evolution Strip</button>
+                  <button class="collage-mode-btn" data-mode="zoom_quad"><i class="fa-solid fa-magnifying-glass-plus"></i> Details</button>
+                  <button class="collage-mode-btn" data-mode="blur_test"><i class="fa-solid fa-eye-low-vision"></i> Blur</button>
+                  <button class="collage-mode-btn" data-mode="evolution"><i class="fa-solid fa-layer-group"></i> Evolution</button>
                 </div>
 
                 <!-- Visual Display Frame -->
@@ -511,13 +510,36 @@
                     </div>
                   </div>
 
-                  <!-- Static View Image (for Side-by-Side, Closeup, Blur, Evolution) -->
-                  <img id="collage-display-img" src="assets/images/pyramidal_blackcat_side_by_side.png" alt="Black Cat Collage" style="display: none;" />
+                  <!-- Static / Evolution View Image -->
+                  <img id="collage-display-img" src="assets/images/pyramidal_blackcat_zoom_quad.png" alt="Black Cat Collage" style="display: none;" />
 
                   <!-- Dynamic Caption Bar -->
                   <div class="collage-caption-bar">
                     <span id="collage-caption-text">Interactive Comparison Slider: Drag handle left and right to reveal the original reference photo vs. the 1,338-piece physical memory collage.</span>
                     <span id="collage-caption-stat" style="color: #ff7eb3; font-weight: 700; white-space: nowrap;">-34.2% Error</span>
+                  </div>
+                </div>
+
+                <!-- Interactive Evolution Controller (Shown only in Evolution mode) -->
+                <div class="collage-evolution-controller" id="collage-evolution-controller" style="display: none;">
+                  <div class="evo-timeline-row">
+                    <button class="evo-ctrl-btn" id="evo-btn-play" aria-label="Play or pause evolution timelapse" title="Play / Pause Timelapse">
+                      <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button class="evo-ctrl-btn" id="evo-btn-prev" aria-label="Previous step" title="Previous Pass">
+                      <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    <div class="evo-slider-container">
+                      <input type="range" class="evo-range-slider" id="evo-range-slider" min="0" max="4" value="0" step="1" aria-label="Scrub through collage passes">
+                    </div>
+                    <button class="evo-ctrl-btn" id="evo-btn-next" aria-label="Next step" title="Next Pass">
+                      <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                  </div>
+                  <div class="evo-info-row">
+                    <span class="evo-step-badge" id="evo-step-badge">PASS 1 / 5</span>
+                    <span class="evo-step-desc" id="evo-step-desc">Pass 1: Foundation (Cutouts &ge; 500px)</span>
+                    <span class="evo-keyboard-hint"><i class="fa-solid fa-keyboard"></i> Scrub slider or use &larr; &rarr;</span>
                   </div>
                 </div>
 

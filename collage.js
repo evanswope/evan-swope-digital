@@ -13,26 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Drag handle left and right to reveal the original reference photo vs. the 1,338-piece physical memory collage.',
         stat: '-34.2% Error'
       },
-      side_by_side: {
-        src: 'assets/images/pyramidal_blackcat_side_by_side.png',
-        caption: '1,338-Piece Physical Ephemera Collage vs. Reference (750x1000) · 3.95s on GPU',
-        stat: '-34.2% Error'
-      },
       zoom_quad: {
         src: 'assets/images/pyramidal_blackcat_zoom_quad.png',
         caption: 'Strange Details Closeup: Grocery receipts as whiskers, porcelain toilet bowl, and late-night selfie cutouts.',
         stat: 'Strange Details'
       },
       blur_test: {
-        src: 'assets/images/pyramidal_blackcat_gestalt_blur_test.png',
-        caption: 'Gestalt Low-Frequency Blur Test (σ=18, 61x61px kernel). Simulates human Fusiform Face Area recognition.',
-        stat: 'Gestalt Passed'
+        src: 'assets/images/pyramidal_blackcat_gestalt_blur_test.jpg',
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. Simulates human Fusiform Face Area recognition from 20 feet away.',
+        stat: 'σ = 15 Passed'
       },
-      evolution: {
-        src: 'assets/images/pyramidal_blackcat_evolution_strip.png',
-        caption: '5-Pass Hierarchy: P1 Foundation (≥500px) → P2 Masses → P3 Contours → P4 Detail → P5 Whiskers (≤20px).',
-        stat: '5 Scale Tiers'
-      }
+      evolution: [
+        { src: 'assets/images/evolution/evo_blackcat_0.jpg', badge: 'PASS 1 / 5', title: 'Pass 1: Foundation (Cutouts ≥ 500px)', stat: '≥500px Tier' },
+        { src: 'assets/images/evolution/evo_blackcat_1.jpg', badge: 'PASS 2 / 5', title: 'Pass 2: Large Masses (Cutouts ≥ 200px)', stat: '≥200px Tier' },
+        { src: 'assets/images/evolution/evo_blackcat_2.jpg', badge: 'PASS 3 / 5', title: 'Pass 3: Anatomy Contours (Cutouts ≥ 80px)', stat: '≥80px Tier' },
+        { src: 'assets/images/evolution/evo_blackcat_3.jpg', badge: 'PASS 4 / 5', title: 'Pass 4: Fine Details (Cutouts ≥ 30px)', stat: '≥30px Tier' },
+        { src: 'assets/images/evolution/evo_blackcat_4.jpg', badge: 'PASS 5 / 5', title: 'Pass 5: Micro Whiskers (Slender slivers ≤ 20px)', stat: '1,338 Pieces' }
+      ]
     },
 
     tomato: {
@@ -44,26 +41,23 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Drag to scrub between fresh vine tomatoes and the 1,218-piece food & receipt collage.',
         stat: '-53.2% Error'
       },
-      side_by_side: {
-        src: 'assets/images/pyramidal_tomato_side_by_side.png',
-        caption: 'Ripe Vine Tomatoes & Basil on Wooden Board vs. 1,218-Piece Physical Collage (1000x1000) · 4.24s on GPU',
-        stat: '-53.2% Error'
-      },
       zoom_quad: {
         src: 'assets/images/pyramidal_tomato_specular_zoom.png',
         caption: 'Strange Details Closeup: Yellow "REDUCED" supermarket price tags, pork ribs, and churros forming the locule seeds.',
         stat: 'Strange Details'
       },
       blur_test: {
-        src: 'assets/images/pyramidal_tomato_gestalt_blur_test.png',
-        caption: 'Gestalt Low-Frequency Blur Test: Color temperature and volumetric roundness mirror original.',
-        stat: 'Gestalt Passed'
+        src: 'assets/images/pyramidal_tomato_gestalt_blur_test.jpg',
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. Color temperature and volumetric roundness mirror original.',
+        stat: 'σ = 15 Passed'
       },
-      evolution: {
-        src: 'assets/images/pyramidal_tomato_evolution_strip.png',
-        caption: '5-Pass Hierarchy: Charcoal & Board Staging → Tomato Domes → Locule Contours → Seeds → Specular Shines.',
-        stat: '5 Scale Tiers'
-      }
+      evolution: [
+        { src: 'assets/images/evolution/evo_tomato_0.jpg', badge: 'PASS 1 / 5', title: 'Pass 1: Charcoal Board & Background Staging', stat: '≥500px Tier' },
+        { src: 'assets/images/evolution/evo_tomato_1.jpg', badge: 'PASS 2 / 5', title: 'Pass 2: Tomato Domes & Outer Pulp Masses', stat: '≥200px Tier' },
+        { src: 'assets/images/evolution/evo_tomato_2.jpg', badge: 'PASS 3 / 5', title: 'Pass 3: Locule Cavity Geometry & Contours', stat: '≥80px Tier' },
+        { src: 'assets/images/evolution/evo_tomato_3.jpg', badge: 'PASS 4 / 5', title: 'Pass 4: Locule Seeds & Price Tag Texture', stat: '≥30px Tier' },
+        { src: 'assets/images/evolution/evo_tomato_4.jpg', badge: 'PASS 5 / 5', title: 'Pass 5: Specular Highlights & Surface Glints', stat: '1,218 Pieces' }
+      ]
     },
 
     heavy: {
@@ -75,11 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Vintage drag theatrical portrait vs. 10,735-piece monochrome memory reconstruction.',
         stat: '10,735 Pieces'
       },
-      side_by_side: {
-        src: 'assets/images/pyramidal_heavy_bw_side_by_side.jpg',
-        caption: 'High-Contrast Theatrical Portrait vs. 10,735-Piece Two-Phase Optical Collage (1000x1000) · 20.2s on GPU',
-        stat: '-33.1 ΔE'
-      },
       zoom_quad: {
         src: 'assets/images/pyramidal_heavy_bw_zoom_quad.jpg',
         caption: 'Strange Details Closeup: Cat-eye makeup sculpted from miniature candid faces, camera lenses, and newspaper typography.',
@@ -87,14 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       blur_test: {
         src: 'assets/images/pyramidal_heavy_bw_gestalt_blur_test.jpg',
-        caption: 'Multi-Scale Gestalt Blur Test (σ ∈ {1, 3, 7, 15, 30}): Preserves dramatic chiaroscuro and bouffant curls from 20 feet away.',
-        stat: 'Gestalt Passed'
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. Preserves dramatic chiaroscuro and bouffant curls from 20 feet away.',
+        stat: 'σ = 15 Passed'
       },
-      evolution: {
-        src: 'assets/images/pyramidal_heavy_bw_evolution_strip.jpg',
-        caption: '14-Phase Hierarchical Evolution: 7 scale tiers (180px down to 3px), each pairing Initial Placement (A) with Discrepancy Correction (B).',
-        stat: '14 Phases'
-      }
+      evolution: [
+        { src: 'assets/images/evolution/evo_heavy_0.jpg', badge: 'PHASE 1 / 14', title: 'Pass 1A: Gigantic Foundation Placement (≥ 180px)', stat: '≥180px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_1.jpg', badge: 'PHASE 2 / 14', title: 'Pass 1B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_heavy_2.jpg', badge: 'PHASE 3 / 14', title: 'Pass 2A: Torso & Bouffant Hair Masses (≥ 110px)', stat: '≥110px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_3.jpg', badge: 'PHASE 4 / 14', title: 'Pass 2B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_heavy_4.jpg', badge: 'PHASE 5 / 14', title: 'Pass 3A: Large Anatomical Masses (≥ 65px)', stat: '≥65px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_5.jpg', badge: 'PHASE 6 / 14', title: 'Pass 3B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_heavy_6.jpg', badge: 'PHASE 7 / 14', title: 'Pass 4A: Medium Makeup & Glove Placement (≥ 35px)', stat: '≥35px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_7.jpg', badge: 'PHASE 8 / 14', title: 'Pass 4B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_heavy_8.jpg', badge: 'PHASE 9 / 14', title: 'Pass 5A: Small Feature Placement (≥ 18px)', stat: '≥18px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_9.jpg', badge: 'PHASE 10 / 14', title: 'Pass 5B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_heavy_10.jpg', badge: 'PHASE 11 / 14', title: 'Pass 6A: Micro Eyelash & Brow Geometry (≥ 8px)', stat: '≥8px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_11.jpg', badge: 'PHASE 12 / 14', title: 'Pass 6B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_heavy_12.jpg', badge: 'PHASE 13 / 14', title: 'Pass 7A: Nano Polish Placement (≥ 3px)', stat: '≥3px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_13.jpg', badge: 'PHASE 14 / 14', title: 'Pass 7B: Final 10,735-Piece Chiaroscuro Convergence', stat: '10,735 Pieces' }
+      ]
     },
 
     wedding: {
@@ -106,11 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: Intimate wedding portrait vs. 6,348-piece full-color optical collage.',
         stat: '6,348 Pieces'
       },
-      side_by_side: {
-        src: 'assets/images/pyramidal_wedding_side_by_side.jpg',
-        caption: 'Groom Tie Adjustment vs. 6,348-Piece Two-Phase Collage (1024x682) · 13.1s on GPU',
-        stat: '-54.2% Error'
-      },
       zoom_quad: {
         src: 'assets/images/pyramidal_wedding_zoom_quad.jpg',
         caption: 'Strange Details Closeup: Groom’s face formed from tiny candid portraits; tie knot woven from wine bottle labels; jeweled bee lapel pin.',
@@ -118,14 +113,25 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       blur_test: {
         src: 'assets/images/pyramidal_wedding_gestalt_blur_test.jpg',
-        caption: 'Multi-Scale Gestalt Blur Test: Sage jacket, peach skin luma, and burgundy floral tie snap into focus across spatial frequencies.',
-        stat: 'Gestalt Passed'
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. Sage jacket, peach skin luma, and burgundy floral tie snap into focus.',
+        stat: 'σ = 15 Passed'
       },
-      evolution: {
-        src: 'assets/images/pyramidal_wedding_evolution_strip.jpg',
-        caption: '14-Phase Full-Color Evolution: Initial coverage followed by CIELAB error correction against the Turbo discrepancy heatmap.',
-        stat: '14 Phases'
-      }
+      evolution: [
+        { src: 'assets/images/evolution/evo_wedding_0.jpg', badge: 'PHASE 1 / 14', title: 'Pass 1A: Foundation Placement (≥ 180px)', stat: '≥180px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_1.jpg', badge: 'PHASE 2 / 14', title: 'Pass 1B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_2.jpg', badge: 'PHASE 3 / 14', title: 'Pass 2A: Suit Jacket & Background Placement (≥ 110px)', stat: '≥110px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_3.jpg', badge: 'PHASE 4 / 14', title: 'Pass 2B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_4.jpg', badge: 'PHASE 5 / 14', title: 'Pass 3A: Large Anatomical Masses (≥ 65px)', stat: '≥65px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_5.jpg', badge: 'PHASE 6 / 14', title: 'Pass 3B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_6.jpg', badge: 'PHASE 7 / 14', title: 'Pass 4A: Medium Floral Tie & Hands (≥ 35px)', stat: '≥35px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_7.jpg', badge: 'PHASE 8 / 14', title: 'Pass 4B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_8.jpg', badge: 'PHASE 9 / 14', title: 'Pass 5A: Small Facial Geometry (≥ 18px)', stat: '≥18px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_9.jpg', badge: 'PHASE 10 / 14', title: 'Pass 5B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_10.jpg', badge: 'PHASE 11 / 14', title: 'Pass 6A: Micro Edge & Fabric Placement (≥ 8px)', stat: '≥8px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_11.jpg', badge: 'PHASE 12 / 14', title: 'Pass 6B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_12.jpg', badge: 'PHASE 13 / 14', title: 'Pass 7A: Nano Polish & Bee Pin Placement (≥ 3px)', stat: '≥3px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_13.jpg', badge: 'PHASE 14 / 14', title: 'Pass 7B: Final 6,348-Piece Convergence', stat: '6,348 Pieces' }
+      ]
     },
 
     crushworthy: {
@@ -137,11 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         caption: 'Interactive Comparison Slider: High-key pop fashion portrait vs. 7,635-piece vibrant memory collage.',
         stat: '7,635 Pieces'
       },
-      side_by_side: {
-        src: 'assets/images/pyramidal_crushworthy_side_by_side.jpg',
-        caption: 'Dual Model Pop Studio vs. 7,635-Piece Two-Phase Collage (1024x1024) · 13.2s on GPU',
-        stat: '-62.5% Error'
-      },
       zoom_quad: {
         src: 'assets/images/pyramidal_crushworthy_zoom_quad.jpg',
         caption: 'Strange Details Closeup: Chartreuse mullet tips and dark bangs made of faces and tickets; pink bandana formed of neon stickers; Desperado cowboy tee.',
@@ -149,19 +150,32 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       blur_test: {
         src: 'assets/images/pyramidal_crushworthy_gestalt_blur_test.jpg',
-        caption: 'Multi-Scale Gestalt Blur Test: High-key white backdrop resolves into receipts and paper scraps while saturated neon foregrounds pop.',
-        stat: 'Gestalt Passed'
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. High-key white backdrop and saturated neon foregrounds pop.',
+        stat: 'σ = 15 Passed'
       },
-      evolution: {
-        src: 'assets/images/pyramidal_crushworthy_evolution_strip.jpg',
-        caption: '14-Phase Two-Phase Evolution: Driving Mean ΔE from 69.61 down to 26.09 with peak P90 dropping from 223.09 to 63.82.',
-        stat: '14 Phases'
-      }
+      evolution: [
+        { src: 'assets/images/evolution/evo_crushworthy_0.jpg', badge: 'PHASE 1 / 14', title: 'Pass 1A: Studio White & Body Foundation (≥ 180px)', stat: '≥180px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_1.jpg', badge: 'PHASE 2 / 14', title: 'Pass 1B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_2.jpg', badge: 'PHASE 3 / 14', title: 'Pass 2A: Torso & Studio Wall Placement (≥ 110px)', stat: '≥110px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_3.jpg', badge: 'PHASE 4 / 14', title: 'Pass 2B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_4.jpg', badge: 'PHASE 5 / 14', title: 'Pass 3A: Large Dual-Portrait Masses (≥ 65px)', stat: '≥65px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_5.jpg', badge: 'PHASE 6 / 14', title: 'Pass 3B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_6.jpg', badge: 'PHASE 7 / 14', title: 'Pass 4A: Medium Neon Mullet & Bandana (≥ 35px)', stat: '≥35px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_7.jpg', badge: 'PHASE 8 / 14', title: 'Pass 4B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_8.jpg', badge: 'PHASE 9 / 14', title: 'Pass 5A: Small Facial Features & Cowboy Tee (≥ 18px)', stat: '≥18px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_9.jpg', badge: 'PHASE 10 / 14', title: 'Pass 5B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_10.jpg', badge: 'PHASE 11 / 14', title: 'Pass 6A: Micro Texture & Doodle Placement (≥ 8px)', stat: '≥8px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_11.jpg', badge: 'PHASE 12 / 14', title: 'Pass 6B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_12.jpg', badge: 'PHASE 13 / 14', title: 'Pass 7A: Nano Polish Placement (≥ 3px)', stat: '≥3px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_13.jpg', badge: 'PHASE 14 / 14', title: 'Pass 7B: Final 7,635-Piece Convergence', stat: '7,635 Pieces' }
+      ]
     }
   };
 
   let currentSubject = 'blackcat';
   let currentMode = 'slider';
+  let currentEvoStep = 0;
+  let evoPlayTimer = null;
 
   const sliderEl = document.getElementById('collage-comparison-slider');
   const sliderArtImg = document.getElementById('slider-art-img');
@@ -173,6 +187,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const modeBtns = document.querySelectorAll('.collage-mode-btn');
   const drawerToggleBtn = document.getElementById('btn-toggle-case-study');
   const drawerEl = document.getElementById('collage-case-study-drawer');
+
+  // Evolution Controller Elements
+  const evoController = document.getElementById('collage-evolution-controller');
+  const evoRangeSlider = document.getElementById('evo-range-slider');
+  const evoBtnPlay = document.getElementById('evo-btn-play');
+  const evoBtnPrev = document.getElementById('evo-btn-prev');
+  const evoBtnNext = document.getElementById('evo-btn-next');
+  const evoStepBadge = document.getElementById('evo-step-badge');
+  const evoStepDesc = document.getElementById('evo-step-desc');
+
+  // Preload cache for smooth scrubbing
+  const imagePreloadCache = new Map();
+  function preloadImage(src) {
+    if (!src || imagePreloadCache.has(src)) return;
+    const img = new Image();
+    img.src = src;
+    imagePreloadCache.set(src, img);
+  }
+
+  // Preload all evolution steps for current subject
+  function preloadSubjectEvolution(subjectKey) {
+    const steps = collageDataset[subjectKey]?.evolution || [];
+    steps.forEach(step => preloadImage(step.src));
+  }
 
   // Initialize interactive comparison slider dragging
   function initComparisonSlider() {
@@ -233,12 +271,81 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Stop evolution autoplay
+  function stopEvolutionAutoplay() {
+    if (evoPlayTimer) {
+      clearInterval(evoPlayTimer);
+      evoPlayTimer = null;
+    }
+    if (evoBtnPlay) {
+      evoBtnPlay.classList.remove('is-playing');
+      const icon = evoBtnPlay.querySelector('i');
+      if (icon) icon.className = 'fa-solid fa-play';
+    }
+  }
+
+  // Toggle evolution autoplay
+  function toggleEvolutionAutoplay() {
+    if (evoPlayTimer) {
+      stopEvolutionAutoplay();
+    } else {
+      const steps = collageDataset[currentSubject]?.evolution || [];
+      if (steps.length <= 1) return;
+
+      if (evoBtnPlay) {
+        evoBtnPlay.classList.add('is-playing');
+        const icon = evoBtnPlay.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-pause';
+      }
+
+      evoPlayTimer = setInterval(() => {
+        const total = collageDataset[currentSubject]?.evolution?.length || 1;
+        currentEvoStep = (currentEvoStep + 1) % total;
+        applyEvolutionStep();
+      }, 1300);
+    }
+  }
+
+  // Apply current evolution step to image and controller labels
+  function applyEvolutionStep() {
+    const steps = collageDataset[currentSubject]?.evolution || [];
+    if (steps.length === 0) return;
+
+    currentEvoStep = Math.max(0, Math.min(steps.length - 1, currentEvoStep));
+    const step = steps[currentEvoStep];
+
+    if (evoRangeSlider) {
+      evoRangeSlider.max = steps.length - 1;
+      evoRangeSlider.value = currentEvoStep;
+    }
+    if (evoStepBadge) evoStepBadge.textContent = step.badge;
+    if (evoStepDesc) evoStepDesc.textContent = step.title;
+    if (captionStatEl) captionStatEl.textContent = step.stat;
+    if (captionTextEl) {
+      captionTextEl.textContent = `Evolution Timelapse: ${step.title}. Scrub the slider or press play to watch optical hierarchy construct the image.`;
+    }
+
+    if (imgEl) {
+      imgEl.src = step.src;
+      imgEl.alt = `${collageDataset[currentSubject]?.name} - ${step.title}`;
+    }
+
+    // Preload next step image
+    if (currentEvoStep + 1 < steps.length) {
+      preloadImage(steps[currentEvoStep + 1].src);
+    }
+  }
+
   function updateView() {
     const subjectData = collageDataset[currentSubject];
     if (!subjectData) return;
 
+    stopEvolutionAutoplay();
+    preloadSubjectEvolution(currentSubject);
+
     if (currentMode === 'slider') {
       if (imgEl) imgEl.style.display = 'none';
+      if (evoController) evoController.style.display = 'none';
       if (sliderEl) {
         sliderEl.style.display = 'flex';
         sliderEl.style.setProperty('--slider-aspect', subjectData.aspectRatio || '1 / 1');
@@ -254,8 +361,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (captionTextEl) captionTextEl.textContent = subjectData.slider.caption;
       if (captionStatEl) captionStatEl.textContent = subjectData.slider.stat;
-    } else {
+
+    } else if (currentMode === 'evolution') {
       if (sliderEl) sliderEl.style.display = 'none';
+      if (imgEl) imgEl.style.display = 'block';
+      if (evoController) evoController.style.display = 'flex';
+
+      const steps = subjectData.evolution || [];
+      if (evoRangeSlider) {
+        evoRangeSlider.max = steps.length - 1;
+        currentEvoStep = Math.min(currentEvoStep, steps.length - 1);
+        evoRangeSlider.value = currentEvoStep;
+      }
+      applyEvolutionStep();
+
+    } else {
+      // Zoom quad or Blur test
+      if (sliderEl) sliderEl.style.display = 'none';
+      if (evoController) evoController.style.display = 'none';
       if (imgEl) {
         imgEl.style.display = 'block';
         const modeData = subjectData[currentMode];
@@ -267,21 +390,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (captionTextEl) captionTextEl.textContent = modeData.caption;
             if (captionStatEl) captionStatEl.textContent = modeData.stat;
             imgEl.style.opacity = '1';
-          }, 150);
+          }, 100);
         }
       }
     }
   }
 
+  // Wire Subject buttons
   subjectBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       subjectBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentSubject = btn.dataset.subject;
+      currentEvoStep = 0;
       updateView();
     });
   });
 
+  // Wire Mode buttons
   modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       modeBtns.forEach(b => b.classList.remove('active'));
@@ -291,6 +417,71 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Wire Evolution Controller events
+  if (evoRangeSlider) {
+    evoRangeSlider.addEventListener('input', (e) => {
+      stopEvolutionAutoplay();
+      currentEvoStep = parseInt(e.target.value, 10);
+      applyEvolutionStep();
+    });
+  }
+
+  if (evoBtnPlay) {
+    evoBtnPlay.addEventListener('click', () => {
+      toggleEvolutionAutoplay();
+    });
+  }
+
+  if (evoBtnPrev) {
+    evoBtnPrev.addEventListener('click', () => {
+      stopEvolutionAutoplay();
+      const steps = collageDataset[currentSubject]?.evolution || [];
+      if (steps.length === 0) return;
+      currentEvoStep = (currentEvoStep - 1 + steps.length) % steps.length;
+      applyEvolutionStep();
+    });
+  }
+
+  if (evoBtnNext) {
+    evoBtnNext.addEventListener('click', () => {
+      stopEvolutionAutoplay();
+      const steps = collageDataset[currentSubject]?.evolution || [];
+      if (steps.length === 0) return;
+      currentEvoStep = (currentEvoStep + 1) % steps.length;
+      applyEvolutionStep();
+    });
+  }
+
+  // Keyboard navigation for Evolution mode
+  document.addEventListener('keydown', (e) => {
+    if (currentMode !== 'evolution') return;
+    if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' && activeEl.type !== 'range' || activeEl.tagName === 'TEXTAREA')) {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stopEvolutionAutoplay();
+        const steps = collageDataset[currentSubject]?.evolution || [];
+        if (steps.length === 0) return;
+        currentEvoStep = (currentEvoStep - 1 + steps.length) % steps.length;
+        applyEvolutionStep();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stopEvolutionAutoplay();
+        const steps = collageDataset[currentSubject]?.evolution || [];
+        if (steps.length === 0) return;
+        currentEvoStep = (currentEvoStep + 1) % steps.length;
+        applyEvolutionStep();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        toggleEvolutionAutoplay();
+      }
+    }
+  });
+
+  // Wire Case Study Drawer
   if (drawerToggleBtn && drawerEl) {
     drawerToggleBtn.addEventListener('click', () => {
       const isVisible = drawerEl.style.display !== 'none';
@@ -309,5 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initComparisonSlider();
+  preloadSubjectEvolution('blackcat');
   updateView();
 });
