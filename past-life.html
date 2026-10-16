@@ -737,21 +737,10 @@
     let currentStream = null;
     let lastQueryState = null; // { arcVec, meshVec }
 
-    // Convert Uint16 IEEE 754 half-precision array to Float32Array
-    function float16ToFloat32(uint16Arr) {
-      const out = new Float32Array(uint16Arr.length);
-      for (let i = 0; i < uint16Arr.length; i++) {
-        const h = uint16Arr[i];
-        const s = (h & 0x8000) >> 15;
-        const e = (h & 0x7C00) >> 10;
-        const f = h & 0x03FF;
-        if (e === 0) {
-          out[i] = (s ? -1 : 1) * Math.pow(2, -14) * (f / 1024);
-        } else if (e === 0x1F) {
-          out[i] = f ? NaN : ((s ? -1 : 1) * Infinity);
-        } else {
-          out[i] = (s ? -1 : 1) * Math.pow(2, e - 15) * (1 + f / 1024);
-        }
+    function int8ToFloat32(int8Arr) {
+      const out = new Float32Array(int8Arr.length);
+      for (let i = 0; i < int8Arr.length; i++) {
+        out[i] = int8Arr[i] / 512.0;
       }
       return out;
     }
@@ -761,13 +750,13 @@
         dbStatusText.textContent = 'LOADING 3,500 ARCHIVE VECTORS...';
         const [metaRes, arcBuf, meshBuf] = await Promise.all([
           fetch(`${ASSET_BASE}/metadata_compact.json`).then(r => r.json()),
-          fetch(`${ASSET_BASE}/arcface_f16.bin`).then(r => r.arrayBuffer()),
-          fetch(`${ASSET_BASE}/mesh_f16.bin`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/arcface_i8.bin`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
-        arcfaceMatrix = float16ToFloat32(new Uint16Array(arcBuf));
-        meshMatrix = float16ToFloat32(new Uint16Array(meshBuf));
+        arcfaceMatrix = int8ToFloat32(new Int8Array(arcBuf));
+        meshMatrix = int8ToFloat32(new Int8Array(meshBuf));
 
         renderInitialGallery();
 
