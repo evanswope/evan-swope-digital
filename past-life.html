@@ -1353,12 +1353,72 @@
       100% { transform: scale(1.35) translateY(-80px) translateX(60px); opacity: 0; filter: blur(8px); }
     }
 
-    /* Runic Cipher Text Glow */
-    .is-runic-cipher {
-      color: #f3d47d !important;
-      text-shadow: 0 0 18px rgba(212, 175, 55, 0.85), 0 0 35px rgba(168, 85, 247, 0.6) !important;
-      letter-spacing: 0.08em;
-      transition: all 0.2s ease;
+    /* Mystic Text Reveal: Ethereal Mist Manifestation & Celestial Gilded Glint */
+    .mystic-word {
+      display: inline-block;
+      opacity: 0;
+      filter: blur(14px) brightness(1.8);
+      transform: translateY(8px) scale(0.97);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, filter, transform;
+    }
+
+    .mystic-word.is-revealed {
+      opacity: 1;
+      filter: blur(0px) brightness(1);
+      transform: translateY(0) scale(1);
+    }
+
+    .mystic-word.is-manifesting {
+      color: #fff8e0 !important;
+      text-shadow:
+        0 0 14px rgba(255, 240, 180, 1),
+        0 0 30px rgba(212, 175, 55, 0.95),
+        0 0 55px rgba(168, 85, 247, 0.8) !important;
+    }
+
+    @keyframes celestialGlintSweep {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .reveal-persona.has-shimmer {
+      background: linear-gradient(
+        90deg,
+        #d4af37 0%,
+        #d4af37 35%,
+        #ffffff 50%,
+        #ffe8a3 55%,
+        #d4af37 70%,
+        #d4af37 100%
+      );
+      background-size: 250% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: celestialGlintSweep 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .reveal-era-mystic {
+      animation: eraMistFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes eraMistFade {
+      0% {
+        opacity: 0;
+        filter: blur(8px);
+        transform: translateY(4px);
+      }
+      100% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateY(0);
+      }
     }
 
     /* Vessel Orb Toggle Pill */
@@ -2502,57 +2562,55 @@
       });
     }
 
-    function scrambleTextReveal(el, targetText, durationMs = 2400) {
+    function revealTextMystic(el, targetText, onComplete = null) {
       if (!el || !targetText) return;
-      const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛈᛇᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ✦✧☽☼☾♈♉♊♋♌♍♎♏♐♑♒♓";
-      const startTime = performance.now();
-      const len = targetText.length;
-      const churnDuration = Math.min(1000, durationMs * 0.42);
-      const resolveDuration = durationMs - churnDuration;
+      el.classList.remove('has-shimmer');
+      el.innerHTML = '';
 
-      function update(now) {
-        const elapsed = now - startTime;
-        if (elapsed < churnDuration) {
-          // Full runic cipher phase: runes churn across the entire sentence!
-          let out = "";
-          for (let i = 0; i < len; i++) {
-            const c = targetText[i];
-            if (c === ' ' || c === '\n' || c === '-' || c === ',' || c === '.' || c === '(' || c === ')' || c === '/') {
-              out += c;
-            } else {
-              out += runes[Math.floor(Math.random() * runes.length)];
-            }
-          }
-          el.textContent = out;
-          el.classList.add('is-runic-cipher');
-          requestAnimationFrame(update);
-        } else {
-          // Progressive letter-by-letter decryption phase from left to right!
-          const resolveProgress = Math.min(1.0, (elapsed - churnDuration) / resolveDuration);
-          const revealedChars = Math.floor(resolveProgress * len);
+      // Tokenize by whitespace while preserving punctuation and exact spacing
+      const tokens = targetText.split(/(\s+)/);
+      const wordSpans = [];
 
-          let out = "";
-          for (let i = 0; i < len; i++) {
-            const c = targetText[i];
-            if (c === ' ' || c === '\n' || c === '-' || c === ',' || c === '.' || c === '(' || c === ')' || c === '/') {
-              out += c;
-            } else if (i < revealedChars) {
-              out += c;
-            } else {
-              out += runes[Math.floor(Math.random() * runes.length)];
-            }
-          }
-          el.textContent = out;
-
-          if (resolveProgress < 1.0) {
-            requestAnimationFrame(update);
-          } else {
-            el.textContent = targetText;
-            el.classList.remove('is-runic-cipher');
-          }
+      tokens.forEach(token => {
+        if (/^\s+$/.test(token)) {
+          el.appendChild(document.createTextNode(token));
+        } else if (token.length > 0) {
+          const span = document.createElement('span');
+          span.className = 'mystic-word';
+          span.textContent = token;
+          el.appendChild(span);
+          wordSpans.push(span);
         }
+      });
+
+      const totalWords = wordSpans.length;
+      if (totalWords === 0) {
+        el.textContent = targetText;
+        return;
       }
-      requestAnimationFrame(update);
+
+      // Rhythmic cadence per word: ~75ms to 115ms based on length
+      const interval = Math.max(75, Math.min(115, Math.floor(1400 / totalWords)));
+
+      wordSpans.forEach((span, idx) => {
+        setTimeout(() => {
+          span.classList.add('is-revealed', 'is-manifesting');
+          setTimeout(() => {
+            span.classList.remove('is-manifesting');
+          }, 520);
+
+          // Once the final word begins materializing, trigger the celestial gilded glint sweep
+          if (idx === totalWords - 1) {
+            setTimeout(() => {
+              el.classList.add('has-shimmer');
+              if (onComplete) onComplete();
+              setTimeout(() => {
+                el.classList.remove('has-shimmer');
+              }, 1700);
+            }, 300);
+          }
+        }, idx * interval + 60);
+      });
     }
 
     function generateKarmicProfile(faceMeta, blendshapes = null, faceLandmarks = null) {
@@ -2859,11 +2917,14 @@
         eraText = eraMatch[2].trim();
       }
 
-      // 1. Text Rune-Scramble Reveal Effect (Longer, hypnotic deciphering)
-      scrambleTextReveal(revealPersona, personaText, 2500);
+      // 1. Ethereal Gilded Inscription (Manifestation from the celestial mist)
+      revealTextMystic(revealPersona, personaText);
       if (eraText) {
         revealEra.style.display = 'block';
-        scrambleTextReveal(revealEra, eraText, 1800);
+        revealEra.classList.remove('reveal-era-mystic');
+        void revealEra.offsetWidth;
+        revealEra.textContent = eraText;
+        revealEra.classList.add('reveal-era-mystic');
       }
 
       // 2. Generate Astrological Reading, Badges, and Mortal Bars
