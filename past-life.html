@@ -720,13 +720,27 @@
     const ASSET_BASE = window.location.port === '8765' ? 'data' : 'assets/past-life';
     const MODEL_BASE = window.location.port === '8765' ? 'models' : 'assets/past-life/models';
 
-    const KEY_LANDMARK_INDICES = [
-      10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377,
-      152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,
-      33, 133, 159, 145, 362, 263, 386, 374,
-      70, 63, 105, 107, 336, 296, 334, 300,
-      168, 6, 1, 2, 98, 327,
-      61, 291, 0, 17, 13, 14
+    const INNER_FEATURE_INDICES = [
+      33, 133, 159, 145, 158, 153,
+      362, 263, 386, 374, 385, 380,
+      70, 63, 105, 107,
+      336, 296, 334, 300,
+      168, 6, 197, 1, 2, 98, 327, 4,
+      61, 291, 0, 17, 13, 14, 78, 308
+    ];
+
+    const EXPRESSION_BLENDSHAPES = [
+      "eyeBlinkLeft", "eyeBlinkRight",
+      "eyeSquintLeft", "eyeSquintRight",
+      "eyeWideLeft", "eyeWideRight",
+      "browDownLeft", "browDownRight",
+      "browInnerUp",
+      "browOuterUpLeft", "browOuterUpRight",
+      "mouthSmileLeft", "mouthSmileRight",
+      "mouthFrownLeft", "mouthFrownRight",
+      "mouthPucker",
+      "mouthOpen", "jawOpen",
+      "cheekSquintLeft", "cheekSquintRight"
     ];
 
     const statusDot = document.getElementById('statusDot');
@@ -841,6 +855,7 @@
       }
     }
 
+    // Exact JS port of rebuild_expression_mesh.py (128D: 72 inner coords + 20 cranial/eye ratios + 36 blendshape/squint macros)
     function computeWhitenedMeshVector(pts478, blendshapes) {
       const lx = (pts478[33].x + pts478[133].x) * 0.5;
       const ly = (pts478[33].y + pts478[133].y) * 0.5;
@@ -862,66 +877,99 @@
 
       const dist = (i, j) => Math.hypot(pts2d[i][0] - pts2d[j][0], pts2d[i][1] - pts2d[j][1]);
 
-      const raw = new Float32Array(144);
-      for (let k = 0; k < 64; k++) {
-        const idx = KEY_LANDMARK_INDICES[k];
-        raw[k * 2] = pts2d[idx][0] * 0.35;
-        raw[k * 2 + 1] = pts2d[idx][1] * 0.35;
+      const raw = new Float32Array(128);
+      for (let k = 0; k < 36; k++) {
+        const idx = INNER_FEATURE_INDICES[k];
+        raw[k * 2] = pts2d[idx][0];
+        raw[k * 2 + 1] = pts2d[idx][1];
       }
 
       const faceH = dist(10, 152);
       const cheekW = dist(234, 454);
       const jawW = dist(172, 397);
+      const chinW = dist(148, 377);
       const chinH = dist(17, 152);
       const noseH = dist(168, 2);
       const noseW = dist(98, 327);
       const mouthW = dist(61, 291);
       const mouthOpen = dist(13, 14);
       const lipFull = dist(0, 17);
-      const lEyeAspect = dist(159, 145) / (dist(33, 133) + 1e-5);
-      const rEyeAspect = dist(386, 374) / (dist(362, 263) + 1e-5);
-      const eyeAspect = (lEyeAspect + rEyeAspect) * 0.5;
-      const browLift = ((pts2d[33][1] - pts2d[105][1]) + (pts2d[263][1] - pts2d[334][1])) * 0.5;
+
+      const lEyeW = dist(33, 133) + 1e-5;
+      const rEyeW = dist(362, 263) + 1e-5;
+      const lEar = (dist(159, 145) + dist(158, 153)) / (2.0 * lEyeW);
+      const rEar = (dist(386, 374) + dist(385, 380)) / (2.0 * rEyeW);
+      const meanEar = (lEar + rEar) * 0.5;
+
+      const lBrowLift = pts2d[33][1] - pts2d[105][1];
+      const rBrowLift = pts2d[263][1] - pts2d[334][1];
+      const innerBrowLift = ((pts2d[33][1] - pts2d[107][1]) + (pts2d[263][1] - pts2d[336][1])) * 0.5;
+      const browDist = dist(107, 336);
+
       const mouthCenterY = (pts2d[13][1] + pts2d[14][1]) * 0.5;
       const mouthCornersY = (pts2d[61][1] + pts2d[291][1]) * 0.5;
-      const smileCurve = (mouthCenterY - mouthCornersY) * 3.0;
-      const cheekMidX = (pts2d[234][0] + pts2d[454][0]) * 0.5;
-      const yaw = (pts2d[1][0] - cheekMidX) * 2.0;
-      const pitch = ((pts2d[1][1] - pts2d[168][1]) / (faceH + 1e-5) - 0.35) * 2.5;
+      const smileCurve = mouthCenterY - mouthCornersY;
 
-      let bsSmile = 0, bsSquint = 0;
+      const cheekMidX = (pts2d[234][0] + pts2d[454][0]) * 0.5;
+      const yaw = pts2d[1][0] - cheekMidX;
+      const pitch = (pts2d[1][1] - pts2d[168][1]) / (faceH + 1e-5) - 0.35;
+
+      const ratios20 = [
+        faceH, cheekW, jawW / (cheekW + 1e-5), chinW / (jawW + 1e-5),
+        chinH / (faceH + 1e-5), noseH / (faceH + 1e-5), noseW, mouthW,
+        mouthOpen, lipFull, lEar, rEar, meanEar,
+        lBrowLift, rBrowLift, innerBrowLift, browDist,
+        smileCurve, yaw, pitch
+      ];
+      for (let r = 0; r < 20; r++) raw[72 + r] = ratios20[r];
+
+      const bsMap = {};
       if (blendshapes && blendshapes.categories) {
-        const map = {};
-        blendshapes.categories.forEach(c => map[c.categoryName] = c.score);
-        bsSmile = ((map.mouthSmileLeft || 0) + (map.mouthSmileRight || 0)) * 0.5;
-        bsSquint = ((map.eyeSquintLeft || 0) + (map.eyeSquintRight || 0)) * 0.5;
+        blendshapes.categories.forEach(c => bsMap[c.categoryName] = c.score);
+      }
+      for (let b = 0; b < 20; b++) {
+        raw[92 + b] = bsMap[EXPRESSION_BLENDSHAPES[b]] || 0.0;
       }
 
-      const ratios = [
-        faceH * 0.5, cheekW * 0.5, jawW / (cheekW + 1e-5), chinH / (faceH + 1e-5) * 3.0,
-        noseH / (faceH + 1e-5) * 3.0, noseW * 1.5, mouthW * 1.2, mouthOpen * 2.5,
-        lipFull * 2.0, eyeAspect * 3.0, browLift * 2.0, smileCurve, yaw, pitch,
-        bsSmile * 1.5, bsSquint * 1.5
+      const eyeClosure = ((bsMap.eyeBlinkLeft || 0) + (bsMap.eyeBlinkRight || 0)) * 0.5;
+      const eyeSquint = ((bsMap.eyeSquintLeft || 0) + (bsMap.eyeSquintRight || 0)) * 0.5;
+      const cheekSquint = ((bsMap.cheekSquintLeft || 0) + (bsMap.cheekSquintRight || 0)) * 0.5;
+      const eyeWide = ((bsMap.eyeWideLeft || 0) + (bsMap.eyeWideRight || 0)) * 0.5;
+      const squintIndex = (eyeSquint + eyeClosure * 1.2 + cheekSquint * 0.5) - eyeWide * 1.5 - meanEar * 4.0;
+
+      const browUp = ((bsMap.browOuterUpLeft || 0) + (bsMap.browOuterUpRight || 0) + (bsMap.browInnerUp || 0)) / 3.0;
+      const browDown = ((bsMap.browDownLeft || 0) + (bsMap.browDownRight || 0)) * 0.5;
+      const browNet = browUp - browDown;
+      const smileNet = ((bsMap.mouthSmileLeft || 0) + (bsMap.mouthSmileRight || 0)) * 0.5 - ((bsMap.mouthFrownLeft || 0) + (bsMap.mouthFrownRight || 0)) * 0.5;
+      const jawOpen = bsMap.jawOpen || 0.0;
+
+      const composites16 = [
+        squintIndex, squintIndex,
+        eyeClosure, eyeSquint,
+        eyeWide, meanEar,
+        browUp, browDown,
+        browNet, browNet,
+        smileNet, smileNet,
+        jawOpen, mouthOpen,
+        yaw, pitch
       ];
-      for (let r = 0; r < 16; r++) raw[128 + r] = ratios[r];
+      for (let c = 0; c < 16; c++) raw[112 + c] = composites16[c];
 
-      let norm = 0;
-      for (let i = 0; i < 144; i++) norm += raw[i] * raw[i];
-      norm = Math.sqrt(norm) + 1e-8;
-      for (let i = 0; i < 144; i++) raw[i] /= norm;
-
+      // Z-score standardize BEFORE L2 normalization using archive mean, std, and block weights!
       const mean = archiveMeta.mesh_mean;
       const std = archiveMeta.mesh_std;
-      const z = new Float32Array(144);
+      const weights = archiveMeta.mesh_weights;
+      const z = new Float32Array(128);
       let zNorm = 0;
-      for (let i = 0; i < 144; i++) {
-        let val = (raw[i] - mean[i]) / (std[i] + 1e-5);
-        if (i >= 128) val *= 2.2;
+      for (let i = 0; i < 128; i++) {
+        const w = weights ? weights[i] : (i < 72 ? 0.7 : (i < 92 ? 1.85 : 2.25));
+        let val = ((raw[i] - mean[i]) / (std[i] + 1e-4)) * w;
+        val = Math.max(-4.5, Math.min(4.5, val));
         z[i] = val;
         zNorm += val * val;
       }
       zNorm = Math.sqrt(zNorm) + 1e-8;
-      for (let i = 0; i < 144; i++) z[i] /= zNorm;
+      for (let i = 0; i < 128; i++) z[i] /= zNorm;
       return z;
     }
 
@@ -1077,8 +1125,8 @@
 
         if (meshVec && faces[i].hm) {
           let mDot = 0;
-          const mOff = i * 144;
-          for (let d = 0; d < 144; d++) mDot += meshMatrix[mOff + d] * meshVec[d];
+          const mOff = i * 128;
+          for (let d = 0; d < 128; d++) mDot += meshMatrix[mOff + d] * meshVec[d];
           meshSims[i] = mDot;
           meshSum += mDot;
           meshSumSq += mDot * mDot;
@@ -1098,8 +1146,8 @@
         if (currentCategory !== 'all' && f.c !== currentCategory) continue;
 
         const aZ = arcVec ? (arcSims[i] - arcMean) / arcStd : 0;
-        const mZ = (meshVec && f.hm) ? (meshSims[i] - meshMean) / meshStd : -0.6;
-        const zScore = (arcVec && meshVec) ? (0.52 * aZ + 0.48 * mZ) : (meshVec ? mZ : aZ);
+        const mZ = (meshVec && f.hm) ? (meshSims[i] - meshMean) / meshStd : -2.2;
+        const zScore = (arcVec && meshVec) ? (0.38 * aZ + 0.62 * mZ) : (meshVec ? mZ : aZ);
 
         const resonancePct = Math.min(99.6, Math.max(58.0,
           Math.round((84.5 + 14.8 / (1 + Math.exp(-1.15 * (zScore - 2.05)))) * 10) / 10
@@ -1367,7 +1415,7 @@
       }
       const seed = archiveMeta.faces[randIdx];
       const arcVec = arcfaceMatrix.subarray(randIdx * 512, (randIdx + 1) * 512);
-      const meshVec = seed.hm ? meshMatrix.subarray(randIdx * 144, (randIdx + 1) * 144) : null;
+      const meshVec = seed.hm ? meshMatrix.subarray(randIdx * 128, (randIdx + 1) * 128) : null;
 
       lastQueryState = { arcVec, meshVec, excludeIndex: randIdx };
       userMirrorCard.style.display = 'none';
