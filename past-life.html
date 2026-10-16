@@ -803,8 +803,8 @@
     async function loadArcfaceBuffer() {
       try {
         const [b0, b1] = await Promise.all([
-          fetch(`${ASSET_BASE}/arcface_i8_0.bin`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-          fetch(`${ASSET_BASE}/arcface_i8_1.bin`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=4`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=4`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
         ]);
         const a0 = new Int8Array(b0);
         const a1 = new Int8Array(b1);
@@ -813,7 +813,7 @@
         merged.set(a1, a0.length);
         return merged;
       } catch (_) {
-        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin`).then(r => r.arrayBuffer());
+        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=4`).then(r => r.arrayBuffer());
         return new Int8Array(buf);
       }
     }
@@ -841,9 +841,9 @@
       try {
         dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
         const [metaRes, arcInt8, meshBuf] = await Promise.all([
-          fetch(`${ASSET_BASE}/metadata_compact.json`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/metadata_compact.json?v=4`).then(r => r.json()),
           loadArcfaceBuffer(),
-          fetch(`${ASSET_BASE}/mesh_i8.bin`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin?v=4`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
@@ -1393,13 +1393,68 @@
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
+          let cropX = 0, cropY = 0, cropSize = Math.min(img.width, img.height);
+
+          if (faceLandmarker) {
+            try {
+              // Scale down large photos to max 1024px for lightning-fast face detection
+              const maxDim = 1024;
+              const scale = Math.min(1.0, maxDim / Math.max(img.width, img.height));
+              const dw = Math.round(img.width * scale);
+              const dh = Math.round(img.height * scale);
+              const detectCanvas = document.createElement('canvas');
+              detectCanvas.width = dw;
+              detectCanvas.height = dh;
+              const dctx = detectCanvas.getContext('2d');
+              dctx.drawImage(img, 0, 0, dw, dh);
+
+              const res = faceLandmarker.detect(detectCanvas);
+              if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+                const marks = res.faceLandmarks[0];
+                let minX = 1, maxX = 0, minY = 1, maxY = 0;
+                for (const pt of marks) {
+                  if (pt.x < minX) minX = pt.x;
+                  if (pt.x > maxX) maxX = pt.x;
+                  if (pt.y < minY) minY = pt.y;
+                  if (pt.y > maxY) maxY = pt.y;
+                }
+                const faceCenterX = (minX + maxX) * 0.5 * img.width;
+                const faceCenterY = (minY + maxY) * 0.5 * img.height;
+                const faceW = (maxX - minX) * img.width;
+                const faceH = (maxY - minY) * img.height;
+                const faceBox = Math.max(faceW, faceH);
+
+                // Frame a generous 2.2x square around the face so it's a natural head-and-shoulders portrait
+                cropSize = Math.max(faceBox * 2.2, Math.min(img.width, img.height) * 0.4);
+                cropSize = Math.min(cropSize, img.width, img.height);
+
+                cropX = faceCenterX - cropSize / 2;
+                cropY = faceCenterY - cropSize * 0.44; // slight bias upwards for hair/forehead
+
+                // Clamp within bounds
+                cropX = Math.max(0, Math.min(img.width - cropSize, cropX));
+                cropY = Math.max(0, Math.min(img.height - cropSize, cropY));
+              } else {
+                cropSize = Math.min(img.width, img.height);
+                cropX = (img.width - cropSize) / 2;
+                cropY = (img.height - cropSize) * 0.15; // default vertical bias to upper portion for portrait selfies
+              }
+            } catch (err) {
+              console.warn('Face pre-crop detection fallback:', err);
+              cropSize = Math.min(img.width, img.height);
+              cropX = (img.width - cropSize) / 2;
+              cropY = (img.height - cropSize) * 0.15;
+            }
+          } else {
+            cropSize = Math.min(img.width, img.height);
+            cropX = (img.width - cropSize) / 2;
+            cropY = (img.height - cropSize) * 0.15;
+          }
+
           const sq = document.createElement('canvas');
           sq.width = 600; sq.height = 600;
           const sctx = sq.getContext('2d');
-          const minSide = Math.min(img.width, img.height);
-          const sx = (img.width - minSide) / 2;
-          const sy = (img.height - minSide) / 2;
-          sctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, 600, 600);
+          sctx.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, 600, 600);
           processUserCanvas(sq);
         };
         img.src = ev.target.result;
