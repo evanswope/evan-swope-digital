@@ -149,40 +149,124 @@
       color: var(--gold);
     }
 
-    .scrying-mirror {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background: #060504;
-      border: 1px dashed var(--gold-dim);
+    .crystal-ball-stage {
+      padding: 8px 0 20px;
+      display: flex;
+      justify-content: center;
       position: relative;
-      overflow: hidden;
+    }
+
+    .crystal-ball-wrap {
+      position: relative;
+      width: 280px;
+      height: 280px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
     }
 
-    .scrying-mirror canvas,
-    .scrying-mirror video {
+    .crystal-ball {
+      position: relative;
+      width: 270px;
+      height: 270px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #16101f 0%, #08060d 75%, #020104 100%);
+      border: 2px solid rgba(212, 175, 55, 0.45);
+      box-shadow:
+        0 0 35px rgba(168, 85, 247, 0.28),
+        0 0 70px rgba(212, 175, 55, 0.22),
+        inset 0 0 50px rgba(0, 0, 0, 0.95),
+        inset 0 -22px 30px rgba(212, 175, 55, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .crystal-ball.is-scrying {
+      border-color: var(--gold);
+      box-shadow:
+        0 0 50px rgba(212, 175, 55, 0.65),
+        0 0 100px rgba(168, 85, 247, 0.55),
+        inset 0 0 40px rgba(212, 175, 55, 0.4),
+        inset 0 -30px 45px rgba(212, 175, 55, 0.6);
+      animation: scryingPulse 1.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes scryingPulse {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.025); filter: brightness(1.22) drop-shadow(0 0 25px rgba(212, 175, 55, 0.75)); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    /* Feathered circular edge and liquid warp distortion */
+    .crystal-ball-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      mask-image: radial-gradient(circle at 50% 50%, black 46%, rgba(0, 0, 0, 0.85) 68%, transparent 95%);
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, black 46%, rgba(0, 0, 0, 0.85) 68%, transparent 95%);
+      filter: url(#scryingWarp);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(1.06);
+    }
+
+    .crystal-ball-inner canvas,
+    .crystal-ball-inner video {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
 
+    .crystal-ball-glare {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.15) 24%, transparent 50%),
+        radial-gradient(ellipse at 70% 82%, rgba(212, 175, 55, 0.3) 0%, transparent 42%);
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.45);
+      z-index: 3;
+    }
+
+    .crystal-ball-pedestal {
+      position: absolute;
+      bottom: -12px;
+      width: 150px;
+      height: 28px;
+      background: radial-gradient(ellipse at 50% 30%, #3e3322 0%, #15110c 100%);
+      border: 1px solid var(--gold-dim);
+      border-radius: 50% 50% 10px 10px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.85), 0 0 16px rgba(212, 175, 55, 0.2);
+      z-index: 0;
+    }
+
     .mirror-placeholder {
       text-align: center;
-      padding: 24px;
+      padding: 20px;
       color: var(--muted);
       pointer-events: none;
     }
 
     .mirror-placeholder .sigil {
-      font-size: 44px;
+      font-size: 46px;
       color: var(--gold);
-      margin-bottom: 10px;
-      opacity: 0.8;
+      margin-bottom: 8px;
+      opacity: 0.9;
+      filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.5));
+      animation: floatSigil 3.5s ease-in-out infinite alternate;
     }
+
+    @keyframes floatSigil {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-6px); }
+    }
+
 
     .controls-row {
       display: grid;
@@ -337,41 +421,98 @@
       margin-bottom: 8px;
     }
 
-    .reveal-headline {
-      font-size: clamp(1.75rem, 2.8vw, 2.55rem);
+    .reveal-prompt {
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .reveal-persona {
+      font-size: clamp(1.85rem, 3.4vw, 2.85rem);
       line-height: 1.15;
       font-weight: 600;
-      color: var(--text);
-      margin-bottom: 18px;
+      color: var(--gold);
+      font-style: italic;
+      text-shadow: 0 0 35px rgba(212, 175, 55, 0.4);
+      margin-bottom: 6px;
     }
 
-    .reveal-comparison {
-      display: grid;
-      grid-template-columns: 310px 1fr;
-      gap: 20px;
-      align-items: start;
+    .reveal-era {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
     }
 
-    @media (max-width: 720px) {
-      .reveal-comparison { grid-template-columns: 1fr; }
+    .twin-orbs-container {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 18px 0 16px;
+      flex-wrap: wrap;
     }
 
-    .twin-pair-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+    .twin-orb-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       position: relative;
     }
 
-    .crop-spotlight {
+    .scrying-orb {
       position: relative;
-      border: 1px solid var(--gold);
-      background: #050505;
-      aspect-ratio: 1 / 1;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
       overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #15101a 0%, #060408 85%);
+      border: 2px solid var(--gold);
+      box-shadow:
+        0 0 30px rgba(212, 175, 55, 0.3),
+        0 0 60px rgba(168, 85, 247, 0.22),
+        inset 0 0 35px rgba(0, 0, 0, 0.95),
+        inset 0 -15px 25px rgba(212, 175, 55, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .crop-spotlight canvas {
+    .orb-vessel {
+      border-color: rgba(212, 175, 55, 0.7);
+    }
+
+    .orb-twin {
+      border-color: var(--gold);
+      box-shadow:
+        0 0 40px rgba(212, 175, 55, 0.55),
+        0 0 85px rgba(168, 85, 247, 0.4),
+        inset 0 0 35px rgba(0, 0, 0, 0.95),
+        inset 0 -18px 30px rgba(212, 175, 55, 0.5);
+      animation: orbGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbGlow {
+      0% { box-shadow: 0 0 35px rgba(212, 175, 55, 0.45), 0 0 70px rgba(168, 85, 247, 0.3); }
+      100% { box-shadow: 0 0 60px rgba(212, 175, 55, 0.75), 0 0 100px rgba(168, 85, 247, 0.5); }
+    }
+
+    .orb-inner {
+      width: 100%;
+      height: 100%;
+      mask-image: radial-gradient(circle at 50% 50%, black 50%, rgba(0, 0, 0, 0.85) 72%, transparent 97%);
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, black 50%, rgba(0, 0, 0, 0.85) 72%, transparent 97%);
+      filter: url(#scryingWarp);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(1.06);
+    }
+
+    .orb-inner canvas,
+    .orb-inner img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -380,18 +521,57 @@
 
     .crop-tag {
       position: absolute;
-      top: 6px;
-      left: 6px;
-      background: rgba(10, 9, 8, 0.85);
-      border: 1px solid var(--border);
-      color: var(--muted);
+      top: -10px;
+      background: rgba(10, 9, 8, 0.92);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
-      letter-spacing: 0.08em;
-      padding: 2px 6px;
-      z-index: 2;
+      letter-spacing: 0.12em;
+      padding: 3px 8px;
+      z-index: 5;
       text-transform: uppercase;
+      border-radius: 2px;
     }
+
+    .oracle-drawer {
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      background: rgba(15, 13, 11, 0.7);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .oracle-drawer-trigger {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      background: var(--panel-2);
+    }
+
+    .oracle-drawer-trigger:hover {
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    .oracle-drawer[open] .oracle-drawer-trigger {
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .oracle-drawer-body {
+      padding: 16px;
+    }
+
 
     .sim-badge {
       margin-top: 8px;
@@ -575,125 +755,156 @@
 </head>
 <body>
 
+  <!-- Hidden SVG liquid distortion and mist filters for the scrying glass -->
+  <svg class="scrying-svg-filters" style="position: absolute; width: 0; height: 0; pointer-events: none;" aria-hidden="true">
+    <filter id="scryingWarp" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="7">
+        <animate attributeName="baseFrequency" dur="16s" values="0.012;0.022;0.016;0.012" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
   <header>
     <div>
-      <div class="eyebrow"><a href="/">← EVANSWOPE.COM</a> // UNLISTED ARCHIVE EXPERIMENT</div>
-      <h1>Past Life <span>Portrait Search</span></h1>
+      <div class="eyebrow"><a href="/">← EVANSWOPE.COM</a> // THE ORACLE OF BYGONE AGES</div>
+      <h1>Past Life <span>Oracle</span></h1>
       <p class="subtitle" id="heroSubtitle">
-        478-Point 3D Cranial Topology + 52 Blendshape Muscle Vectors + 512D ArcFace Biometrics across thousands of pre-1950 portraits, 19th-century daguerreotypes, vintage police mugshots, and uncanny creatures.
+        Gaze into the scrying glass to divine your historical incarnation across 8,000 lost souls, vintage daguerreotypes, and tavern revelers.
       </p>
     </div>
     <div class="status-pill">
       <span class="status-dot" id="statusDot"></span>
-      <span id="dbStatusText">LOADING ARCHIVE SOULS &amp; 478-PT CRANIAL ENGINE...</span>
+      <span id="dbStatusText">AWAKENING THE SCRYING GLASS...</span>
     </div>
   </header>
 
   <main class="main-grid">
-    <!-- LEFT COLUMN: SELFIE / WEBCAM & 478-POINT CRANIAL TELEMETRY -->
+    <!-- LEFT COLUMN: CRYSTAL BALL & OFFERING CONTROLS -->
     <section class="card">
       <div class="card-header">
-        <span>I. Vessel Biometric Capture</span>
-        <span id="detConfLabel">478-PT MESH + 512D ARCFACE</span>
+        <span>I. The Scrying Glass</span>
+        <span id="detConfLabel">READY FOR COUNTENANCE</span>
       </div>
 
-      <div class="scrying-mirror" id="mirrorBox">
-        <video id="webcamVideo" autoplay playsinline muted style="display:none;"></video>
-        <canvas id="inputCanvas" style="display:none;"></canvas>
-        <div class="mirror-placeholder" id="mirrorPlaceholder">
-          <div class="sigil">☉</div>
-          <div style="font-size:1.25rem; color:var(--text); margin-bottom:4px;">Offer Your Countenance</div>
-          <div class="mono" style="font-size:11px;">100% Client-Side Biometric &amp; 478-Point Cranial Projection</div>
+      <div class="crystal-ball-stage">
+        <div class="crystal-ball-wrap" id="mirrorBox">
+          <div class="crystal-ball" id="crystalBall">
+            <div class="crystal-ball-inner">
+              <video id="webcamVideo" autoplay playsinline muted style="display:none;"></video>
+              <canvas id="inputCanvas" style="display:none;"></canvas>
+              <div class="mirror-placeholder" id="mirrorPlaceholder">
+                <div class="sigil">🔮</div>
+                <div style="font-size:1.25rem; color:var(--text); margin-bottom:4px;">Gaze into the Glass</div>
+                <div class="mono" style="font-size:10.5px;">Upload a selfie or peer through your webcam</div>
+              </div>
+            </div>
+            <div class="crystal-ball-glare"></div>
+          </div>
+          <div class="crystal-ball-pedestal"></div>
         </div>
       </div>
 
       <div class="controls-row">
         <label class="file-btn primary">
-          <span>↑ Upload Selfie</span>
+          <span>↑ Offer Portrait</span>
           <input type="file" id="fileInput" accept="image/*" />
         </label>
-        <button id="webcamBtn">◉ Use Webcam</button>
+        <button id="webcamBtn">◉ Peer Through Glass</button>
       </div>
 
       <div class="controls-row">
-        <button id="snapBtn" style="display:none;" class="primary">⚡ Divine Past Life</button>
-        <button id="randomTestBtn" style="grid-column: span 2;">✦ Test With Random Pre-1950 Archive Face</button>
+        <button id="snapBtn" style="display:none;" class="primary">⚡ Divine My Past Life</button>
+        <button id="randomTestBtn" style="grid-column: span 2;">✦ Divine Random Soul from the Veil</button>
       </div>
 
-      <div class="telemetry-box">
-        <div class="card-header" style="margin-bottom:10px;">
-          <span>II. What The Machine Sees</span>
-          <span>478 CRANIAL PTS + 512D HASH</span>
-        </div>
-
-        <div class="aligned-row">
-          <canvas id="alignedCanvas" class="aligned-thumb" width="112" height="112"></canvas>
-          <div class="telemetry-meta" id="telemetryText">
-            <strong>Topology:</strong> 478 3D Landmarks + 52 Blendshapes<br/>
-            <strong>Identity:</strong> 512D ArcFace (Affine 112×112 Crop)<br/>
-            <strong>Privacy:</strong> Computed locally in your browser via WebAssembly.
+      <!-- COLLAPSIBLE TELEMETRY DRAWER (HIDING DENSE SCIENCE BEHIND A FUN EXPANDABLE TOGGLE) -->
+      <details class="oracle-drawer">
+        <summary class="oracle-drawer-trigger">
+          <span>👁 Cranial Wireframe &amp; Alchemical Mesh</span>
+          <span class="drawer-arrow">▾</span>
+        </summary>
+        <div class="oracle-drawer-body">
+          <div class="aligned-row">
+            <canvas id="alignedCanvas" class="aligned-thumb" width="112" height="112"></canvas>
+            <div class="telemetry-meta" id="telemetryText">
+              <strong>Topology:</strong> 478 3D Cranial Landmarks + 52 Blendshapes<br/>
+              <strong>Identity:</strong> 512D ArcFace Neural Embedding<br/>
+              <strong>Privacy:</strong> Computed 100% locally in your browser.
+            </div>
           </div>
+          <div class="blendshape-bars" id="blendshapeBars"></div>
+          <canvas id="barcodeCanvas" class="vector-barcode" width="380" height="32"></canvas>
+          <div class="vector-raw" id="vectorRawBox">[512D Biometric &amp; 128D Cranial Vector will materialize here]</div>
         </div>
-
-        <div class="blendshape-bars" id="blendshapeBars"></div>
-
-        <canvas id="barcodeCanvas" class="vector-barcode" width="380" height="32"></canvas>
-        <div class="vector-raw" id="vectorRawBox">[512D ArcFace + 128D Holistic Cranial &amp; Expression Vector will materialize here upon capture]</div>
-
-        <div class="surveillance-note" id="surveillanceNote">
-          <strong>SURVEILLANCE ANATOMY:</strong> A 5-point crop can be fooled by eyeglasses or oil-paint shadows. By projecting a <strong>478-point 3D cranial wireframe + 52 muscle blendshapes</strong> alongside a <strong>512D ArcFace biometric vector</strong>, the engine measures both bone-structure ratios and live facial expressions (squinting, wide eyes, brow arch, smile curvature) across the pre-1950 archive.
-        </div>
-      </div>
+      </details>
     </section>
 
     <!-- RIGHT COLUMN: REVEAL & FILTERABLE ARCHIVE -->
     <section>
       <div class="reveal-banner" id="revealBanner">
-        <div class="reveal-pre" id="revealPre">AKASHIC RESONANCE // TOP REINCARNATION MATCH</div>
-        <div class="reveal-headline" id="revealHeadline">
-          Upload a selfie or click <em>“Test With Random Pre-1950 Archive Face”</em> to divine your historical twin.
+        <div class="reveal-pre" id="revealPre">🔮 THE ORACLE OF BYGONE AGES</div>
+        <div class="reveal-prompt" id="revealPrompt">Gaze into the glass...</div>
+        <div class="reveal-persona" id="revealPersona">
+          Offer your portrait to divine your historical incarnation.
         </div>
+        <div class="reveal-era" id="revealEra" style="display:none;"></div>
 
         <div class="reveal-comparison" id="revealContent" style="display:none;">
-          <div>
-            <div class="twin-pair-grid">
-              <div class="crop-spotlight" id="userMirrorCard" style="display:none;">
-                <span class="crop-tag">YOUR VESSEL</span>
-                <canvas id="userMiniCanvas" width="220" height="220"></canvas>
-              </div>
-              <div class="crop-spotlight" id="twinCropCard" style="grid-column: span 2;">
-                <span class="crop-tag">PAST LIFE TWIN</span>
-                <div class="css-crop-viewport" id="bestCropViewport"></div>
+          <div class="twin-orbs-container">
+            <div class="twin-orb-card" id="userMirrorCard" style="display:none;">
+              <span class="crop-tag">YOUR MORTAL VESSEL</span>
+              <div class="scrying-orb orb-vessel">
+                <div class="orb-inner">
+                  <canvas id="userMiniCanvas" width="220" height="220"></canvas>
+                </div>
+                <div class="crystal-ball-glare"></div>
               </div>
             </div>
-            <div class="sim-badge" id="bestSimBadge">96.4% RESONANCE</div>
-            <div class="mono" style="font-size:10px; color:var(--muted); margin-top:8px; text-align:center;" id="scoreBreakdownText">
-              CRANIAL TOPOLOGY + 512D BIOMETRIC FUSION
+
+            <div class="twin-orb-card" id="twinCropCard">
+              <span class="crop-tag">THE SPIRIT REVEALED</span>
+              <div class="scrying-orb orb-twin">
+                <div class="orb-inner css-crop-viewport" id="bestCropViewport"></div>
+                <div class="crystal-ball-glare"></div>
+              </div>
             </div>
           </div>
 
-          <div>
-            <div class="full-artwork-frame">
-              <div class="full-artwork-wrapper">
-                <img id="bestFullImg" src="" alt="Full historical artwork" />
-                <div id="bboxOverlay" class="bbox-highlight"></div>
+          <div class="sim-badge" id="bestSimBadge">96.4% SOUL RESONANCE</div>
+          <div class="mono" style="font-size:10px; color:var(--muted); margin-top:8px; text-align:center;" id="scoreBreakdownText">
+            CRANIAL TOPOLOGY + 512D BIOMETRIC FUSION
+          </div>
+
+          <!-- COLLAPSIBLE BEHIND-THE-VEIL DRAWER FOR HISTORICAL ARTWORK & MUSEUM RECORDS -->
+          <details class="oracle-drawer" id="oracleDrawer">
+            <summary class="oracle-drawer-trigger">
+              <span>📜 Historical Record in Our Realm (Uncropped Artwork)</span>
+              <span class="drawer-arrow">▾</span>
+            </summary>
+            <div class="oracle-drawer-body">
+              <div class="full-artwork-frame">
+                <div class="full-artwork-wrapper">
+                  <img id="bestFullImg" src="" alt="Full historical artwork" />
+                  <div id="bboxOverlay" class="bbox-highlight"></div>
+                </div>
+              </div>
+              <div class="artwork-details" id="artworkDetails">
+                <div class="artwork-meta-list">
+                  <div><span class="label">Work Title:</span> <strong id="metaTitle"></strong></div>
+                  <div><span class="label">Era / Date:</span> <span id="metaDate"></span> &nbsp;|&nbsp; <span class="label">Creator:</span> <span id="metaArtist"></span></div>
+                  <div><span class="label">Medium &amp; Archive:</span> <span id="metaMedium"></span> (<span id="metaSource"></span>)</div>
+                  <div class="fun-fact" id="metaFunFact"></div>
+                </div>
+                <a id="metaSourceLink" href="#" target="_blank" rel="noopener" class="file-btn" style="text-decoration:none;">
+                  View Museum Record ↗
+                </a>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="artwork-details" id="artworkDetails" style="display:none;">
-          <div class="artwork-meta-list">
-            <div><span class="label">Work Title:</span> <strong id="metaTitle"></strong></div>
-            <div><span class="label">Era / Date:</span> <span id="metaDate"></span> &nbsp;|&nbsp; <span class="label">Creator:</span> <span id="metaArtist"></span></div>
-            <div><span class="label">Medium &amp; Archive:</span> <span id="metaMedium"></span> (<span id="metaSource"></span>)</div>
-            <div class="fun-fact" id="metaFunFact"></div>
-          </div>
-          <a id="metaSourceLink" href="#" target="_blank" rel="noopener" class="file-btn" style="text-decoration:none;">
-            View Museum Record ↗
-          </a>
+          </details>
         </div>
       </div>
+
 
       <div class="card">
         <div class="card-header">
@@ -759,8 +970,11 @@
     const barcodeCanvas = document.getElementById('barcodeCanvas');
     const vectorRawBox = document.getElementById('vectorRawBox');
 
+    const crystalBall = document.getElementById('crystalBall');
     const revealPre = document.getElementById('revealPre');
-    const revealHeadline = document.getElementById('revealHeadline');
+    const revealPrompt = document.getElementById('revealPrompt');
+    const revealPersona = document.getElementById('revealPersona');
+    const revealEra = document.getElementById('revealEra');
     const revealContent = document.getElementById('revealContent');
     const artworkDetails = document.getElementById('artworkDetails');
     const userMirrorCard = document.getElementById('userMirrorCard');
@@ -803,8 +1017,8 @@
     async function loadArcfaceBuffer() {
       try {
         const [b0, b1] = await Promise.all([
-          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=4`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=4`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=5`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=5`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
         ]);
         const a0 = new Int8Array(b0);
         const a1 = new Int8Array(b1);
@@ -813,7 +1027,7 @@
         merged.set(a1, a0.length);
         return merged;
       } catch (_) {
-        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=4`).then(r => r.arrayBuffer());
+        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=5`).then(r => r.arrayBuffer());
         return new Int8Array(buf);
       }
     }
@@ -841,9 +1055,9 @@
       try {
         dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
         const [metaRes, arcInt8, meshBuf] = await Promise.all([
-          fetch(`${ASSET_BASE}/metadata_compact.json?v=4`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/metadata_compact.json?v=5`).then(r => r.json()),
           loadArcfaceBuffer(),
-          fetch(`${ASSET_BASE}/mesh_i8.bin?v=4`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin?v=5`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
@@ -1100,8 +1314,7 @@
       }
 
       // Also copy the user's face crop into userMiniCanvas in the reveal section!
-      userMirrorCard.style.display = 'block';
-      twinCropCard.style.gridColumn = 'span 1';
+      userMirrorCard.style.display = 'flex';
       const uctx = userMiniCanvas.getContext('2d');
       uctx.clearRect(0, 0, 220, 220);
       uctx.drawImage(inputCanvas, 0, 0, 220, 220);
@@ -1252,19 +1465,30 @@
 
     function selectMatchForReveal(item) {
       const m = item.meta;
-      revealContent.style.display = 'grid';
-      artworkDetails.style.display = 'flex';
+      revealContent.style.display = 'block';
 
-      revealPre.textContent = `AKASHIC RECORD #${m.id.toUpperCase()} // ${m.c.toUpperCase()}`;
-      revealHeadline.innerHTML = `In a past life, you were... <span style="color:var(--gold); font-style:italic;">${m.pl}</span>`;
+      let personaText = m.pl;
+      let eraText = m.d || "Historical Era";
+
+      const eraMatch = m.pl.match(/^(.*?)\s*\(([^)]+(?:\([^)]*\)[^)]*)*)\)$/);
+      if (eraMatch) {
+        personaText = eraMatch[1].trim();
+        eraText = eraMatch[2].trim();
+      }
+
+      revealPre.textContent = `🔮 THE ORACLE HAS SPOKEN // ${item.resonancePct ? item.resonancePct.toFixed(1) + '% SOUL AFFINITY' : 'ARCHIVE RECORD'}`;
+      revealPrompt.textContent = "In a past life, you were...";
+      revealPersona.textContent = personaText;
+      revealEra.textContent = eraText;
+      revealEra.style.display = 'block';
 
       renderCssFaceCrop(m.iu, m.bb, bestCropViewport);
       bestSimBadge.textContent = item.resonancePct
-        ? `${item.resonancePct.toFixed(1)}% RESONANCE`
+        ? `${item.resonancePct.toFixed(1)}% SOUL RESONANCE`
         : `ARCHIVE RECORD`;
 
       if (item.zScore !== undefined) {
-        scoreBreakdownText.textContent = `Z-SCORE +${item.zScore.toFixed(2)}σ  |  478-MESH: ${item.meshSim.toFixed(2)}  |  512D ARCFACE: ${item.arcSim.toFixed(2)}`;
+        scoreBreakdownText.textContent = `SOUL RESONANCE: +${item.zScore.toFixed(2)}σ  |  478-PT MESH: ${item.meshSim.toFixed(2)}  |  512D BIOMETRICS: ${item.arcSim.toFixed(2)}`;
       }
 
       bestFullImg.src = m.iu;
@@ -1274,7 +1498,7 @@
       bboxOverlay.style.width = `${bw * 100}%`;
       bboxOverlay.style.height = `${bh * 100}%`;
 
-      metaTitle.textContent = m.t;
+      metaTitle.textContent = m.t || "Archival Portrait";
       metaDate.textContent = m.d;
       metaArtist.textContent = m.a;
       metaMedium.textContent = m.m;
@@ -1325,19 +1549,41 @@
     }
 
     async function processUserCanvas(sqCanvas) {
-      detConfLabel.textContent = 'SCANNING 478 CRANIAL POINTS...';
+      detConfLabel.textContent = 'AWAKENING THE GLASS...';
+      if (crystalBall) crystalBall.classList.add('is-scrying');
+
+      revealPre.textContent = "🔮 SCRYING THE ASTRAL VEIL...";
+      revealPrompt.textContent = "The mists begin to swirl...";
+      revealPersona.textContent = "Attuning to your mortal countenance...";
+      revealEra.textContent = "Consulting eight thousand souls...";
+      revealEra.style.display = 'block';
 
       if (!faceLandmarker) {
         alert('478-Point Cranial Engine is still initializing—give it 2 seconds and try again.');
+        if (crystalBall) crystalBall.classList.remove('is-scrying');
         return;
       }
 
       const mpRes = faceLandmarker.detect(sqCanvas);
       if (!mpRes.faceLandmarks || mpRes.faceLandmarks.length === 0) {
         detConfLabel.textContent = 'NO FACE LOCKED';
-        alert('Could not lock 478-point mesh on this photo. Try a clearer front-facing portrait.');
+        if (crystalBall) crystalBall.classList.remove('is-scrying');
+        alert('Could not lock onto a countenance in this image. Try a clearer front-facing portrait.');
         return;
       }
+
+      // Atmospheric mystical step timer
+      const scryingPhrases = [
+        "Reading the lines etched into your mortal coil...",
+        "Parting the veil of bygone centuries...",
+        "A spirit stirs from across the veil..."
+      ];
+      let pIdx = 0;
+      const scryingTimer = setInterval(() => {
+        if (pIdx < scryingPhrases.length) {
+          revealPersona.textContent = scryingPhrases[pIdx++];
+        }
+      }, 340);
 
       const pts478 = mpRes.faceLandmarks[0];
       const bs = mpRes.faceBlendshapes && mpRes.faceBlendshapes[0];
@@ -1374,12 +1620,17 @@
       vectorRawBox.textContent = `[Cranial & Biometric Vector]: [${Array.from(activeVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
 
       const topMatches = rankArchiveMatches(arcVec, meshVec);
-      detConfLabel.textContent = `LOCKED: 478 CRANIAL PTS`;
+      detConfLabel.textContent = `SOUL RESONANCE LOCKED`;
       telemetryText.innerHTML = `
-        <strong>478-Pt Mesh:</strong> Procrustes + 16 Cranial Ratios<br/>
+        <strong>478-Pt Topology:</strong> Procrustes + 16 Cranial Ratios<br/>
         <strong>512D ArcFace:</strong> ${arcVec ? 'Affine 112×112 Neural Hash' : '478-Pt Geometric Mode'}<br/>
-        <strong>Top Resonance:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% (+${topMatches[0]?.zScore.toFixed(2)}σ)
+        <strong>Top Affinity:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% (+${topMatches[0]?.zScore.toFixed(2)}σ)
       `;
+
+      // Allow 1.1s for the scrying animation to breathe, then reveal!
+      await new Promise(r => setTimeout(r, 1100));
+      clearInterval(scryingTimer);
+      if (crystalBall) crystalBall.classList.remove('is-scrying');
 
       renderMatchesGrid(topMatches);
       if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
@@ -1500,7 +1751,7 @@
       processUserCanvas(sq);
     });
 
-    randomTestBtn.addEventListener('click', () => {
+    randomTestBtn.addEventListener('click', async () => {
       if (!archiveMeta || !arcfaceMatrix) return;
       stopWebcam();
       let randIdx = Math.floor(Math.random() * archiveMeta.count);
@@ -1513,11 +1764,44 @@
       const meshVec = seed.hm ? meshMatrix.subarray(randIdx * 128, (randIdx + 1) * 128) : null;
 
       lastQueryState = { arcVec, meshVec, excludeIndex: randIdx };
-      userMirrorCard.style.display = 'none';
-      twinCropCard.style.gridColumn = 'span 2';
+
+      if (crystalBall) crystalBall.classList.add('is-scrying');
+      revealPre.textContent = "🔮 SCRYING THE ASTRAL VEIL...";
+      revealPrompt.textContent = "A spirit stirs from the past...";
+      revealPersona.textContent = "Summoning an echo from across the centuries...";
+      revealEra.textContent = seed.d || "Historical Era";
+      revealEra.style.display = 'block';
+
+      // Load seed image into inputCanvas so the crystal ball displays it!
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const iw = img.naturalWidth || 600, ih = img.naturalHeight || 600;
+        const [bx, by, bw, bh] = seed.bb;
+        const pad = 0.35;
+        const cx = (bx + bw * 0.5) * iw, cy = (by + bh * 0.5) * ih;
+        const side = Math.max(bw * iw, bh * ih) * (1 + pad * 2);
+        const sx = Math.max(0, Math.min(iw - side, cx - side * 0.5));
+        const sy = Math.max(0, Math.min(ih - side, cy - side * 0.5));
+        const ctx = inputCanvas.getContext('2d');
+        ctx.clearRect(0, 0, 600, 600);
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, 600, 600);
+        inputCanvas.style.display = 'block';
+        mirrorPlaceholder.style.display = 'none';
+
+        // Also display in userMiniCanvas as the seed vessel!
+        userMirrorCard.style.display = 'flex';
+        const uctx = userMiniCanvas.getContext('2d');
+        uctx.clearRect(0, 0, 220, 220);
+        uctx.drawImage(inputCanvas, 0, 0, 220, 220);
+      };
+      img.src = seed.iu;
 
       drawVectorBarcode(arcVec);
       vectorRawBox.textContent = `[Query Seed #${seed.id}]: [${Array.from(arcVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
+
+      await new Promise(r => setTimeout(r, 900));
+      if (crystalBall) crystalBall.classList.remove('is-scrying');
 
       const topMatches = rankArchiveMatches(arcVec, meshVec, randIdx);
       detConfLabel.textContent = `SEED: ${seed.id.toUpperCase()}`;
