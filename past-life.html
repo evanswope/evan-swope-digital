@@ -579,13 +579,13 @@
     <div>
       <div class="eyebrow"><a href="/">← EVANSWOPE.COM</a> // UNLISTED ARCHIVE EXPERIMENT</div>
       <h1>Past Life <span>Portrait Search</span></h1>
-      <p class="subtitle">
-        478-Point 3D Cranial Topology + 52 Blendshape Muscle Vectors + 512D ArcFace Biometrics across 3,500 pre-1950 portraits, 19th-century daguerreotypes, vintage police mugshots, and uncanny creatures.
+      <p class="subtitle" id="heroSubtitle">
+        478-Point 3D Cranial Topology + 52 Blendshape Muscle Vectors + 512D ArcFace Biometrics across thousands of pre-1950 portraits, 19th-century daguerreotypes, vintage police mugshots, and uncanny creatures.
       </p>
     </div>
     <div class="status-pill">
       <span class="status-dot" id="statusDot"></span>
-      <span id="dbStatusText">LOADING 3,500 SOULS &amp; 478-PT CRANIAL ENGINE...</span>
+      <span id="dbStatusText">LOADING ARCHIVE SOULS &amp; 478-PT CRANIAL ENGINE...</span>
     </div>
   </header>
 
@@ -638,10 +638,10 @@
         <div class="blendshape-bars" id="blendshapeBars"></div>
 
         <canvas id="barcodeCanvas" class="vector-barcode" width="380" height="32"></canvas>
-        <div class="vector-raw" id="vectorRawBox">[512D ArcFace + 144D Whitened Cranial Ratio Vector will materialize here upon capture]</div>
+        <div class="vector-raw" id="vectorRawBox">[512D ArcFace + 128D Holistic Cranial &amp; Expression Vector will materialize here upon capture]</div>
 
-        <div class="surveillance-note">
-          <strong>SURVEILLANCE ANATOMY:</strong> A 5-point crop can be fooled by eyeglasses or oil-paint shadows. By projecting a <strong>478-point 3D cranial wireframe</strong> alongside a <strong>512D ArcFace biometric vector</strong>, the engine measures pure bone-structure ratios (interpupillary distance, jaw taper, nose bridge, brow arch, and smile curvature) across 3,500 pre-1950 souls.
+        <div class="surveillance-note" id="surveillanceNote">
+          <strong>SURVEILLANCE ANATOMY:</strong> A 5-point crop can be fooled by eyeglasses or oil-paint shadows. By projecting a <strong>478-point 3D cranial wireframe + 52 muscle blendshapes</strong> alongside a <strong>512D ArcFace biometric vector</strong>, the engine measures both bone-structure ratios and live facial expressions (squinting, wide eyes, brow arch, smile curvature) across the pre-1950 archive.
         </div>
       </div>
     </section>
@@ -697,16 +697,16 @@
 
       <div class="card">
         <div class="card-header">
-          <span>III. Closest Souls Across 3,500 Pre-1950 Portraits</span>
+          <span id="galleryHeaderTitle">III. Closest Souls Across Pre-1950 Portraits</span>
           <span id="filterCountLabel">TOP 12 MATCHES</span>
         </div>
 
         <div class="filter-bar" id="filterBar">
-          <button class="filter-tab active" data-cat="all">All Incarnations (3,500)</button>
-          <button class="filter-tab" data-cat="portrait">Paintings &amp; Sculptures (2,430)</button>
-          <button class="filter-tab" data-cat="daguerreotype">Daguerreotypes &amp; Photos (671)</button>
-          <button class="filter-tab" data-cat="mugshot">1900s Mugshots (141)</button>
-          <button class="filter-tab" data-cat="animal_or_creature">Beasts &amp; Pareidolia (258)</button>
+          <button class="filter-tab active" data-cat="all" id="tabAll">All Incarnations</button>
+          <button class="filter-tab" data-cat="portrait" id="tabPortrait">Paintings &amp; Sculptures</button>
+          <button class="filter-tab" data-cat="daguerreotype" id="tabDaguerreotype">Daguerreotypes &amp; Photos</button>
+          <button class="filter-tab" data-cat="mugshot" id="tabMugshot">1900s Mugshots</button>
+          <button class="filter-tab" data-cat="animal_or_creature" id="tabCreature">Beasts &amp; Pareidolia</button>
         </div>
 
         <div class="matches-grid" id="matchesGrid"></div>
@@ -800,21 +800,60 @@
       return out;
     }
 
+    async function loadArcfaceBuffer() {
+      try {
+        const [b0, b1] = await Promise.all([
+          fetch(`${ASSET_BASE}/arcface_i8_0.bin`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+          fetch(`${ASSET_BASE}/arcface_i8_1.bin`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+        ]);
+        const a0 = new Int8Array(b0);
+        const a1 = new Int8Array(b1);
+        const merged = new Int8Array(a0.length + a1.length);
+        merged.set(a0, 0);
+        merged.set(a1, a0.length);
+        return merged;
+      } catch (_) {
+        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin`).then(r => r.arrayBuffer());
+        return new Int8Array(buf);
+      }
+    }
+
+    function updateArchiveCountsUI() {
+      if (!archiveMeta || !archiveMeta.faces) return;
+      const total = archiveMeta.count || archiveMeta.faces.length;
+      const fmtTotal = total.toLocaleString();
+      const counts = { portrait: 0, daguerreotype: 0, mugshot: 0, animal_or_creature: 0 };
+      for (const f of archiveMeta.faces) {
+        counts[f.c] = (counts[f.c] || 0) + 1;
+      }
+      document.getElementById('heroSubtitle').textContent =
+        `478-Point 3D Cranial Topology + 52 Blendshape Muscle Vectors + 512D ArcFace Biometrics across ${fmtTotal} pre-1950 portraits, 19th-century daguerreotypes, vintage police mugshots, and uncanny creatures.`;
+      document.getElementById('galleryHeaderTitle').textContent =
+        `III. Closest Souls Across ${fmtTotal} Pre-1950 Portraits`;
+      document.getElementById('tabAll').textContent = `All Incarnations (${fmtTotal})`;
+      document.getElementById('tabPortrait').textContent = `Paintings & Sculptures (${(counts.portrait || 0).toLocaleString()})`;
+      document.getElementById('tabDaguerreotype').textContent = `Daguerreotypes & Photos (${(counts.daguerreotype || 0).toLocaleString()})`;
+      document.getElementById('tabMugshot').textContent = `1900s Mugshots (${(counts.mugshot || 0).toLocaleString()})`;
+      document.getElementById('tabCreature').textContent = `Beasts & Pareidolia (${(counts.animal_or_creature || 0).toLocaleString()})`;
+    }
+
     async function initEngine() {
       try {
-        dbStatusText.textContent = 'LOADING 3,500 ARCHIVE VECTORS...';
-        const [metaRes, arcBuf, meshBuf] = await Promise.all([
+        dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
+        const [metaRes, arcInt8, meshBuf] = await Promise.all([
           fetch(`${ASSET_BASE}/metadata_compact.json`).then(r => r.json()),
-          fetch(`${ASSET_BASE}/arcface_i8.bin`).then(r => r.arrayBuffer()),
+          loadArcfaceBuffer(),
           fetch(`${ASSET_BASE}/mesh_i8.bin`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
-        arcfaceMatrix = int8ToFloat32(new Int8Array(arcBuf));
+        arcfaceMatrix = int8ToFloat32(arcInt8);
         meshMatrix = int8ToFloat32(new Int8Array(meshBuf));
 
+        updateArchiveCountsUI();
         renderInitialGallery();
 
+        const fmtTotal = (archiveMeta.count || archiveMeta.faces.length).toLocaleString();
         dbStatusText.textContent = 'INITIALIZING 478-PT MEDIAPIPE & 512D ARCFACE...';
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
@@ -848,7 +887,7 @@
         }
 
         statusDot.classList.add('ready');
-        dbStatusText.textContent = `3,500 PRE-1950 SOULS READY (478-PT MESH + 512D ARCFACE)`;
+        dbStatusText.textContent = `${fmtTotal} PRE-1950 SOULS READY (478-PT MESH + 512D ARCFACE)`;
       } catch (err) {
         console.error('Init error:', err);
         dbStatusText.textContent = 'ARCHIVE READY (FALLBACK MODE)';
@@ -1191,10 +1230,11 @@
         const ch = containerEl.clientHeight || 160;
 
         const [bx, by, bw, bh] = bboxNorm;
-        const pad = 0.45;
+        const pad = 0.40;
         const cx = (bx + bw * 0.5) * iw;
         const cy = (by + bh * 0.5) * ih;
-        const side = Math.max(bw * iw, bh * ih) * (1 + pad * 2);
+        const rawSide = Math.max(bw * iw, bh * ih) * (1 + pad * 2);
+        const side = Math.max(16, Math.min(iw, ih, rawSide));
 
         const sx = Math.max(0, Math.min(iw - side, cx - side * 0.5));
         const sy = Math.max(0, Math.min(ih - side, cy - side * 0.5));
