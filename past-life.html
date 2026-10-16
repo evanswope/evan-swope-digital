@@ -858,6 +858,152 @@
       text-align: center;
     }
 
+    /* Astral Horoscope Seal */
+    .astral-horoscope-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 14px auto 16px;
+      padding: 8px 18px;
+      background: radial-gradient(ellipse at 50% 50%, rgba(38, 20, 52, 0.85) 0%, rgba(15, 11, 20, 0.95) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 30px;
+      box-shadow:
+        0 0 20px rgba(168, 85, 247, 0.28),
+        inset 0 0 12px rgba(212, 175, 55, 0.15),
+        0 3px 8px rgba(0, 0, 0, 0.6);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff4d0;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+      animation: sealFloat 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes sealFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-3px); }
+    }
+
+    .zodiac-glyph {
+      font-size: 18px;
+      color: #ffd966;
+      filter: drop-shadow(0 0 6px rgba(255, 217, 102, 0.8));
+    }
+
+    .karmic-section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      text-align: center;
+      margin: 16px 0 8px;
+    }
+
+    .karmic-section-label::before,
+    .karmic-section-label::after {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1px;
+      background: rgba(212, 175, 55, 0.35);
+      vertical-align: middle;
+      margin: 0 8px;
+    }
+
+    /* Karmic Badges */
+    .karmic-badges-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .karmic-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #f3e5ab;
+      background: linear-gradient(180deg, #251d14 0%, #14100c 100%);
+      border: 1px solid #7c6130;
+      padding: 5px 12px;
+      border-radius: 3px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      animation: badgePop 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+
+    @keyframes badgePop {
+      0% { opacity: 0; transform: translateY(6px) scale(0.92); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .karmic-badge:hover {
+      border-color: var(--gold);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+    }
+
+    /* Mortal Attributes / Alchemical Gauges */
+    .mortal-bars-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+      margin-top: 8px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .mortal-bars-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mortal-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .mortal-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #bfaea0;
+    }
+
+    .mortal-bar-header strong {
+      color: #f3e5ab;
+      font-weight: 500;
+    }
+
+    .mortal-bar-track {
+      height: 5px;
+      background: #090706;
+      border: 1px solid #3d301b;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mortal-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #8a6526 0%, #d4af37 60%, #ffe082 100%);
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.55);
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     .css-crop-viewport {
       width: 100%;
       height: 100%;
@@ -1248,6 +1394,26 @@
             CRANIAL TOPOLOGY + 512D BIOMETRIC FUSION
           </div>
 
+          <!-- ASTRAL HOROSCOPE SEAL -->
+          <div style="text-align: center; margin-top: 14px;">
+            <div class="astral-horoscope-pill" id="astralHoroscopePill" style="display:none;">
+              <span class="zodiac-glyph" id="zodiacGlyph">♈</span>
+              <span class="zodiac-info" id="zodiacInfo">ASTRAL CONSTELLATION</span>
+            </div>
+          </div>
+
+          <!-- KARMIC VICES & PECULIARITIES (BADGES) -->
+          <div class="karmic-traits-section" id="karmicTraitsSection" style="display:none;">
+            <div class="karmic-section-label">✦ KARMIC VICES &amp; PECULIARITIES ✦</div>
+            <div class="karmic-badges-wrap" id="karmicBadgesWrap"></div>
+          </div>
+
+          <!-- MORTAL ATTRIBUTES & ALCHEMICAL GAUGES (PROGRESS BARS) -->
+          <div class="mortal-bars-section" id="mortalBarsSection" style="display:none;">
+            <div class="karmic-section-label">✦ MORTAL ATTRIBUTES &amp; ALCHEMICAL GAUGES ✦</div>
+            <div class="mortal-bars-grid" id="mortalBarsGrid"></div>
+          </div>
+
           <div id="randomSoulActionRow" style="display:none; justify-content:center; gap:12px; margin-top:14px;">
             <button id="summonAnotherBtn" class="oracle-action-btn" type="button">✦ Summon Another Ancient Soul</button>
           </div>
@@ -1376,6 +1542,13 @@
     const bestCropViewport = document.getElementById('bestCropViewport');
     const bestSimBadge = document.getElementById('bestSimBadge');
     const scoreBreakdownText = document.getElementById('scoreBreakdownText');
+    const astralHoroscopePill = document.getElementById('astralHoroscopePill');
+    const zodiacGlyph = document.getElementById('zodiacGlyph');
+    const zodiacInfo = document.getElementById('zodiacInfo');
+    const karmicTraitsSection = document.getElementById('karmicTraitsSection');
+    const karmicBadgesWrap = document.getElementById('karmicBadgesWrap');
+    const mortalBarsSection = document.getElementById('mortalBarsSection');
+    const mortalBarsGrid = document.getElementById('mortalBarsGrid');
     const bestFullImg = document.getElementById('bestFullImg');
     const bboxOverlay = document.getElementById('bboxOverlay');
 
@@ -1398,6 +1571,9 @@
     let currentCategory = 'all';
     let currentStream = null;
     let lastQueryState = null;
+    let activeFaceBlendshapes = null;
+    let activeFaceLandmarks = null;
+    let activeConstellation = null;
 
     function int8ToFloat32(int8Arr) {
       const out = new Float32Array(int8Arr.length);
@@ -1664,47 +1840,364 @@
       return vec;
     }
 
-    function draw478MeshOnCanvas(imgEl, pts478) {
-      inputCanvas.style.display = 'block';
-      webcamVideo.style.display = 'none';
-      mirrorPlaceholder.style.display = 'none';
+    const ASTRAL_CONSTELLATIONS = [
+      {
+        name: "Aries",
+        glyph: "♈",
+        myth: "The Resurgent Ram • House of Impulsive Duels",
+        edges: [[168, 107], [107, 70], [70, 127], [168, 336], [336, 300], [300, 356], [168, 6], [6, 1]],
+        starNodes: [168, 107, 70, 127, 336, 300, 356, 6, 1]
+      },
+      {
+        name: "Taurus",
+        glyph: "♉",
+        myth: "The Celestial Bull • House of Gluttony & Gold",
+        edges: [[127, 70], [70, 168], [168, 300], [300, 356], [168, 1], [1, 61], [1, 291]],
+        starNodes: [127, 70, 168, 300, 356, 1, 61, 291]
+      },
+      {
+        name: "Gemini",
+        glyph: "♊",
+        myth: "The Twin Stars • House of Double Agents",
+        edges: [[70, 33], [33, 116], [116, 61], [300, 362], [362, 345], [345, 291], [33, 362]],
+        starNodes: [70, 33, 116, 61, 300, 362, 345, 291]
+      },
+      {
+        name: "Cancer",
+        glyph: "♋",
+        myth: "The Veiled Crab • House of Bygone Yearnings",
+        edges: [[109, 10], [10, 338], [109, 67], [338, 297], [67, 116], [297, 345], [116, 152], [345, 152]],
+        starNodes: [10, 109, 338, 67, 297, 116, 345, 152]
+      },
+      {
+        name: "Leo",
+        glyph: "♌",
+        myth: "The Solar Lion • House of Unearned Nobility",
+        edges: [[10, 338], [338, 300], [300, 345], [345, 152], [152, 172], [172, 116], [116, 70], [70, 109], [109, 10]],
+        starNodes: [10, 338, 300, 345, 152, 172, 116, 70, 109]
+      },
+      {
+        name: "Virgo",
+        glyph: "♍",
+        myth: "The Alchemist Maiden • House of Nitpicking & Herbs",
+        edges: [[10, 168], [168, 6], [6, 116], [6, 345], [116, 61], [345, 291], [61, 152], [291, 152]],
+        starNodes: [10, 168, 6, 116, 345, 61, 291, 152]
+      },
+      {
+        name: "Libra",
+        glyph: "♎",
+        myth: "The Scales of Judgment • House of Unresolved Lawsuits",
+        edges: [[70, 168], [168, 300], [70, 116], [300, 345], [116, 61], [345, 291], [61, 152], [291, 152]],
+        starNodes: [70, 168, 300, 116, 345, 61, 291, 152]
+      },
+      {
+        name: "Scorpius",
+        glyph: "♏",
+        myth: "The Desert Stinger • House of Vengeance & Secrets",
+        edges: [[10, 168], [168, 6], [6, 1], [1, 13], [13, 152], [152, 172], [172, 58], [58, 132]],
+        starNodes: [10, 168, 6, 1, 13, 152, 172, 58, 132]
+      },
+      {
+        name: "Sagittarius",
+        glyph: "♐",
+        myth: "The Wandering Centaur • House of Fateful Arrows",
+        edges: [[70, 116], [116, 172], [116, 1], [1, 345], [345, 300], [300, 345]],
+        starNodes: [70, 116, 172, 1, 345, 300]
+      },
+      {
+        name: "Capricorn",
+        glyph: "♑",
+        myth: "The Astrological Sea-Goat • House of Stifling Bureaucracy",
+        edges: [[127, 70], [70, 168], [168, 1], [1, 152], [152, 397], [397, 345], [345, 300]],
+        starNodes: [127, 70, 168, 1, 152, 397, 345, 300]
+      },
+      {
+        name: "Aquarius",
+        glyph: "♒",
+        myth: "The Cloud Diviner • House of Unhinged Inventions",
+        edges: [[70, 63], [63, 105], [105, 107], [300, 293], [293, 334], [334, 336], [61, 1], [1, 291], [172, 152], [152, 397]],
+        starNodes: [70, 63, 105, 107, 300, 293, 334, 336, 61, 1, 291, 172, 152, 397]
+      },
+      {
+        name: "Pisces",
+        glyph: "♓",
+        myth: "The Twin Fishes • House of Absinthe Visions",
+        edges: [[33, 116], [116, 61], [61, 152], [152, 291], [291, 345], [345, 362], [33, 362]],
+        starNodes: [33, 116, 61, 152, 291, 345, 362]
+      },
+      {
+        name: "Orion",
+        glyph: "✦",
+        myth: "The Star-Crossed Hunter • Asterism of the Belt",
+        edges: [[70, 116], [300, 345], [116, 6], [6, 345], [116, 172], [345, 397], [172, 152], [397, 152]],
+        starNodes: [70, 300, 116, 6, 345, 172, 397, 152]
+      },
+      {
+        name: "Cassiopeia",
+        glyph: "✧",
+        myth: "The Vain Empress • The Zigzag Throne",
+        edges: [[127, 70], [70, 168], [168, 300], [300, 356]],
+        starNodes: [127, 70, 168, 300, 356]
+      }
+    ];
 
+    const KARMIC_BADGES_POOL = [
+      "Near-Sighted", "Chronic Squinter", "Scarred but Vain", "Unusually Tall for 1640",
+      "Peculiar Gait", "Smelled of Cloves", "Allergic to Horses", "Plagued by Hiccups",
+      "Only Ate Turnips", "Possessed One Golden Tooth", "Trembling Hands", "Glorious Mustache",
+      "Wore Velvet in July", "Never Drank Water", "Refused to Remove Hat", "Banned from Florence",
+      "Barred from Venice", "Owed 400 Florins", "Suspected of Alchemy", "Accidental Heretic",
+      "Secretly a Royal Bastard", "Stole a Cardinal's Slipper", "Tavern Legend", "Faked Own Funeral Twice",
+      "Smuggled Exotic Cheeses", "Challenged the Mayor to a Duel", "Escaped the Tower",
+      "Pretended to be French", "Banned from Every Dice Game", "Wanted for Counterfeit Coins",
+      "Boisterous", "Dim-Witted Visionary", "Hopeless Romantic", "Paranoid of Swans",
+      "Incorrigible Gambler", "Gilded Tongue", "Afflicted with Melancholy", "Easily Flustered",
+      "Pathologically Jealous", "Dramatic Sigher", "Professional Gossip", "Haunted by a Cobbler",
+      "Distrusted by Dogs", "Beloved by Stray Cats", "Convinced the Moon is Hollow",
+      "Spoke Fluent Nonsense", "Died in an Argument over Cabbage", "Amateur Grave Robber",
+      "Chronically Indebted", "Fencing Fraud", "Secret Coward", "Laughed at Funerals",
+      "Refused to Pay Tolls", "Wept Over Architecture", "Wrote Horrible Sonnets"
+    ];
+
+    const MORTAL_ATTRIBUTES_POOL = [
+      { name: "Charisma", bias: "smile" },
+      { name: "Mortal Wealth", bias: "random" },
+      { name: "Existential Dread", bias: "brow" },
+      { name: "Fencing Skill", bias: "random" },
+      { name: "Tavern Brawl Risk", bias: "smile" },
+      { name: "Romance & Pining", bias: "random" },
+      { name: "Near-Sightedness", bias: "squint" },
+      { name: "Luck with Sovereigns", bias: "random" },
+      { name: "Tolerance for Cheap Wine", bias: "smile" },
+      { name: "Tendency to Gloat", bias: "smile" },
+      { name: "Melancholy", bias: "brow" },
+      { name: "Secret Cowardice", bias: "squint" },
+      { name: "Dramatic Flair", bias: "random" },
+      { name: "Resistance to Poison", bias: "random" },
+      { name: "Feigned Piety", bias: "brow" },
+      { name: "Philosophical Confusion", bias: "brow" },
+      { name: "Audacity", bias: "smile" },
+      { name: "Susceptibility to Flattery", bias: "random" }
+    ];
+
+    function drawShiningStar(ctx, x, y, radius) {
+      if (radius <= 0.1) return;
+      ctx.save();
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, radius * 3.2);
+      grad.addColorStop(0, 'rgba(255, 245, 200, 0.95)');
+      grad.addColorStop(0.35, 'rgba(212, 175, 55, 0.6)');
+      grad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 3.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255, 250, 220, 0.9)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x - radius * 2.8, y);
+      ctx.lineTo(x + radius * 2.8, y);
+      ctx.moveTo(x, y - radius * 2.8);
+      ctx.lineTo(x, y + radius * 2.8);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(1, radius * 0.7), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function renderConstellationFrame(imgEl, pts478, constellation, progress = 1.0) {
       const size = 600;
       inputCanvas.width = size;
       inputCanvas.height = size;
       const ctx = inputCanvas.getContext('2d');
+
       ctx.drawImage(imgEl, 0, 0, size, size);
+
+      const grad = ctx.createRadialGradient(size * 0.5, size * 0.5, 60, size * 0.5, size * 0.5, size * 0.6);
+      grad.addColorStop(0, 'rgba(20, 10, 32, 0.52)');
+      grad.addColorStop(0.65, 'rgba(12, 6, 20, 0.78)');
+      grad.addColorStop(1, 'rgba(5, 2, 8, 0.94)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
 
       if (!pts478 || pts478.length === 0) return;
 
-      ctx.fillStyle = 'rgba(78, 168, 222, 0.72)';
+      // 478 Micro-stars
       for (let i = 0; i < pts478.length; i++) {
-        const x = pts478[i].x * size;
-        const y = pts478[i].y * size;
-        ctx.fillRect(x - 1, y - 1, 2.2, 2.2);
+        const px = pts478[i].x * size;
+        const py = pts478[i].y * size;
+        const isMajor = constellation.starNodes.includes(i);
+        if (!isMajor) {
+          const alpha = 0.35 + 0.35 * Math.sin(i * 12.3 + progress * 8.0);
+          ctx.fillStyle = `rgba(215, 235, 255, ${alpha.toFixed(2)})`;
+          ctx.fillRect(px - 1, py - 1, 1.8, 1.8);
+        }
       }
 
-      const rings = [
-        [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10],
-        [33, 160, 158, 133, 153, 144, 33],
-        [362, 385, 387, 263, 373, 380, 362],
-        [70, 63, 105, 66, 107],
-        [336, 296, 334, 293, 300],
-        [168, 6, 197, 195, 5, 4, 1, 2],
-        [61, 40, 37, 0, 267, 270, 291, 321, 314, 17, 84, 181, 61]
-      ];
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.85)';
-      ctx.lineWidth = 1.4;
-      for (const ring of rings) {
+      // Astral Rays
+      const lineProgress = Math.min(1.0, Math.max(0.0, (progress - 0.12) / 0.65));
+      const edgesToDraw = Math.ceil(constellation.edges.length * lineProgress);
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 230, 140, 0.9)';
+      ctx.lineWidth = 1.9;
+      ctx.shadowColor = 'rgba(212, 175, 55, 0.95)';
+      ctx.shadowBlur = 10;
+
+      for (let k = 0; k < edgesToDraw; k++) {
+        const [a, b] = constellation.edges[k];
+        const p1 = pts478[a];
+        const p2 = pts478[b];
+        if (!p1 || !p2) continue;
         ctx.beginPath();
-        ring.forEach((idx, k) => {
-          const x = pts478[idx].x * size;
-          const y = pts478[idx].y * size;
-          if (k === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
+        ctx.moveTo(p1.x * size, p1.y * size);
+        ctx.lineTo(p2.x * size, p2.y * size);
         ctx.stroke();
       }
+      ctx.restore();
+
+      // Major Star Nodes
+      const starProgress = Math.min(1.0, Math.max(0.0, (progress - 0.25) / 0.5));
+      const starScale = 1.0 + 0.25 * Math.sin(progress * Math.PI * 4);
+      for (const nodeIdx of constellation.starNodes) {
+        const p = pts478[nodeIdx];
+        if (!p) continue;
+        const cx = p.x * size, cy = p.y * size;
+        drawShiningStar(ctx, cx, cy, 4.5 * starScale * starProgress);
+      }
+
+      // Floating Banner in Glass
+      if (progress > 0.4) {
+        const bannerAlpha = Math.min(1.0, (progress - 0.4) / 0.35);
+        ctx.save();
+        ctx.globalAlpha = bannerAlpha;
+        ctx.font = '600 13px "Cinzel", serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff4d0';
+        ctx.shadowColor = 'rgba(212, 175, 55, 0.9)';
+        ctx.shadowBlur = 14;
+        ctx.fillText(`✦ ASTRAL CONSTELLATION: ${constellation.name.toUpperCase()} ✦`, 300, 485);
+        ctx.font = 'italic 11px "Crimson Pro", serif';
+        ctx.fillStyle = '#f3e5ab';
+        ctx.fillText(`${constellation.glyph}  ${constellation.myth}`, 300, 506);
+        ctx.restore();
+      }
+    }
+
+    function animateConstellationScrying(sqCanvas, pts478, constellation, durationMs = 1250) {
+      inputCanvas.style.display = 'block';
+      webcamVideo.style.display = 'none';
+      mirrorPlaceholder.style.display = 'none';
+
+      const startTime = performance.now();
+      return new Promise(resolve => {
+        function loop(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(1.0, elapsed / durationMs);
+
+          renderConstellationFrame(sqCanvas, pts478, constellation, progress);
+
+          if (progress < 1.0) {
+            requestAnimationFrame(loop);
+          } else {
+            resolve();
+          }
+        }
+        requestAnimationFrame(loop);
+      });
+    }
+
+    function scrambleTextReveal(el, targetText, durationMs = 450) {
+      if (!el || !targetText) return;
+      const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ✦✧☽☼☾☿♀♂♃♄♈♉♊♋♌♍♎♏♐♑♒♓";
+      const startTime = performance.now();
+      const len = targetText.length;
+
+      function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1.0, elapsed / durationMs);
+        const revealedChars = Math.floor(progress * len);
+
+        let out = "";
+        for (let i = 0; i < len; i++) {
+          if (targetText[i] === ' ' || targetText[i] === '\n' || i < revealedChars) {
+            out += targetText[i];
+          } else {
+            out += runes[Math.floor(Math.random() * runes.length)];
+          }
+        }
+        el.textContent = out;
+
+        if (progress < 1.0) {
+          requestAnimationFrame(update);
+        } else {
+          el.textContent = targetText;
+        }
+      }
+      requestAnimationFrame(update);
+    }
+
+    function generateKarmicProfile(faceMeta, blendshapes = null, faceLandmarks = null) {
+      let seed = 0;
+      const str = (faceMeta.id || '') + (faceMeta.t || '');
+      for (let i = 0; i < str.length; i++) {
+        seed = (seed * 31 + str.charCodeAt(i)) >>> 0;
+      }
+      const seededRand = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return (seed >>> 0) / 4294967296;
+      };
+
+      let smile = 0, squint = 0, brow = 0, wide = 0;
+      if (blendshapes && blendshapes.categories) {
+        const m = {};
+        blendshapes.categories.forEach(c => m[c.categoryName] = c.score);
+        smile = ((m.mouthSmileLeft || 0) + (m.mouthSmileRight || 0)) * 0.5;
+        squint = ((m.eyeSquintLeft || 0) + (m.eyeSquintRight || 0)) * 0.5;
+        wide = ((m.eyeWideLeft || 0) + (m.eyeWideRight || 0)) * 0.5;
+        brow = (m.browInnerUp || 0) + (m.browOuterUpLeft || 0) * 0.5;
+      }
+
+      const constellation = (activeConstellation && activeConstellation.name)
+        ? activeConstellation
+        : ASTRAL_CONSTELLATIONS[Math.floor(seededRand() * ASTRAL_CONSTELLATIONS.length)];
+
+      const shuffledBadges = [...KARMIC_BADGES_POOL];
+      if (smile > 0.25) shuffledBadges.unshift("Boisterous", "Tavern Legend", "Laughed at Funerals");
+      if (squint > 0.2) shuffledBadges.unshift("Near-Sighted", "Chronic Squinter", "Suspected of Alchemy");
+      if (brow > 0.25) shuffledBadges.unshift("Afflicted with Melancholy", "Dramatic Sigher", "Pretended to be French");
+      if (wide > 0.25) shuffledBadges.unshift("Paranoid of Swans", "Easily Flustered", "Convinced the Moon is Hollow");
+
+      const chosenBadges = [];
+      const badgeSet = new Set();
+      for (const b of shuffledBadges) {
+        if (!badgeSet.has(b) && seededRand() > 0.35) {
+          badgeSet.add(b);
+          chosenBadges.push(b);
+          if (chosenBadges.length >= 4) break;
+        }
+      }
+      if (chosenBadges.length < 3) chosenBadges.push(shuffledBadges[0], shuffledBadges[1], shuffledBadges[2]);
+
+      const shuffledAttrs = [...MORTAL_ATTRIBUTES_POOL].sort(() => seededRand() - 0.5);
+      const chosenAttrs = shuffledAttrs.slice(0, 4).map(attr => {
+        let val = Math.round(15 + seededRand() * 70);
+        if (attr.bias === 'smile') val = Math.round(35 + smile * 50 + seededRand() * 25);
+        if (attr.bias === 'squint') val = Math.round(30 + squint * 55 + seededRand() * 25);
+        if (attr.bias === 'brow') val = Math.round(25 + brow * 55 + seededRand() * 30);
+        val = Math.max(3, Math.min(98, val));
+        return { name: attr.name, value: val };
+      });
+
+      return { constellation, badges: chosenBadges, attributes: chosenAttrs };
+    }
+
+    function draw478MeshOnCanvas(imgEl, pts478) {
+      const constel = activeConstellation || ASTRAL_CONSTELLATIONS[0];
+      renderConstellationFrame(imgEl, pts478, constel, 1.0);
 
       // Also copy the user's clean face crop into userMiniCanvas in the reveal section!
       userMirrorCard.style.display = 'flex';
@@ -1940,10 +2433,59 @@
         eraText = eraMatch[2].trim();
       }
 
-      revealPersona.textContent = personaText;
+      // 1. Text Rune-Scramble Reveal Effect
+      scrambleTextReveal(revealPersona, personaText, 480);
       if (eraText) {
         revealEra.textContent = eraText;
         revealEra.style.display = 'block';
+      }
+
+      // 2. Generate Astrological Reading, Badges, and Mortal Bars
+      const karmic = generateKarmicProfile(m, activeFaceBlendshapes, activeFaceLandmarks);
+
+      // 3. Render Astral Horoscope Seal
+      if (astralHoroscopePill && zodiacGlyph && zodiacInfo) {
+        astralHoroscopePill.style.display = 'inline-flex';
+        zodiacGlyph.textContent = karmic.constellation.glyph;
+        zodiacInfo.innerHTML = `<strong>${karmic.constellation.name.toUpperCase()}</strong> // ${karmic.constellation.myth}`;
+      }
+
+      // 4. Render Karmic Badges
+      if (karmicTraitsSection && karmicBadgesWrap) {
+        karmicTraitsSection.style.display = 'block';
+        karmicBadgesWrap.innerHTML = '';
+        karmic.badges.forEach((b, bIdx) => {
+          const badgeEl = document.createElement('span');
+          badgeEl.className = 'karmic-badge';
+          badgeEl.style.animationDelay = `${bIdx * 75}ms`;
+          badgeEl.textContent = `✦ ${b}`;
+          karmicBadgesWrap.appendChild(badgeEl);
+        });
+      }
+
+      // 5. Render Mortal Attributes & Alchemical Gauges
+      if (mortalBarsSection && mortalBarsGrid) {
+        mortalBarsSection.style.display = 'block';
+        mortalBarsGrid.innerHTML = '';
+        karmic.attributes.forEach((attr, aIdx) => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'mortal-bar-item';
+          itemEl.innerHTML = `
+            <div class="mortal-bar-header">
+              <span>${attr.name}</span>
+              <strong>${attr.value}%</strong>
+            </div>
+            <div class="mortal-bar-track">
+              <div class="mortal-bar-fill" style="width: 0%"></div>
+            </div>
+          `;
+          mortalBarsGrid.appendChild(itemEl);
+
+          setTimeout(() => {
+            const fill = itemEl.querySelector('.mortal-bar-fill');
+            if (fill) fill.style.width = `${attr.value}%`;
+          }, 80 + aIdx * 60);
+        });
       }
 
       if (item.isSummonedSoul) {
@@ -2098,9 +2640,13 @@
 
       const pts478 = mpRes.faceLandmarks[0];
       const bs = mpRes.faceBlendshapes && mpRes.faceBlendshapes[0];
+      activeFaceLandmarks = pts478;
+      activeFaceBlendshapes = bs;
 
-      draw478MeshOnCanvas(sqCanvas, pts478);
+      activeConstellation = ASTRAL_CONSTELLATIONS[Math.floor(Math.random() * ASTRAL_CONSTELLATIONS.length)];
+
       renderBlendshapes(bs);
+      await animateConstellationScrying(sqCanvas, pts478, activeConstellation, 1250);
 
       const meshVec = computeWhitenedMeshVector(pts478, bs);
       let arcVec = null;
@@ -2128,18 +2674,16 @@
       const activeVec = arcVec || meshVec;
       lastQueryState = { arcVec, meshVec, excludeIndex: -1 };
       drawVectorBarcode(activeVec);
-      vectorRawBox.textContent = `[Cranial & Biometric Vector]: [${Array.from(activeVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
+      vectorRawBox.textContent = `[Astral Constellation ${activeConstellation.name}]: [${Array.from(activeVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
 
       const topMatches = rankArchiveMatches(arcVec, meshVec);
       detConfLabel.textContent = `SOUL RESONANCE LOCKED`;
       telemetryText.innerHTML = `
-        <strong>Cranial Alignment:</strong> 478 Astral Mesh Points<br/>
-        <strong>Countenance Nuance:</strong> 52 Expression Harmonics<br/>
+        <strong>Astral Alignment:</strong> ${activeConstellation.name} (${activeConstellation.glyph})<br/>
+        <strong>Cranial Star Field:</strong> 478 Celestial Nodes Traced<br/>
         <strong>Top Affinity:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% Spirit Resonance
       `;
 
-      // Allow 1.1s for the scrying animation to breathe, then reveal!
-      await new Promise(r => setTimeout(r, 1100));
       clearInterval(scryingTimer);
       if (crystalBall) crystalBall.classList.remove('is-scrying');
 
