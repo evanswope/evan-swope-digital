@@ -1229,12 +1229,163 @@
       box-shadow: 0 0 16px rgba(212, 175, 55, 0.45);
     }
 
-    .glimmer-shift {
-      opacity: 0.25;
-      transform: scale(0.985);
-      transition: all 0.15s ease;
+    /* Astral Scrying Stage: 3D Cranial Celestial Projection */
+    .astral-scrying-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 18px 0 24px;
+      animation: astralStageManifest 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
+    @keyframes astralStageManifest {
+      0% { opacity: 0; transform: scale(0.85) translateY(24px); filter: blur(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
+    }
+
+    .astral-stage-header {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .astral-stage-tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+      padding: 4px 14px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      background: rgba(212, 175, 55, 0.08);
+      border-radius: 20px;
+      margin-bottom: 6px;
+    }
+
+    .astral-stage-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .astral-stage-orb-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orb-astral-stage {
+      width: 280px;
+      height: 280px;
+      border-color: var(--gold);
+      box-shadow:
+        0 0 45px rgba(212, 175, 55, 0.45),
+        0 0 90px rgba(168, 85, 247, 0.35),
+        inset 0 0 40px rgba(0, 0, 0, 0.95),
+        inset 0 -18px 30px rgba(212, 175, 55, 0.4);
+      animation: astralOrbPulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes astralOrbPulse {
+      0% {
+        box-shadow: 0 0 40px rgba(212, 175, 55, 0.35), 0 0 80px rgba(168, 85, 247, 0.25), inset 0 0 35px #000;
+      }
+      100% {
+        box-shadow: 0 0 65px rgba(212, 175, 55, 0.6), 0 0 120px rgba(168, 85, 247, 0.45), inset 0 0 50px rgba(212, 175, 55, 0.2);
+      }
+    }
+
+    .astral-holo-rings {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1px dashed rgba(212, 175, 55, 0.3);
+      pointer-events: none;
+      animation: spinHoloRing 20s linear infinite;
+    }
+
+    @keyframes spinHoloRing {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .astral-stage-footer {
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    .astral-stage-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      margin-bottom: 4px;
+    }
+
+    .astral-stage-sign {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 15px rgba(212, 175, 55, 0.8), 0 0 30px rgba(168, 85, 247, 0.5);
+      min-height: 28px;
+    }
+
+    /* Cranial Ascension Lift Ring from Left Scrying Orb */
+    .cranial-lift-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.8), inset 0 0 30px rgba(168, 85, 247, 0.6);
+      pointer-events: none;
+      animation: cranialLiftAscend 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cranialLiftAscend {
+      0% { transform: scale(0.9) translateY(0); opacity: 1; filter: blur(0px); }
+      50% { transform: scale(1.15) translateY(-40px); opacity: 0.85; filter: blur(2px); }
+      100% { transform: scale(1.35) translateY(-80px) translateX(60px); opacity: 0; filter: blur(8px); }
+    }
+
+    /* Runic Cipher Text Glow */
+    .is-runic-cipher {
+      color: #f3d47d !important;
+      text-shadow: 0 0 18px rgba(212, 175, 55, 0.85), 0 0 35px rgba(168, 85, 247, 0.6) !important;
+      letter-spacing: 0.08em;
+      transition: all 0.2s ease;
+    }
+
+    /* Vessel Orb Toggle Pill */
+    .vessel-toggle-pill {
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--gold);
+      padding: 4px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .vessel-toggle-pill:hover {
+      background: rgba(212, 175, 55, 0.22);
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .orb-vessel {
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -1284,6 +1435,7 @@
               </div>
             </div>
             <div class="crystal-ball-glare"></div>
+            <div class="cranial-lift-ring" id="cranialLiftRing" style="display:none;"></div>
           </div>
           <div class="crystal-ball-pedestal"></div>
         </div>
@@ -1365,19 +1517,38 @@
           Offer your portrait to divine your historical incarnation.
         </div>
         <div class="reveal-era" id="revealEra" style="display:none;"></div>
-
-        
+        <!-- ASTRAL SCRYING STAGE: 3D CRANIAL CELESTIAL MASK PROJECTION -->
+        <div class="astral-scrying-stage" id="astralScryingStage" style="display:none;">
+          <div class="astral-stage-header">
+            <span class="astral-stage-tag">✦ 3D CRANIAL CELESTIAL PROJECTION ✦</span>
+            <div class="astral-stage-sub" id="astralStageSub">Extrapolating 478 dimensional coordinates into the zodiacal sphere...</div>
+          </div>
+          <div class="astral-stage-orb-wrap">
+            <div class="scrying-orb orb-astral-stage">
+              <div class="orb-inner">
+                <canvas id="astralHoloCanvas" width="280" height="280"></canvas>
+              </div>
+              <div class="crystal-ball-glare"></div>
+              <div class="astral-holo-rings"></div>
+            </div>
+          </div>
+          <div class="astral-stage-footer">
+            <div class="astral-stage-status" id="astralStageStatus">✦ MAPPING 478 CELESTIAL NODES... ✦</div>
+            <div class="astral-stage-sign" id="astralStageSign"></div>
+          </div>
+        </div>
 
         <div class="reveal-comparison" id="revealContent" style="display:none;">
           <div class="twin-orbs-container">
             <div class="twin-orb-card" id="userMirrorCard" style="display:none;">
               <span class="crop-tag">YOUR MORTAL VESSEL</span>
-              <div class="scrying-orb orb-vessel">
+              <div class="scrying-orb orb-vessel" id="userVesselOrb" title="Click to toggle between Mortal Visage and 3D Astral Mask">
                 <div class="orb-inner">
                   <canvas id="userMiniCanvas" width="220" height="220"></canvas>
                 </div>
                 <div class="crystal-ball-glare"></div>
               </div>
+              <button id="vesselToggleBtn" class="vessel-toggle-pill" type="button">🔮 View 3D Astral Mask</button>
             </div>
 
             <div class="twin-orb-card" id="twinCropCard">
@@ -1532,6 +1703,19 @@
     const revealPersona = document.getElementById('revealPersona');
     const revealEra = document.getElementById('revealEra');
     const revealContent = document.getElementById('revealContent');
+    const astralScryingStage = document.getElementById('astralScryingStage');
+    const astralHoloCanvas = document.getElementById('astralHoloCanvas');
+    const astralStageStatus = document.getElementById('astralStageStatus');
+    const astralStageSign = document.getElementById('astralStageSign');
+    const cranialLiftRing = document.getElementById('cranialLiftRing');
+    const userVesselOrb = document.getElementById('userVesselOrb');
+    const vesselToggleBtn = document.getElementById('vesselToggleBtn');
+
+    let currentActiveSqCanvas = null;
+    let currentVisage3DMesh = null;
+    let isVesselShowing3D = false;
+    let vessel3DAnimId = null;
+
     const spiritOrbTag = document.getElementById('spiritOrbTag');
     const randomSoulActionRow = document.getElementById('randomSoulActionRow');
     const summonAnotherBtn = document.getElementById('summonAnotherBtn');
@@ -2087,10 +2271,202 @@
       }
     }
 
-    function animateConstellationScrying(sqCanvas, pts478, constellation, durationMs = 1250) {
-      inputCanvas.style.display = 'block';
-      webcamVideo.style.display = 'none';
-      mirrorPlaceholder.style.display = 'none';
+    // Key facial contour chains for connecting the 3D celestial mesh
+    const FACIAL_CONTOURS = [
+      // Face Oval (Crown, Temples, Jawline, Chin)
+      [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10],
+      // Left Eyebrow Arch
+      [70, 63, 105, 66, 107, 55, 65, 52, 53, 46],
+      // Right Eyebrow Arch
+      [336, 296, 334, 293, 300, 276, 283, 282, 295, 285],
+      // Nose Bridge & Tip Ridge
+      [168, 6, 197, 195, 5, 4, 1, 19, 94, 2],
+      // Left Eye Orbit
+      [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246, 33],
+      // Right Eye Orbit
+      [263, 249, 390, 373, 374, 380, 381, 382, 362, 398, 384, 385, 386, 387, 388, 466, 263],
+      // Lips Contour Outer
+      [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61],
+      // Inner Lips
+      [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78]
+    ];
+
+    function prepare3DMesh(pts) {
+      if (!pts || pts.length === 0) return [];
+      let minX = 1, maxX = 0, minY = 1, maxY = 0, minZ = 1, maxZ = -1;
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+        const pz = p.z || 0;
+        if (pz < minZ) minZ = pz;
+        if (pz > maxZ) maxZ = pz;
+      }
+      const cx = (minX + maxX) * 0.5;
+      const cy = (minY + maxY) * 0.5;
+      const cz = (minZ + maxZ) * 0.5;
+      const span = Math.max(maxX - minX, maxY - minY) || 1;
+      return pts.map(p => ({
+        x: (p.x - cx) / span,
+        y: (p.y - cy) / span,
+        z: ((p.z || 0) - cz) / span * 1.55
+      }));
+    }
+
+    function render3DCranialMaskFrame(targetCanvas, normPoints, yaw, pitch, constellation, constellationProgress = 1.0, time = 0) {
+      if (!targetCanvas || !normPoints || normPoints.length === 0) return;
+      const ctx = targetCanvas.getContext('2d');
+      const w = targetCanvas.width;
+      const h = targetCanvas.height;
+
+      // 1. Cosmic Void Background & Nebula Stardust
+      ctx.save();
+      ctx.fillStyle = '#07050d';
+      ctx.fillRect(0, 0, w, h);
+
+      const grad = ctx.createRadialGradient(w * 0.5, h * 0.5, 15, w * 0.5, h * 0.5, w * 0.58);
+      grad.addColorStop(0, 'rgba(45, 24, 65, 0.45)');
+      grad.addColorStop(0.55, 'rgba(16, 10, 26, 0.9)');
+      grad.addColorStop(1, '#050308');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Faint ambient rotating galaxy stars
+      for (let s = 0; s < 28; s++) {
+        const starAngle = s * 0.22 + time * 0.0003;
+        const starDist = (s % 5 + 1) * (w * 0.08);
+        const sx = w * 0.5 + Math.cos(starAngle) * starDist;
+        const sy = h * 0.5 + Math.sin(starAngle) * starDist * 0.65;
+        const starAlpha = 0.2 + 0.3 * Math.sin(s * 7.1 + time * 0.003);
+        ctx.fillStyle = `rgba(215, 235, 255, ${starAlpha.toFixed(2)})`;
+        ctx.fillRect(sx, sy, 1.4, 1.4);
+      }
+
+      // 2. 3D Perspective Projection for all 478 landmarks
+      const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
+      const cosX = Math.cos(pitch), sinX = Math.sin(pitch);
+      const focal = 2.4;
+      const scaleRadius = w * 0.43;
+
+      const projected = new Array(normPoints.length);
+      for (let i = 0; i < normPoints.length; i++) {
+        const p = normPoints[i];
+        // Rotate around Y (yaw)
+        const x1 = p.x * cosY + p.z * sinY;
+        const z1 = -p.x * sinY + p.z * cosY;
+        // Rotate around X (pitch)
+        const y2 = p.y * cosX - z1 * sinX;
+        const z2 = p.y * sinX + z1 * cosX;
+
+        const scale = focal / (focal + z2);
+        projected[i] = {
+          x: w * 0.5 + x1 * scale * scaleRadius,
+          y: h * 0.52 + y2 * scale * scaleRadius,
+          z: z2,
+          scale: scale
+        };
+      }
+
+      // 3. Draw Cranial Mesh Filaments (Anatomical Star Web)
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.18)';
+      ctx.lineWidth = 1.0;
+      for (let c = 0; c < FACIAL_CONTOURS.length; c++) {
+        const chain = FACIAL_CONTOURS[c];
+        ctx.beginPath();
+        let started = false;
+        for (let j = 0; j < chain.length; j++) {
+          const pt = projected[chain[j]];
+          if (!pt) continue;
+          if (!started) {
+            ctx.moveTo(pt.x, pt.y);
+            started = true;
+          } else {
+            ctx.lineTo(pt.x, pt.y);
+          }
+        }
+        ctx.stroke();
+      }
+
+      // 4. Draw 478 Shimmering Star Vertices (Depth-sorted / Depth-shaded)
+      for (let i = 0; i < projected.length; i++) {
+        const pt = projected[i];
+        const isMajor = constellation && constellation.starNodes && constellation.starNodes.includes(i);
+        if (!isMajor) {
+          const depthNorm = Math.max(0, Math.min(1, (pt.z + 0.3) / 0.6));
+          const depthAlpha = 0.25 + 0.65 * (1 - depthNorm);
+          const twinkle = 0.8 + 0.2 * Math.sin(time * 0.005 + i * 1.3);
+          const finalAlpha = Math.max(0.1, depthAlpha * twinkle);
+          const starRadius = Math.max(0.7, 1.8 * (1 - depthNorm * 0.5));
+
+          ctx.fillStyle = `rgba(200, 230, 255, ${finalAlpha.toFixed(2)})`;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, starRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // 5. Draw the Astrological Constellation in 3D Space!
+      if (constellation && constellationProgress > 0) {
+        // Laser rays between constellation edges
+        const lineProgress = Math.min(1.0, Math.max(0.0, (constellationProgress - 0.1) / 0.6));
+        const edgesToDraw = Math.ceil(constellation.edges.length * lineProgress);
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 235, 150, 0.95)';
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = 'rgba(212, 175, 55, 0.95)';
+        ctx.shadowBlur = 14;
+
+        for (let k = 0; k < edgesToDraw; k++) {
+          const [a, b] = constellation.edges[k];
+          const p1 = projected[a];
+          const p2 = projected[b];
+          if (!p1 || !p2) continue;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Major Constellation Stars with 4-Point Diamond Diffraction Flares
+        const starProgress = Math.min(1.0, Math.max(0.0, (constellationProgress - 0.25) / 0.55));
+        const starPulse = 1.0 + 0.25 * Math.sin(time * 0.008);
+        for (let s = 0; s < constellation.starNodes.length; s++) {
+          const nodeIdx = constellation.starNodes[s];
+          const pt = projected[nodeIdx];
+          if (!pt) continue;
+          const starSize = 5.2 * starProgress * starPulse;
+          drawShiningStar(ctx, pt.x, pt.y, starSize);
+        }
+
+        // Floating Watermark on Hologram Orb
+        if (constellationProgress > 0.45) {
+          const bannerAlpha = Math.min(1.0, (constellationProgress - 0.45) / 0.35);
+          ctx.save();
+          ctx.globalAlpha = bannerAlpha;
+          ctx.font = '700 13px "Cinzel", serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#fff4d0';
+          ctx.shadowColor = 'rgba(212, 175, 55, 0.9)';
+          ctx.shadowBlur = 14;
+          ctx.fillText(`✦ ${constellation.glyph} ${constellation.name.toUpperCase()} ✦`, w * 0.5, h * 0.88);
+          ctx.font = 'italic 10.5px "Crimson Pro", serif';
+          ctx.fillStyle = '#f3e5ab';
+          ctx.fillText(`${constellation.myth.split('-')[0].trim()}`, w * 0.5, h * 0.94);
+          ctx.restore();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function animate3DCranialScrying(targetCanvas, pts478, constellation, durationMs = 3200) {
+      if (!targetCanvas || !pts478) return Promise.resolve();
+      const normPoints = prepare3DMesh(pts478);
+      currentVisage3DMesh = normPoints;
 
       const startTime = performance.now();
       return new Promise(resolve => {
@@ -2098,7 +2474,23 @@
           const elapsed = now - startTime;
           const progress = Math.min(1.0, elapsed / durationMs);
 
-          renderConstellationFrame(sqCanvas, pts478, constellation, progress);
+          // Full 3D sweep: 0 -> -26 deg -> +26 deg -> 0 deg
+          const yaw = Math.sin(progress * Math.PI * 2) * 0.44;
+          const pitch = -Math.cos(progress * Math.PI * 2) * 0.10 + 0.04;
+
+          // Constellation reveals smoothly between progress 0.25 and 0.95
+          const constelProgress = Math.max(0.0, Math.min(1.0, (progress - 0.25) / 0.65));
+
+          render3DCranialMaskFrame(targetCanvas, normPoints, yaw, pitch, constellation, constelProgress, now);
+
+          // Update stage status text
+          if (progress < 0.35) {
+            if (astralStageStatus) astralStageStatus.textContent = '✦ EXTRAPOLATING 478 CELESTIAL NODES... ✦';
+            if (astralStageSign) astralStageSign.textContent = 'Seeking Astral Resonance...';
+          } else {
+            if (astralStageStatus) astralStageStatus.innerHTML = `✦ ASTRAL ALIGNMENT CONFIRMED: <strong>${constellation.glyph} ${constellation.name.toUpperCase()}</strong> ✦`;
+            if (astralStageSign) astralStageSign.innerHTML = `<span style="color:var(--gold);">${constellation.myth}</span>`;
+          }
 
           if (progress < 1.0) {
             requestAnimationFrame(loop);
@@ -2110,31 +2502,54 @@
       });
     }
 
-    function scrambleTextReveal(el, targetText, durationMs = 450) {
+    function scrambleTextReveal(el, targetText, durationMs = 2400) {
       if (!el || !targetText) return;
-      const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ✦✧☽☼☾☿♀♂♃♄♈♉♊♋♌♍♎♏♐♑♒♓";
+      const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛈᛇᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ✦✧☽☼☾♈♉♊♋♌♍♎♏♐♑♒♓";
       const startTime = performance.now();
       const len = targetText.length;
+      const churnDuration = Math.min(1000, durationMs * 0.42);
+      const resolveDuration = durationMs - churnDuration;
 
       function update(now) {
         const elapsed = now - startTime;
-        const progress = Math.min(1.0, elapsed / durationMs);
-        const revealedChars = Math.floor(progress * len);
-
-        let out = "";
-        for (let i = 0; i < len; i++) {
-          if (targetText[i] === ' ' || targetText[i] === '\n' || i < revealedChars) {
-            out += targetText[i];
-          } else {
-            out += runes[Math.floor(Math.random() * runes.length)];
+        if (elapsed < churnDuration) {
+          // Full runic cipher phase: runes churn across the entire sentence!
+          let out = "";
+          for (let i = 0; i < len; i++) {
+            const c = targetText[i];
+            if (c === ' ' || c === '\n' || c === '-' || c === ',' || c === '.' || c === '(' || c === ')' || c === '/') {
+              out += c;
+            } else {
+              out += runes[Math.floor(Math.random() * runes.length)];
+            }
           }
-        }
-        el.textContent = out;
-
-        if (progress < 1.0) {
+          el.textContent = out;
+          el.classList.add('is-runic-cipher');
           requestAnimationFrame(update);
         } else {
-          el.textContent = targetText;
+          // Progressive letter-by-letter decryption phase from left to right!
+          const resolveProgress = Math.min(1.0, (elapsed - churnDuration) / resolveDuration);
+          const revealedChars = Math.floor(resolveProgress * len);
+
+          let out = "";
+          for (let i = 0; i < len; i++) {
+            const c = targetText[i];
+            if (c === ' ' || c === '\n' || c === '-' || c === ',' || c === '.' || c === '(' || c === ')' || c === '/') {
+              out += c;
+            } else if (i < revealedChars) {
+              out += c;
+            } else {
+              out += runes[Math.floor(Math.random() * runes.length)];
+            }
+          }
+          el.textContent = out;
+
+          if (resolveProgress < 1.0) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = targetText;
+            el.classList.remove('is-runic-cipher');
+          }
         }
       }
       requestAnimationFrame(update);
@@ -2420,6 +2835,17 @@
       const m = item.meta;
       revealContent.style.display = 'block';
 
+      // Draw user countenance onto userMiniCanvas so YOUR MORTAL VESSEL is never dark
+      if (currentActiveSqCanvas) {
+        userMirrorCard.style.display = 'flex';
+        const uctx = userMiniCanvas.getContext('2d');
+        uctx.clearRect(0, 0, 220, 220);
+        uctx.drawImage(currentActiveSqCanvas, 0, 0, 220, 220);
+        if (vesselToggleBtn) vesselToggleBtn.textContent = '🔮 View 3D Astral Mask';
+        isVesselShowing3D = false;
+        if (vessel3DAnimId) cancelAnimationFrame(vessel3DAnimId);
+      }
+
       // Oracle randomly selects one of the 3 available visions for this soul
       const visions = [m.pl, ...(m.pla || [])];
       const chosenStr = visions[Math.floor(Math.random() * visions.length)];
@@ -2433,11 +2859,11 @@
         eraText = eraMatch[2].trim();
       }
 
-      // 1. Text Rune-Scramble Reveal Effect
-      scrambleTextReveal(revealPersona, personaText, 480);
+      // 1. Text Rune-Scramble Reveal Effect (Longer, hypnotic deciphering)
+      scrambleTextReveal(revealPersona, personaText, 2500);
       if (eraText) {
-        revealEra.textContent = eraText;
         revealEra.style.display = 'block';
+        scrambleTextReveal(revealEra, eraText, 1800);
       }
 
       // 2. Generate Astrological Reading, Badges, and Mortal Bars
@@ -2638,6 +3064,7 @@
         }
       }, 340);
 
+      currentActiveSqCanvas = sqCanvas;
       const pts478 = mpRes.faceLandmarks[0];
       const bs = mpRes.faceBlendshapes && mpRes.faceBlendshapes[0];
       activeFaceLandmarks = pts478;
@@ -2646,7 +3073,25 @@
       activeConstellation = ASTRAL_CONSTELLATIONS[Math.floor(Math.random() * ASTRAL_CONSTELLATIONS.length)];
 
       renderBlendshapes(bs);
-      await animateConstellationScrying(sqCanvas, pts478, activeConstellation, 1250);
+
+      // Trigger ascension lift ring on left scrying orb
+      if (cranialLiftRing) {
+        cranialLiftRing.style.display = 'block';
+        cranialLiftRing.style.animation = 'none';
+        void cranialLiftRing.offsetWidth;
+        cranialLiftRing.style.animation = 'cranialLiftAscend 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+      }
+
+      // Show Astral Hologram Stage on right console, hide existing reveal content
+      if (astralScryingStage) astralScryingStage.style.display = 'flex';
+      if (revealContent) revealContent.style.display = 'none';
+
+      // 3D Cranial Hologram Scrying Animation with Constellation Reveal (3.2 seconds)
+      await animate3DCranialScrying(astralHoloCanvas, pts478, activeConstellation, 3200);
+
+      // Hide ascension ring and astral stage
+      if (cranialLiftRing) cranialLiftRing.style.display = 'none';
+      if (astralScryingStage) astralScryingStage.style.display = 'none';
 
       const meshVec = computeWhitenedMeshVector(pts478, bs);
       let arcVec = null;
@@ -3068,6 +3513,33 @@
 
     randomTestBtn.addEventListener('click', summonRandomSoul);
     if (summonAnotherBtn) summonAnotherBtn.addEventListener('click', summonRandomSoul);
+
+    function toggleVesselView() {
+      if (!currentVisage3DMesh || !currentActiveSqCanvas) return;
+      isVesselShowing3D = !isVesselShowing3D;
+      if (isVesselShowing3D) {
+        if (vesselToggleBtn) vesselToggleBtn.textContent = '👤 View Mortal Visage';
+        let startTime = performance.now();
+        function loopVessel3D(now) {
+          if (!isVesselShowing3D) return;
+          const t = now - startTime;
+          const yaw = Math.sin(t * 0.001) * 0.38;
+          const pitch = Math.cos(t * 0.0008) * 0.08;
+          render3DCranialMaskFrame(userMiniCanvas, currentVisage3DMesh, yaw, pitch, activeConstellation, 1.0, now);
+          vessel3DAnimId = requestAnimationFrame(loopVessel3D);
+        }
+        vessel3DAnimId = requestAnimationFrame(loopVessel3D);
+      } else {
+        if (vessel3DAnimId) cancelAnimationFrame(vessel3DAnimId);
+        if (vesselToggleBtn) vesselToggleBtn.textContent = '🔮 View 3D Astral Mask';
+        const uctx = userMiniCanvas.getContext('2d');
+        uctx.clearRect(0, 0, 220, 220);
+        uctx.drawImage(currentActiveSqCanvas, 0, 0, 220, 220);
+      }
+    }
+
+    if (vesselToggleBtn) vesselToggleBtn.addEventListener('click', toggleVesselView);
+    if (userVesselOrb) userVesselOrb.addEventListener('click', toggleVesselView);
 
     filterBar.addEventListener('click', (e) => {
       const btn = e.target.closest('.filter-tab');
