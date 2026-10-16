@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Past Life Portrait Search | Evan Swope</title>
+  <link rel="icon" type="image/png" href="assets/images/favicon2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- ONNX Runtime Web for client-side 512D ArcFace biometric extraction -->
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0908;
+      --panel: #12100e;
+      --panel-2: #181512;
+      --border: #2c2620;
+      --gold: #d4af37;
+      --gold-dim: #8a7329;
+      --crimson: #c84b31;
+      --cyan: #4ea8de;
+      --text: #ece6dc;
+      --muted: #9a9082;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.09) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      color: var(--text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      min-height: 100vh;
+      padding: 24px 22px 60px;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    header {
+      max-width: 1360px;
+      margin: 0 auto 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .eyebrow a {
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--gold-dim);
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 3.6vw, 3.2rem);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+    }
+
+    h1 span {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--gold);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.15rem;
+      margin-top: 6px;
+      max-width: 740px;
+    }
+
+    .status-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 8px 14px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+      transition: all 0.3s ease;
+    }
+
+    .status-dot.ready {
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+    }
+
+    .main-grid {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px;
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .scrying-mirror {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #060504;
+      border: 1px dashed var(--gold-dim);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .scrying-mirror canvas,
+    .scrying-mirror video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mirror-placeholder {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .mirror-placeholder .sigil {
+      font-size: 44px;
+      color: var(--gold);
+      margin-bottom: 10px;
+      opacity: 0.8;
+    }
+
+    .controls-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    button, .file-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 11px 12px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover, .file-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    button.primary, .file-btn.primary {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    input[type="file"] { display: none; }
+
+    .telemetry-box {
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .aligned-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .aligned-thumb {
+      width: 72px;
+      height: 72px;
+      border: 1px solid var(--gold-dim);
+      background: #050505;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .telemetry-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .telemetry-meta strong { color: var(--text); }
+
+    .blendshape-bars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+    }
+
+    .bs-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .bs-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+    }
+
+    .bs-track {
+      height: 4px;
+      background: #070605;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .bs-fill {
+      height: 100%;
+      background: var(--cyan);
+    }
+
+    .vector-barcode {
+      width: 100%;
+      height: 32px;
+      background: #050505;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .vector-raw {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #776e62;
+      background: #070605;
+      border: 1px solid var(--border);
+      padding: 8px;
+      height: 58px;
+      overflow-y: auto;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+
+    .surveillance-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 2px solid var(--crimson);
+      background: rgba(200, 75, 49, 0.06);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      line-height: 1.5;
+      color: #c9b9a6;
+    }
+
+    /* Right Panel */
+    .reveal-banner {
+      background: linear-gradient(135deg, rgba(212,175,55,0.11) 0%, rgba(18,16,14,0.96) 100%);
+      border: 1px solid var(--gold-dim);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .reveal-pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .reveal-headline {
+      font-size: clamp(1.75rem, 2.8vw, 2.55rem);
+      line-height: 1.15;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    .reveal-comparison {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .reveal-comparison { grid-template-columns: 1fr; }
+    }
+
+    .crop-spotlight {
+      position: relative;
+      border: 1px solid var(--gold);
+      background: #050505;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+
+    .crop-spotlight canvas,
+    .crop-spotlight img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .sim-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(10, 9, 8, 0.9);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 8px;
+    }
+
+    .full-artwork-frame {
+      background: #070605;
+      border: 1px solid var(--border);
+      position: relative;
+      min-height: 290px;
+      max-height: 450px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .full-artwork-wrapper {
+      position: relative;
+      display: inline-block;
+      max-height: 440px;
+    }
+
+    .full-artwork-wrapper img {
+      max-width: 100%;
+      max-height: 440px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .bbox-highlight {
+      position: absolute;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.44), 0 0 18px var(--gold);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .artwork-details {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .artwork-meta-list {
+      font-size: 1.08rem;
+      line-height: 1.5;
+      max-width: 78%;
+    }
+
+    .artwork-meta-list span.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    .fun-fact {
+      margin-top: 8px;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.45;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filter-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .filter-tab.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+    }
+
+    .matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 14px;
+    }
+
+    .match-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.16s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .match-card:hover, .match-card.selected {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .match-thumb-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      position: relative;
+      background: #080706;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .match-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .match-card-body {
+      padding: 10px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .match-cat-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .match-title {
+      font-size: 0.98rem;
+      line-height: 1.25;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="eyebrow"><a href="/">← EVANSWOPE.COM</a> // UNLISTED ARCHIVE EXPERIMENT</div>
+      <h1>Past Life <span>Portrait Search</span></h1>
+      <p class="subtitle">
+        478-Point 3D Cranial Topology + 52 Blendshape Muscle Vectors + 512D ArcFace Biometrics across 3,500 pre-1950 portraits, 19th-century daguerreotypes, vintage police mugshots, and uncanny creatures.
+      </p>
+    </div>
+    <div class="status-pill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="dbStatusText">LOADING 3,500 SOULS &amp; 478-PT CRANIAL ENGINE...</span>
+    </div>
+  </header>
+
+  <main class="main-grid">
+    <!-- LEFT COLUMN: SELFIE / WEBCAM & 478-POINT CRANIAL TELEMETRY -->
+    <section class="card">
+      <div class="card-header">
+        <span>I. Vessel Biometric Capture</span>
+        <span id="detConfLabel">478-PT MESH + 512D ARCFACE</span>
+      </div>
+
+      <div class="scrying-mirror" id="mirrorBox">
+        <video id="webcamVideo" autoplay playsinline muted style="display:none;"></video>
+        <canvas id="inputCanvas" style="display:none;"></canvas>
+        <div class="mirror-placeholder" id="mirrorPlaceholder">
+          <div class="sigil">☉</div>
+          <div style="font-size:1.25rem; color:var(--text); margin-bottom:4px;">Offer Your Countenance</div>
+          <div class="mono" style="font-size:11px;">100% Client-Side Biometric &amp; 478-Point Cranial Projection</div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <label class="file-btn primary">
+          <span>↑ Upload Selfie</span>
+          <input type="file" id="fileInput" accept="image/*" />
+        </label>
+        <button id="webcamBtn">◉ Use Webcam</button>
+      </div>
+
+      <div class="controls-row">
+        <button id="snapBtn" style="display:none;" class="primary">⚡ Divine Past Life</button>
+        <button id="randomTestBtn" style="grid-column: span 2;">✦ Test With Random Pre-1950 Archive Face</button>
+      </div>
+
+      <div class="telemetry-box">
+        <div class="card-header" style="margin-bottom:10px;">
+          <span>II. What The Machine Sees</span>
+          <span>478 CRANIAL PTS + 512D HASH</span>
+        </div>
+
+        <div class="aligned-row">
+          <canvas id="alignedCanvas" class="aligned-thumb" width="112" height="112"></canvas>
+          <div class="telemetry-meta" id="telemetryText">
+            <strong>Topology:</strong> 478 3D Landmarks + 52 Blendshapes<br/>
+            <strong>Identity:</strong> 512D ArcFace (Affine 112×112 Crop)<br/>
+            <strong>Privacy:</strong> Computed locally in your browser via WebAssembly.
+          </div>
+        </div>
+
+        <div class="blendshape-bars" id="blendshapeBars"></div>
+
+        <canvas id="barcodeCanvas" class="vector-barcode" width="380" height="32"></canvas>
+        <div class="vector-raw" id="vectorRawBox">[512D ArcFace + 144D Whitened Cranial Ratio Vector will materialize here upon capture]</div>
+
+        <div class="surveillance-note">
+          <strong>SURVEILLANCE ANATOMY:</strong> A 5-point crop can be fooled by eyeglasses or oil-paint shadows. By projecting a <strong>478-point 3D cranial wireframe</strong> alongside a <strong>512D ArcFace biometric vector</strong>, the engine measures pure bone-structure ratios (interpupillary distance, jaw taper, nose bridge, brow arch, and smile curvature) across 3,500 pre-1950 souls.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: REVEAL & FILTERABLE ARCHIVE -->
+    <section>
+      <div class="reveal-banner" id="revealBanner">
+        <div class="reveal-pre" id="revealPre">AKASHIC RESONANCE // TOP REINCARNATION MATCH</div>
+        <div class="reveal-headline" id="revealHeadline">
+          Upload a selfie or click <em>“Test With Random Pre-1950 Archive Face”</em> to divine your historical twin.
+        </div>
+
+        <div class="reveal-comparison" id="revealContent" style="display:none;">
+          <div>
+            <div class="crop-spotlight">
+              <canvas id="bestCropCanvas" width="260" height="260"></canvas>
+              <div class="sim-badge" id="bestSimBadge">96.4% MATCH</div>
+            </div>
+            <div class="mono" style="font-size:10px; color:var(--muted); margin-top:8px; text-align:center;" id="scoreBreakdownText">
+              CRANIAL TOPOLOGY + 512D BIOMETRIC FUSION
+            </div>
+          </div>
+
+          <div>
+            <div class="full-artwork-frame">
+              <div class="full-artwork-wrapper">
+                <img id="bestFullImg" src="" alt="Full historical artwork" />
+                <div id="bboxOverlay" class="bbox-highlight"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="artwork-details" id="artworkDetails" style="display:none;">
+          <div class="artwork-meta-list">
+            <div><span class="label">Work Title:</span> <strong id="metaTitle"></strong></div>
+            <div><span class="label">Era / Date:</span> <span id="metaDate"></span> &nbsp;|&nbsp; <span class="label">Creator:</span> <span id="metaArtist"></span></div>
+            <div><span class="label">Medium &amp; Archive:</span> <span id="metaMedium"></span> (<span id="metaSource"></span>)</div>
+            <div class="fun-fact" id="metaFunFact"></div>
+          </div>
+          <a id="metaSourceLink" href="#" target="_blank" rel="noopener" class="file-btn" style="text-decoration:none;">
+            View Museum Record ↗
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>III. Closest Souls Across 3,500 Pre-1950 Portraits</span>
+          <span id="filterCountLabel">TOP 12 MATCHES</span>
+        </div>
+
+        <div class="filter-bar" id="filterBar">
+          <button class="filter-tab active" data-cat="all">All Incarnations (3,500)</button>
+          <button class="filter-tab" data-cat="portrait">Paintings &amp; Sculptures (2,430)</button>
+          <button class="filter-tab" data-cat="daguerreotype">Daguerreotypes &amp; Photos (671)</button>
+          <button class="filter-tab" data-cat="mugshot">1900s Mugshots (141)</button>
+          <button class="filter-tab" data-cat="animal_or_creature">Beasts &amp; Pareidolia (258)</button>
+        </div>
+
+        <div class="matches-grid" id="matchesGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm";
+
+    // Asset base path: works both on evanswope.com/past-life and localhost:8765
+    const ASSET_BASE = window.location.port === '8765' ? 'data' : 'assets/past-life';
+    const MODEL_BASE = window.location.port === '8765' ? 'models' : 'assets/past-life/models';
+
+    // Same 64 key anatomical landmarks used in Python upgrade_archive_478.py
+    const KEY_LANDMARK_INDICES = [
+      10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377,
+      152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,
+      33, 133, 159, 145, 362, 263, 386, 374,
+      70, 63, 105, 107, 336, 296, 334, 300,
+      168, 6, 1, 2, 98, 327,
+      61, 291, 0, 17, 13, 14
+    ];
+
+    const statusDot = document.getElementById('statusDot');
+    const dbStatusText = document.getElementById('dbStatusText');
+    const detConfLabel = document.getElementById('detConfLabel');
+    const fileInput = document.getElementById('fileInput');
+    const webcamBtn = document.getElementById('webcamBtn');
+    const snapBtn = document.getElementById('snapBtn');
+    const randomTestBtn = document.getElementById('randomTestBtn');
+    const webcamVideo = document.getElementById('webcamVideo');
+    const inputCanvas = document.getElementById('inputCanvas');
+    const mirrorPlaceholder = document.getElementById('mirrorPlaceholder');
+    const alignedCanvas = document.getElementById('alignedCanvas');
+    const telemetryText = document.getElementById('telemetryText');
+    const blendshapeBars = document.getElementById('blendshapeBars');
+    const barcodeCanvas = document.getElementById('barcodeCanvas');
+    const vectorRawBox = document.getElementById('vectorRawBox');
+
+    const revealPre = document.getElementById('revealPre');
+    const revealHeadline = document.getElementById('revealHeadline');
+    const revealContent = document.getElementById('revealContent');
+    const artworkDetails = document.getElementById('artworkDetails');
+    const bestCropCanvas = document.getElementById('bestCropCanvas');
+    const bestSimBadge = document.getElementById('bestSimBadge');
+    const scoreBreakdownText = document.getElementById('scoreBreakdownText');
+    const bestFullImg = document.getElementById('bestFullImg');
+    const bboxOverlay = document.getElementById('bboxOverlay');
+
+    const metaTitle = document.getElementById('metaTitle');
+    const metaDate = document.getElementById('metaDate');
+    const metaArtist = document.getElementById('metaArtist');
+    const metaMedium = document.getElementById('metaMedium');
+    const metaSource = document.getElementById('metaSource');
+    const metaFunFact = document.getElementById('metaFunFact');
+    const metaSourceLink = document.getElementById('metaSourceLink');
+    const matchesGrid = document.getElementById('matchesGrid');
+    const filterBar = document.getElementById('filterBar');
+
+    let archiveMeta = null;
+    let arcfaceMatrix = null; // Float32Array (3500 * 512)
+    let meshMatrix = null;    // Float32Array (3500 * 144)
+    let faceLandmarker = null;
+    let arcfaceSession = null;
+
+    let currentCategory = 'all';
+    let currentStream = null;
+    let lastQueryState = null; // { arcVec, meshVec }
+
+    // Convert Uint16 IEEE 754 half-precision array to Float32Array
+    function float16ToFloat32(uint16Arr) {
+      const out = new Float32Array(uint16Arr.length);
+      for (let i = 0; i < uint16Arr.length; i++) {
+        const h = uint16Arr[i];
+        const s = (h & 0x8000) >> 15;
+        const e = (h & 0x7C00) >> 10;
+        const f = h & 0x03FF;
+        if (e === 0) {
+          out[i] = (s ? -1 : 1) * Math.pow(2, -14) * (f / 1024);
+        } else if (e === 0x1F) {
+          out[i] = f ? NaN : ((s ? -1 : 1) * Infinity);
+        } else {
+          out[i] = (s ? -1 : 1) * Math.pow(2, e - 15) * (1 + f / 1024);
+        }
+      }
+      return out;
+    }
+
+    async function initEngine() {
+      try {
+        dbStatusText.textContent = 'LOADING 3,500 ARCHIVE VECTORS...';
+        const [metaRes, arcBuf, meshBuf] = await Promise.all([
+          fetch(`${ASSET_BASE}/metadata_compact.json`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/arcface_f16.bin`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_f16.bin`).then(r => r.arrayBuffer()),
+        ]);
+
+        archiveMeta = metaRes;
+        arcfaceMatrix = float16ToFloat32(new Uint16Array(arcBuf));
+        meshMatrix = float16ToFloat32(new Uint16Array(meshBuf));
+
+        renderInitialGallery();
+
+        dbStatusText.textContent = 'INITIALIZING 478-PT MEDIAPIPE & 512D ARCFACE...';
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+        );
+        const mpModelUrl = window.location.port === '8765'
+          ? `${MODEL_BASE}/face_landmarker.task`
+          : "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+        faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: mpModelUrl,
+            delegate: "GPU"
+          },
+          outputFaceBlendshapes: true,
+          runningMode: "IMAGE",
+          numFaces: 1,
+          minFaceDetectionConfidence: 0.2,
+          minFacePresenceConfidence: 0.2
+        });
+
+        ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/";
+        try {
+          const onnxUrl = window.location.port === '8765'
+            ? `${MODEL_BASE}/w600k_mbf.onnx`
+            : "https://huggingface.co/WePrompt/buffalo_sc/resolve/main/w600k_mbf.onnx";
+          arcfaceSession = await ort.InferenceSession.create(onnxUrl, {
+            executionProviders: ['wasm']
+          });
+        } catch (onnxErr) {
+          console.warn('ArcFace ONNX CDN fallback to 478-Point Mesh engine:', onnxErr);
+          arcfaceSession = null;
+        }
+
+        statusDot.classList.add('ready');
+        dbStatusText.textContent = `3,500 PRE-1950 SOULS READY (478-PT MESH + 512D ARCFACE)`;
+      } catch (err) {
+        console.error('Init error:', err);
+        dbStatusText.textContent = 'ARCHIVE READY (FALLBACK MODE)';
+      }
+    }
+
+    // Exact JS port of Python extract_mesh_descriptor + Z-score whitening
+    function computeWhitenedMeshVector(pts478, blendshapes) {
+      const lx = (pts478[33].x + pts478[133].x) * 0.5;
+      const ly = (pts478[33].y + pts478[133].y) * 0.5;
+      const rx = (pts478[362].x + pts478[263].x) * 0.5;
+      const ry = (pts478[362].y + pts478[263].y) * 0.5;
+      const dx = rx - lx, dy = ry - ly;
+      const iod = Math.hypot(dx, dy) + 1e-6;
+      const angle = Math.atan2(dy, dx);
+      const cosA = Math.cos(-angle), sinA = Math.sin(-angle);
+      const cx = (lx + rx) * 0.5, cy = (ly + ry) * 0.5;
+
+      const pts2d = pts478.map(p => {
+        const px = p.x - cx, py = p.y - cy;
+        return [
+          (px * cosA - py * sinA) / iod,
+          (px * sinA + py * cosA) / iod
+        ];
+      });
+
+      const dist = (i, j) => Math.hypot(pts2d[i][0] - pts2d[j][0], pts2d[i][1] - pts2d[j][1]);
+
+      const raw = new Float32Array(144);
+      for (let k = 0; k < 64; k++) {
+        const idx = KEY_LANDMARK_INDICES[k];
+        raw[k * 2] = pts2d[idx][0] * 0.35;
+        raw[k * 2 + 1] = pts2d[idx][1] * 0.35;
+      }
+
+      const faceH = dist(10, 152);
+      const cheekW = dist(234, 454);
+      const jawW = dist(172, 397);
+      const chinH = dist(17, 152);
+      const noseH = dist(168, 2);
+      const noseW = dist(98, 327);
+      const mouthW = dist(61, 291);
+      const mouthOpen = dist(13, 14);
+      const lipFull = dist(0, 17);
+      const lEyeAspect = dist(159, 145) / (dist(33, 133) + 1e-5);
+      const rEyeAspect = dist(386, 374) / (dist(362, 263) + 1e-5);
+      const eyeAspect = (lEyeAspect + rEyeAspect) * 0.5;
+      const browLift = ((pts2d[33][1] - pts2d[105][1]) + (pts2d[263][1] - pts2d[334][1])) * 0.5;
+      const mouthCenterY = (pts2d[13][1] + pts2d[14][1]) * 0.5;
+      const mouthCornersY = (pts2d[61][1] + pts2d[291][1]) * 0.5;
+      const smileCurve = (mouthCenterY - mouthCornersY) * 3.0;
+      const cheekMidX = (pts2d[234][0] + pts2d[454][0]) * 0.5;
+      const yaw = (pts2d[1][0] - cheekMidX) * 2.0;
+      const pitch = ((pts2d[1][1] - pts2d[168][1]) / (faceH + 1e-5) - 0.35) * 2.5;
+
+      let bsSmile = 0, bsSquint = 0;
+      if (blendshapes && blendshapes.categories) {
+        const map = {};
+        blendshapes.categories.forEach(c => map[c.categoryName] = c.score);
+        bsSmile = ((map.mouthSmileLeft || 0) + (map.mouthSmileRight || 0)) * 0.5;
+        bsSquint = ((map.eyeSquintLeft || 0) + (map.eyeSquintRight || 0)) * 0.5;
+      }
+
+      const ratios = [
+        faceH * 0.5, cheekW * 0.5, jawW / (cheekW + 1e-5), chinH / (faceH + 1e-5) * 3.0,
+        noseH / (faceH + 1e-5) * 3.0, noseW * 1.5, mouthW * 1.2, mouthOpen * 2.5,
+        lipFull * 2.0, eyeAspect * 3.0, browLift * 2.0, smileCurve, yaw, pitch,
+        bsSmile * 1.5, bsSquint * 1.5
+      ];
+      for (let r = 0; r < 16; r++) raw[128 + r] = ratios[r];
+
+      // L2 normalize raw
+      let norm = 0;
+      for (let i = 0; i < 144; i++) norm += raw[i] * raw[i];
+      norm = Math.sqrt(norm) + 1e-8;
+      for (let i = 0; i < 144; i++) raw[i] /= norm;
+
+      // Apply Z-score whitening from archive mean/std
+      const mean = archiveMeta.mesh_mean;
+      const std = archiveMeta.mesh_std;
+      const z = new Float32Array(144);
+      let zNorm = 0;
+      for (let i = 0; i < 144; i++) {
+        let val = (raw[i] - mean[i]) / (std[i] + 1e-5);
+        if (i >= 128) val *= 2.2;
+        z[i] = val;
+        zNorm += val * val;
+      }
+      zNorm = Math.sqrt(zNorm) + 1e-8;
+      for (let i = 0; i < 144; i++) z[i] /= zNorm;
+      return z;
+    }
+
+    // Align face to 112x112 on alignedCanvas using eye/mouth geometry and run 512D ArcFace ONNX
+    async function extractArcFace512FromLandmarks(sourceCanvas, pts478) {
+      const w = sourceCanvas.width, h = sourceCanvas.height;
+      const lx = (pts478[33].x + pts478[133].x) * 0.5 * w;
+      const ly = (pts478[33].y + pts478[133].y) * 0.5 * h;
+      const rx = (pts478[362].x + pts478[263].x) * 0.5 * w;
+      const ry = (pts478[362].y + pts478[263].y) * 0.5 * h;
+
+      const dx = rx - lx, dy = ry - ly;
+      const distEyes = Math.hypot(dx, dy) + 1e-5;
+      const angle = Math.atan2(dy, dx);
+      // In canonical 112x112 ArcFace, eye distance is ~35.24px, eye midpoint is at (55.9, 51.6)
+      const scale = 35.24 / distEyes;
+      const midX = (lx + rx) * 0.5;
+      const midY = (ly + ry) * 0.5;
+
+      const ctx = alignedCanvas.getContext('2d');
+      ctx.save();
+      ctx.clearRect(0, 0, 112, 112);
+      ctx.translate(55.9, 51.6);
+      ctx.rotate(-angle);
+      ctx.scale(scale, scale);
+      ctx.translate(-midX, -midY);
+      ctx.drawImage(sourceCanvas, 0, 0);
+      ctx.restore();
+
+      const imgData = ctx.getImageData(0, 0, 112, 112).data;
+      const floatData = new Float32Array(3 * 112 * 112);
+      const area = 112 * 112;
+      for (let i = 0; i < area; i++) {
+        floatData[i] = (imgData[i * 4] - 127.5) / 127.5;           // R
+        floatData[area + i] = (imgData[i * 4 + 1] - 127.5) / 127.5; // G
+        floatData[2 * area + i] = (imgData[i * 4 + 2] - 127.5) / 127.5; // B
+      }
+
+      const tensor = new ort.Tensor('float32', floatData, [1, 3, 112, 112]);
+      const results = await arcfaceSession.run({ 'input.1': tensor });
+      const outKey = Object.keys(results)[0];
+      const rawVec = results[outKey].data;
+      const vec = new Float32Array(512);
+      let norm = 0;
+      for (let i = 0; i < 512; i++) norm += rawVec[i] * rawVec[i];
+      norm = Math.sqrt(norm) + 1e-8;
+      for (let i = 0; i < 512; i++) vec[i] = rawVec[i] / norm;
+      return vec;
+    }
+
+    function draw478MeshOnCanvas(imgEl, pts478) {
+      inputCanvas.style.display = 'block';
+      webcamVideo.style.display = 'none';
+      mirrorPlaceholder.style.display = 'none';
+
+      const size = 600;
+      inputCanvas.width = size;
+      inputCanvas.height = size;
+      const ctx = inputCanvas.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0, size, size);
+
+      if (!pts478 || pts478.length === 0) return;
+
+      // Draw all 478 3D cranial points
+      ctx.fillStyle = 'rgba(78, 168, 222, 0.72)';
+      for (let i = 0; i < pts478.length; i++) {
+        const x = pts478[i].x * size;
+        const y = pts478[i].y * size;
+        ctx.fillRect(x - 1, y - 1, 2.2, 2.2);
+      }
+
+      // Draw golden contour rings for jawline, eyes, brows, nose bridge, and lips
+      const rings = [
+        [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10],
+        [33, 160, 158, 133, 153, 144, 33],
+        [362, 385, 387, 263, 373, 380, 362],
+        [70, 63, 105, 66, 107],
+        [336, 296, 334, 293, 300],
+        [168, 6, 197, 195, 5, 4, 1, 2],
+        [61, 40, 37, 0, 267, 270, 291, 321, 314, 17, 84, 181, 61]
+      ];
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.85)';
+      ctx.lineWidth = 1.4;
+      for (const ring of rings) {
+        ctx.beginPath();
+        ring.forEach((idx, k) => {
+          const x = pts478[idx].x * size;
+          const y = pts478[idx].y * size;
+          if (k === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+    }
+
+    function renderBlendshapes(blendshapes) {
+      blendshapeBars.innerHTML = '';
+      if (!blendshapes || !blendshapes.categories) return;
+      const top = blendshapes.categories
+        .filter(c => c.categoryName !== '_neutral')
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6);
+
+      top.forEach(b => {
+        const pct = Math.round(b.score * 100);
+        const div = document.createElement('div');
+        div.className = 'bs-item';
+        div.innerHTML = `
+          <div class="bs-label"><span>${b.categoryName}</span><span>${pct}%</span></div>
+          <div class="bs-track"><div class="bs-fill" style="width:${pct}%"></div></div>
+        `;
+        blendshapeBars.appendChild(div);
+      });
+    }
+
+    function drawVectorBarcode(vec) {
+      const ctx = barcodeCanvas.getContext('2d');
+      const w = barcodeCanvas.width, h = barcodeCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const len = Math.min(128, vec.length);
+      const barW = w / len;
+      for (let i = 0; i < len; i++) {
+        const norm = Math.max(0, Math.min(1, (vec[i] + 0.18) / 0.36));
+        const r = Math.round(40 + norm * 195);
+        const g = Math.round(30 + norm * 145);
+        const b = Math.round(25 + (1 - norm) * 120);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(i * barW, 0, Math.ceil(barW), h);
+      }
+    }
+
+    function rankArchiveMatches(arcVec, meshVec, excludeIndex = -1) {
+      const N = archiveMeta.count;
+      const faces = archiveMeta.faces;
+      const arcSims = new Float32Array(N);
+      const meshSims = new Float32Array(N);
+
+      let arcSum = 0, arcSumSq = 0;
+      let meshSum = 0, meshSumSq = 0, meshCount = 0;
+
+      for (let i = 0; i < N; i++) {
+        if (arcVec) {
+          let aDot = 0;
+          const aOff = i * 512;
+          for (let d = 0; d < 512; d++) aDot += arcfaceMatrix[aOff + d] * arcVec[d];
+          arcSims[i] = aDot;
+          arcSum += aDot;
+          arcSumSq += aDot * aDot;
+        }
+
+        if (meshVec && faces[i].hm) {
+          let mDot = 0;
+          const mOff = i * 144;
+          for (let d = 0; d < 144; d++) mDot += meshMatrix[mOff + d] * meshVec[d];
+          meshSims[i] = mDot;
+          meshSum += mDot;
+          meshSumSq += mDot * mDot;
+          meshCount++;
+        }
+      }
+
+      const arcMean = arcVec ? arcSum / N : 0;
+      const arcStd = arcVec ? Math.sqrt(Math.max(1e-8, arcSumSq / N - arcMean * arcMean)) : 1;
+      const meshMean = meshCount > 0 ? meshSum / meshCount : 0;
+      const meshStd = meshCount > 0 ? Math.sqrt(Math.max(1e-8, meshSumSq / meshCount - meshMean * meshMean)) : 1;
+
+      const candidates = [];
+      for (let i = 0; i < N; i++) {
+        if (i === excludeIndex) continue;
+        const f = faces[i];
+        if (currentCategory !== 'all' && f.c !== currentCategory) continue;
+
+        const aZ = arcVec ? (arcSims[i] - arcMean) / arcStd : 0;
+        const mZ = (meshVec && f.hm) ? (meshSims[i] - meshMean) / meshStd : -0.6;
+        const zScore = (arcVec && meshVec) ? (0.52 * aZ + 0.48 * mZ) : (meshVec ? mZ : aZ);
+
+        // Calibrated 85%–99.6% biometric + geometric percentile
+        const resonancePct = Math.min(99.6, Math.max(58.0,
+          Math.round((84.5 + 14.8 / (1 + Math.exp(-1.15 * (zScore - 2.05)))) * 10) / 10
+        ));
+
+        candidates.push({
+          index: i,
+          meta: f,
+          zScore,
+          resonancePct,
+          arcSim: arcSims[i],
+          meshSim: meshSims[i]
+        });
+      }
+
+      candidates.sort((a, b) => b.zScore - a.zScore);
+
+      // Deduplicate by title in top 12
+      const top = [];
+      const seenTitles = new Set();
+      for (const c of candidates) {
+        const key = c.meta.t.toLowerCase().slice(0, 35);
+        if (seenTitles.has(key)) continue;
+        seenTitles.add(key);
+        top.push(c);
+        if (top.length >= 12) break;
+      }
+      return top;
+    }
+
+    // Draw padded face crop from full museum image onto canvas using bbox_norm
+    function drawFaceCropToCanvas(imgUrl, bboxNorm, targetCanvas) {
+      const ctx = targetCanvas.getContext('2d');
+      ctx.fillStyle = '#080706';
+      ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const iw = img.naturalWidth, ih = img.naturalHeight;
+        const [bx, by, bw, bh] = bboxNorm;
+        const pad = 0.4;
+        const cx = (bx + bw * 0.5) * iw;
+        const cy = (by + bh * 0.5) * ih;
+        const side = Math.max(bw * iw, bh * ih) * (1 + pad * 2);
+        const sx = Math.max(0, cx - side * 0.5);
+        const sy = Math.max(0, cy - side * 0.5);
+        const sw = Math.min(iw - sx, side);
+        const sh = Math.min(ih - sy, side);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetCanvas.width, targetCanvas.height);
+      };
+      img.src = imgUrl;
+    }
+
+    function selectMatchForReveal(item) {
+      const m = item.meta;
+      revealContent.style.display = 'grid';
+      artworkDetails.style.display = 'flex';
+
+      revealPre.textContent = `AKASHIC RECORD #${m.id.toUpperCase()} // ${m.c.toUpperCase()}`;
+      revealHeadline.innerHTML = `In a past life, you were... <span style="color:var(--gold); font-style:italic;">${m.pl}</span>`;
+
+      drawFaceCropToCanvas(m.iu, m.bb, bestCropCanvas);
+      bestSimBadge.textContent = item.resonancePct
+        ? `${item.resonancePct.toFixed(1)}% RESONANCE`
+        : `ARCHIVE RECORD`;
+
+      if (item.zScore !== undefined) {
+        scoreBreakdownText.textContent = `Z-SCORE +${item.zScore.toFixed(2)}σ  |  478-MESH: ${item.meshSim.toFixed(2)}  |  512D ARCFACE: ${item.arcSim.toFixed(2)}`;
+      }
+
+      bestFullImg.src = m.iu;
+      const [bx, by, bw, bh] = m.bb;
+      bboxOverlay.style.left = `${bx * 100}%`;
+      bboxOverlay.style.top = `${by * 100}%`;
+      bboxOverlay.style.width = `${bw * 100}%`;
+      bboxOverlay.style.height = `${bh * 100}%`;
+
+      metaTitle.textContent = m.t;
+      metaDate.textContent = m.d;
+      metaArtist.textContent = m.a;
+      metaMedium.textContent = m.m;
+      metaSource.textContent = m.s;
+      metaFunFact.textContent = m.f || '';
+      metaSourceLink.href = m.su;
+
+      document.querySelectorAll('.match-card').forEach(el => {
+        el.classList.toggle('selected', el.dataset.faceId === m.id);
+      });
+    }
+
+    function renderMatchesGrid(items) {
+      matchesGrid.innerHTML = '';
+      items.forEach((item, idx) => {
+        const m = item.meta;
+        const card = document.createElement('div');
+        card.className = 'match-card' + (idx === 0 ? ' selected' : '');
+        card.dataset.faceId = m.id;
+        const badge = item.resonancePct ? `${item.resonancePct.toFixed(1)}%` : m.d;
+
+        card.innerHTML = `
+          <div class="match-thumb-wrap">
+            <canvas width="180" height="180"></canvas>
+          </div>
+          <div class="match-card-body">
+            <div class="match-cat-row">
+              <span>${m.c.replace('_or_creature', '')}</span>
+              <span>${badge}</span>
+            </div>
+            <div class="match-title">${m.pl}</div>
+          </div>
+        `;
+        const cnv = card.querySelector('canvas');
+        drawFaceCropToCanvas(m.iu, m.bb, cnv);
+        card.addEventListener('click', () => selectMatchForReveal(item));
+        matchesGrid.appendChild(card);
+      });
+    }
+
+    function renderInitialGallery() {
+      if (!archiveMeta) return;
+      const faces = archiveMeta.faces;
+      const sample = [];
+      const step = Math.floor(faces.length / 12);
+      for (let i = 0; i < 12; i++) {
+        sample.push({ meta: faces[i * step], resonancePct: null });
+      }
+      renderMatchesGrid(sample);
+    }
+
+    async function processUserCanvas(sqCanvas) {
+      detConfLabel.textContent = 'SCANNING 478 CRANIAL POINTS...';
+
+      if (!faceLandmarker) {
+        alert('478-Point Cranial Engine is still initializing—give it 2 seconds and try again.');
+        return;
+      }
+
+      const mpRes = faceLandmarker.detect(sqCanvas);
+      if (!mpRes.faceLandmarks || mpRes.faceLandmarks.length === 0) {
+        detConfLabel.textContent = 'NO FACE LOCKED';
+        alert('Could not lock 478-point mesh on this photo. Try a clearer front-facing portrait.');
+        return;
+      }
+
+      const pts478 = mpRes.faceLandmarks[0];
+      const bs = mpRes.faceBlendshapes && mpRes.faceBlendshapes[0];
+
+      draw478MeshOnCanvas(sqCanvas, pts478);
+      renderBlendshapes(bs);
+
+      const meshVec = computeWhitenedMeshVector(pts478, bs);
+      let arcVec = null;
+      if (arcfaceSession) {
+        arcVec = await extractArcFace512FromLandmarks(sqCanvas, pts478);
+      } else {
+        // Still render aligned 112x112 preview on alignedCanvas
+        const w = sqCanvas.width, h = sqCanvas.height;
+        const lx = (pts478[33].x + pts478[133].x) * 0.5 * w;
+        const ly = (pts478[33].y + pts478[133].y) * 0.5 * h;
+        const rx = (pts478[362].x + pts478[263].x) * 0.5 * w;
+        const ry = (pts478[362].y + pts478[263].y) * 0.5 * h;
+        const scale = 35.24 / (Math.hypot(rx - lx, ry - ly) + 1e-5);
+        const angle = Math.atan2(ry - ly, rx - lx);
+        const ctx = alignedCanvas.getContext('2d');
+        ctx.save();
+        ctx.clearRect(0, 0, 112, 112);
+        ctx.translate(55.9, 51.6);
+        ctx.rotate(-angle);
+        ctx.scale(scale, scale);
+        ctx.translate(-(lx + rx) * 0.5, -(ly + ry) * 0.5);
+        ctx.drawImage(sqCanvas, 0, 0);
+        ctx.restore();
+      }
+
+      const activeVec = arcVec || meshVec;
+      lastQueryState = { arcVec, meshVec, excludeIndex: -1 };
+      drawVectorBarcode(activeVec);
+      vectorRawBox.textContent = `[Cranial & Biometric Vector]: [${Array.from(activeVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
+
+      const topMatches = rankArchiveMatches(arcVec, meshVec);
+      detConfLabel.textContent = `LOCKED: 478 CRANIAL PTS`;
+      telemetryText.innerHTML = `
+        <strong>478-Pt Mesh:</strong> Procrustes + 16 Cranial Ratios<br/>
+        <strong>512D ArcFace:</strong> ${arcVec ? 'Affine 112×112 Neural Hash' : '478-Pt Geometric Mode'}<br/>
+        <strong>Top Resonance:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% (+${topMatches[0]?.zScore.toFixed(2)}σ)
+      `;
+
+      renderMatchesGrid(topMatches);
+      if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
+    }
+
+    // Upload handler
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      stopWebcam();
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const sq = document.createElement('canvas');
+          sq.width = 600; sq.height = 600;
+          const sctx = sq.getContext('2d');
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          sctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, 600, 600);
+          processUserCanvas(sq);
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function stopWebcam() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+        currentStream = null;
+      }
+      webcamVideo.style.display = 'none';
+      snapBtn.style.display = 'none';
+    }
+
+    webcamBtn.addEventListener('click', async () => {
+      if (currentStream) {
+        stopWebcam();
+        return;
+      }
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 640 } });
+        webcamVideo.srcObject = currentStream;
+        webcamVideo.style.display = 'block';
+        inputCanvas.style.display = 'none';
+        mirrorPlaceholder.style.display = 'none';
+        snapBtn.style.display = 'inline-flex';
+      } catch (err) {
+        alert('Could not access webcam: ' + err.message);
+      }
+    });
+
+    snapBtn.addEventListener('click', () => {
+      if (!currentStream) return;
+      const sq = document.createElement('canvas');
+      sq.width = 600; sq.height = 600;
+      const sctx = sq.getContext('2d');
+      const vw = webcamVideo.videoWidth, vh = webcamVideo.videoHeight;
+      const minSide = Math.min(vw, vh);
+      sctx.drawImage(webcamVideo, (vw - minSide) / 2, (vh - minSide) / 2, minSide, minSide, 0, 0, 600, 600);
+      stopWebcam();
+      processUserCanvas(sq);
+    });
+
+    // Random Archive Test
+    randomTestBtn.addEventListener('click', () => {
+      if (!archiveMeta || !arcfaceMatrix) return;
+      stopWebcam();
+      // Pick a random face that has a 478-point mesh
+      let randIdx = Math.floor(Math.random() * archiveMeta.count);
+      for (let tries = 0; tries < 20; tries++) {
+        if (archiveMeta.faces[randIdx].hm) break;
+        randIdx = Math.floor(Math.random() * archiveMeta.count);
+      }
+      const seed = archiveMeta.faces[randIdx];
+      const arcVec = arcfaceMatrix.subarray(randIdx * 512, (randIdx + 1) * 512);
+      const meshVec = seed.hm ? meshMatrix.subarray(randIdx * 144, (randIdx + 1) * 144) : null;
+
+      lastQueryState = { arcVec, meshVec, excludeIndex: randIdx };
+      inputCanvas.style.display = 'block';
+      webcamVideo.style.display = 'none';
+      mirrorPlaceholder.style.display = 'none';
+      inputCanvas.width = 600; inputCanvas.height = 600;
+      drawFaceCropToCanvas(seed.iu, seed.bb, inputCanvas);
+      drawFaceCropToCanvas(seed.iu, seed.bb, alignedCanvas);
+
+      drawVectorBarcode(arcVec);
+      vectorRawBox.textContent = `[Query Seed #${seed.id}]: [${Array.from(arcVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
+
+      const topMatches = rankArchiveMatches(arcVec, meshVec, randIdx);
+      detConfLabel.textContent = `SEED: ${seed.id.toUpperCase()}`;
+      telemetryText.innerHTML = `
+        <strong>Seed Portrait:</strong> ${seed.t.slice(0, 34)}<br/>
+        <strong>478-Pt Mesh + 512D:</strong> Active<br/>
+        <strong>Top Twin Resonance:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% (${topMatches[0]?.zScore.toFixed(2)}σ)
+      `;
+      renderMatchesGrid(topMatches);
+      if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
+    });
+
+    filterBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.cat;
+
+      if (lastQueryState) {
+        const topMatches = rankArchiveMatches(lastQueryState.arcVec, lastQueryState.meshVec, lastQueryState.excludeIndex);
+        renderMatchesGrid(topMatches);
+        if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
+      } else if (archiveMeta) {
+        const filtered = archiveMeta.faces
+          .filter(f => currentCategory === 'all' || f.c === currentCategory)
+          .slice(0, 12)
+          .map(f => ({ meta: f, resonancePct: null }));
+        renderMatchesGrid(filtered);
+        if (filtered.length > 0) selectMatchForReveal(filtered[0]);
+      }
+    });
+
+    initEngine();
+  </script>
+</body>
+</html>
