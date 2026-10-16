@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
   <title>Past Life Portrait Search | Evan Swope</title>
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1094,8 +1095,8 @@
     async function loadArcfaceBuffer() {
       try {
         const [b0, b1] = await Promise.all([
-          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=6`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=6`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=7`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=7`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
         ]);
         const a0 = new Int8Array(b0);
         const a1 = new Int8Array(b1);
@@ -1104,7 +1105,7 @@
         merged.set(a1, a0.length);
         return merged;
       } catch (_) {
-        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=6`).then(r => r.arrayBuffer());
+        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=7`).then(r => r.arrayBuffer());
         return new Int8Array(buf);
       }
     }
@@ -1132,9 +1133,9 @@
       try {
         dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
         const [metaRes, arcInt8, meshBuf] = await Promise.all([
-          fetch(`${ASSET_BASE}/metadata_compact.json?v=6`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/metadata_compact.json?v=7`).then(r => r.json()),
           loadArcfaceBuffer(),
-          fetch(`${ASSET_BASE}/mesh_i8.bin?v=6`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin?v=7`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
@@ -1506,12 +1507,37 @@
       return top;
     }
 
+    function getFallbackImageUrl(url) {
+      if (!url) return '';
+      const clean = url.split('?utm_')[0];
+      const wikiMatch = clean.match(/https:\/\/thumb\.wikimedia\.org\/wikipedia\/commons\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/.*/i);
+      if (wikiMatch) {
+        return `https://upload.wikimedia.org/wikipedia/commons/${wikiMatch[1]}`;
+      }
+      return clean;
+    }
+
     // Pure CSS-cropped <img> element: works across ALL museum CDNs without CORS canvas tainting!
     function renderCssFaceCrop(imgUrl, bboxNorm, containerEl) {
       containerEl.innerHTML = '';
+      const cleanUrl = (imgUrl || '').split('?utm_')[0];
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.alt = 'Historical face crop';
+      img.referrerPolicy = 'no-referrer';
+
+      let retried = false;
+      img.onerror = () => {
+        if (!retried) {
+          retried = true;
+          const fallback = getFallbackImageUrl(cleanUrl);
+          if (fallback && fallback !== img.src) {
+            img.src = fallback;
+            return;
+          }
+        }
+        containerEl.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#14171d; color:var(--gold); font-size:10px; font-family:\'Cinzel\',serif; text-transform:uppercase;">✦ Spirit Veiled ✦</div>';
+      };
 
       const applyCrop = () => {
         const iw = img.naturalWidth || 600;
@@ -1536,7 +1562,7 @@
       };
 
       img.onload = applyCrop;
-      img.src = imgUrl;
+      img.src = cleanUrl;
       containerEl.appendChild(img);
     }
 
@@ -1614,7 +1640,20 @@
 
       renderCssFaceCrop(m.iu, m.bb, bestCropViewport);
 
-      bestFullImg.src = m.iu;
+      const cleanFullUrl = (m.iu || '').split('?utm_')[0];
+      let fullRetried = false;
+      bestFullImg.referrerPolicy = 'no-referrer';
+      bestFullImg.onerror = () => {
+        if (!fullRetried) {
+          fullRetried = true;
+          const fallback = getFallbackImageUrl(cleanFullUrl);
+          if (fallback && fallback !== bestFullImg.src) {
+            bestFullImg.src = fallback;
+            return;
+          }
+        }
+      };
+      bestFullImg.src = cleanFullUrl;
       const [bx, by, bw, bh] = m.bb;
       bboxOverlay.style.left = `${bx * 100}%`;
       bboxOverlay.style.top = `${by * 100}%`;
