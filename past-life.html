@@ -277,6 +277,270 @@
     }
 
 
+    #webcamVideo {
+      transform: scaleX(-1);
+    }
+
+    .crystal-ball-wrap.drag-over .crystal-ball {
+      box-shadow:
+        0 0 50px rgba(212, 175, 55, 0.95),
+        0 0 95px rgba(168, 85, 247, 0.65),
+        inset 0 0 40px rgba(212, 175, 55, 0.6);
+      border-color: #fff;
+    }
+
+    /* Antique Mode Toggle Switch */
+    .antique-toggle-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: radial-gradient(ellipse at 50% 0%, #2b2216 0%, #110d08 100%);
+      border: 1px solid #5a4729;
+      border-radius: 6px;
+      padding: 3px;
+      margin-bottom: 12px;
+      box-shadow:
+        inset 0 2px 6px rgba(0, 0, 0, 0.85),
+        0 1px 0 rgba(212, 175, 55, 0.2),
+        0 4px 10px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .antique-toggle-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: #9c8a70;
+      border: 1px solid transparent;
+      padding: 9px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .antique-toggle-btn:hover:not(.active) {
+      color: var(--gold-light);
+      background: rgba(212, 175, 55, 0.06);
+    }
+
+    .antique-toggle-btn.active {
+      background: linear-gradient(180deg, #3d301b 0%, #1c150c 100%);
+      color: #fff4d0;
+      border: 1px solid #c8a342;
+      box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 238, 170, 0.35),
+        0 0 14px rgba(212, 175, 55, 0.25);
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    }
+
+    .antique-toggle-btn .toggle-icon {
+      font-size: 12px;
+      color: var(--gold);
+    }
+
+    /* Contextual Mode Panels */
+    .mode-panel {
+      margin-bottom: 12px;
+    }
+
+    .antique-action-btn {
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #221b13 0%, #13100a 100%);
+      color: var(--gold-light);
+      border: 1px solid #66502e;
+      padding: 10px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-sizing: border-box;
+    }
+
+    .antique-action-btn:hover {
+      border-color: var(--gold);
+      color: #fff;
+      background: linear-gradient(180deg, #2f2518 0%, #1a150e 100%);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .webcam-controls-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .webcam-controls-row.has-unfreeze {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Permanent Master Action Button */
+    .master-action-container {
+      margin-bottom: 10px;
+    }
+
+    .divine-master-btn {
+      width: 100%;
+      position: relative;
+      font-family: 'Cinzel', serif;
+      padding: 14px 18px;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      text-decoration: none;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    /* Dormant State (No visage staged) */
+    .divine-master-btn.is-dormant {
+      background: linear-gradient(180deg, #15110c 0%, #0c0906 100%);
+      border: 1px dashed rgba(140, 115, 62, 0.35);
+      color: #70634f;
+      cursor: not-allowed;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+      opacity: 0.85;
+    }
+
+    .divine-master-btn.is-dormant .master-btn-rune {
+      opacity: 0.35;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .divine-master-btn.is-dormant .master-btn-text {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+    }
+
+    .divine-master-btn.is-dormant .master-btn-hint {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: #554a3c;
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Awakened State (Visage staged and ready to divine!) */
+    .divine-master-btn.is-awakened {
+      background: linear-gradient(135deg, #47361a 0%, #27190f 50%, #301738 100%);
+      border: 2px solid #ffd966;
+      color: #fff9e6;
+      box-shadow:
+        0 0 25px rgba(212, 175, 55, 0.55),
+        0 0 50px rgba(168, 85, 247, 0.3),
+        inset 0 0 16px rgba(255, 230, 140, 0.35),
+        0 4px 14px rgba(0, 0, 0, 0.7);
+      animation: masterAwakenedPulse 2.4s ease-in-out infinite alternate;
+      cursor: pointer;
+      opacity: 1;
+    }
+
+    @keyframes masterAwakenedPulse {
+      0% {
+        box-shadow:
+          0 0 22px rgba(212, 175, 55, 0.45),
+          0 0 40px rgba(168, 85, 247, 0.25),
+          inset 0 0 12px rgba(255, 230, 140, 0.3);
+        border-color: #f3e5ab;
+      }
+      100% {
+        box-shadow:
+          0 0 35px rgba(212, 175, 55, 0.75),
+          0 0 65px rgba(168, 85, 247, 0.45),
+          inset 0 0 20px rgba(255, 230, 140, 0.55);
+        border-color: #ffffff;
+      }
+    }
+
+    .divine-master-btn.is-awakened:hover {
+      background: linear-gradient(135deg, #5c4722 0%, #352114 50%, #421d4d 100%);
+      transform: translateY(-1px);
+    }
+
+    .divine-master-btn.is-awakened .master-btn-rune {
+      color: #fff3be;
+      font-size: 18px;
+      margin-bottom: 2px;
+      filter: drop-shadow(0 0 6px #ffd966);
+    }
+
+    .divine-master-btn.is-awakened .master-btn-text {
+      font-size: 13.5px;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(255, 240, 180, 0.75);
+    }
+
+    .divine-master-btn.is-awakened .master-btn-hint {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 12.5px;
+      color: #f3e5ab;
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Scrying In Progress */
+    .divine-master-btn.is-scrying {
+      background: linear-gradient(135deg, #2b1f13 0%, #171109 100%);
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      cursor: wait;
+      animation: orbGlow 1.5s ease-in-out infinite alternate;
+      opacity: 0.9;
+    }
+
+    /* Secondary Action (Random Soul) */
+    .veil-random-btn {
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(18, 15, 12, 0.8);
+      color: var(--gold-dim);
+      border: 1px solid rgba(140, 115, 62, 0.28);
+      padding: 9px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-sizing: border-box;
+    }
+
+    .veil-random-btn:hover {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: rgba(212, 175, 55, 0.07);
+    }
+
     .controls-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -879,17 +1143,49 @@
         </div>
       </div>
 
-      <div class="controls-row">
-        <label class="file-btn primary">
-          <span>↑ Offer Portrait</span>
-          <input type="file" id="fileInput" accept="image/*" />
-        </label>
-        <button id="webcamBtn">◉ Peer Through Glass</button>
+      <!-- ANTIQUE MODE TOGGLE -->
+      <div class="antique-toggle-wrap">
+        <button type="button" class="antique-toggle-btn active" id="toggleUploadMode">
+          <span class="toggle-icon">↑</span> Offer Portrait
+        </button>
+        <button type="button" class="antique-toggle-btn" id="toggleWebcamMode">
+          <span class="toggle-icon">◉</span> Live Mirror
+        </button>
       </div>
 
-      <div class="controls-row">
-        <button id="snapBtn" style="display:none;" class="primary">⚡ Divine My Past Life</button>
-        <button id="randomTestBtn" style="grid-column: span 2;">✦ Divine Random Soul from the Veil</button>
+      <!-- CONTEXTUAL CONTROLS PANEL -->
+      <div class="mode-panel" id="uploadModePanel">
+        <label class="antique-action-btn file-btn" id="fileInputLabel">
+          <span id="fileButtonText">📁 Choose Portrait File...</span>
+          <input type="file" id="fileInput" accept="image/*" />
+        </label>
+      </div>
+
+      <div class="mode-panel" id="webcamModePanel" style="display:none;">
+        <div class="webcam-controls-row" id="webcamControlsRow">
+          <button type="button" class="antique-action-btn" id="freezeWebcamBtn">
+            <span id="freezeBtnText">📸 Freeze Countenance</span>
+          </button>
+          <button type="button" class="antique-action-btn" id="unfreezeWebcamBtn" style="display:none;">
+            <span>↺ Live Feed</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PERMANENT MASTER ACTION BUTTON -->
+      <div class="master-action-container">
+        <button type="button" class="divine-master-btn is-dormant" id="masterDivineBtn" disabled>
+          <span class="master-btn-rune">⚡</span>
+          <span class="master-btn-text" id="masterBtnText">DIVINE MY PAST LIFE</span>
+          <span class="master-btn-hint" id="masterBtnHint">Offer or snap a visage first</span>
+        </button>
+      </div>
+
+      <!-- SECONDARY ACTION: RANDOM SOUL FROM THE VEIL -->
+      <div class="secondary-action-row" style="margin-bottom: 8px;">
+        <button type="button" class="veil-random-btn" id="randomTestBtn">
+          ✦ Divine Random Soul from the Veil
+        </button>
       </div>
 
       <!-- COLLAPSIBLE TELEMETRY DRAWER (HIDING DENSE SCIENCE BEHIND A FUN EXPANDABLE TOGGLE) -->
@@ -1037,10 +1333,24 @@
     const statusDot = document.getElementById('statusDot');
     const dbStatusText = document.getElementById('dbStatusText');
     const detConfLabel = document.getElementById('detConfLabel');
+
+    // Antique Mode Switch & Master Controls
+    const toggleUploadMode = document.getElementById('toggleUploadMode');
+    const toggleWebcamMode = document.getElementById('toggleWebcamMode');
+    const uploadModePanel = document.getElementById('uploadModePanel');
+    const webcamModePanel = document.getElementById('webcamModePanel');
     const fileInput = document.getElementById('fileInput');
-    const webcamBtn = document.getElementById('webcamBtn');
-    const snapBtn = document.getElementById('snapBtn');
+    const fileButtonText = document.getElementById('fileButtonText');
+    const freezeWebcamBtn = document.getElementById('freezeWebcamBtn');
+    const freezeBtnText = document.getElementById('freezeBtnText');
+    const unfreezeWebcamBtn = document.getElementById('unfreezeWebcamBtn');
+    const webcamControlsRow = document.getElementById('webcamControlsRow');
+    const masterDivineBtn = document.getElementById('masterDivineBtn');
+    const masterBtnText = document.getElementById('masterBtnText');
+    const masterBtnHint = document.getElementById('masterBtnHint');
     const randomTestBtn = document.getElementById('randomTestBtn');
+
+    const mirrorBox = document.getElementById('mirrorBox');
     const webcamVideo = document.getElementById('webcamVideo');
     const inputCanvas = document.getElementById('inputCanvas');
     const mirrorPlaceholder = document.getElementById('mirrorPlaceholder');
@@ -1138,9 +1448,9 @@
       try {
         dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
         const [metaRes, arcInt8, meshBuf] = await Promise.all([
-          fetch(`${ASSET_BASE}/metadata_compact.json?v=9`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/metadata_compact.json?v=10`).then(r => r.json()),
           loadArcfaceBuffer(),
-          fetch(`${ASSET_BASE}/mesh_i8.bin?v=9`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin?v=10`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
@@ -1396,11 +1706,11 @@
         ctx.stroke();
       }
 
-      // Also copy the user's face crop into userMiniCanvas in the reveal section!
+      // Also copy the user's clean face crop into userMiniCanvas in the reveal section!
       userMirrorCard.style.display = 'flex';
       const uctx = userMiniCanvas.getContext('2d');
       uctx.clearRect(0, 0, 220, 220);
-      uctx.drawImage(inputCanvas, 0, 0, 220, 220);
+      uctx.drawImage(imgEl, 0, 0, 220, 220);
     }
 
     function renderBlendshapes(blendshapes) {
@@ -1842,10 +2152,182 @@
       if (topMatches.length > 0) selectMatchForReveal(topMatches[0], 0, topMatches);
     }
 
+    // Staging and Mode State
+    let currentMode = 'upload'; // 'upload' | 'webcam'
+    let stagedUploadedCanvas = null;
+    let stagedWebcamCanvas = null;
+    let stagedUserCanvas = null;
+    let currentStream = null;
+
+    function awakenMasterButton(btnText = 'DIVINE MY PAST LIFE', hint = 'Click to consult the astral veil') {
+      masterDivineBtn.classList.remove('is-dormant', 'is-scrying');
+      masterDivineBtn.classList.add('is-awakened');
+      masterDivineBtn.disabled = false;
+      masterBtnText.textContent = btnText;
+      masterBtnHint.textContent = hint;
+    }
+
+    function dormantMasterButton(hint = 'Offer or snap a visage first') {
+      masterDivineBtn.classList.remove('is-awakened', 'is-scrying');
+      masterDivineBtn.classList.add('is-dormant');
+      masterDivineBtn.disabled = true;
+      masterBtnText.textContent = 'DIVINE MY PAST LIFE';
+      masterBtnHint.textContent = hint;
+    }
+
+    function scryingMasterButton() {
+      masterDivineBtn.classList.remove('is-awakened', 'is-dormant');
+      masterDivineBtn.classList.add('is-scrying');
+      masterDivineBtn.disabled = true;
+      masterBtnText.textContent = 'CONSULTING THE VEIL...';
+      masterBtnHint.textContent = 'Consulting eight thousand souls';
+    }
+
+    function displayCanvasInBall(canvas) {
+      inputCanvas.style.display = 'block';
+      webcamVideo.style.display = 'none';
+      mirrorPlaceholder.style.display = 'none';
+
+      inputCanvas.width = 600;
+      inputCanvas.height = 600;
+      const ctx = inputCanvas.getContext('2d');
+      ctx.clearRect(0, 0, 600, 600);
+      ctx.drawImage(canvas, 0, 0, 600, 600);
+    }
+
+    function showPlaceholderInBall() {
+      inputCanvas.style.display = 'none';
+      webcamVideo.style.display = 'none';
+      mirrorPlaceholder.style.display = 'block';
+    }
+
+    function stopWebcam() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+        currentStream = null;
+      }
+      webcamVideo.style.display = 'none';
+    }
+
+    async function startWebcam() {
+      stopWebcam();
+      try {
+        detConfLabel.textContent = 'PEERING INTO MIRROR...';
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 640, height: 640 }
+        });
+        webcamVideo.srcObject = currentStream;
+        webcamVideo.style.display = 'block';
+        inputCanvas.style.display = 'none';
+        mirrorPlaceholder.style.display = 'none';
+
+        // Reset freeze buttons
+        freezeBtnText.textContent = '📸 Freeze Countenance';
+        unfreezeWebcamBtn.style.display = 'none';
+        webcamControlsRow.classList.remove('has-unfreeze');
+
+        stagedUserCanvas = null;
+        detConfLabel.textContent = 'PEERING INTO GLASS';
+        dormantMasterButton('Freeze your countenance to divine');
+      } catch (err) {
+        console.warn('Webcam access error:', err);
+        detConfLabel.textContent = 'MIRROR VEILED';
+        alert('Could not access camera: ' + err.message + '\nYou can still offer a portrait file instead!');
+        setMode('upload');
+      }
+    }
+
+    function freezeWebcam() {
+      if (!currentStream || !webcamVideo.videoWidth) return;
+
+      const vw = webcamVideo.videoWidth, vh = webcamVideo.videoHeight;
+      const minSide = Math.min(vw, vh);
+      const sx = (vw - minSide) / 2;
+      const sy = (vh - minSide) / 2;
+
+      const sq = document.createElement('canvas');
+      sq.width = 600;
+      sq.height = 600;
+      const sctx = sq.getContext('2d');
+      // Mirror horizontally so it matches WYSIWYG mirror view
+      sctx.save();
+      sctx.translate(600, 0);
+      sctx.scale(-1, 1);
+      sctx.drawImage(webcamVideo, sx, sy, minSide, minSide, 0, 0, 600, 600);
+      sctx.restore();
+
+      stagedWebcamCanvas = sq;
+      stagedUserCanvas = sq;
+
+      displayCanvasInBall(sq);
+
+      freezeBtnText.textContent = '📸 Re-freeze Visage';
+      unfreezeWebcamBtn.style.display = 'inline-flex';
+      webcamControlsRow.classList.add('has-unfreeze');
+
+      detConfLabel.textContent = 'COUNTENANCE FROZEN • READY';
+      awakenMasterButton('DIVINE MY PAST LIFE', 'Click to consult the astral veil');
+    }
+
+    function unfreezeWebcam() {
+      if (!currentStream) {
+        startWebcam();
+        return;
+      }
+      webcamVideo.style.display = 'block';
+      inputCanvas.style.display = 'none';
+      mirrorPlaceholder.style.display = 'none';
+
+      stagedUserCanvas = null;
+      freezeBtnText.textContent = '📸 Freeze Countenance';
+      unfreezeWebcamBtn.style.display = 'none';
+      webcamControlsRow.classList.remove('has-unfreeze');
+
+      detConfLabel.textContent = 'PEERING INTO GLASS';
+      dormantMasterButton('Freeze your countenance to divine');
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      if (mode === 'upload') {
+        toggleUploadMode.classList.add('active');
+        toggleWebcamMode.classList.remove('active');
+        uploadModePanel.style.display = 'block';
+        webcamModePanel.style.display = 'none';
+
+        stopWebcam();
+
+        if (stagedUploadedCanvas) {
+          stagedUserCanvas = stagedUploadedCanvas;
+          displayCanvasInBall(stagedUploadedCanvas);
+          detConfLabel.textContent = 'VISAGE OFFERED • READY';
+          awakenMasterButton('DIVINE MY PAST LIFE', 'Click to consult the astral veil');
+        } else {
+          stagedUserCanvas = null;
+          showPlaceholderInBall();
+          detConfLabel.textContent = 'AWAITING COUNTENANCE';
+          dormantMasterButton('Offer a portrait to begin');
+        }
+      } else if (mode === 'webcam') {
+        toggleWebcamMode.classList.add('active');
+        toggleUploadMode.classList.remove('active');
+        webcamModePanel.style.display = 'block';
+        uploadModePanel.style.display = 'none';
+
+        startWebcam();
+      }
+    }
+
+    toggleUploadMode.addEventListener('click', () => setMode('upload'));
+    toggleWebcamMode.addEventListener('click', () => setMode('webcam'));
+    freezeWebcamBtn.addEventListener('click', freezeWebcam);
+    unfreezeWebcamBtn.addEventListener('click', unfreezeWebcam);
+
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      stopWebcam();
+
+      detConfLabel.textContent = 'OFFERING PORTRAIT...';
       const reader = new FileReader();
       reader.onload = (ev) => {
         const img = new Image();
@@ -1909,57 +2391,74 @@
           }
 
           const sq = document.createElement('canvas');
-          sq.width = 600; sq.height = 600;
+          sq.width = 600;
+          sq.height = 600;
           const sctx = sq.getContext('2d');
           sctx.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, 600, 600);
-          processUserCanvas(sq);
+
+          stagedUploadedCanvas = sq;
+          stagedUserCanvas = sq;
+
+          displayCanvasInBall(sq);
+          fileButtonText.textContent = '↺ Change Portrait File';
+          detConfLabel.textContent = 'VISAGE OFFERED • READY';
+          awakenMasterButton('DIVINE MY PAST LIFE', 'Click to consult the astral veil');
         };
         img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
-    function stopWebcam() {
-      if (currentStream) {
-        currentStream.getTracks().forEach(t => t.stop());
-        currentStream = null;
-      }
-      webcamVideo.style.display = 'none';
-      snapBtn.style.display = 'none';
-    }
-
-    webcamBtn.addEventListener('click', async () => {
-      if (currentStream) {
-        stopWebcam();
+    masterDivineBtn.addEventListener('click', async () => {
+      if (!stagedUserCanvas || masterDivineBtn.disabled || masterDivineBtn.classList.contains('is-dormant')) {
         return;
       }
+      scryingMasterButton();
       try {
-        currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 640 } });
-        webcamVideo.srcObject = currentStream;
-        webcamVideo.style.display = 'block';
-        inputCanvas.style.display = 'none';
-        mirrorPlaceholder.style.display = 'none';
-        snapBtn.style.display = 'inline-flex';
+        await processUserCanvas(stagedUserCanvas);
+        awakenMasterButton('⚡ DIVINE AGAIN', 'Consult the veil again with this visage');
       } catch (err) {
-        alert('Could not access webcam: ' + err.message);
+        console.error('Divination error:', err);
+        alert('The veil clouded unexpectedly: ' + err.message);
+        awakenMasterButton('⚡ RETRY DIVINATION', 'Click to try again');
       }
     });
 
-    snapBtn.addEventListener('click', () => {
-      if (!currentStream) return;
-      const sq = document.createElement('canvas');
-      sq.width = 600; sq.height = 600;
-      const sctx = sq.getContext('2d');
-      const vw = webcamVideo.videoWidth, vh = webcamVideo.videoHeight;
-      const minSide = Math.min(vw, vh);
-      sctx.drawImage(webcamVideo, (vw - minSide) / 2, (vh - minSide) / 2, minSide, minSide, 0, 0, 600, 600);
-      stopWebcam();
-      processUserCanvas(sq);
-    });
+    // Drag-and-drop file onto crystal ball stage
+    if (mirrorBox) {
+      ['dragenter', 'dragover'].forEach(name => {
+        mirrorBox.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          mirrorBox.classList.add('drag-over');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        mirrorBox.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          mirrorBox.classList.remove('drag-over');
+        });
+      });
+      mirrorBox.addEventListener('drop', (e) => {
+        const files = e.dataTransfer ? e.dataTransfer.files : null;
+        if (files && files[0] && files[0].type.startsWith('image/')) {
+          setMode('upload');
+          const dtObj = new DataTransfer();
+          dtObj.items.add(files[0]);
+          fileInput.files = dtObj.files;
+          fileInput.dispatchEvent(new Event('change'));
+        }
+      });
+    }
 
     async function summonRandomSoul() {
       if (!archiveMeta || !arcfaceMatrix) return;
       stopWebcam();
+      dormantMasterButton('Offer a visage to divine your past life');
+      if (currentMode === 'webcam') {
+        unfreezeWebcam();
+      }
 
       let randIdx = Math.floor(Math.random() * archiveMeta.count);
       for (let tries = 0; tries < 30; tries++) {
