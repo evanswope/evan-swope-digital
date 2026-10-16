@@ -751,6 +751,67 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+  
+    .vision-switcher-row {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 14px;
+    }
+
+    .vision-cycle-btn {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: var(--accent);
+      padding: 6px 18px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vision-cycle-btn:hover {
+      background: rgba(212, 175, 55, 0.22);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+    }
+
+    .vision-counter {
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+    }
+
+    .oracle-action-btn {
+      background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(139,105,20,0.28));
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 9px 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .oracle-action-btn:hover {
+      background: var(--accent);
+      color: #0b0d10;
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.45);
+    }
+
+    .glimmer-shift {
+      opacity: 0.25;
+      transform: scale(0.985);
+      transition: all 0.15s ease;
+    }
+
   </style>
 </head>
 <body>
@@ -850,6 +911,12 @@
         </div>
         <div class="reveal-era" id="revealEra" style="display:none;"></div>
 
+        <div class="vision-switcher-row" id="visionSwitcherRow" style="display:none;">
+          <button id="cycleVisionBtn" class="vision-cycle-btn" type="button">
+            <span>✦ Consult Another Vision</span> <span id="visionCounter" class="vision-counter">(1 of 3)</span>
+          </button>
+        </div>
+
         <div class="reveal-comparison" id="revealContent" style="display:none;">
           <div class="twin-orbs-container">
             <div class="twin-orb-card" id="userMirrorCard" style="display:none;">
@@ -863,7 +930,7 @@
             </div>
 
             <div class="twin-orb-card" id="twinCropCard">
-              <span class="crop-tag">THE SPIRIT REVEALED</span>
+              <span class="crop-tag" id="spiritOrbTag">THE SPIRIT REVEALED</span>
               <div class="scrying-orb orb-twin">
                 <div class="orb-inner css-crop-viewport" id="bestCropViewport"></div>
                 <div class="crystal-ball-glare"></div>
@@ -874,6 +941,10 @@
           <div class="sim-badge" id="bestSimBadge">96.4% SOUL RESONANCE</div>
           <div class="mono" style="font-size:10px; color:var(--muted); margin-top:8px; text-align:center;" id="scoreBreakdownText">
             CRANIAL TOPOLOGY + 512D BIOMETRIC FUSION
+          </div>
+
+          <div id="randomSoulActionRow" style="display:none; justify-content:center; gap:12px; margin-top:14px;">
+            <button id="summonAnotherBtn" class="oracle-action-btn" type="button">✦ Summon Another Ancient Soul</button>
           </div>
 
           <!-- COLLAPSIBLE BEHIND-THE-VEIL DRAWER FOR HISTORICAL ARTWORK & MUSEUM RECORDS -->
@@ -976,6 +1047,12 @@
     const revealPersona = document.getElementById('revealPersona');
     const revealEra = document.getElementById('revealEra');
     const revealContent = document.getElementById('revealContent');
+    const visionSwitcherRow = document.getElementById('visionSwitcherRow');
+    const cycleVisionBtn = document.getElementById('cycleVisionBtn');
+    const visionCounter = document.getElementById('visionCounter');
+    const spiritOrbTag = document.getElementById('spiritOrbTag');
+    const randomSoulActionRow = document.getElementById('randomSoulActionRow');
+    const summonAnotherBtn = document.getElementById('summonAnotherBtn');
     const artworkDetails = document.getElementById('artworkDetails');
     const userMirrorCard = document.getElementById('userMirrorCard');
     const twinCropCard = document.getElementById('twinCropCard');
@@ -1017,8 +1094,8 @@
     async function loadArcfaceBuffer() {
       try {
         const [b0, b1] = await Promise.all([
-          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=5`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=5`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=6`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=6`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
         ]);
         const a0 = new Int8Array(b0);
         const a1 = new Int8Array(b1);
@@ -1027,7 +1104,7 @@
         merged.set(a1, a0.length);
         return merged;
       } catch (_) {
-        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=5`).then(r => r.arrayBuffer());
+        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=6`).then(r => r.arrayBuffer());
         return new Int8Array(buf);
       }
     }
@@ -1055,9 +1132,9 @@
       try {
         dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
         const [metaRes, arcInt8, meshBuf] = await Promise.all([
-          fetch(`${ASSET_BASE}/metadata_compact.json?v=5`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/metadata_compact.json?v=6`).then(r => r.json()),
           loadArcfaceBuffer(),
-          fetch(`${ASSET_BASE}/mesh_i8.bin?v=5`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin?v=6`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
@@ -1463,33 +1540,79 @@
       containerEl.appendChild(img);
     }
 
-    function selectMatchForReveal(item) {
-      const m = item.meta;
-      revealContent.style.display = 'block';
+    let currentVisions = [];
+    let currentVisionIdx = 0;
 
-      let personaText = m.pl;
-      let eraText = m.d || "Historical Era";
+    function renderCurrentVision() {
+      if (!currentVisions.length) return;
+      const str = currentVisions[currentVisionIdx];
+      let personaText = str;
+      let eraText = "";
 
-      const eraMatch = m.pl.match(/^(.*?)\s*\(([^)]+(?:\([^)]*\)[^)]*)*)\)$/);
+      const eraMatch = str.match(/^(.*?)\s*\(([^)]+(?:\([^)]*\)[^)]*)*)\)$/);
       if (eraMatch) {
         personaText = eraMatch[1].trim();
         eraText = eraMatch[2].trim();
       }
 
-      revealPre.textContent = `🔮 THE ORACLE HAS SPOKEN // ${item.resonancePct ? item.resonancePct.toFixed(1) + '% SOUL AFFINITY' : 'ARCHIVE RECORD'}`;
-      revealPrompt.textContent = "In a past life, you were...";
-      revealPersona.textContent = personaText;
-      revealEra.textContent = eraText;
-      revealEra.style.display = 'block';
+      revealPersona.classList.add('glimmer-shift');
+      setTimeout(() => {
+        revealPersona.textContent = personaText;
+        if (eraText) {
+          revealEra.textContent = eraText;
+          revealEra.style.display = 'block';
+        }
+        revealPersona.classList.remove('glimmer-shift');
+      }, 120);
+
+      if (visionCounter) {
+        visionCounter.textContent = `(${currentVisionIdx + 1} of ${currentVisions.length})`;
+      }
+    }
+
+    if (cycleVisionBtn) {
+      cycleVisionBtn.addEventListener('click', () => {
+        if (currentVisions.length <= 1) return;
+        currentVisionIdx = (currentVisionIdx + 1) % currentVisions.length;
+        renderCurrentVision();
+      });
+    }
+
+    function selectMatchForReveal(item) {
+      const m = item.meta;
+      revealContent.style.display = 'block';
+
+      currentVisions = [m.pl, ...(m.pla || [])];
+      currentVisionIdx = 0;
+      if (visionSwitcherRow) {
+        visionSwitcherRow.style.display = currentVisions.length > 1 ? 'flex' : 'none';
+      }
+      renderCurrentVision();
+
+      if (item.isSummonedSoul) {
+        userMirrorCard.style.display = 'none';
+        if (spiritOrbTag) spiritOrbTag.textContent = "ANCIENT SOUL SUMMONED";
+        if (randomSoulActionRow) randomSoulActionRow.style.display = 'flex';
+        revealPre.textContent = "🔮 ANCIENT SOUL SUMMONED FROM THE VEIL";
+        revealPrompt.textContent = "From the mists of history emerges...";
+        bestSimBadge.textContent = `SUMMONED SOUL • ${m.c.toUpperCase().replace('_OR_CREATURE', '')}`;
+        scoreBreakdownText.textContent = `${m.t} — ${m.a || 'Unknown Master'} (${m.d || 'Historic Era'})`;
+      } else {
+        userMirrorCard.style.display = 'flex';
+        if (spiritOrbTag) spiritOrbTag.textContent = "THE SPIRIT REVEALED";
+        if (randomSoulActionRow) randomSoulActionRow.style.display = 'none';
+        revealPre.textContent = `🔮 THE ORACLE HAS SPOKEN // ${item.resonancePct ? item.resonancePct.toFixed(1) + '% SOUL AFFINITY' : 'ARCHIVE RECORD'}`;
+        revealPrompt.textContent = "In a past life, you were...";
+        bestSimBadge.textContent = item.resonancePct
+          ? `${item.resonancePct.toFixed(1)}% SOUL RESONANCE`
+          : `ARCHIVE RECORD`;
+
+        if (item.zScore !== undefined) {
+          scoreBreakdownText.textContent = `SOUL RESONANCE: +${item.zScore.toFixed(2)}σ  |  478-PT MESH: ${item.meshSim.toFixed(2)}  |  512D BIOMETRICS: ${item.arcSim.toFixed(2)}`;
+        }
+      }
 
       renderCssFaceCrop(m.iu, m.bb, bestCropViewport);
-      bestSimBadge.textContent = item.resonancePct
-        ? `${item.resonancePct.toFixed(1)}% SOUL RESONANCE`
-        : `ARCHIVE RECORD`;
-
-      if (item.zScore !== undefined) {
-        scoreBreakdownText.textContent = `SOUL RESONANCE: +${item.zScore.toFixed(2)}σ  |  478-PT MESH: ${item.meshSim.toFixed(2)}  |  512D BIOMETRICS: ${item.arcSim.toFixed(2)}`;
-      }
 
       bestFullImg.src = m.iu;
       const [bx, by, bw, bh] = m.bb;
@@ -1632,6 +1755,11 @@
       clearInterval(scryingTimer);
       if (crystalBall) crystalBall.classList.remove('is-scrying');
 
+      // Restore Twin Orbs mode for live user countenance
+      userMirrorCard.style.display = 'flex';
+      if (spiritOrbTag) spiritOrbTag.textContent = "THE SPIRIT REVEALED";
+      if (randomSoulActionRow) randomSoulActionRow.style.display = 'none';
+
       renderMatchesGrid(topMatches);
       if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
     }
@@ -1751,28 +1879,25 @@
       processUserCanvas(sq);
     });
 
-    randomTestBtn.addEventListener('click', async () => {
+    async function summonRandomSoul() {
       if (!archiveMeta || !arcfaceMatrix) return;
       stopWebcam();
+
       let randIdx = Math.floor(Math.random() * archiveMeta.count);
-      for (let tries = 0; tries < 20; tries++) {
+      for (let tries = 0; tries < 30; tries++) {
         if (archiveMeta.faces[randIdx].hm) break;
         randIdx = Math.floor(Math.random() * archiveMeta.count);
       }
       const seed = archiveMeta.faces[randIdx];
-      const arcVec = arcfaceMatrix.subarray(randIdx * 512, (randIdx + 1) * 512);
-      const meshVec = seed.hm ? meshMatrix.subarray(randIdx * 128, (randIdx + 1) * 128) : null;
-
-      lastQueryState = { arcVec, meshVec, excludeIndex: randIdx };
 
       if (crystalBall) crystalBall.classList.add('is-scrying');
-      revealPre.textContent = "🔮 SCRYING THE ASTRAL VEIL...";
-      revealPrompt.textContent = "A spirit stirs from the past...";
-      revealPersona.textContent = "Summoning an echo from across the centuries...";
-      revealEra.textContent = seed.d || "Historical Era";
-      revealEra.style.display = 'block';
+      revealPre.textContent = "🔮 SUMMONING FROM THE VEIL...";
+      revealPrompt.textContent = "Parting the mists of bygone centuries...";
+      revealPersona.textContent = "An ancient presence awakens...";
+      revealEra.style.display = 'none';
+      if (visionSwitcherRow) visionSwitcherRow.style.display = 'none';
 
-      // Load seed image into inputCanvas so the crystal ball displays it!
+      // Load summoned soul into the main crystal ball on the left
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
@@ -1788,31 +1913,41 @@
         ctx.drawImage(img, sx, sy, side, side, 0, 0, 600, 600);
         inputCanvas.style.display = 'block';
         mirrorPlaceholder.style.display = 'none';
-
-        // Also display in userMiniCanvas as the seed vessel!
-        userMirrorCard.style.display = 'flex';
-        const uctx = userMiniCanvas.getContext('2d');
-        uctx.clearRect(0, 0, 220, 220);
-        uctx.drawImage(inputCanvas, 0, 0, 220, 220);
       };
       img.src = seed.iu;
 
+      const arcVec = arcfaceMatrix.subarray(randIdx * 512, (randIdx + 1) * 512);
       drawVectorBarcode(arcVec);
-      vectorRawBox.textContent = `[Query Seed #${seed.id}]: [${Array.from(arcVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
+      vectorRawBox.textContent = `[Summoned Soul #${seed.id}]: [${Array.from(arcVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
 
-      await new Promise(r => setTimeout(r, 900));
+      await new Promise(r => setTimeout(r, 800));
       if (crystalBall) crystalBall.classList.remove('is-scrying');
 
-      const topMatches = rankArchiveMatches(arcVec, meshVec, randIdx);
-      detConfLabel.textContent = `SEED: ${seed.id.toUpperCase()}`;
+      detConfLabel.textContent = `SOUL: ${seed.id.toUpperCase()}`;
       telemetryText.innerHTML = `
-        <strong>Seed Portrait:</strong> ${seed.t.slice(0, 34)}<br/>
-        <strong>478-Pt Mesh + 512D:</strong> Active<br/>
-        <strong>Top Twin Resonance:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% (+${topMatches[0]?.zScore.toFixed(2)}σ)
+        <strong>Summoned Soul:</strong> ${seed.t.slice(0, 34)}<br/>
+        <strong>Era &amp; Medium:</strong> ${seed.d || 'Historic'} • ${seed.m || 'Fine Art'}<br/>
+        <strong>Archive Source:</strong> ${seed.s}
       `;
-      renderMatchesGrid(topMatches);
-      if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
-    });
+
+      // Single Orb Mode: Reveal this soul directly without matching against itself
+      selectMatchForReveal({ meta: seed, isSummonedSoul: true, resonancePct: null });
+
+      // Contemporary kindred souls in the grid below
+      const pool = archiveMeta.faces.filter(f => f.id !== seed.id && (currentCategory === 'all' || f.c === currentCategory));
+      const randomKin = [];
+      const used = new Set();
+      for (let k = 0; k < 12 && k < pool.length; k++) {
+        let r = Math.floor(Math.random() * pool.length);
+        while (used.has(r)) r = Math.floor(Math.random() * pool.length);
+        used.add(r);
+        randomKin.push({ meta: pool[r], isSummonedSoul: true, resonancePct: null });
+      }
+      renderMatchesGrid(randomKin);
+    }
+
+    randomTestBtn.addEventListener('click', summonRandomSoul);
+    if (summonAnotherBtn) summonAnotherBtn.addEventListener('click', summonRandomSoul);
 
     filterBar.addEventListener('click', (e) => {
       const btn = e.target.closest('.filter-tab');
