@@ -753,39 +753,43 @@
       overflow: hidden;
     }
   
-    .vision-switcher-row {
+        .orb-loader {
+      position: absolute;
+      inset: 0;
       display: flex;
-      justify-content: center;
-      margin: 8px 0 14px;
-    }
-
-    .vision-cycle-btn {
-      background: rgba(212, 175, 55, 0.08);
-      border: 1px solid rgba(212, 175, 55, 0.35);
-      color: var(--accent);
-      padding: 6px 18px;
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: inline-flex;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
+      background: radial-gradient(circle, rgba(20, 18, 14, 0.95) 0%, rgba(10, 9, 8, 0.98) 85%);
+      z-index: 5;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
     }
 
-    .vision-cycle-btn:hover {
-      background: rgba(212, 175, 55, 0.22);
-      border-color: var(--accent);
-      transform: translateY(-1px);
-      box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+    .orb-spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(212, 175, 55, 0.15);
+      border-top: 2px solid var(--accent);
+      border-radius: 50%;
+      animation: orbSpin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
     }
 
-    .vision-counter {
-      color: var(--muted);
-      font-family: 'Space Mono', monospace;
+    @keyframes orbSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .orb-loader-text {
+      font-family: 'Cinzel', serif;
       font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      text-transform: uppercase;
+      opacity: 0.85;
+      animation: pulseGold 2s ease-in-out infinite;
     }
 
     .oracle-action-btn {
@@ -912,11 +916,7 @@
         </div>
         <div class="reveal-era" id="revealEra" style="display:none;"></div>
 
-        <div class="vision-switcher-row" id="visionSwitcherRow" style="display:none;">
-          <button id="cycleVisionBtn" class="vision-cycle-btn" type="button">
-            <span>✦ Consult Another Vision</span> <span id="visionCounter" class="vision-counter">(1 of 3)</span>
-          </button>
-        </div>
+        
 
         <div class="reveal-comparison" id="revealContent" style="display:none;">
           <div class="twin-orbs-container">
@@ -1048,9 +1048,6 @@
     const revealPersona = document.getElementById('revealPersona');
     const revealEra = document.getElementById('revealEra');
     const revealContent = document.getElementById('revealContent');
-    const visionSwitcherRow = document.getElementById('visionSwitcherRow');
-    const cycleVisionBtn = document.getElementById('cycleVisionBtn');
-    const visionCounter = document.getElementById('visionCounter');
     const spiritOrbTag = document.getElementById('spiritOrbTag');
     const randomSoulActionRow = document.getElementById('randomSoulActionRow');
     const summonAnotherBtn = document.getElementById('summonAnotherBtn');
@@ -1095,8 +1092,8 @@
     async function loadArcfaceBuffer() {
       try {
         const [b0, b1] = await Promise.all([
-          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=7`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=7`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+          fetch(`${ASSET_BASE}/arcface_i8_0.bin?v=8`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+          fetch(`${ASSET_BASE}/arcface_i8_1.bin?v=8`).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); })
         ]);
         const a0 = new Int8Array(b0);
         const a1 = new Int8Array(b1);
@@ -1105,7 +1102,7 @@
         merged.set(a1, a0.length);
         return merged;
       } catch (_) {
-        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=7`).then(r => r.arrayBuffer());
+        const buf = await fetch(`${ASSET_BASE}/arcface_i8.bin?v=8`).then(r => r.arrayBuffer());
         return new Int8Array(buf);
       }
     }
@@ -1133,9 +1130,9 @@
       try {
         dbStatusText.textContent = 'LOADING ARCHIVE VECTORS...';
         const [metaRes, arcInt8, meshBuf] = await Promise.all([
-          fetch(`${ASSET_BASE}/metadata_compact.json?v=7`).then(r => r.json()),
+          fetch(`${ASSET_BASE}/metadata_compact.json?v=8`).then(r => r.json()),
           loadArcfaceBuffer(),
-          fetch(`${ASSET_BASE}/mesh_i8.bin?v=7`).then(r => r.arrayBuffer()),
+          fetch(`${ASSET_BASE}/mesh_i8.bin?v=8`).then(r => r.arrayBuffer()),
         ]);
 
         archiveMeta = metaRes;
@@ -1517,9 +1514,19 @@
       return clean;
     }
 
-    // Pure CSS-cropped <img> element: works across ALL museum CDNs without CORS canvas tainting!
-    function renderCssFaceCrop(imgUrl, bboxNorm, containerEl) {
+    // Pure CSS-cropped <img> element with mystical loading veil & error recovery
+    function renderCssFaceCrop(imgUrl, bboxNorm, containerEl, onFailed = null) {
       containerEl.innerHTML = '';
+
+      // Ethereal loading spinner inside orb while image materializes
+      const loader = document.createElement('div');
+      loader.className = 'orb-loader';
+      loader.innerHTML = `
+        <div class="orb-spinner"></div>
+        <span class="orb-loader-text">Materializing...</span>
+      `;
+      containerEl.appendChild(loader);
+
       const cleanUrl = (imgUrl || '').split('?utm_')[0];
       const img = document.createElement('img');
       img.loading = 'lazy';
@@ -1527,7 +1534,9 @@
       img.referrerPolicy = 'no-referrer';
 
       let retried = false;
-      img.onerror = () => {
+      let isResolved = false;
+
+      const handleFail = () => {
         if (!retried) {
           retried = true;
           const fallback = getFallbackImageUrl(cleanUrl);
@@ -1536,10 +1545,33 @@
             return;
           }
         }
-        containerEl.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#14171d; color:var(--gold); font-size:10px; font-family:\'Cinzel\',serif; text-transform:uppercase;">✦ Spirit Veiled ✦</div>';
+        if (isResolved) return;
+        isResolved = true;
+        if (loader && loader.parentNode) loader.remove();
+        if (onFailed) {
+          onFailed();
+        } else {
+          containerEl.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#14171d; color:var(--gold); font-size:10px; font-family:\'Cinzel\',serif; text-transform:uppercase;">✦ Spirit Veiled ✦</div>';
+        }
       };
 
+      img.onerror = handleFail;
+
+      // Timeout safety: if image hangs for > 3.5 seconds, trigger fallback / skip
+      const timeoutId = setTimeout(() => {
+        if (!isResolved) handleFail();
+      }, 3500);
+
       const applyCrop = () => {
+        if (isResolved) return;
+        isResolved = true;
+        clearTimeout(timeoutId);
+
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => { if (loader.parentNode) loader.remove(); }, 300);
+        }
+
         const iw = img.naturalWidth || 600;
         const ih = img.naturalHeight || 600;
         const cw = containerEl.clientWidth || 160;
@@ -1566,54 +1598,35 @@
       containerEl.appendChild(img);
     }
 
-    let currentVisions = [];
-    let currentVisionIdx = 0;
+    let currentMatchCandidates = [];
+    let currentCandidateIndex = 0;
 
-    function renderCurrentVision() {
-      if (!currentVisions.length) return;
-      const str = currentVisions[currentVisionIdx];
-      let personaText = str;
-      let eraText = "";
+    function selectMatchForReveal(item, candidateIdx = 0, candidates = null) {
+      if (candidates) {
+        currentMatchCandidates = candidates;
+        currentCandidateIndex = candidateIdx;
+      }
+      const m = item.meta;
+      revealContent.style.display = 'block';
 
-      const eraMatch = str.match(/^(.*?)\s*\(([^)]+(?:\([^)]*\)[^)]*)*)\)$/);
+      // Oracle randomly selects one of the 3 available visions for this soul
+      const visions = [m.pl, ...(m.pla || [])];
+      const chosenStr = visions[Math.floor(Math.random() * visions.length)];
+
+      let personaText = chosenStr;
+      let eraText = m.d || "Historical Era";
+
+      const eraMatch = chosenStr.match(/^(.*?)\s*\(([^)]+(?:\([^)]*\)[^)]*)*)\)$/);
       if (eraMatch) {
         personaText = eraMatch[1].trim();
         eraText = eraMatch[2].trim();
       }
 
-      revealPersona.classList.add('glimmer-shift');
-      setTimeout(() => {
-        revealPersona.textContent = personaText;
-        if (eraText) {
-          revealEra.textContent = eraText;
-          revealEra.style.display = 'block';
-        }
-        revealPersona.classList.remove('glimmer-shift');
-      }, 120);
-
-      if (visionCounter) {
-        visionCounter.textContent = `(${currentVisionIdx + 1} of ${currentVisions.length})`;
+      revealPersona.textContent = personaText;
+      if (eraText) {
+        revealEra.textContent = eraText;
+        revealEra.style.display = 'block';
       }
-    }
-
-    if (cycleVisionBtn) {
-      cycleVisionBtn.addEventListener('click', () => {
-        if (currentVisions.length <= 1) return;
-        currentVisionIdx = (currentVisionIdx + 1) % currentVisions.length;
-        renderCurrentVision();
-      });
-    }
-
-    function selectMatchForReveal(item) {
-      const m = item.meta;
-      revealContent.style.display = 'block';
-
-      currentVisions = [m.pl, ...(m.pla || [])];
-      currentVisionIdx = 0;
-      if (visionSwitcherRow) {
-        visionSwitcherRow.style.display = currentVisions.length > 1 ? 'flex' : 'none';
-      }
-      renderCurrentVision();
 
       if (item.isSummonedSoul) {
         userMirrorCard.style.display = 'none';
@@ -1638,11 +1651,24 @@
         }
       }
 
-      renderCssFaceCrop(m.iu, m.bb, bestCropViewport);
+      // If image fails to resolve across primary and fallback, auto-advance to next closest match!
+      const onImageFailed = () => {
+        if (currentMatchCandidates && currentCandidateIndex + 1 < currentMatchCandidates.length) {
+          const nextIdx = currentCandidateIndex + 1;
+          console.warn(`Portrait ${m.id} unreachable; Oracle advancing to candidate #${nextIdx}`);
+          selectMatchForReveal(currentMatchCandidates[nextIdx], nextIdx, currentMatchCandidates);
+        } else if (item.isSummonedSoul) {
+          summonRandomSoul();
+        }
+      };
 
+      renderCssFaceCrop(m.iu, m.bb, bestCropViewport, onImageFailed);
+
+      // Full artwork handling with graceful fallback
       const cleanFullUrl = (m.iu || '').split('?utm_')[0];
       let fullRetried = false;
       bestFullImg.referrerPolicy = 'no-referrer';
+      bestFullImg.style.display = 'block';
       bestFullImg.onerror = () => {
         if (!fullRetried) {
           fullRetried = true;
@@ -1652,8 +1678,13 @@
             return;
           }
         }
+        bestFullImg.style.display = 'none';
+      };
+      bestFullImg.onload = () => {
+        bestFullImg.style.display = 'block';
       };
       bestFullImg.src = cleanFullUrl;
+
       const [bx, by, bw, bh] = m.bb;
       bboxOverlay.style.left = `${bx * 100}%`;
       bboxOverlay.style.top = `${by * 100}%`;
@@ -1694,7 +1725,7 @@
         `;
         const vp = card.querySelector('.css-crop-viewport');
         renderCssFaceCrop(m.iu, m.bb, vp);
-        card.addEventListener('click', () => selectMatchForReveal(item));
+        card.addEventListener('click', () => selectMatchForReveal(item, idx, items));
         matchesGrid.appendChild(card);
       });
     }
@@ -1800,7 +1831,7 @@
       if (randomSoulActionRow) randomSoulActionRow.style.display = 'none';
 
       renderMatchesGrid(topMatches);
-      if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
+      if (topMatches.length > 0) selectMatchForReveal(topMatches[0], 0, topMatches);
     }
 
     fileInput.addEventListener('change', (e) => {
@@ -1934,7 +1965,7 @@
       revealPrompt.textContent = "Parting the mists of bygone centuries...";
       revealPersona.textContent = "An ancient presence awakens...";
       revealEra.style.display = 'none';
-      if (visionSwitcherRow) visionSwitcherRow.style.display = 'none';
+      
 
       // Load summoned soul into the main crystal ball on the left
       const img = new Image();
@@ -1970,7 +2001,7 @@
       `;
 
       // Single Orb Mode: Reveal this soul directly without matching against itself
-      selectMatchForReveal({ meta: seed, isSummonedSoul: true, resonancePct: null });
+      selectMatchForReveal({ meta: seed, isSummonedSoul: true, resonancePct: null }, 0, null);
 
       // Contemporary kindred souls in the grid below
       const pool = archiveMeta.faces.filter(f => f.id !== seed.id && (currentCategory === 'all' || f.c === currentCategory));
@@ -1998,14 +2029,14 @@
       if (lastQueryState) {
         const topMatches = rankArchiveMatches(lastQueryState.arcVec, lastQueryState.meshVec, lastQueryState.excludeIndex);
         renderMatchesGrid(topMatches);
-        if (topMatches.length > 0) selectMatchForReveal(topMatches[0]);
+        if (topMatches.length > 0) selectMatchForReveal(topMatches[0], 0, topMatches);
       } else if (archiveMeta) {
         const filtered = archiveMeta.faces
           .filter(f => currentCategory === 'all' || f.c === currentCategory)
           .slice(0, 12)
           .map(f => ({ meta: f, resonancePct: null }));
         renderMatchesGrid(filtered);
-        if (filtered.length > 0) selectMatchForReveal(filtered[0]);
+        if (filtered.length > 0) selectMatchForReveal(filtered[0], 0, filtered);
       }
     });
 
