@@ -1353,55 +1353,35 @@
       100% { transform: scale(1.35) translateY(-80px) translateX(60px); opacity: 0; filter: blur(8px); }
     }
 
-    /* Mystic Text Reveal: Ethereal Mist Manifestation & Celestial Gilded Glint */
+    /* Mystic Text Reveal: Ethereal Mist Manifestation & Candlelight Bloom */
     .mystic-word {
       display: inline-block;
       opacity: 0;
-      filter: blur(14px) brightness(1.8);
+      filter: blur(12px);
       transform: translateY(8px) scale(0.97);
-      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                  filter 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #fff8e0;
+      text-shadow:
+        0 0 16px rgba(255, 240, 180, 0.95),
+        0 0 34px rgba(212, 175, 55, 0.9),
+        0 0 58px rgba(168, 85, 247, 0.75);
+      transition:
+        opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        color 1.1s ease,
+        text-shadow 1.1s ease;
       will-change: opacity, filter, transform;
     }
 
     .mystic-word.is-revealed {
       opacity: 1;
-      filter: blur(0px) brightness(1);
+      filter: blur(0px);
       transform: translateY(0) scale(1);
     }
 
-    .mystic-word.is-manifesting {
-      color: #fff8e0 !important;
-      text-shadow:
-        0 0 14px rgba(255, 240, 180, 1),
-        0 0 30px rgba(212, 175, 55, 0.95),
-        0 0 55px rgba(168, 85, 247, 0.8) !important;
-    }
-
-    @keyframes celestialGlintSweep {
-      0% {
-        background-position: -200% 0;
-      }
-      100% {
-        background-position: 200% 0;
-      }
-    }
-
-    .reveal-persona.has-shimmer {
-      background: linear-gradient(
-        90deg,
-        #d4af37 0%,
-        #d4af37 35%,
-        #ffffff 50%,
-        #ffe8a3 55%,
-        #d4af37 70%,
-        #d4af37 100%
-      );
-      background-size: 250% 100%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: celestialGlintSweep 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .mystic-word.is-settled {
+      color: var(--gold);
+      text-shadow: 0 0 35px rgba(212, 175, 55, 0.4);
     }
 
     .reveal-era-mystic {
@@ -2564,7 +2544,8 @@
 
     function revealTextMystic(el, targetText, onComplete = null) {
       if (!el || !targetText) return;
-      el.classList.remove('has-shimmer');
+      const runId = (el._mysticRunId || 0) + 1;
+      el._mysticRunId = runId;
       el.innerHTML = '';
 
       // Tokenize by whitespace while preserving punctuation and exact spacing
@@ -2589,27 +2570,28 @@
         return;
       }
 
-      // Rhythmic cadence per word: ~75ms to 115ms based on length
-      const interval = Math.max(75, Math.min(115, Math.floor(1400 / totalWords)));
+      // Force browser layout before starting transitions so initial blur/opacity is registered
+      void el.offsetWidth;
+
+      // Rhythmic cadence per word: ~85ms to 125ms based on length
+      const interval = Math.max(85, Math.min(125, Math.floor(1500 / totalWords)));
 
       wordSpans.forEach((span, idx) => {
         setTimeout(() => {
-          span.classList.add('is-revealed', 'is-manifesting');
-          setTimeout(() => {
-            span.classList.remove('is-manifesting');
-          }, 520);
+          if (el._mysticRunId !== runId) return;
+          span.classList.add('is-revealed');
 
-          // Once the final word begins materializing, trigger the celestial gilded glint sweep
-          if (idx === totalWords - 1) {
+          setTimeout(() => {
+            if (el._mysticRunId !== runId) return;
+            span.classList.add('is-settled');
+          }, 480);
+
+          if (idx === totalWords - 1 && onComplete) {
             setTimeout(() => {
-              el.classList.add('has-shimmer');
-              if (onComplete) onComplete();
-              setTimeout(() => {
-                el.classList.remove('has-shimmer');
-              }, 1700);
-            }, 300);
+              if (el._mysticRunId === runId) onComplete();
+            }, 600);
           }
-        }, idx * interval + 60);
+        }, idx * interval + 40);
       });
     }
 
