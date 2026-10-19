@@ -2702,6 +2702,12 @@ const modules = [
   {
     start: () => {},
     stop: () => {} // Camera Collage module
+  },
+  {
+    start: () => {},
+    stop: () => {
+      if (window.midiMorpherInstance) window.midiMorpherInstance.stop();
+    }
   }
 ];
 let currentIndex = 0;
@@ -2727,6 +2733,9 @@ function updateCarousel() {
 
   dots.forEach((dot, index) => {
     dot.classList.toggle('active', index === currentIndex);
+  });
+  document.querySelectorAll('.exp-jump-pill').forEach((pill, index) => {
+    pill.classList.toggle('active', index === currentIndex);
   });
 
   if (currentIndex === 0 && prevIndex === slides.length - 1) {
@@ -2789,6 +2798,15 @@ dots.forEach((dot, index) => {
   });
 });
 
+document.querySelectorAll('.exp-jump-pill').forEach((pill, index) => {
+  pill.addEventListener('click', () => {
+    if (index === currentIndex) return;
+    modules[currentIndex].stop();
+    currentIndex = index;
+    updateCarousel();
+  });
+});
+
 document.getElementById('carousel-prev').addEventListener('click', () => {
   modules[currentIndex].stop();
   currentIndex = (currentIndex - 1 + modules.length) % modules.length;
@@ -2807,8 +2825,8 @@ let isSwipeAllowed = true;
 
 track.addEventListener('touchstart', e => {
   const target = e.target;
-  // If user touches a slider or canvas, disable swiping so they can interact!
-  if (target.tagName.toLowerCase() === 'input' || target.tagName.toLowerCase() === 'canvas') {
+  // If user touches a slider, select, button, or canvas, disable swiping so they can interact!
+  if (['input', 'canvas', 'select', 'button'].includes(target.tagName.toLowerCase())) {
     isSwipeAllowed = false;
     return;
   }
@@ -2867,7 +2885,10 @@ function handleHashNavigation() {
     '#crank-ai': 4,
     '#camera-collage': 5,
     '#collage': 5,
-    '#scrambler': 5
+    '#scrambler': 5,
+    '#midi-morpher': 6,
+    '#midi': 6,
+    '#morpher': 6
   };
   if (routeMap.hasOwnProperty(hash)) {
     const targetIdx = routeMap[hash];
