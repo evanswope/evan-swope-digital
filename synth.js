@@ -2702,15 +2702,17 @@ const modules = [
   {
     start: () => {},
     stop: () => {} // Camera Collage module
-  }
-  /* ARCHIVED:
-  , {
-    start: () => {},
+  },
+  {
+    start: () => {
+      if (window.topoArpInstance && window.topoArpInstance.onSlideEnter) {
+        window.topoArpInstance.onSlideEnter();
+      }
+    },
     stop: () => {
-      if (window.midiMorpherInstance) window.midiMorpherInstance.stop();
+      if (window.topoArpInstance) window.topoArpInstance.stop();
     }
   }
-  */
 ];
 let currentIndex = 0;
 let prevIndex = 0;
@@ -2887,10 +2889,10 @@ function handleHashNavigation() {
     '#crank-ai': 4,
     '#camera-collage': 5,
     '#collage': 5,
-    '#scrambler': 5
-    // '#midi-morpher': 6,
-    // '#midi': 6,
-    // '#morpher': 6
+    '#scrambler': 5,
+    '#topo-arp': 6,
+    '#topo': 6,
+    '#topology': 6
   };
   if (routeMap.hasOwnProperty(hash)) {
     const targetIdx = routeMap[hash];

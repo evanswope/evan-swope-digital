@@ -384,6 +384,7 @@
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-font"></i> ASCII Portrait</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Crank the AI</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-layer-group"></i> Camera Collage</button>
+        <button class="exp-jump-pill" type="button"><i class="fa-solid fa-shapes"></i> Topo Arp</button>
         <!-- ARCHIVED: <button class="exp-jump-pill" type="button"><i class="fa-solid fa-sliders"></i> MIDI Morpher</button> -->
       </div>
       <div class="carousel-wrapper">
@@ -976,6 +977,77 @@
               </div>
             </div>
 
+            <!-- SLIDE 7: 3D Topological Arpeggiator (TopoArp) -->
+            <div class="carousel-slide" id="slide-topo-arp">
+              <div class="generative-card topo-card">
+                <svg class="synth-scribble-outline" preserveAspectRatio="none"><rect rx="10" style="filter: url(#scribble-filter);"></rect></svg>
+
+                <div class="card-header" style="margin-bottom: 0.85rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">3D KINETIC TOPOGRAPHY · PARAMETRIC WEB AUDIO ARPEGGIATOR</span>
+                  <h2 class="card-title" style="margin: 0.15rem 0;">TOPOLOGICAL ARPEGGIATOR</h2>
+                  <p class="card-desc" style="max-width: 720px;">
+                    Sculpt a tumbling liquid-metal body in 3D space. The geometry secretly modulates the synthesizer's arpeggiator engine, scaling notes, pitch glide, harmonic bite, and temporal drift.
+                  </p>
+                </div>
+
+                <!-- 3D Canvas Viewport -->
+                <div class="topo-canvas-wrapper">
+                  <div class="topo-top-bar">
+                    <span class="topo-badge"><i class="fa-solid fa-cubes"></i> Liquid Chrome Topo</span>
+                    <div class="topo-action-group">
+                      <button id="btn-topo-play" class="topo-btn" type="button" data-tooltip="Listen / Stop" aria-label="Play or Stop Audio">
+                        <i class="fa-solid fa-play"></i>
+                      </button>
+                      <button id="btn-topo-mutate" class="topo-btn" type="button" data-tooltip="Mutate" aria-label="Mutate Topography">
+                        <i class="fa-solid fa-dice"></i>
+                      </button>
+                      <button id="btn-topo-reset" class="topo-btn" type="button" data-tooltip="Reset" aria-label="Reset Geometry">
+                        <i class="fa-solid fa-rotate-left"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div id="topo-canvas-container"></div>
+                </div>
+
+                <!-- 7 Opaque Icon Sliders (Tooltips only on hover/focus) -->
+                <div class="topo-dock">
+                  <div class="topo-control-group" data-tooltip="Sprout">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-circle-nodes"></i></div>
+                    <input type="range" id="topo-slider-sprout" class="topo-slider" min="3" max="12" step="1" value="5" aria-label="Sprout">
+                  </div>
+                  <div class="topo-control-group" data-tooltip="Twist">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-tornado"></i></div>
+                    <input type="range" id="topo-slider-twist" class="topo-slider" min="0" max="1" step="0.01" value="0.22" aria-label="Twist">
+                  </div>
+                  <div class="topo-control-group" data-tooltip="Bloat">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-expand"></i></div>
+                    <input type="range" id="topo-slider-bloat" class="topo-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Bloat">
+                  </div>
+                  <div class="topo-control-group" data-tooltip="Spike">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-burst"></i></div>
+                    <input type="range" id="topo-slider-spike" class="topo-slider" min="0" max="1" step="0.01" value="0.35" aria-label="Spike">
+                  </div>
+                  <div class="topo-control-group" data-tooltip="Bump">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-braille"></i></div>
+                    <input type="range" id="topo-slider-bump" class="topo-slider" min="0" max="1" step="0.01" value="0.15" aria-label="Bump">
+                  </div>
+                  <div class="topo-control-group" data-tooltip="Tint">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-palette"></i></div>
+                    <input type="range" id="topo-slider-tint" class="topo-slider" min="0" max="1" step="0.01" value="0.25" aria-label="Tint">
+                  </div>
+                  <div class="topo-control-group" data-tooltip="Tumble">
+                    <div class="topo-icon-box" aria-hidden="true"><i class="fa-solid fa-arrows-spin"></i></div>
+                    <input type="range" id="topo-slider-tumble" class="topo-slider" min="0" max="1" step="0.01" value="0.45" aria-label="Tumble">
+                  </div>
+                </div>
+
+                <div class="topo-caption">
+                  <i class="fa-solid fa-hand-pointer"></i> Drag object to orbit &amp; tumble in 3D · Sliders mutate geometry and sound
+                </div>
+
+              </div>
+            </div>
+
             <!-- ARCHIVED EXPERIMENT: MIDI Genre Morpher (Paused) -->
             <template id="archived-slide-midi-morpher">
             <div class="carousel-slide" id="slide-midi-morpher">
@@ -1142,6 +1214,7 @@
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
+        <span class="dot"></span>
       </div>
 
     </section>
@@ -1167,11 +1240,13 @@
   <!-- SVG Filter for the scribble effect -->
   <!-- End of Main Content -->
   
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="app.js"></script>
   <script src="synth.js?v=2"></script>
   <script src="ascii.js?v=2"></script>
   <script src="sdxl.js"></script>
   <script src="collage.js"></script>
+  <script src="topo-arp.js"></script>
   <!-- ARCHIVED: <script src="midi-morpher.js"></script> -->
 </body>
 </html>
