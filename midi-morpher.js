@@ -2922,9 +2922,14 @@
 
       if (this.bpmSlider) {
         this.bpmSlider.addEventListener('input', (e) => {
-          const v = Number(e.target.value);
+          const v = clampNum(e.target.value, 50, 190, 110);
           this.currentBlueprint.tempo_bpm = v;
           if (this.bpmVal) this.bpmVal.textContent = `${v} BPM`;
+          if (this.graph && this.ctx) {
+            const stepDurSec = 60 / v / 4;
+            const delaySteps = clampNum(this.currentBlueprint.fx_spec?.delay_steps, 1, 8, 3);
+            this.graph.delayNode.delayTime.setTargetAtTime(Math.min(1.5, Math.max(0.09, delaySteps * stepDurSec)), this.ctx.currentTime, 0.03);
+          }
         });
       }
       if (this.swingSlider) {
@@ -3046,6 +3051,7 @@
       }
       this.currentGenreId = genreId;
       const genreEntry = GENRE_CATALOG[genreId] || GENRE_CATALOG.reggae_dub;
+      const fallbackBp = genreEntry.defaultBlueprint(this.currentPiece);
 
       if (this.morphBtn) {
         this.morphBtn.disabled = true;
@@ -3084,12 +3090,24 @@
         console.warn('Using local Music Theory AI Arranger fallback:', err);
       }
 
-      if (!blueprint || !blueprint.tempo_bpm) {
-        blueprint = genreEntry.defaultBlueprint(this.currentPiece);
+      if (!blueprint || typeof blueprint !== 'object') {
+        blueprint = fallbackBp;
         if (isCustom && customPrompt) {
           blueprint.mashup_title = `${this.currentPiece.title.split('(')[0].trim()} (${customPrompt} Mix)`;
           blueprint.producer_log = `Custom AI Vibe "${customPrompt}": ${blueprint.producer_log}`;
         }
+      } else {
+        // Ensure any omitted or malformed LLM fields fall back to the genre's authentic defaults
+        blueprint.tempo_bpm = clampNum(blueprint.tempo_bpm, 55, 185, fallbackBp.tempo_bpm);
+        blueprint.swing = clampNum(blueprint.swing, 0, 0.60, fallbackBp.swing);
+        blueprint.fx_spec = {
+          ...fallbackBp.fx_spec,
+          ...(blueprint.fx_spec || {}),
+          delay_wet: clampNum(blueprint.fx_spec?.delay_wet, 0, 0.48, fallbackBp.fx_spec.delay_wet),
+          delay_steps: clampNum(blueprint.fx_spec?.delay_steps, 1, 8, fallbackBp.fx_spec.delay_steps),
+          reverb_wet: clampNum(blueprint.fx_spec?.reverb_wet, 0, 0.40, fallbackBp.fx_spec.reverb_wet),
+          filter_cutoff: clampNum(blueprint.fx_spec?.filter_cutoff, 1200, 16000, fallbackBp.fx_spec.filter_cutoff)
+        };
       }
 
       this.currentBlueprint = blueprint;
