@@ -985,11 +985,11 @@
                   <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">SYMBOLIC AI ARRANGER · WEB AUDIO DAW · .MID + .MP3 EXPORT</span>
                   <h2 class="card-title" style="margin: 0.15rem 0;">MIDI GENRE MORPHER</h2>
                   <p class="card-desc" style="max-width: 700px;">
-                    Pick an iconic composer (or upload a <code>.mid</code> file) and a target genre. An LLM Music Theorist re-harmonizes the scale, re-quantizes the groove, writes a custom counter-hook + 16-step drum matrix, and synthesizes a multi-track remix in your browser.
+                    Pick an iconic composer (or upload a <code>.mid</code> file) and morph it into a preset genre or type your own custom AI style. The main melody leads the mix while the AI builds the groove, bassline, and chords underneath.
                   </p>
                 </div>
 
-                <!-- Dropdowns: Source Composer/Piece x Target Genre -->
+                <!-- Dropdowns: Source Composer/Piece x Target Genre (Preset OR Custom AI) -->
                 <div class="mm-select-grid">
                   <div class="mm-field-group">
                     <label class="mm-label" for="mm-composer-select">
@@ -1012,17 +1012,19 @@
                       <option value="vivaldi_winter">Antonio Vivaldi — Winter (The Four Seasons)</option>
                       <option value="joplin_entertainer">Scott Joplin — The Entertainer</option>
                       <option value="bach_cello">J.S. Bach — Cello Suite No. 1 (Prelude)</option>
-                      <option value="ai_wildcard">✨ AI Wildcard (Type Any Song in Prompt Below)</option>
                     </select>
                   </div>
 
                   <div class="mm-cross-icon">×</div>
 
                   <div class="mm-field-group">
-                    <label class="mm-label" for="mm-genre-select">
-                      <span>2. Target Genre / Style</span>
-                      <span style="color:#94a3b8; font-size:0.62rem;">LLM Arranger Rules</span>
-                    </label>
+                    <div class="mm-label">
+                      <span>2. Target Genre</span>
+                      <div style="display: inline-flex; gap: 0.25rem; background: #070913; padding: 2px; border-radius: 4px; border: 1px solid rgba(0,242,254,0.3);">
+                        <button type="button" id="mm-mode-preset" style="background: #ff7eb3; color: #070913; border: none; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; cursor: pointer;">PRESETS</button>
+                        <button type="button" id="mm-mode-custom" style="background: transparent; color: #94a3b8; border: none; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; cursor: pointer;">✨ CUSTOM AI</button>
+                      </div>
+                    </div>
                     <select id="mm-genre-select" class="mm-select">
                       <option value="reggae_dub">🇯🇲 King Tubby Dub Reggae</option>
                       <option value="boombap_90s">📼 90s East Coast Boom-Bap</option>
@@ -1037,22 +1039,22 @@
                       <option value="doom_metal">💀 Sabbath Doom Sludge</option>
                       <option value="new_orleans_jazz">🎺 New Orleans Second-Line Brass</option>
                     </select>
+                    <input
+                      type="text"
+                      id="mm-custom-prompt"
+                      class="mm-input"
+                      style="display: none;"
+                      placeholder="Type any style (e.g. '1970s Ethiopian Jazz', 'Haunted Waltz')..."
+                    />
                   </div>
                 </div>
 
-                <!-- Custom AI Prompt Twist + Morph & Play Action Row -->
-                <div class="mm-prompt-row">
-                  <input
-                    type="text"
-                    id="mm-custom-prompt"
-                    class="mm-input"
-                    style="flex: 1; min-width: 210px;"
-                    placeholder="Optional AI direction (e.g. '1970s Ethiopian Jazz', 'Haunted Carnival Waltz', or custom song)..."
-                  />
-                  <button id="btn-mm-morph" class="mm-action-btn" type="button">
+                <!-- Morph & Play Action Row -->
+                <div class="mm-prompt-row" style="justify-content: center;">
+                  <button id="btn-mm-morph" class="mm-action-btn" type="button" style="flex: 1; max-width: 320px;">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> MORPH &amp; ARRANGE
                   </button>
-                  <button id="btn-mm-play" class="mm-action-btn cyan" type="button">
+                  <button id="btn-mm-play" class="mm-action-btn cyan" type="button" style="min-width: 140px;">
                     <i class="fa-solid fa-play"></i> PLAY
                   </button>
                 </div>
@@ -1061,30 +1063,27 @@
                 <div class="mm-screen-box">
                   <div class="mm-screen-topbar">
                     <span class="mm-track-title" id="mm-track-title">Eine kleine Nachtmusik (Kingston '74 Dubplate)</span>
-                    <span class="mm-status-badge" id="mm-status-badge">MODE: DORIAN · LEAD: MELODICA DUB</span>
+                    <span class="mm-status-badge" id="mm-status-badge">MODE: ORIGINAL · LEAD: MELODICA DUB</span>
                   </div>
                   <canvas id="mm-canvas" width="780" height="185"></canvas>
                   <div class="mm-producer-log" id="mm-producer-log">
-                    Shifted W.A. Mozart's G major score into a 76 BPM Jamaican one-drop dubplate. Dropped beat 1 for a syncopated sub-bass bubble, placed crisp Hammond organ skanks on the '&amp;' offbeats, and routed a melodica horn lead through a dotted-8th spring delay.
+                    Framed W.A. Mozart's G-major melody front-and-center over a 76 BPM Jamaican one-drop groove, with a deep sub-bass bubble and subtle offbeat Hammond skanks tucked underneath.
                   </div>
                 </div>
 
-                <!-- Interactive Stem Mute/Solo Bar -->
+                <!-- Interactive Stem Mute/Solo Bar (4 Clean Stems) -->
                 <div class="mm-stems-bar" aria-label="Toggle Track Stems">
-                  <button class="mm-stem-btn" data-stem="melody" style="--stem-color: #00f2fe;" type="button" title="Toggle Morphed Melody Lead">
+                  <button class="mm-stem-btn" data-stem="melody" style="--stem-color: #00f2fe;" type="button" title="Toggle Main Melody Lead">
                     <span class="mm-stem-led"></span> LEAD MELODY
                   </button>
-                  <button class="mm-stem-btn" data-stem="ai_hook" style="--stem-color: #a855f7;" type="button" title="Toggle AI Counter-Hook">
-                    <span class="mm-stem-led"></span> AI COUNTER-HOOK
-                  </button>
-                  <button class="mm-stem-btn" data-stem="chords" style="--stem-color: #ff7eb3;" type="button" title="Toggle Chords / Skank">
-                    <span class="mm-stem-led"></span> CHORDS / SKANK
+                  <button class="mm-stem-btn" data-stem="chords" style="--stem-color: #ff7eb3;" type="button" title="Toggle Backing Chords">
+                    <span class="mm-stem-led"></span> BACKING CHORDS
                   </button>
                   <button class="mm-stem-btn" data-stem="bass" style="--stem-color: #10b981;" type="button" title="Toggle Bassline">
                     <span class="mm-stem-led"></span> BASSLINE
                   </button>
-                  <button class="mm-stem-btn" data-stem="drums" style="--stem-color: #f59e0b;" type="button" title="Toggle Drum Matrix">
-                    <span class="mm-stem-led"></span> DRUM MATRIX
+                  <button class="mm-stem-btn" data-stem="drums" style="--stem-color: #f59e0b;" type="button" title="Toggle Drum Groove">
+                    <span class="mm-stem-led"></span> DRUM GROOVE
                   </button>
                 </div>
 
@@ -1095,23 +1094,23 @@
                     <input type="range" id="mm-slider-bpm" class="line-slider" min="55" max="175" step="1" value="76">
                   </div>
                   <div class="mm-knob-box">
-                    <div class="mm-knob-header"><span>SWING</span><span class="mm-knob-val" id="mm-val-swing">24%</span></div>
-                    <input type="range" id="mm-slider-swing" class="line-slider" min="0" max="62" step="1" value="24">
+                    <div class="mm-knob-header"><span>SWING</span><span class="mm-knob-val" id="mm-val-swing">22%</span></div>
+                    <input type="range" id="mm-slider-swing" class="line-slider" min="0" max="62" step="1" value="22">
                   </div>
                   <div class="mm-knob-box">
-                    <div class="mm-knob-header"><span>DUB ECHO</span><span class="mm-knob-val" id="mm-val-echo">48%</span></div>
-                    <input type="range" id="mm-slider-echo" class="line-slider" min="0" max="75" step="1" value="48">
+                    <div class="mm-knob-header"><span>ECHO MIX</span><span class="mm-knob-val" id="mm-val-echo">20%</span></div>
+                    <input type="range" id="mm-slider-echo" class="line-slider" min="0" max="60" step="1" value="20">
                   </div>
                   <div class="mm-knob-box">
-                    <div class="mm-knob-header"><span>LOWPASS FILTER</span><span class="mm-knob-val" id="mm-val-filter">5.2kHz</span></div>
-                    <input type="range" id="mm-slider-filter" class="line-slider" min="600" max="14000" step="100" value="5200">
+                    <div class="mm-knob-header"><span>TONE FILTER</span><span class="mm-knob-val" id="mm-val-filter">8.5kHz</span></div>
+                    <input type="range" id="mm-slider-filter" class="line-slider" min="1200" max="14000" step="100" value="8500">
                   </div>
                 </div>
 
                 <!-- Bottom Export Bar (.MID & .MP3) -->
                 <div class="mm-bottom-bar">
                   <span style="font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #94a3b8;">
-                    <i class="fa-solid fa-microchip" style="color: #00f2fe;"></i> 5-Track General MIDI + Offline Stereo Renderer
+                    <i class="fa-solid fa-microchip" style="color: #00f2fe;"></i> 4-Track General MIDI + Offline Stereo Mixdown
                   </span>
                   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button id="btn-mm-dl-mid" class="mm-action-btn cyan" type="button" style="padding: 0.42rem 0.9rem; font-size: 0.74rem;">
