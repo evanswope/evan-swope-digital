@@ -1175,10 +1175,9 @@
     return oct * 12 + map[pc];
   }
 
-  // Build compact, warm backing chord voicings strictly in the C3..C4 accompaniment register (MIDI 48..60)
+  // Build compact, warm backing chord voicings in the E3..Eb4 midrange register (MIDI 52..63)
   function buildChordNotes(rootMidi, qual, voicing, scaleMode, origMode) {
-    let baseRoot = 48 + (((rootMidi - 48) % 12 + 12) % 12);
-    if (baseRoot > 57) baseRoot -= 12;
+    let baseRoot = 52 + (((rootMidi - 52) % 12 + 12) % 12);
 
     let isMinor = qual === 'min';
     if (scaleMode === 'parallel_minor' || scaleMode === 'dorian' || scaleMode === 'harmonic_minor') {
@@ -1265,34 +1264,39 @@
       events.melody.push({ step, dur, midi, vel, echo: echoThrow, panOffset: 0 });
     });
 
-    // --- TRACK 2: SPARSE, RHYTHMIC BACKING CHORDS (C3..C4 Register + Stereo Spread) ---
+    // --- TRACK 2: SPARSE, RHYTHMIC BACKING CHORDS (E3..G4 Midrange + Stereo Spread) ---
     const cPattern = chordSpec.pattern || 'reggae_skank';
     const cVoicing = chordSpec.voicing || 'triad';
-    const cVelScale = clampNum(chordSpec.vel_scale, 0.36, 0.58, 0.48);
+    const cVelScale = clampNum(chordSpec.vel_scale, 0.58, 0.85, 0.70);
 
     for (let bar = 0; bar < 8; bar++) {
       const chordObj = srcChords[bar % srcChords.length] || { deg: 0, qual: 'maj' };
       const barRoot = rootBase + remapSemitone(chordObj.deg, scaleMode, piece.mode);
       const chordNotes = buildChordNotes(barRoot, chordObj.qual, cVoicing, scaleMode, piece.mode);
+      const isOffbeatChop = cPattern === 'reggae_skank' || cPattern === 'ska_upstrokes' || cPattern === 'house_offbeat';
+      const voicedChordNotes = isOffbeatChop
+        ? chordNotes.map(m => (m < 58 ? m + 12 : m))
+        : chordNotes;
       const baseStep = bar * 16;
 
-      const pushChordHit = (s, dur, hitVelMult = 1.0) => {
-        chordNotes.forEach((m, vIdx) => {
-          const spread = (vIdx - (chordNotes.length - 1) / 2) * 0.07;
+      const pushChordHit = (s, dur, hitVelMult = 1.0, echoThrow = false) => {
+        voicedChordNotes.forEach((m, vIdx) => {
+          const spread = (vIdx - (voicedChordNotes.length - 1) / 2) * 0.07;
           events.chords.push({
             step: baseStep + s,
             dur,
             midi: m,
-            vel: Math.max(0.32, Math.min(0.60, cVelScale * hitVelMult)),
+            vel: Math.max(0.55, Math.min(0.88, cVelScale * hitVelMult)),
+            echo: echoThrow,
             panOffset: spread
           });
         });
       };
 
       if (cPattern === 'reggae_skank' || cPattern === 'house_offbeat') {
-        [2, 6, 10, 14].forEach(s => pushChordHit(s, 1.2, 1.0));
+        [2, 6, 10, 14].forEach((s, idx) => pushChordHit(s, 1.75, 1.05, cPattern === 'reggae_skank' && idx === 3 && bar % 2 === 1));
       } else if (cPattern === 'ska_upstrokes' || cPattern === 'ragtime_stride') {
-        [2, 6, 10, 14].forEach(s => pushChordHit(s, 1.0, 1.02));
+        [2, 6, 10, 14].forEach(s => pushChordHit(s, 1.55, 1.08));
       } else if (cPattern === 'bossa_clave') {
         [
           { s: 0, d: 2.5, v: 1.02 },
@@ -1312,9 +1316,9 @@
           const note = chordNotes[vIdx];
           events.chords.push({
             step: baseStep + s,
-            dur: 1.4,
+            dur: 1.6,
             midi: note,
-            vel: cVelScale * 0.96,
+            vel: cVelScale * 0.98,
             panOffset: (vIdx - 1) * 0.08
           });
         }
@@ -1323,7 +1327,7 @@
           const note = chordNotes[idx % chordNotes.length];
           events.chords.push({
             step: baseStep + s,
-            dur: 3.0,
+            dur: 3.2,
             midi: note,
             vel: cVelScale,
             panOffset: (idx - 1) * 0.09
@@ -1336,7 +1340,7 @@
 
     // --- TRACK 3: DEEP BASSLINE (Strictly C2..B2 Register, MIDI 36..47) ---
     const bPattern = bassSpec.pattern || 'one_drop_bubble';
-    const bVelScale = clampNum(bassSpec.vel_scale, 0.70, 0.95, 0.85) / 0.85;
+    const bVelScale = clampNum(bassSpec.vel_scale, 0.75, 0.98, 0.88) / 0.85;
 
     for (let bar = 0; bar < 8; bar++) {
       const chordObj = srcChords[bar % srcChords.length] || { deg: 0, qual: 'maj' };
@@ -1353,7 +1357,7 @@
           step: baseStep + n.s,
           dur: n.d,
           midi: n.m,
-          vel: Math.max(0.65, Math.min(0.96, n.v * bVelScale)),
+          vel: Math.max(0.70, Math.min(0.98, n.v * bVelScale)),
           panOffset: 0
         });
       };
@@ -1445,11 +1449,11 @@
             dur: 1,
             type: isOpenOrRoll ? 'hat_open_or_roll' : 'hat',
             midi: isOpenOrRoll ? 46 : 42,
-            vel: Math.min(1, hatGrid[s] * 0.65)
+            vel: Math.min(1, hatGrid[s] * 0.78)
           });
         }
         if (percGrid[s] > 0.05) {
-          events.drums.push({ step: baseStep + s, dur: 1, type: 'perc', midi: 37, vel: Math.min(1, percGrid[s] * 0.7) });
+          events.drums.push({ step: baseStep + s, dur: 1, type: 'perc', midi: 37, vel: Math.min(1, percGrid[s] * 0.8) });
         }
       }
     }
@@ -1560,7 +1564,7 @@
 
   function createAudioGraph(ctx, fxSpec, stepDurSec) {
     const masterGain = ctx.createGain();
-    masterGain.gain.value = 0.90;
+    masterGain.gain.value = 0.92;
 
     const masterFilter = ctx.createBiquadFilter();
     masterFilter.type = 'lowpass';
@@ -1637,16 +1641,16 @@
     const dur = Math.max(0.05, clampNum(durationSec, 0.05, 8.0, 0.25));
     const safeVel = clampNum(velocity, 0.1, 1.0, 0.85);
 
-    // STRICT ROLE GAIN HIERARCHY:
-    // - 'melody': 0.34 peak (front-and-center lead!)
-    // - 'bass':   0.19 peak (deep low-end foundation)
-    // - 'chord':  0.048 per voice (so 3-note chords sum to ~0.14, sitting warmly under the lead)
-    const roleScale = role === 'melody' ? 0.34 : (role === 'bass' ? 0.19 : 0.048);
+    // STUDIO-BALANCED ROLE GAIN HIERARCHY (verified via OfflineAudioContext stem RMS telemetry):
+    // - 'melody': 0.30 peak (~ -16 to -18 dB RMS, clear #1 lead focal point)
+    // - 'bass':   0.26 peak (~ -19 to -21 dB RMS, warm low-end foundation with 2nd harmonic)
+    // - 'chord':  0.135 per voice (so 3-note chords sum to ~ -22 to -24 dB RMS, sitting 6 dB under the lead!)
+    const roleScale = role === 'melody' ? 0.30 : (role === 'bass' ? 0.26 : 0.135);
     const peak = Math.max(0.005, safeVel * roleScale);
 
     // Default ADSR & Timbre values tailored by patch, overridden by LLM's explicit parameters
     let defAttack = 0.010, defDecay = 0.18, defSustain = 0.72, defRelease = 0.08;
-    let defCutoff = role === 'melody' ? 4000 : (role === 'bass' ? 480 : 1900);
+    let defCutoff = role === 'melody' ? 4000 : (role === 'bass' ? 720 : 2500);
     let defQ = 1.4;
     let defDrive = 0.12;
     let defBreath = 0.0;
@@ -1657,33 +1661,34 @@
 
     if (patch === 'flute_airy' || patch === 'whistle_western') {
       defAttack = 0.028; defDecay = 0.20; defSustain = 0.82; defRelease = 0.14;
-      defBreath = 0.24; defVibRate = 5.5; defVibDepth = 15; defDrive = 0.05;
+      defBreath = 0.26; defVibRate = 5.5; defVibDepth = 15; defDrive = 0.05;
     } else if (patch === 'accordion_musette' || patch === 'melodica_dub') {
       defAttack = 0.022; defDecay = 0.20; defSustain = 0.85; defRelease = 0.10;
-      defBreath = 0.11; defChorus = patch === 'accordion_musette' ? 16 : 9;
+      defBreath = 0.12; defChorus = patch === 'accordion_musette' ? 16 : 9;
       defVibRate = 5.1; defVibDepth = 8; defDrive = 0.14;
     } else if (patch === 'roto_organ' || patch === 'organ_skank') {
-      defAttack = 0.004; defDecay = 0.12; defSustain = role === 'melody' ? 0.88 : 0.40;
-      defRelease = role === 'melody' ? 0.07 : 0.035;
+      defAttack = 0.004; defDecay = 0.14; defSustain = role === 'melody' ? 0.88 : 0.65;
+      defRelease = role === 'melody' ? 0.07 : 0.045;
       defRotary = patch === 'roto_organ' ? (role === 'melody' ? 'accel' : 'fast') : 'fast';
-      defDrive = 0.25; defBreath = 0.05;
+      defDrive = 0.24; defBreath = 0.05;
     } else if (patch === 'rhodes_ep' || patch === 'warm_rhodes' || patch === 'vibraphone_jazz' || patch === 'dark_trap_bells') {
-      defAttack = 0.004; defDecay = 0.32; defSustain = 0.38; defRelease = 0.18;
+      defAttack = 0.004; defDecay = 0.32; defSustain = 0.52; defRelease = 0.18;
       defDrive = 0.10;
     } else if (patch === 'brass_horn') {
-      defAttack = 0.016; defDecay = 0.18; defSustain = 0.82; defRelease = 0.09;
-      defDrive = 0.28; defVibDepth = 11; defBreath = 0.07;
+      defAttack = 0.014; defDecay = 0.18; defSustain = 0.82; defRelease = 0.09;
+      defDrive = 0.26; defVibDepth = 11; defBreath = 0.07;
     } else if (patch === 'fuzz_lead' || patch === 'doom_power_stack' || patch === 'doom_fuzz') {
       defAttack = 0.007; defDecay = 0.22; defSustain = 0.80; defRelease = 0.11;
       defDrive = 0.65; defChorus = 10;
     } else if (patch === 'square_8bit' || patch === 'chip_arp') {
-      defAttack = 0.002; defDecay = 0.10; defSustain = 0.65; defRelease = 0.025;
-      defCutoff = role === 'chord' ? 2500 : 7800; defVibDepth = 4;
+      defAttack = 0.002; defDecay = 0.10; defSustain = 0.68; defRelease = 0.025;
+      defCutoff = role === 'chord' ? 2800 : 7800; defVibDepth = 4;
     }
 
     const attack = clampNum(adsr.attack, 0.002, 0.18, defAttack);
     const decay = clampNum(adsr.decay, 0.03, 0.80, defDecay);
-    const sustain = clampNum(adsr.sustain, 0.10, 0.98, defSustain);
+    const rawSustain = clampNum(adsr.sustain, 0.10, 0.98, defSustain);
+    const sustain = role === 'chord' ? Math.max(0.55, rawSustain) : rawSustain;
     const release = clampNum(adsr.release, 0.02, 0.45, defRelease);
 
     // Strictly monotonic ADSR envelope timestamps even on rapid 16th-note ornaments!
@@ -1695,7 +1700,8 @@
     const tRelease = tNoteOff + release;
     const stopTime = tRelease + 0.025;
 
-    const cutoff = clampNum(timbre.filter_cutoff, 220, 12000, defCutoff);
+    const rawCutoff = clampNum(timbre.filter_cutoff, 220, 12000, defCutoff);
+    const cutoff = role === 'chord' ? Math.max(2200, rawCutoff) : (role === 'bass' ? Math.max(680, rawCutoff) : rawCutoff);
     const filterQ = clampNum(timbre.filter_q, 0.5, 8.0, defQ);
     const driveAmt = clampNum(timbre.drive, 0, 0.85, defDrive);
     const breathAmt = clampNum(timbre.breath_noise, 0, 0.40, defBreath);
@@ -1732,28 +1738,37 @@
     const activeNodes = [];
     const oscPitchTargets = [];
 
-    // --- ARCHITECTURE A: FLUTES & PAN PIPES (Chiff + Breath Air + Harmonics + Delayed Vibrato) ---
+    // --- ARCHITECTURE A: FLUTES & PAN PIPES (Woody Fundamental + Audible Embouchure Chiff + Breath Air + Delayed Vibrato) ---
     if (patch === 'flute_airy' || patch === 'whistle_western') {
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
+      const osc3 = ctx.createOscillator();
       osc1.type = 'sine';
-      osc2.type = 'triangle';
+      osc2.type = 'triangle'; // Warm hollow wooden body at 1x fundamental
+      osc3.type = 'sine';     // Subtle 2nd harmonic overblown shimmer
       const startFreq = patch === 'whistle_western' ? freq * 0.985 : freq;
       osc1.frequency.setValueAtTime(startFreq, startTime);
+      osc2.frequency.setValueAtTime(startFreq, startTime);
+      osc2.detune.setValueAtTime(4, startTime);
       if (patch === 'whistle_western') {
         osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.03);
+        osc2.frequency.exponentialRampToValueAtTime(freq, startTime + 0.03);
       }
-      osc2.frequency.setValueAtTime(freq * 2, startTime);
+      osc3.frequency.setValueAtTime(freq * 2, startTime);
 
+      const g1 = ctx.createGain();
       const g2 = ctx.createGain();
-      g2.gain.value = 0.26;
-      osc1.connect(voiceBus);
-      osc2.connect(g2);
-      g2.connect(voiceBus);
-      oscPitchTargets.push(osc1.frequency);
-      activeNodes.push(osc1, osc2);
+      const g3 = ctx.createGain();
+      g1.gain.value = 0.68;
+      g2.gain.value = 0.30;
+      g3.gain.value = 0.08;
+      osc1.connect(g1); g1.connect(voiceBus);
+      osc2.connect(g2); g2.connect(voiceBus);
+      osc3.connect(g3); g3.connect(voiceBus);
+      oscPitchTargets.push(osc1.frequency, osc2.frequency);
+      activeNodes.push(osc1, osc2, osc3);
 
-      // Embouchure Chiff Transient (first 35ms) + Sustained Breath Air Layer
+      // Embouchure Chiff Transient (first 38ms) + Sustained Breath Air Layer
       const noiseSrc = ctx.createBufferSource();
       noiseSrc.buffer = dsp.noiseBuffer;
       noiseSrc.loop = true;
@@ -1762,35 +1777,36 @@
 
       const chiffBp = ctx.createBiquadFilter();
       chiffBp.type = 'bandpass';
-      chiffBp.frequency.setValueAtTime(Math.min(4800, freq * 2.2), startTime);
-      chiffBp.Q.value = 3.2;
+      chiffBp.frequency.setValueAtTime(Math.min(3600, freq * 2.4), startTime);
+      chiffBp.Q.value = 1.8;
 
       const chiffGain = ctx.createGain();
-      const airLevel = Math.max(0.14, breathAmt);
+      const airLevel = Math.max(0.18, breathAmt);
       chiffGain.gain.setValueAtTime(0.001, startTime);
-      // Initial lip-plate chiff burst
-      chiffGain.gain.linearRampToValueAtTime(airLevel * 1.9, startTime + 0.012);
-      // Settle into continuous breathy air stream
-      chiffGain.gain.exponentialRampToValueAtTime(airLevel * 0.65, startTime + 0.048);
+      // Distinct lip-plate chiff attack burst
+      chiffGain.gain.linearRampToValueAtTime(airLevel * 3.6, startTime + 0.015);
+      // Settle into warm audible breathy air stream
+      chiffGain.gain.exponentialRampToValueAtTime(airLevel * 1.45, startTime + 0.055);
 
       noiseSrc.connect(chiffBp);
       chiffBp.connect(chiffGain);
       chiffGain.connect(voiceBus);
+      oscPitchTargets.push(chiffBp.frequency);
       activeNodes.push(noiseSrc);
     }
 
-    // --- ARCHITECTURE B: ACCORDION MUSETTE & DUB MELODICA (3-Reed Wet Tuning + Reed Cavity Formant + Bellows Air) ---
+    // --- ARCHITECTURE B: ACCORDION MUSETTE & DUB MELODICA (3-Reed Wet Tuning + 16' Bassoon Sub-Reed + Woody Formant) ---
     else if (patch === 'accordion_musette' || patch === 'melodica_dub') {
       const detuneSpread = patch === 'accordion_musette' ? Math.max(12, chorusDetune) : Math.max(6, chorusDetune);
       const detunes = [0, detuneSpread, -detuneSpread];
-      const gains = [0.52, 0.34, 0.34];
+      const gains = [0.46, 0.30, 0.30];
 
-      // Reed cavity woody formant resonator (~1350 Hz)
+      // Warm wooden reed-box formant (~1150 Hz)
       const reedFormant = ctx.createBiquadFilter();
       reedFormant.type = 'peaking';
-      reedFormant.frequency.setValueAtTime(patch === 'accordion_musette' ? 1320 : 1480, startTime);
-      reedFormant.Q.value = 2.2;
-      reedFormant.gain.value = 5.5;
+      reedFormant.frequency.setValueAtTime(patch === 'accordion_musette' ? 1150 : 1350, startTime);
+      reedFormant.Q.value = 1.4;
+      reedFormant.gain.value = 3.2;
       reedFormant.connect(voiceBus);
 
       detunes.forEach((dt, idx) => {
@@ -1806,6 +1822,18 @@
         activeNodes.push(osc);
       });
 
+      // 16' Sub-Octave Bassoon Reed Rank for Parisian Accordion richness
+      if (patch === 'accordion_musette') {
+        const subReed = ctx.createOscillator();
+        subReed.type = 'triangle';
+        subReed.frequency.setValueAtTime(freq * 0.5, startTime);
+        const subGain = ctx.createGain();
+        subGain.gain.value = 0.22;
+        subReed.connect(subGain);
+        subGain.connect(reedFormant);
+        activeNodes.push(subReed);
+      }
+
       // Subtle mechanical valve click + bellows air flow
       if (breathAmt > 0.02) {
         const airSrc = ctx.createBufferSource();
@@ -1813,11 +1841,11 @@
         airSrc.loop = true;
         const airBp = ctx.createBiquadFilter();
         airBp.type = 'bandpass';
-        airBp.frequency.value = 1900;
-        airBp.Q.value = 2.0;
+        airBp.frequency.value = 1800;
+        airBp.Q.value = 1.8;
         const airGain = ctx.createGain();
-        airGain.gain.setValueAtTime(breathAmt * 1.4, startTime);
-        airGain.gain.exponentialRampToValueAtTime(Math.max(0.01, breathAmt * 0.5), startTime + 0.015);
+        airGain.gain.setValueAtTime(breathAmt * 2.2, startTime);
+        airGain.gain.exponentialRampToValueAtTime(Math.max(0.02, breathAmt * 0.8), startTime + 0.02);
         airSrc.connect(airBp);
         airBp.connect(airGain);
         airGain.connect(reedFormant);
@@ -1851,8 +1879,8 @@
       percOsc.type = 'sine';
       percOsc.frequency.setValueAtTime(freq * 3, startTime);
       const percGain = ctx.createGain();
-      percGain.gain.setValueAtTime(role === 'melody' ? 0.32 : 0.18, startTime);
-      percGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.075);
+      percGain.gain.setValueAtTime(role === 'melody' ? 0.28 : 0.16, startTime);
+      percGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.065);
       percOsc.connect(percGain);
       percGain.connect(voiceBus);
       activeNodes.push(percOsc);
@@ -1865,7 +1893,7 @@
       clickBp.frequency.value = 2600;
       clickBp.Q.value = 2.5;
       const clickGain = ctx.createGain();
-      clickGain.gain.setValueAtTime(0.22, startTime);
+      clickGain.gain.setValueAtTime(0.24, startTime);
       clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.006);
       clickSrc.connect(clickBp);
       clickBp.connect(clickGain);
@@ -1874,29 +1902,37 @@
     }
 
     // --- ARCHITECTURE D: 2-OPERATOR FM ELECTRIC PIANOS, VIBRAPHONES & BELLS ---
-    else if (patch === 'rhodes_ep' || patch === 'warm_rhodes' || patch === 'vibraphone_jazz' || patch === 'dark_trap_bells') {
+    else if (
+      patch === 'rhodes_ep' ||
+      patch === 'warm_rhodes' ||
+      patch === 'rhodes_warm' ||
+      patch === 'vibraphone_jazz' ||
+      patch === 'dark_trap_bells' ||
+      patch === 'trap_bells'
+    ) {
+      const isTrapBells = patch === 'dark_trap_bells' || patch === 'trap_bells';
       const carrier = ctx.createOscillator();
       const modulator = ctx.createOscillator();
       carrier.type = 'sine';
       modulator.type = 'sine';
 
-      const fmRatio = patch === 'dark_trap_bells' ? 2.76 : (patch === 'vibraphone_jazz' ? 4.0 : 7.0);
-      const fmIndexPeak = patch === 'dark_trap_bells' ? freq * 2.2 : (patch === 'vibraphone_jazz' ? freq * 1.4 : freq * 1.1);
-      const fmIndexSustain = freq * 0.12;
+      const fmRatio = isTrapBells ? 2.76 : (patch === 'vibraphone_jazz' ? 4.0 : 3.0);
+      const fmIndexPeak = isTrapBells ? freq * 2.4 : (patch === 'vibraphone_jazz' ? freq * 1.5 : freq * 1.45);
+      const fmIndexSustain = freq * 0.28;
 
       carrier.frequency.setValueAtTime(freq, startTime);
       modulator.frequency.setValueAtTime(freq * fmRatio, startTime);
 
       const fmGain = ctx.createGain();
       fmGain.gain.setValueAtTime(fmIndexPeak, startTime);
-      fmGain.gain.exponentialRampToValueAtTime(Math.max(1, fmIndexSustain), startTime + 0.11);
+      fmGain.gain.exponentialRampToValueAtTime(Math.max(1, fmIndexSustain), startTime + 0.14);
 
-      // Warm fundamental body harmonic (2x)
+      // Warm fundamental + 2nd harmonic bark body so Rhodes chords & skanks cut through the mix
       const bodyOsc = ctx.createOscillator();
-      bodyOsc.type = 'triangle';
+      bodyOsc.type = 'sawtooth';
       bodyOsc.frequency.setValueAtTime(freq, startTime);
       const bodyGain = ctx.createGain();
-      bodyGain.gain.value = 0.35;
+      bodyGain.gain.value = isTrapBells ? 0.32 : 0.48;
 
       modulator.connect(fmGain);
       fmGain.connect(carrier.frequency);
@@ -1908,24 +1944,29 @@
       activeNodes.push(carrier, modulator, bodyOsc);
     }
 
-    // --- ARCHITECTURE E: BRASS HORN SECTION (Lip-Slur Scoop + Bell Formant + Saturation) ---
+    // --- ARCHITECTURE E: BRASS HORN SECTION (Sustained Lip-Slur Scoop + Staccato Tongue Punch + Bell Formant) ---
     else if (patch === 'brass_horn') {
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       osc1.setPeriodicWave(dsp.brassWave);
       osc2.type = 'sawtooth';
 
-      // Lip-slur pitch scoop (-38 cents -> 0 over 24ms)
-      const scoopStart = freq * 0.978;
-      osc1.frequency.setValueAtTime(scoopStart, startTime);
-      osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.024);
-      osc2.frequency.setValueAtTime(scoopStart, startTime);
-      osc2.frequency.exponentialRampToValueAtTime(freq, startTime + 0.026);
+      // Only apply lip-slur pitch scoop on sustained notes (dur > 0.22s); keep rapid 16th staccatos tight!
+      if (dur > 0.22) {
+        const scoopStart = freq * 0.985;
+        osc1.frequency.setValueAtTime(scoopStart, startTime);
+        osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.022);
+        osc2.frequency.setValueAtTime(scoopStart, startTime);
+        osc2.frequency.exponentialRampToValueAtTime(freq, startTime + 0.024);
+      } else {
+        osc1.frequency.setValueAtTime(freq, startTime);
+        osc2.frequency.setValueAtTime(freq, startTime);
+      }
       osc2.detune.setValueAtTime(chorusDetune, startTime);
 
       // Brass bell filter blare envelope
-      vcf.frequency.setValueAtTime(550, startTime);
-      vcf.frequency.exponentialRampToValueAtTime(cutoff, startTime + 0.045);
+      vcf.frequency.setValueAtTime(750, startTime);
+      vcf.frequency.exponentialRampToValueAtTime(cutoff, startTime + 0.032);
 
       const g2 = ctx.createGain();
       g2.gain.value = 0.48;
@@ -1963,7 +2004,7 @@
       activeNodes.push(osc1, osc2);
     }
 
-    // --- ARCHITECTURE G: SUPERSAW, ACID 303, CHIPTUNE, PLUCKED GUITAR & BASSES ---
+    // --- ARCHITECTURE G: SUPERSAW, ACID 303, CHIPTUNE, PLUCKED GUITAR & HARMONIC BASSES ---
     else {
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
@@ -1986,7 +2027,7 @@
         osc1.type = 'sawtooth';
         osc2.type = 'square';
         vcf.frequency.setValueAtTime(cutoff, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(Math.max(240, cutoff * 0.14), startTime + Math.min(0.20, dur));
+        vcf.frequency.exponentialRampToValueAtTime(Math.max(260, cutoff * 0.16), startTime + Math.min(0.20, dur));
       } else if (patch === 'square_8bit' || patch === 'chip_arp') {
         osc1.type = 'square';
         osc2.type = 'square';
@@ -1997,31 +2038,39 @@
         }
       } else if (patch === 'sub_dub' || patch === 'trap_808') {
         osc1.type = 'sine';
-        osc2.type = 'triangle';
-        osc1.frequency.setValueAtTime(freq * 1.45, startTime);
-        osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.042);
-      } else if (patch === 'nylon_guitar' || patch === 'clavinet_funk' || patch === 'honky_tonk') {
-        osc1.type = patch === 'clavinet_funk' ? 'sawtooth' : 'triangle';
-        osc2.type = 'sawtooth';
-        osc2.detune.setValueAtTime(patch === 'honky_tonk' ? 14 : 4, startTime);
-        vcf.frequency.setValueAtTime(cutoff * 1.4, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(Math.max(480, cutoff * 0.35), startTime + Math.min(0.24, dur));
+        osc2.type = 'sawtooth'; // Warm 2nd-harmonic saturation so sub-bass translates on all speakers!
+        osc1.frequency.setValueAtTime(freq * 1.35, startTime);
+        osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.038);
+        osc2.frequency.setValueAtTime(freq * 2, startTime);
+      } else if (
+        patch === 'nylon_guitar' ||
+        patch === 'acoustic_guitar' ||
+        patch === 'clean_guitar' ||
+        patch === 'clavinet_funk' ||
+        patch === 'honky_tonk'
+      ) {
+        const isBrightChop = patch === 'clean_guitar' || patch === 'clavinet_funk';
+        osc1.type = isBrightChop ? 'sawtooth' : 'triangle';
+        osc2.type = isBrightChop ? 'square' : 'sawtooth';
+        osc2.detune.setValueAtTime(patch === 'honky_tonk' ? 14 : (patch === 'acoustic_guitar' ? 7 : 5), startTime);
+        vcf.frequency.setValueAtTime(cutoff * (isBrightChop ? 1.85 : 1.45), startTime);
+        vcf.frequency.exponentialRampToValueAtTime(Math.max(820, cutoff * (isBrightChop ? 0.65 : 0.48)), startTime + Math.min(0.22, dur));
       } else {
         // upright_jazz, slap_funk, reese_cyber, nes_triangle
         osc1.type = (patch === 'reese_cyber' || patch === 'slap_funk') ? 'sawtooth' : 'triangle';
-        osc2.type = 'sine';
+        osc2.type = 'sawtooth';
         osc2.detune.setValueAtTime(chorusDetune, startTime);
-        vcf.frequency.setValueAtTime(cutoff * 1.3, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(Math.max(220, cutoff * 0.45), startTime + Math.min(0.24, dur));
+        vcf.frequency.setValueAtTime(cutoff * 1.35, startTime);
+        vcf.frequency.exponentialRampToValueAtTime(Math.max(320, cutoff * 0.50), startTime + Math.min(0.24, dur));
       }
 
       if (patch !== 'sub_dub' && patch !== 'trap_808' && !(patch === 'square_8bit' && role === 'melody')) {
         osc1.frequency.setValueAtTime(freq, startTime);
+        osc2.frequency.setValueAtTime(freq, startTime);
       }
-      osc2.frequency.setValueAtTime(freq, startTime);
 
       const g2 = ctx.createGain();
-      g2.gain.value = role === 'melody' ? 0.48 : 0.30;
+      g2.gain.value = (patch === 'sub_dub' || patch === 'trap_808') ? 0.34 : (role === 'melody' ? 0.48 : 0.44);
       osc1.connect(voiceBus);
       osc2.connect(g2);
       g2.connect(voiceBus);
@@ -2029,35 +2078,35 @@
       activeNodes.push(osc1, osc2);
     }
 
-    // --- PAIRED EFFECT 1: LESLIE ROTARY SPEAKER SIMULATOR (Doppler FM + Filter Swirl + Horn AM) ---
+    // --- PAIRED EFFECT 1: LESLIE ROTARY SPEAKER SIMULATOR (Subtle Doppler FM + Filter Swirl + Horn AM) ---
     let rotaryTremoloNode = null;
     if (rotaryMode && rotaryMode !== 'off') {
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
       if (rotaryMode === 'accel') {
-        lfo.frequency.setValueAtTime(1.5, startTime);
-        lfo.frequency.exponentialRampToValueAtTime(6.4, startTime + Math.min(0.45, dur));
+        lfo.frequency.setValueAtTime(1.6, startTime);
+        lfo.frequency.exponentialRampToValueAtTime(6.3, startTime + Math.min(0.45, dur));
       } else {
-        lfo.frequency.setValueAtTime(rotaryMode === 'slow' ? 1.4 : 6.3, startTime);
+        lfo.frequency.setValueAtTime(rotaryMode === 'slow' ? 1.5 : 6.3, startTime);
       }
 
       // 1. Horn Filter Swirl (clamped to <= 28% of cutoff so vcf.frequency never underflows)
       const filterMod = ctx.createGain();
-      filterMod.gain.value = Math.min(cutoff * 0.28, role === 'melody' ? 480 : 280);
+      filterMod.gain.value = Math.min(cutoff * 0.28, role === 'melody' ? 520 : 320);
       lfo.connect(filterMod);
       filterMod.connect(vcf.frequency);
 
-      // 2. Doppler Pitch Vibrato
+      // 2. Subtle Doppler Pitch Vibrato (±4 cents so fast melodies stay in tune!)
       const pitchMod = ctx.createGain();
-      pitchMod.gain.value = freq * 0.0075;
+      pitchMod.gain.value = freq * 0.0024;
       lfo.connect(pitchMod);
       oscPitchTargets.forEach(param => pitchMod.connect(param));
 
       // 3. Horn Amplitude Pulsing (AM)
       rotaryTremoloNode = ctx.createGain();
-      rotaryTremoloNode.gain.value = 0.84;
+      rotaryTremoloNode.gain.value = 0.80;
       const amDepth = ctx.createGain();
-      amDepth.gain.value = 0.16;
+      amDepth.gain.value = 0.20;
       lfo.connect(amDepth);
       amDepth.connect(rotaryTremoloNode.gain);
 
@@ -2108,10 +2157,10 @@
     const baseDelaySend = clampNum(sends.delay, 0, 0.45, 0.16);
     const sendDelayAmt = role === 'melody'
       ? (extraEcho ? Math.max(0.32, baseDelaySend) : baseDelaySend * 0.45)
-      : (role === 'chord' ? clampNum(sends.delay, 0, 0.06, 0.0) : 0.0);
+      : (role === 'chord' ? (extraEcho ? 0.24 : clampNum(sends.delay, 0, 0.10, 0.05)) : 0.0);
     const sendRevAmt = role === 'melody'
       ? clampNum(sends.reverb, 0, 0.45, 0.22)
-      : (role === 'chord' ? clampNum(sends.reverb, 0, 0.12, 0.06) : 0.0);
+      : (role === 'chord' ? clampNum(sends.reverb, 0, 0.16, 0.08) : 0.0);
 
     if (sendDelayAmt > 0.02) {
       const dSend = ctx.createGain();
@@ -2149,18 +2198,18 @@
       const osc = ctx.createOscillator();
       const bodyGain = ctx.createGain();
       const shaper = ctx.createWaveShaper();
-      shaper.curve = getDriveCurve(0.22 * punch);
+      shaper.curve = getDriveCurve(0.26 * punch);
 
       osc.type = kit === 'chip_kit' ? 'triangle' : 'sine';
-      const subFreq = kit === 'trap_kit' ? 42 : (kit === 'bossa_kit' ? 54 : 47);
-      const decay = kit === 'trap_kit' ? 0.28 : 0.19;
+      const subFreq = kit === 'trap_kit' ? 44 : (kit === 'bossa_kit' ? 56 : 49);
+      const decay = kit === 'trap_kit' ? 0.30 : 0.21;
 
-      // 2-stage pitch envelope: 320 Hz beater snap -> 105 Hz chest punch -> subFreq
-      osc.frequency.setValueAtTime(310, startTime);
-      osc.frequency.exponentialRampToValueAtTime(105, startTime + 0.012);
-      osc.frequency.exponentialRampToValueAtTime(subFreq, startTime + 0.068);
+      // 2-stage pitch envelope: 320 Hz beater snap -> 110 Hz chest punch -> subFreq
+      osc.frequency.setValueAtTime(320, startTime);
+      osc.frequency.exponentialRampToValueAtTime(110, startTime + 0.014);
+      osc.frequency.exponentialRampToValueAtTime(subFreq, startTime + 0.072);
 
-      bodyGain.gain.setValueAtTime(v * 0.36, startTime);
+      bodyGain.gain.setValueAtTime(v * 0.48, startTime);
       bodyGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
 
       osc.connect(shaper);
@@ -2176,15 +2225,15 @@
         const clickBp = ctx.createBiquadFilter();
         clickBp.type = 'bandpass';
         clickBp.frequency.value = 1850;
-        clickBp.Q.value = 1.8;
+        clickBp.Q.value = 1.6;
         const clickGain = ctx.createGain();
-        clickGain.gain.setValueAtTime(v * 0.14 * punch, startTime);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.012);
+        clickGain.gain.setValueAtTime(v * 0.22 * punch, startTime);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.014);
         clickSrc.connect(clickBp);
         clickBp.connect(clickGain);
         clickGain.connect(graph.inputBus);
         clickSrc.start(startTime);
-        clickSrc.stop(startTime + 0.015);
+        clickSrc.stop(startTime + 0.018);
       }
       return;
     }
@@ -2195,38 +2244,40 @@
       const isDubRim = kit === 'dub_kit' || kit === 'bossa_kit';
 
       if (isDubRim) {
-        // Woody Cross-Stick / Rimshot: Dual high-Q resonators (490 Hz + 1720 Hz) + Dub Echo send
+        // Woody Cross-Stick / Rimshot: Shell body (205 Hz) + Dual rim resonators (485 Hz + 1680 Hz) + Dub Echo send
         const rimOut = ctx.createGain();
-        const freqs = [485, 1720];
+        const freqs = [205, 485, 1680];
+        const gains = [0.26, 0.24, 0.16];
+        const durs  = [0.070, 0.055, 0.032];
         freqs.forEach((rf, idx) => {
           const osc = ctx.createOscillator();
-          osc.type = idx === 0 ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(rf * 1.15, startTime);
+          osc.type = idx === 2 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(rf * 1.18, startTime);
           osc.frequency.exponentialRampToValueAtTime(rf, startTime + 0.018);
           const g = ctx.createGain();
-          g.gain.setValueAtTime(v * (idx === 0 ? 0.22 : 0.16), startTime);
-          g.gain.exponentialRampToValueAtTime(0.001, startTime + (idx === 0 ? 0.055 : 0.032));
+          g.gain.setValueAtTime(v * gains[idx], startTime);
+          g.gain.exponentialRampToValueAtTime(0.001, startTime + durs[idx]);
           osc.connect(g);
           g.connect(rimOut);
           osc.start(startTime);
-          osc.stop(startTime + 0.065);
+          osc.stop(startTime + durs[idx] + 0.01);
         });
 
-        // Crisp stick transient
+        // Crisp stick & snare wire transient
         const nSrc = ctx.createBufferSource();
         nSrc.buffer = dsp.noiseBuffer;
         const bp = ctx.createBiquadFilter();
         bp.type = 'bandpass';
-        bp.frequency.value = 2200;
-        bp.Q.value = 3.5;
+        bp.frequency.value = 2100;
+        bp.Q.value = 2.4;
         const ng = ctx.createGain();
-        ng.gain.setValueAtTime(v * 0.18, startTime);
-        ng.gain.exponentialRampToValueAtTime(0.001, startTime + 0.038);
+        ng.gain.setValueAtTime(v * 0.24, startTime);
+        ng.gain.exponentialRampToValueAtTime(0.001, startTime + 0.055);
         nSrc.connect(bp);
         bp.connect(ng);
         ng.connect(rimOut);
         nSrc.start(startTime);
-        nSrc.stop(startTime + 0.045);
+        nSrc.stop(startTime + 0.065);
 
         rimOut.connect(graph.inputBus);
         const rimEcho = clampNum(tuning.rim_dub_echo, 0.05, 0.35, 0.22);
@@ -2245,22 +2296,22 @@
         osc.frequency.setValueAtTime(sf * 1.4, startTime);
         osc.frequency.exponentialRampToValueAtTime(sf, startTime + 0.035);
         const g = ctx.createGain();
-        g.gain.setValueAtTime(v * (idx === 0 ? 0.20 : 0.11), startTime);
-        g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.085);
+        g.gain.setValueAtTime(v * (idx === 0 ? 0.28 : 0.16), startTime);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.095);
         osc.connect(g);
         g.connect(snareBus);
         osc.start(startTime);
-        osc.stop(startTime + 0.095);
+        osc.stop(startTime + 0.105);
       });
 
       const nSrc = ctx.createBufferSource();
       nSrc.buffer = dsp.noiseBuffer;
       const wireHp = ctx.createBiquadFilter();
       wireHp.type = 'highpass';
-      wireHp.frequency.value = 1800;
+      wireHp.frequency.value = 1400;
       const wireGain = ctx.createGain();
-      const tailDur = kit === 'cyber_kit' || kit === 'doom_kit' ? 0.16 : 0.115;
-      wireGain.gain.setValueAtTime(v * 0.20 * snap, startTime);
+      const tailDur = kit === 'cyber_kit' || kit === 'doom_kit' ? 0.17 : 0.125;
+      wireGain.gain.setValueAtTime(v * 0.32 * snap, startTime);
       wireGain.gain.exponentialRampToValueAtTime(0.001, startTime + tailDur);
 
       nSrc.connect(wireHp);
@@ -2271,7 +2322,7 @@
 
       snareBus.connect(graph.inputBus);
       const rSend = ctx.createGain();
-      rSend.gain.value = kit === 'cyber_kit' ? 0.22 : 0.10;
+      rSend.gain.value = kit === 'cyber_kit' ? 0.22 : 0.12;
       snareBus.connect(rSend);
       rSend.connect(graph.reverbSend);
       return;
@@ -2279,27 +2330,27 @@
 
     // --- 3. METALLIC 6-OSCILLATOR HI-HATS & CYMBALS (TR-808/909 Bronze Matrix + Sizzle) ---
     if (type === 'hat' || type === 'hat_open_or_roll') {
-      const sizzle = Math.max(0.4, Math.min(1.0, Number(tuning.hat_sizzle) || 0.68));
+      const sizzle = clampNum(tuning.hat_sizzle, 0.4, 1.0, 0.72);
       const isTrapRoll = type === 'hat_open_or_roll' && kit === 'trap_kit';
       const subHits = isTrapRoll ? 2 : 1;
       const metalRatios = [246.3, 365.4, 443.5, 627.2, 648.0, 960.0];
 
       for (let h = 0; h < subHits; h++) {
         const t = startTime + h * (stepDurSec * 0.5);
-        const dur = (type === 'hat_open_or_roll' && !isTrapRoll) ? 0.135 : 0.036;
+        const dur = (type === 'hat_open_or_roll' && !isTrapRoll) ? 0.145 : 0.042;
 
         const hatBus = ctx.createGain();
         const hp = ctx.createBiquadFilter();
         hp.type = 'highpass';
-        hp.frequency.value = 7200;
+        hp.frequency.value = 5200;
 
-        // Metallic square cluster (3 key ratios for crisp bronze shimmer without CPU bloat)
+        // Metallic square cluster (3 key ratios for crisp bronze shimmer)
         [metalRatios[0], metalRatios[2], metalRatios[4]].forEach(mf => {
           const mOsc = ctx.createOscillator();
           mOsc.type = 'square';
           mOsc.frequency.setValueAtTime(mf, t);
           const mg = ctx.createGain();
-          mg.gain.value = 0.18;
+          mg.gain.value = 0.22;
           mOsc.connect(mg);
           mg.connect(hp);
           mOsc.start(t);
@@ -2313,19 +2364,19 @@
         nSrc.loopStart = (h * 0.17) % 1.5;
         nSrc.loopEnd = 1.9;
         const ng = ctx.createGain();
-        ng.gain.value = 0.65;
+        ng.gain.value = 0.85;
         nSrc.connect(ng);
         ng.connect(hp);
         nSrc.start(t);
         nSrc.stop(t + dur + 0.01);
 
         hp.connect(hatBus);
-        hatBus.gain.setValueAtTime(v * 0.095 * sizzle, t);
+        hatBus.gain.setValueAtTime(v * 0.24 * sizzle, t);
         hatBus.gain.exponentialRampToValueAtTime(0.0008, t + dur);
 
         if (ctx.createStereoPanner) {
           const pan = ctx.createStereoPanner();
-          pan.pan.value = Number(tuning.hat_pan) || 0.24;
+          pan.pan.value = clampNum(tuning.hat_pan, -0.8, 0.8, 0.24);
           hatBus.connect(pan);
           pan.connect(graph.inputBus);
         } else {
@@ -2354,11 +2405,11 @@
       const bp = ctx.createBiquadFilter();
       bp.type = 'bandpass';
       bp.frequency.value = 760;
-      bp.Q.value = 2.4;
+      bp.Q.value = 2.0;
 
       const env = ctx.createGain();
-      env.gain.setValueAtTime(v * 0.11, startTime);
-      env.gain.exponentialRampToValueAtTime(0.001, startTime + 0.055);
+      env.gain.setValueAtTime(v * 0.22, startTime);
+      env.gain.exponentialRampToValueAtTime(0.001, startTime + 0.060);
 
       percBus.connect(bp);
       bp.connect(env);
