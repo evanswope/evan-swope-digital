@@ -457,6 +457,8 @@
 
   // --------------------------------------------------------------------------
   // 2. CURATED GENRE PRESET DEFINITIONS + LOCAL AI FALLBACK BLUEPRINTS
+  //    Each blueprint includes full ADSR, timbre, breath/rotary/chorus/drive,
+  //    velocity curves, stereo panning, and drum tuning parameters.
   // --------------------------------------------------------------------------
   const GENRE_CATALOG = {
     reggae_dub: {
@@ -464,22 +466,146 @@
       label: '🇯🇲 King Tubby Dub Reggae',
       defaultBlueprint: (piece) => ({
         mashup_title: `${piece.title.split('(')[0].trim()} (Kingston '74 Dubplate)`,
-        producer_log: `Framed ${piece.composer}'s melody front-and-center on a warm melodica horn over a 76 BPM Jamaican one-drop groove, with a deep sub-bass bubble and subtle offbeat Hammond skanks tucked underneath.`,
+        producer_log: `Framed ${piece.composer}'s melody on a breathy free-reed melodica with resonant tape-echo throws over a 76 BPM one-drop groove, Leslie roto-organ skanks, and a deep sub-bass bubble.`,
         tempo_bpm: 76,
         swing: 0.22,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'melodica_dub', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.25 },
-        chord_spec: { patch: 'organ_skank', pattern: 'reggae_skank', voicing: 'triad' },
-        bass_spec: { patch: 'sub_dub', pattern: 'one_drop_bubble' },
+        melody_spec: {
+          patch: 'melodica_dub',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.022, decay: 0.18, sustain: 0.84, release: 0.10 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.06, humanize: 0.05 },
+          timbre: { filter_cutoff: 3600, filter_q: 1.8, vibrato_rate: 5.2, vibrato_depth: 9, breath_noise: 0.12, chorus_detune: 9, rotary_speed: 'off', drive: 0.14 },
+          sends: { reverb: 0.24, delay: 0.28, dub_echo_throws: 0.35 }
+        },
+        chord_spec: {
+          patch: 'roto_organ',
+          pattern: 'reggae_skank',
+          voicing: 'triad',
+          pan: 0.26,
+          vel_scale: 0.48,
+          adsr: { attack: 0.004, decay: 0.09, sustain: 0.35, release: 0.035 },
+          timbre: { filter_cutoff: 2100, filter_q: 1.4, rotary_speed: 'fast', chorus_detune: 6, drive: 0.20 },
+          sends: { reverb: 0.10, delay: 0.08 }
+        },
+        bass_spec: {
+          patch: 'sub_dub',
+          pattern: 'one_drop_bubble',
+          pan: 0.0,
+          vel_scale: 0.88,
+          adsr: { attack: 0.006, decay: 0.20, sustain: 0.65, release: 0.11 },
+          timbre: { filter_cutoff: 340, filter_q: 1.1, drive: 0.15 }
+        },
         drum_spec: {
           kit: 'dub_kit',
           kick_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0.45, 0, 0, 0.65, 0],
           snare_steps: [0, 0, 0, 0, 0, 0, 0, 0, 0.95, 0, 0, 0, 0, 0, 0.35, 0],
           hat_steps:   [0.5, 0, 0.85, 0, 0.5, 0, 0.85, 0, 0.5, 0, 0.85, 0, 0.5, 0, 1.25, 0],
-          perc_steps:  [0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.72, snare_snap: 0.70, hat_sizzle: 0.62, rim_dub_echo: 0.38, hat_pan: 0.24, perc_pan: -0.26 }
         },
-        fx_spec: { delay_wet: 0.22, delay_steps: 3, reverb_wet: 0.18, filter_cutoff: 8500, crush: 0.0 }
+        fx_spec: { delay_wet: 0.24, delay_steps: 3, reverb_wet: 0.20, filter_cutoff: 8800, crush: 0.0 }
+      })
+    },
+    parisian_musette: {
+      id: 'parisian_musette',
+      label: '🪗 Parisian Café Accordion Musette',
+      defaultBlueprint: (piece) => ({
+        mashup_title: `Rue de ${piece.composer.split(' ').pop()} (Montmartre Accordion)`,
+        producer_log: `Voiced ${piece.title}'s melody on a wet 3-reed Parisian musette accordion with bellows swell and woody reed-cavity resonance, backed by acoustic guitar pump chords and upright bass.`,
+        tempo_bpm: 112,
+        swing: 0.28,
+        scale_mode: 'keep_original',
+        transpose_semitones: 0,
+        melody_spec: {
+          patch: 'accordion_musette',
+          feel: 'laid_back_swing',
+          octave_shift: 0,
+          pan: -0.05,
+          adsr: { attack: 0.024, decay: 0.22, sustain: 0.86, release: 0.11 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.08, humanize: 0.06 },
+          timbre: { filter_cutoff: 3800, filter_q: 2.0, vibrato_rate: 5.0, vibrato_depth: 8, breath_noise: 0.10, chorus_detune: 16, rotary_speed: 'off', drive: 0.12 },
+          sends: { reverb: 0.24, delay: 0.10, dub_echo_throws: 0.08 }
+        },
+        chord_spec: {
+          patch: 'nylon_guitar',
+          pattern: 'ragtime_stride',
+          voicing: 'jazz_7th',
+          pan: 0.28,
+          vel_scale: 0.48,
+          adsr: { attack: 0.004, decay: 0.14, sustain: 0.30, release: 0.05 },
+          timbre: { filter_cutoff: 2200, filter_q: 1.2, rotary_speed: 'off', chorus_detune: 5, drive: 0.08 },
+          sends: { reverb: 0.12, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'upright_jazz',
+          pattern: 'western_alternating',
+          pan: 0.0,
+          vel_scale: 0.84,
+          adsr: { attack: 0.006, decay: 0.22, sustain: 0.55, release: 0.09 },
+          timbre: { filter_cutoff: 580, filter_q: 1.2, drive: 0.10 }
+        },
+        drum_spec: {
+          kit: 'bossa_kit',
+          kick_steps:  [0.9, 0, 0, 0, 0, 0, 0, 0, 0.85, 0, 0, 0, 0, 0, 0, 0],
+          snare_steps: [0, 0, 0, 0, 0.75, 0, 0, 0, 0, 0, 0, 0, 0.75, 0, 0, 0.4],
+          hat_steps:   [0.5, 0, 0.65, 0, 0.5, 0, 0.65, 0, 0.5, 0, 0.65, 0, 0.5, 0, 1.2, 0],
+          perc_steps:  [0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0],
+          tuning: { kick_punch: 0.65, snare_snap: 0.65, hat_sizzle: 0.58, rim_dub_echo: 0.12, hat_pan: 0.22, perc_pan: -0.24 }
+        },
+        fx_spec: { delay_wet: 0.12, delay_steps: 3, reverb_wet: 0.22, filter_cutoff: 9200, crush: 0.0 }
+      })
+    },
+    soul_jazz_organ: {
+      id: 'soul_jazz_organ',
+      label: '🎹 60s Blue Note Roto-Organ Groove',
+      defaultBlueprint: (piece) => ({
+        mashup_title: `The Sermon of ${piece.composer.split(' ').pop()} (B3 Leslie Session)`,
+        producer_log: `Charged ${piece.title}'s melody through a 9-drawbar Hammond B3 Roto-Organ with 3rd-harmonic percussion, warm tube overdrive, and an accelerating Leslie rotary speaker horn.`,
+        tempo_bpm: 108,
+        swing: 0.36,
+        scale_mode: 'keep_original',
+        transpose_semitones: 0,
+        melody_spec: {
+          patch: 'roto_organ',
+          feel: 'laid_back_swing',
+          octave_shift: 0,
+          pan: -0.05,
+          adsr: { attack: 0.004, decay: 0.16, sustain: 0.88, release: 0.08 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.07, humanize: 0.05 },
+          timbre: { filter_cutoff: 4400, filter_q: 1.6, vibrato_rate: 6.3, vibrato_depth: 14, breath_noise: 0.06, chorus_detune: 7, rotary_speed: 'accel', drive: 0.28 },
+          sends: { reverb: 0.22, delay: 0.14, dub_echo_throws: 0.15 }
+        },
+        chord_spec: {
+          patch: 'clavinet_funk',
+          pattern: 'boombap_stabs',
+          voicing: 'jazz_7th',
+          pan: 0.28,
+          vel_scale: 0.48,
+          adsr: { attack: 0.004, decay: 0.14, sustain: 0.35, release: 0.05 },
+          timbre: { filter_cutoff: 2300, filter_q: 1.5, rotary_speed: 'slow', chorus_detune: 4, drive: 0.16 },
+          sends: { reverb: 0.10, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'slap_funk',
+          pattern: 'walking_jazz',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.005, decay: 0.18, sustain: 0.60, release: 0.07 },
+          timbre: { filter_cutoff: 680, filter_q: 1.8, drive: 0.20 }
+        },
+        drum_spec: {
+          kit: 'boombap_kit',
+          kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.75, 0, 0, 0, 0.85, 0, 0, 0, 0.5, 0],
+          snare_steps: [0, 0, 0, 0, 0.95, 0, 0, 0.35, 0, 0.35, 0, 0, 0.95, 0, 0, 0.4],
+          hat_steps:   [0.7, 0, 0.85, 0, 0.7, 0, 1.25, 0, 0.7, 0, 0.85, 0, 0.7, 0, 1.25, 0],
+          perc_steps:  [0, 0, 0, 0.55, 0, 0, 0, 0, 0, 0, 0.55, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.78, snare_snap: 0.76, hat_sizzle: 0.70, rim_dub_echo: 0.15, hat_pan: 0.24, perc_pan: -0.25 }
+        },
+        fx_spec: { delay_wet: 0.14, delay_steps: 3, reverb_wet: 0.20, filter_cutoff: 9000, crush: 0.0 }
       })
     },
     boombap_90s: {
@@ -487,22 +613,48 @@
       label: '📼 90s East Coast Boom-Bap',
       defaultBlueprint: (piece) => ({
         mashup_title: `${piece.composer.split(' ').pop()} on the MPC-3000 ('94 Crate Flip)`,
-        producer_log: `Placed ${piece.composer}'s lead melody on a crisp jazz vibraphone over an 88 BPM swung MPC drum break, with warm low-passed Rhodes chords and an upright bassline locked to the kick.`,
+        producer_log: `Placed ${piece.composer}'s lead melody on an FM jazz vibraphone with motor tremolo over an 88 BPM swung MPC drum break, warm Rhodes 7th chords, and an upright bassline.`,
         tempo_bpm: 88,
         swing: 0.38,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'vibraphone_jazz', feel: 'laid_back_swing', octave_shift: 0, dub_echo_throws: 0.15 },
-        chord_spec: { patch: 'warm_rhodes', pattern: 'boombap_stabs', voicing: 'jazz_7th' },
-        bass_spec: { patch: 'upright_jazz', pattern: 'boombap_pocket' },
+        melody_spec: {
+          patch: 'vibraphone_jazz',
+          feel: 'laid_back_swing',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.004, decay: 0.35, sustain: 0.45, release: 0.22 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.06, humanize: 0.06 },
+          timbre: { filter_cutoff: 4800, filter_q: 1.2, vibrato_rate: 5.6, vibrato_depth: 8, breath_noise: 0.0, chorus_detune: 5, rotary_speed: 'off', drive: 0.10 },
+          sends: { reverb: 0.26, delay: 0.16, dub_echo_throws: 0.15 }
+        },
+        chord_spec: {
+          patch: 'warm_rhodes',
+          pattern: 'boombap_stabs',
+          voicing: 'jazz_7th',
+          pan: 0.25,
+          vel_scale: 0.46,
+          adsr: { attack: 0.006, decay: 0.28, sustain: 0.40, release: 0.12 },
+          timbre: { filter_cutoff: 1800, filter_q: 1.0, rotary_speed: 'slow', chorus_detune: 6, drive: 0.12 },
+          sends: { reverb: 0.12, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'upright_jazz',
+          pattern: 'boombap_pocket',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.006, decay: 0.22, sustain: 0.58, release: 0.09 },
+          timbre: { filter_cutoff: 520, filter_q: 1.3, drive: 0.14 }
+        },
         drum_spec: {
           kit: 'boombap_kit',
           kick_steps:  [1.0, 0, 0, 0.55, 0, 0, 0, 0.75, 0, 0, 0.9, 0, 0, 0, 0.45, 0],
           snare_steps: [0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0.3, 0, 0, 1.0, 0, 0, 0],
           hat_steps:   [0.75, 0, 0.6, 0, 0.75, 0, 0.6, 0, 0.75, 0, 0.6, 0, 0.75, 0, 1.2, 0],
-          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.4, 0]
+          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.4, 0],
+          tuning: { kick_punch: 0.82, snare_snap: 0.80, hat_sizzle: 0.65, rim_dub_echo: 0.10, hat_pan: 0.22, perc_pan: -0.24 }
         },
-        fx_spec: { delay_wet: 0.14, delay_steps: 4, reverb_wet: 0.14, filter_cutoff: 7800, crush: 0.08 }
+        fx_spec: { delay_wet: 0.14, delay_steps: 4, reverb_wet: 0.16, filter_cutoff: 7800, crush: 0.06 }
       })
     },
     trap_808: {
@@ -510,22 +662,48 @@
       label: '🔥 808 Dark Trap / Phonk',
       defaultBlueprint: (piece) => ({
         mashup_title: `Lil ${piece.composer.split(' ').pop()} — ${piece.title.split('(')[0].trim()} (808 VIP)`,
-        producer_log: `Kept ${piece.title}'s iconic melody soaring on an airy flute lead over a 138 BPM half-time trap beat with booming 808 sub-bass glides and crisp 32nd-note hi-hat rolls.`,
+        producer_log: `Carried ${piece.title}'s iconic melody on a breathy wooden lotus flute with embouchure chiff and delayed vibrato over a 138 BPM 808 trap beat and metallic hi-hat rolls.`,
         tempo_bpm: 138,
         swing: 0.06,
         scale_mode: piece.mode === 'major' ? 'parallel_minor' : 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'flute_airy', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.2 },
-        chord_spec: { patch: 'dark_trap_bells', pattern: 'trap_half_bells', voicing: 'triad' },
-        bass_spec: { patch: 'trap_808', pattern: 'trap_808_glide' },
+        melody_spec: {
+          patch: 'flute_airy',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.03,
+          adsr: { attack: 0.028, decay: 0.20, sustain: 0.82, release: 0.14 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.06, humanize: 0.05 },
+          timbre: { filter_cutoff: 4400, filter_q: 1.5, vibrato_rate: 5.5, vibrato_depth: 14, breath_noise: 0.24, chorus_detune: 6, rotary_speed: 'off', drive: 0.08 },
+          sends: { reverb: 0.30, delay: 0.22, dub_echo_throws: 0.22 }
+        },
+        chord_spec: {
+          patch: 'dark_trap_bells',
+          pattern: 'trap_half_bells',
+          voicing: 'triad',
+          pan: 0.28,
+          vel_scale: 0.45,
+          adsr: { attack: 0.004, decay: 0.35, sustain: 0.25, release: 0.18 },
+          timbre: { filter_cutoff: 2400, filter_q: 1.2, rotary_speed: 'off', chorus_detune: 10, drive: 0.05 },
+          sends: { reverb: 0.18, delay: 0.08 }
+        },
+        bass_spec: {
+          patch: 'trap_808',
+          pattern: 'trap_808_glide',
+          pan: 0.0,
+          vel_scale: 0.90,
+          adsr: { attack: 0.005, decay: 0.28, sustain: 0.70, release: 0.14 },
+          timbre: { filter_cutoff: 420, filter_q: 1.3, drive: 0.28 }
+        },
         drum_spec: {
           kit: 'trap_kit',
           kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.85, 0, 0, 0, 0.9, 0, 0, 0.7, 0, 0],
           snare_steps: [0, 0, 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0, 0, 0],
           hat_steps:   [0.8, 0, 0.8, 1.35, 0.8, 0, 1.35, 0, 0.8, 0, 0.8, 0, 1.35, 0, 0.8, 1.35],
-          perc_steps:  [0, 0, 0.6, 0, 0, 0, 0, 0, 0, 0, 0.6, 0, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0.6, 0, 0, 0, 0, 0, 0, 0, 0.6, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.88, snare_snap: 0.85, hat_sizzle: 0.80, rim_dub_echo: 0.10, hat_pan: 0.26, perc_pan: -0.28 }
         },
-        fx_spec: { delay_wet: 0.18, delay_steps: 3, reverb_wet: 0.20, filter_cutoff: 9800, crush: 0.0 }
+        fx_spec: { delay_wet: 0.18, delay_steps: 3, reverb_wet: 0.22, filter_cutoff: 9800, crush: 0.0 }
       })
     },
     cyberpunk_darksynth: {
@@ -533,22 +711,48 @@
       label: '⚡ Cyberpunk Darksynth',
       defaultBlueprint: (piece) => ({
         mashup_title: `NEO-${piece.composer.split(' ').pop().toUpperCase()} // 2099 OVERDRIVE`,
-        producer_log: `Drove ${piece.title}'s melody through a punchy neon supersaw lead at 120 BPM, backed by a tight 16th-note Reese bassline and gated LinnDrum snares.`,
+        producer_log: `Drove ${piece.title}'s melody through a 3-oscillator stereo-detuned neon supersaw lead at 120 BPM, backed by a saturated Reese bassline and punchy LinnDrum snares.`,
         tempo_bpm: 120,
         swing: 0.0,
         scale_mode: piece.mode === 'major' ? 'parallel_minor' : 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'supersaw_cyber', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.22 },
-        chord_spec: { patch: 'cyber_pwm', pattern: 'house_offbeat', voicing: 'power_5th' },
-        bass_spec: { patch: 'reese_cyber', pattern: 'cyber_rolling_16th' },
+        melody_spec: {
+          patch: 'supersaw_cyber',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: 0.0,
+          adsr: { attack: 0.008, decay: 0.18, sustain: 0.82, release: 0.11 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.06, humanize: 0.04 },
+          timbre: { filter_cutoff: 5400, filter_q: 1.8, vibrato_rate: 5.5, vibrato_depth: 8, breath_noise: 0.0, chorus_detune: 15, rotary_speed: 'off', drive: 0.25 },
+          sends: { reverb: 0.25, delay: 0.22, dub_echo_throws: 0.22 }
+        },
+        chord_spec: {
+          patch: 'cyber_pwm',
+          pattern: 'house_offbeat',
+          voicing: 'power_5th',
+          pan: 0.26,
+          vel_scale: 0.46,
+          adsr: { attack: 0.006, decay: 0.14, sustain: 0.45, release: 0.06 },
+          timbre: { filter_cutoff: 2100, filter_q: 1.4, rotary_speed: 'off', chorus_detune: 12, drive: 0.18 },
+          sends: { reverb: 0.10, delay: 0.05 }
+        },
+        bass_spec: {
+          patch: 'reese_cyber',
+          pattern: 'cyber_rolling_16th',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.005, decay: 0.14, sustain: 0.65, release: 0.06 },
+          timbre: { filter_cutoff: 760, filter_q: 2.0, drive: 0.28 }
+        },
         drum_spec: {
           kit: 'cyber_kit',
           kick_steps:  [1.0, 0, 0, 0, 0.9, 0, 0, 0, 1.0, 0, 0, 0, 0.9, 0, 0, 0],
           snare_steps: [0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0],
           hat_steps:   [0.6, 0, 0.8, 0, 0.6, 0, 0.8, 0, 0.6, 0, 0.8, 0, 0.6, 0, 1.2, 0],
-          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6]
+          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6],
+          tuning: { kick_punch: 0.85, snare_snap: 0.85, hat_sizzle: 0.72, rim_dub_echo: 0.12, hat_pan: 0.24, perc_pan: -0.26 }
         },
-        fx_spec: { delay_wet: 0.20, delay_steps: 3, reverb_wet: 0.22, filter_cutoff: 9200, crush: 0.05 }
+        fx_spec: { delay_wet: 0.20, delay_steps: 3, reverb_wet: 0.22, filter_cutoff: 9400, crush: 0.04 }
       })
     },
     bossa_nova: {
@@ -556,22 +760,48 @@
       label: '🌴 Ipanema Bossa Nova',
       defaultBlueprint: (piece) => ({
         mashup_title: `Garota de ${piece.composer.split(' ').pop()} (Rio '64 Session)`,
-        producer_log: `Carried ${piece.title}'s melody on a warm breathy flute over syncopated Brazilian nylon guitar comping, an acoustic tumbão bassline, and gentle rimshot clave.`,
+        producer_log: `Carried ${piece.title}'s melody on a warm breathy alto flute with embouchure chiff and delayed vibrato over syncopated nylon guitar comping, tumbão bass, and woody rimshot clave.`,
         tempo_bpm: 120,
         swing: 0.14,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'flute_airy', feel: 'offbeat_skank_push', octave_shift: 0, dub_echo_throws: 0.14 },
-        chord_spec: { patch: 'nylon_guitar', pattern: 'bossa_clave', voicing: 'jazz_7th' },
-        bass_spec: { patch: 'upright_jazz', pattern: 'bossa_tumbao' },
+        melody_spec: {
+          patch: 'flute_airy',
+          feel: 'offbeat_skank_push',
+          octave_shift: 0,
+          pan: -0.05,
+          adsr: { attack: 0.030, decay: 0.22, sustain: 0.82, release: 0.15 },
+          vel_curve: { base: 0.95, accent_downbeat: 0.06, humanize: 0.06 },
+          timbre: { filter_cutoff: 4200, filter_q: 1.4, vibrato_rate: 5.4, vibrato_depth: 15, breath_noise: 0.25, chorus_detune: 5, rotary_speed: 'off', drive: 0.06 },
+          sends: { reverb: 0.28, delay: 0.16, dub_echo_throws: 0.14 }
+        },
+        chord_spec: {
+          patch: 'nylon_guitar',
+          pattern: 'bossa_clave',
+          voicing: 'jazz_7th',
+          pan: 0.28,
+          vel_scale: 0.48,
+          adsr: { attack: 0.004, decay: 0.18, sustain: 0.32, release: 0.07 },
+          timbre: { filter_cutoff: 2100, filter_q: 1.1, rotary_speed: 'off', chorus_detune: 4, drive: 0.06 },
+          sends: { reverb: 0.12, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'upright_jazz',
+          pattern: 'bossa_tumbao',
+          pan: 0.0,
+          vel_scale: 0.84,
+          adsr: { attack: 0.007, decay: 0.22, sustain: 0.58, release: 0.10 },
+          timbre: { filter_cutoff: 540, filter_q: 1.1, drive: 0.08 }
+        },
         drum_spec: {
           kit: 'bossa_kit',
           kick_steps:  [0.85, 0, 0, 0.7, 0, 0, 0, 0, 0.85, 0, 0, 0.7, 0, 0, 0, 0],
           snare_steps: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           hat_steps:   [0.5, 0, 0.6, 0, 0.5, 0, 0.6, 0, 0.5, 0, 0.6, 0, 0.5, 0, 0.6, 0],
-          perc_steps:  [0.8, 0, 0, 0.75, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0.75, 0, 0, 0]
+          perc_steps:  [0.8, 0, 0, 0.75, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0.75, 0, 0, 0],
+          tuning: { kick_punch: 0.65, snare_snap: 0.65, hat_sizzle: 0.58, rim_dub_echo: 0.22, hat_pan: 0.22, perc_pan: -0.25 }
         },
-        fx_spec: { delay_wet: 0.14, delay_steps: 4, reverb_wet: 0.18, filter_cutoff: 8600, crush: 0.0 }
+        fx_spec: { delay_wet: 0.14, delay_steps: 4, reverb_wet: 0.22, filter_cutoff: 8800, crush: 0.0 }
       })
     },
     chiptune_8bit: {
@@ -579,20 +809,46 @@
       label: '👾 8-Bit NES Boss Theme',
       defaultBlueprint: (piece) => ({
         mashup_title: `SUPER ${piece.composer.split(' ').pop().toUpperCase()} BROS. (Stage 8-4)`,
-        producer_log: `Routed ${piece.title}'s lead melody to a crisp 2A03 square-wave channel over a triangle-wave bassline and 8-bit noise percussion.`,
+        producer_log: `Routed ${piece.title}'s lead melody to a crisp 2A03 pulse-wave channel with attack blip ornaments over a triangle-wave bassline and 8-bit noise percussion.`,
         tempo_bpm: 136,
         swing: 0.0,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'square_8bit', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.1 },
-        chord_spec: { patch: 'chip_arp', pattern: 'cyber_16th_arp', voicing: 'triad' },
-        bass_spec: { patch: 'nes_triangle', pattern: 'western_alternating' },
+        melody_spec: {
+          patch: 'square_8bit',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.002, decay: 0.12, sustain: 0.75, release: 0.025 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.05, humanize: 0.02 },
+          timbre: { filter_cutoff: 7800, filter_q: 0.8, vibrato_rate: 6.0, vibrato_depth: 6, breath_noise: 0.0, chorus_detune: 0, rotary_speed: 'off', drive: 0.10 },
+          sends: { reverb: 0.06, delay: 0.12, dub_echo_throws: 0.10 }
+        },
+        chord_spec: {
+          patch: 'chip_arp',
+          pattern: 'cyber_16th_arp',
+          voicing: 'triad',
+          pan: 0.25,
+          vel_scale: 0.44,
+          adsr: { attack: 0.002, decay: 0.08, sustain: 0.40, release: 0.02 },
+          timbre: { filter_cutoff: 2600, filter_q: 0.8, rotary_speed: 'off', chorus_detune: 0, drive: 0.05 },
+          sends: { reverb: 0.04, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'nes_triangle',
+          pattern: 'western_alternating',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.003, decay: 0.14, sustain: 0.70, release: 0.04 },
+          timbre: { filter_cutoff: 680, filter_q: 0.9, drive: 0.12 }
+        },
         drum_spec: {
           kit: 'chip_kit',
           kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.8, 0, 1.0, 0, 0, 0, 0, 0, 0.8, 0],
           snare_steps: [0, 0, 0, 0, 0.95, 0, 0, 0, 0, 0, 0, 0, 0.95, 0, 0, 0],
           hat_steps:   [0.6, 0, 0.6, 0, 0.6, 0, 0.6, 0, 0.6, 0, 0.6, 0, 0.6, 0, 0.6, 0],
-          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.78, snare_snap: 0.75, hat_sizzle: 0.70, rim_dub_echo: 0.0, hat_pan: 0.20, perc_pan: -0.20 }
         },
         fx_spec: { delay_wet: 0.10, delay_steps: 2, reverb_wet: 0.06, filter_cutoff: 11000, crush: 0.30 }
       })
@@ -602,22 +858,48 @@
       label: '🧪 1989 Acid Warehouse (TB-303)',
       defaultBlueprint: (piece) => ({
         mashup_title: `${piece.composer.split(' ').pop()} at the Haçienda '89 (303 Mix)`,
-        producer_log: `Played ${piece.title}'s lead on a resonant acid synth over a 126 BPM 909 four-on-the-floor kick, offbeat open hi-hats, and a squelchy TB-303 bassline.`,
+        producer_log: `Played ${piece.title}'s lead on a resonant diode-ladder 303 acid synth over a 126 BPM 909 four-on-the-floor kick, metallic open hats, and offbeat Roto-Organ stabs.`,
         tempo_bpm: 126,
         swing: 0.10,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'acid_303_lead', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.22 },
-        chord_spec: { patch: 'organ_skank', pattern: 'house_offbeat', voicing: 'triad' },
-        bass_spec: { patch: 'tb303_acid', pattern: 'acid_303_sequence' },
+        melody_spec: {
+          patch: 'acid_303_lead',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.03,
+          adsr: { attack: 0.004, decay: 0.16, sustain: 0.55, release: 0.05 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.08, humanize: 0.05 },
+          timbre: { filter_cutoff: 4200, filter_q: 5.2, vibrato_rate: 5.0, vibrato_depth: 4, breath_noise: 0.0, chorus_detune: 6, rotary_speed: 'off', drive: 0.32 },
+          sends: { reverb: 0.20, delay: 0.25, dub_echo_throws: 0.25 }
+        },
+        chord_spec: {
+          patch: 'roto_organ',
+          pattern: 'house_offbeat',
+          voicing: 'triad',
+          pan: 0.26,
+          vel_scale: 0.45,
+          adsr: { attack: 0.004, decay: 0.10, sustain: 0.35, release: 0.04 },
+          timbre: { filter_cutoff: 2000, filter_q: 1.5, rotary_speed: 'fast', chorus_detune: 6, drive: 0.18 },
+          sends: { reverb: 0.10, delay: 0.06 }
+        },
+        bass_spec: {
+          patch: 'tb303_acid',
+          pattern: 'acid_303_sequence',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.004, decay: 0.14, sustain: 0.40, release: 0.04 },
+          timbre: { filter_cutoff: 1250, filter_q: 6.0, drive: 0.30 }
+        },
         drum_spec: {
           kit: 'house_kit',
           kick_steps:  [1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0],
           snare_steps: [0, 0, 0, 0, 0.9, 0, 0, 0, 0, 0, 0, 0, 0.9, 0, 0, 0],
           hat_steps:   [0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0],
-          perc_steps:  [0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.85, snare_snap: 0.80, hat_sizzle: 0.78, rim_dub_echo: 0.10, hat_pan: 0.24, perc_pan: -0.26 }
         },
-        fx_spec: { delay_wet: 0.22, delay_steps: 3, reverb_wet: 0.16, filter_cutoff: 8800, crush: 0.0 }
+        fx_spec: { delay_wet: 0.22, delay_steps: 3, reverb_wet: 0.18, filter_cutoff: 9000, crush: 0.0 }
       })
     },
     spaghetti_western: {
@@ -625,22 +907,48 @@
       label: '🤠 Ennio Spaghetti Western',
       defaultBlueprint: (piece) => ({
         mashup_title: `The Good, The Bad & The ${piece.composer.split(' ').pop()}`,
-        producer_log: `Performed ${piece.title}'s melody on a lone desert whistler lead over galloping nylon guitar chords and an alternating upright bass at 100 BPM.`,
+        producer_log: `Performed ${piece.title}'s melody on a breathy desert whistler with embouchure chiff and canyon echo over galloping nylon guitar chords and an alternating upright bass at 100 BPM.`,
         tempo_bpm: 100,
         swing: 0.12,
         scale_mode: piece.mode === 'major' ? 'parallel_minor' : 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'whistle_western', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.28 },
-        chord_spec: { patch: 'nylon_guitar', pattern: 'western_gallop', voicing: 'triad' },
-        bass_spec: { patch: 'upright_jazz', pattern: 'western_alternating' },
+        melody_spec: {
+          patch: 'whistle_western',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.028, decay: 0.22, sustain: 0.84, release: 0.16 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.07, humanize: 0.06 },
+          timbre: { filter_cutoff: 4200, filter_q: 1.8, vibrato_rate: 5.6, vibrato_depth: 16, breath_noise: 0.22, chorus_detune: 5, rotary_speed: 'off', drive: 0.08 },
+          sends: { reverb: 0.34, delay: 0.28, dub_echo_throws: 0.32 }
+        },
+        chord_spec: {
+          patch: 'nylon_guitar',
+          pattern: 'western_gallop',
+          voicing: 'triad',
+          pan: 0.26,
+          vel_scale: 0.46,
+          adsr: { attack: 0.004, decay: 0.14, sustain: 0.30, release: 0.06 },
+          timbre: { filter_cutoff: 2200, filter_q: 1.2, rotary_speed: 'off', chorus_detune: 4, drive: 0.10 },
+          sends: { reverb: 0.14, delay: 0.05 }
+        },
+        bass_spec: {
+          patch: 'upright_jazz',
+          pattern: 'western_alternating',
+          pan: 0.0,
+          vel_scale: 0.85,
+          adsr: { attack: 0.006, decay: 0.20, sustain: 0.55, release: 0.08 },
+          timbre: { filter_cutoff: 540, filter_q: 1.2, drive: 0.12 }
+        },
         drum_spec: {
           kit: 'dub_kit',
           kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.75, 0, 1.0, 0, 0, 0, 0, 0, 0.75, 0],
           snare_steps: [0, 0, 0, 0, 0.85, 0, 0, 0, 0, 0, 0, 0, 0.85, 0, 0.45, 0.6],
           hat_steps:   [0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0],
-          perc_steps:  [0.7, 0, 0, 0, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 0, 0, 0]
+          perc_steps:  [0.7, 0, 0, 0, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.75, snare_snap: 0.74, hat_sizzle: 0.62, rim_dub_echo: 0.30, hat_pan: 0.22, perc_pan: -0.26 }
         },
-        fx_spec: { delay_wet: 0.24, delay_steps: 4, reverb_wet: 0.28, filter_cutoff: 8200, crush: 0.0 }
+        fx_spec: { delay_wet: 0.24, delay_steps: 4, reverb_wet: 0.28, filter_cutoff: 8600, crush: 0.0 }
       })
     },
     ska_punk: {
@@ -648,22 +956,48 @@
       label: '🏁 3rd-Wave Ska Punk',
       defaultBlueprint: (piece) => ({
         mashup_title: `Pick It Up, ${piece.composer.split(' ').pop()}! ('96 Ska Mix)`,
-        producer_log: `Blasted ${piece.title}'s melody on a punchy brass horn section at 148 BPM with crisp upbeat organ skanks and a walking bassline.`,
+        producer_log: `Blasted ${piece.title}'s melody on a punchy brass horn section with lip-slur scoop at 148 BPM over crisp upbeat Hammond roto-organ skanks and a walking slap bassline.`,
         tempo_bpm: 148,
         swing: 0.06,
         scale_mode: piece.mode === 'minor' ? 'parallel_major' : 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'brass_horn', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.12 },
-        chord_spec: { patch: 'organ_skank', pattern: 'ska_upstrokes', voicing: 'triad' },
-        bass_spec: { patch: 'slap_funk', pattern: 'walking_jazz' },
+        melody_spec: {
+          patch: 'brass_horn',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.014, decay: 0.16, sustain: 0.82, release: 0.08 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.07, humanize: 0.05 },
+          timbre: { filter_cutoff: 4400, filter_q: 1.8, vibrato_rate: 5.5, vibrato_depth: 10, breath_noise: 0.06, chorus_detune: 8, rotary_speed: 'off', drive: 0.28 },
+          sends: { reverb: 0.18, delay: 0.12, dub_echo_throws: 0.12 }
+        },
+        chord_spec: {
+          patch: 'roto_organ',
+          pattern: 'ska_upstrokes',
+          voicing: 'triad',
+          pan: 0.28,
+          vel_scale: 0.48,
+          adsr: { attack: 0.003, decay: 0.08, sustain: 0.35, release: 0.03 },
+          timbre: { filter_cutoff: 2200, filter_q: 1.4, rotary_speed: 'fast', chorus_detune: 6, drive: 0.22 },
+          sends: { reverb: 0.08, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'slap_funk',
+          pattern: 'walking_jazz',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.004, decay: 0.16, sustain: 0.60, release: 0.06 },
+          timbre: { filter_cutoff: 720, filter_q: 1.8, drive: 0.22 }
+        },
         drum_spec: {
           kit: 'boombap_kit',
           kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.85, 0, 1.0, 0, 0, 0, 0, 0, 0.85, 0],
           snare_steps: [0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0],
           hat_steps:   [0, 0, 1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, 0],
-          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.82, snare_snap: 0.84, hat_sizzle: 0.74, rim_dub_echo: 0.08, hat_pan: 0.24, perc_pan: -0.24 }
         },
-        fx_spec: { delay_wet: 0.12, delay_steps: 2, reverb_wet: 0.14, filter_cutoff: 9500, crush: 0.0 }
+        fx_spec: { delay_wet: 0.12, delay_steps: 2, reverb_wet: 0.16, filter_cutoff: 9500, crush: 0.0 }
       })
     },
     lofi_tape: {
@@ -671,22 +1005,48 @@
       label: '☕ 2 AM Lo-Fi Study Tape',
       defaultBlueprint: (piece) => ({
         mashup_title: `${piece.title.split('(')[0].trim().toLowerCase()} [lofi study beats]`,
-        producer_log: `Played ${piece.composer}'s melody on a warm electric piano at 75 BPM over lazy swung drums, soft sub-bass, and a gentle 5.5 kHz tape filter.`,
+        producer_log: `Played ${piece.composer}'s melody on a 2-operator FM Rhodes electric piano with tine bell chime and stereo tremolo at 75 BPM over lazy swung drums and warm tape filtering.`,
         tempo_bpm: 75,
         swing: 0.40,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'rhodes_ep', feel: 'laid_back_swing', octave_shift: 0, dub_echo_throws: 0.18 },
-        chord_spec: { patch: 'warm_rhodes', pattern: 'boombap_stabs', voicing: 'jazz_7th' },
-        bass_spec: { patch: 'sub_dub', pattern: 'boombap_pocket' },
+        melody_spec: {
+          patch: 'rhodes_ep',
+          feel: 'laid_back_swing',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.005, decay: 0.32, sustain: 0.48, release: 0.18 },
+          vel_curve: { base: 0.94, accent_downbeat: 0.05, humanize: 0.07 },
+          timbre: { filter_cutoff: 3400, filter_q: 1.1, vibrato_rate: 4.6, vibrato_depth: 8, breath_noise: 0.0, chorus_detune: 6, rotary_speed: 'slow', drive: 0.14 },
+          sends: { reverb: 0.26, delay: 0.20, dub_echo_throws: 0.18 }
+        },
+        chord_spec: {
+          patch: 'warm_rhodes',
+          pattern: 'boombap_stabs',
+          voicing: 'jazz_7th',
+          pan: 0.24,
+          vel_scale: 0.44,
+          adsr: { attack: 0.008, decay: 0.30, sustain: 0.38, release: 0.14 },
+          timbre: { filter_cutoff: 1500, filter_q: 1.0, rotary_speed: 'slow', chorus_detune: 6, drive: 0.10 },
+          sends: { reverb: 0.14, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'sub_dub',
+          pattern: 'boombap_pocket',
+          pan: 0.0,
+          vel_scale: 0.84,
+          adsr: { attack: 0.008, decay: 0.22, sustain: 0.62, release: 0.12 },
+          timbre: { filter_cutoff: 340, filter_q: 1.0, drive: 0.12 }
+        },
         drum_spec: {
           kit: 'boombap_kit',
           kick_steps:  [0.95, 0, 0, 0, 0, 0, 0, 0.65, 0, 0, 0.85, 0, 0, 0, 0, 0],
           snare_steps: [0, 0, 0, 0, 0.85, 0, 0, 0, 0, 0, 0, 0, 0.85, 0, 0, 0],
           hat_steps:   [0.5, 0, 0.45, 0, 0.5, 0, 0.45, 0, 0.5, 0, 0.45, 0, 0.5, 0, 0.45, 0],
-          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.68, snare_snap: 0.64, hat_sizzle: 0.52, rim_dub_echo: 0.12, hat_pan: 0.20, perc_pan: -0.22 }
         },
-        fx_spec: { delay_wet: 0.18, delay_steps: 3, reverb_wet: 0.22, filter_cutoff: 5500, crush: 0.05 }
+        fx_spec: { delay_wet: 0.18, delay_steps: 3, reverb_wet: 0.22, filter_cutoff: 5800, crush: 0.04 }
       })
     },
     doom_metal: {
@@ -694,22 +1054,48 @@
       label: '💀 Sabbath Doom Sludge',
       defaultBlueprint: (piece) => ({
         mashup_title: `${piece.composer.split(' ').pop()} Sabbath — Doom in ${piece.key} Minor`,
-        producer_log: `Channelled ${piece.title}'s melody through a searing fuzz lead at 70 BPM over low power-chord slabs and a heavy half-time drum groove.`,
+        producer_log: `Channelled ${piece.title}'s melody through an asymmetric tube-fuzz lead and guitar cabinet simulator at 70 BPM over low power-chord slabs and a heavy half-time drum groove.`,
         tempo_bpm: 70,
         swing: 0.12,
         scale_mode: piece.mode === 'major' ? 'parallel_minor' : 'keep_original',
         transpose_semitones: -2,
-        melody_spec: { patch: 'fuzz_lead', feel: 'authentic', octave_shift: 0, dub_echo_throws: 0.22 },
-        chord_spec: { patch: 'doom_power_stack', pattern: 'doom_wall', voicing: 'power_5th' },
-        bass_spec: { patch: 'doom_fuzz', pattern: 'doom_drone' },
+        melody_spec: {
+          patch: 'fuzz_lead',
+          feel: 'authentic',
+          octave_shift: 0,
+          pan: -0.03,
+          adsr: { attack: 0.008, decay: 0.22, sustain: 0.84, release: 0.12 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.07, humanize: 0.04 },
+          timbre: { filter_cutoff: 3600, filter_q: 2.2, vibrato_rate: 5.2, vibrato_depth: 12, breath_noise: 0.0, chorus_detune: 10, rotary_speed: 'off', drive: 0.68 },
+          sends: { reverb: 0.22, delay: 0.20, dub_echo_throws: 0.22 }
+        },
+        chord_spec: {
+          patch: 'doom_power_stack',
+          pattern: 'doom_wall',
+          voicing: 'power_5th',
+          pan: 0.28,
+          vel_scale: 0.44,
+          adsr: { attack: 0.010, decay: 0.25, sustain: 0.70, release: 0.12 },
+          timbre: { filter_cutoff: 1400, filter_q: 1.8, rotary_speed: 'off', chorus_detune: 10, drive: 0.55 },
+          sends: { reverb: 0.10, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'doom_fuzz',
+          pattern: 'doom_drone',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.008, decay: 0.25, sustain: 0.75, release: 0.12 },
+          timbre: { filter_cutoff: 520, filter_q: 1.8, drive: 0.50 }
+        },
         drum_spec: {
           kit: 'doom_kit',
           kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.8, 0, 0, 0, 0.85, 0, 0, 0, 0, 0],
           snare_steps: [0, 0, 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0, 0, 0],
           hat_steps:   [0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0],
-          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          perc_steps:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          tuning: { kick_punch: 0.86, snare_snap: 0.85, hat_sizzle: 0.72, rim_dub_echo: 0.10, hat_pan: 0.24, perc_pan: -0.24 }
         },
-        fx_spec: { delay_wet: 0.18, delay_steps: 4, reverb_wet: 0.20, filter_cutoff: 6800, crush: 0.18 }
+        fx_spec: { delay_wet: 0.18, delay_steps: 4, reverb_wet: 0.22, filter_cutoff: 7200, crush: 0.12 }
       })
     },
     new_orleans_jazz: {
@@ -717,22 +1103,48 @@
       label: '🎺 New Orleans Second-Line Brass',
       defaultBlueprint: (piece) => ({
         mashup_title: `${piece.composer.split(' ').pop()} on Bourbon Street (Brass Band)`,
-        producer_log: `Carried ${piece.title}'s melody on a jubilant New Orleans brass lead at 114 BPM with ragtime stride chords, walking upright bass, and swung parade snare.`,
+        producer_log: `Carried ${piece.title}'s melody on a jubilant New Orleans brass horn with lip-slur attack scoop and bell saturation at 114 BPM over ragtime saloon piano chords and walking upright bass.`,
         tempo_bpm: 114,
         swing: 0.35,
         scale_mode: 'keep_original',
         transpose_semitones: 0,
-        melody_spec: { patch: 'brass_horn', feel: 'laid_back_swing', octave_shift: 0, dub_echo_throws: 0.15 },
-        chord_spec: { patch: 'honky_tonk', pattern: 'ragtime_stride', voicing: 'jazz_7th' },
-        bass_spec: { patch: 'upright_jazz', pattern: 'walking_jazz' },
+        melody_spec: {
+          patch: 'brass_horn',
+          feel: 'laid_back_swing',
+          octave_shift: 0,
+          pan: -0.04,
+          adsr: { attack: 0.016, decay: 0.18, sustain: 0.84, release: 0.10 },
+          vel_curve: { base: 0.96, accent_downbeat: 0.08, humanize: 0.06 },
+          timbre: { filter_cutoff: 4300, filter_q: 1.9, vibrato_rate: 5.5, vibrato_depth: 12, breath_noise: 0.08, chorus_detune: 8, rotary_speed: 'off', drive: 0.26 },
+          sends: { reverb: 0.22, delay: 0.14, dub_echo_throws: 0.15 }
+        },
+        chord_spec: {
+          patch: 'honky_tonk',
+          pattern: 'ragtime_stride',
+          voicing: 'jazz_7th',
+          pan: 0.26,
+          vel_scale: 0.48,
+          adsr: { attack: 0.004, decay: 0.18, sustain: 0.32, release: 0.06 },
+          timbre: { filter_cutoff: 2200, filter_q: 1.2, rotary_speed: 'off', chorus_detune: 12, drive: 0.10 },
+          sends: { reverb: 0.10, delay: 0.0 }
+        },
+        bass_spec: {
+          patch: 'upright_jazz',
+          pattern: 'walking_jazz',
+          pan: 0.0,
+          vel_scale: 0.86,
+          adsr: { attack: 0.006, decay: 0.20, sustain: 0.58, release: 0.08 },
+          timbre: { filter_cutoff: 580, filter_q: 1.2, drive: 0.12 }
+        },
         drum_spec: {
           kit: 'boombap_kit',
           kick_steps:  [1.0, 0, 0, 0, 0, 0, 0.8, 0, 0, 0, 0.85, 0, 0, 0, 0, 0],
           snare_steps: [0, 0, 0, 0, 0.95, 0, 0, 0.45, 0, 0, 0, 0.5, 0.95, 0, 0.5, 0.65],
           hat_steps:   [0.6, 0, 0.7, 0, 0.6, 0, 1.2, 0, 0.6, 0, 0.7, 0, 0.6, 0, 1.2, 0],
-          perc_steps:  [0.7, 0, 0, 0.65, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0.65, 0, 0, 0]
+          perc_steps:  [0.7, 0, 0, 0.65, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0.65, 0, 0, 0],
+          tuning: { kick_punch: 0.78, snare_snap: 0.82, hat_sizzle: 0.68, rim_dub_echo: 0.12, hat_pan: 0.24, perc_pan: -0.26 }
         },
-        fx_spec: { delay_wet: 0.12, delay_steps: 3, reverb_wet: 0.18, filter_cutoff: 8800, crush: 0.0 }
+        fx_spec: { delay_wet: 0.12, delay_steps: 3, reverb_wet: 0.20, filter_cutoff: 9000, crush: 0.0 }
       })
     }
   };
@@ -742,20 +1154,15 @@
   //    Never collapses adjacent scale degrees into duplicate pitches!
   // --------------------------------------------------------------------------
   const SCALE_MAPS = {
-    // 12-tone maps that preserve chromatic passing tones (D# in Für Elise, G# in Turkish March)
     keep_original:  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-    // Major -> Minor: lowers Major 3rd (4->3) and Major 6th (9->8) while keeping leading tone (11)
     parallel_minor: [0, 1, 2, 3, 3, 5, 6, 7, 8, 8, 10, 11],
-    // Minor -> Major: raises Minor 3rd (3->4) and Minor 6th (8->9)
     parallel_major: [0, 1, 2, 4, 4, 5, 6, 7, 9, 9, 10, 11],
-    // Dorian: minor 3rd (4->3), raised 6th (8->9)
     dorian:         [0, 1, 2, 3, 3, 5, 6, 7, 9, 9, 10, 11],
     harmonic_minor: [0, 1, 2, 3, 3, 5, 6, 7, 8, 8, 10, 11]
   };
 
   function remapSemitone(semi, scaleMode, origMode) {
     if (!scaleMode || scaleMode === 'keep_original') return semi;
-    // If piece is already minor and scaleMode asks for parallel_minor/harmonic_minor, keep 100% original intervals!
     if (origMode === 'minor' && (scaleMode === 'parallel_minor' || scaleMode === 'harmonic_minor')) {
       return semi;
     }
@@ -770,7 +1177,6 @@
 
   // Build compact, warm backing chord voicings strictly in the C3..C4 accompaniment register (MIDI 48..60)
   function buildChordNotes(rootMidi, qual, voicing, scaleMode, origMode) {
-    // Place chord root comfortably in C3..A3 (MIDI 48..57) so it sits cleanly BELOW the lead melody
     let baseRoot = 48 + (((rootMidi - 48) % 12 + 12) % 12);
     if (baseRoot > 57) baseRoot -= 12;
 
@@ -789,7 +1195,6 @@
       return [baseRoot, baseRoot + fifth];
     }
     if (voicing === 'jazz_7th' || voicing === 'lush_9th') {
-      // Clean 3-note shell voicing (Root + 3rd + 7th) — warm, jazzy, never muddy!
       return [baseRoot, baseRoot + third, baseRoot + seventh];
     }
     return [baseRoot, baseRoot + third, baseRoot + fifth];
@@ -797,12 +1202,12 @@
 
   // --------------------------------------------------------------------------
   // 4. SCORE COMPILER: SOURCE PIECE + AI BLUEPRINT -> 4 CLEAR TRACKS
+  //    Applies LLM velocity curves, humanization, stereo spread & dub throws
   // --------------------------------------------------------------------------
   function compileMorphedArrangement(piece, bp) {
     const scaleMode = bp.scale_mode || 'keep_original';
     const transpose = Math.max(-3, Math.min(3, Number(bp.transpose_semitones) || 0));
     let rootBase = (piece.keyRoot || 64) + transpose;
-    // Ensure lead melody sits in a singing register (at least D4 = 62) above the backing chords
     if (rootBase < 62) rootBase += 12;
 
     const melSpec = bp.melody_spec || {};
@@ -820,34 +1225,42 @@
       drums: []
     };
 
-    // --- TRACK 1: MAIN MELODY (FRONT & CENTER) ---
+    // --- TRACK 1: MAIN MELODY (FRONT & CENTER WITH EXPRESSIVE VELOCITY CURVE) ---
     const feel = melSpec.feel || 'authentic';
+    const octShift = Math.max(-1, Math.min(1, Number(melSpec.octave_shift) || 0)) * 12;
+    const velBase = Math.max(0.88, Math.min(1.0, Number(melSpec.vel_curve?.base) || 0.95));
+    const accentDown = Math.max(0, Math.min(0.12, Number(melSpec.vel_curve?.accent_downbeat) ?? 0.06));
+    const humanize = Math.max(0, Math.min(0.12, Number(melSpec.vel_curve?.humanize) ?? 0.05));
+    const echoProb = Number(melSpec.sends?.dub_echo_throws ?? melSpec.dub_echo_throws ?? 0.22);
 
     srcMelody.forEach((n, idx) => {
       let step = n.step % 128;
       let dur = n.dur;
       const mappedSemi = remapSemitone(n.semi, scaleMode, piece.mode);
-      let midi = rootBase + mappedSemi;
-      // Keep melody above MIDI 58 so it never collides with the C3..A3 chord accompaniment
+      let midi = rootBase + mappedSemi + octShift;
       while (midi < 58) midi += 12;
       while (midi > 89) midi -= 12;
 
       if (feel === 'offbeat_skank_push') {
-        // Gentle lilt only on long bar-opening notes, preserving melodic phrasing
         if (step % 16 === 0 && dur >= 6 && idx % 2 === 1) {
           step = (step + 2) % 128;
           dur = Math.max(4, dur - 2);
         }
       }
 
+      const isDownbeat = (step % 4 === 0);
+      const determJitter = Math.sin(idx * 2.71828) * humanize;
+      const vel = Math.max(0.84, Math.min(1.0, velBase + (isDownbeat ? accentDown : 0) + determJitter));
+
       const isPhraseEnd = dur >= 6 || (step % 16 >= 12);
-      const echoThrow = isPhraseEnd && Math.random() < (melSpec.dub_echo_throws ?? 0.2);
-      events.melody.push({ step, dur, midi, vel: 0.96, echo: echoThrow });
+      const echoThrow = isPhraseEnd && Math.random() < echoProb;
+      events.melody.push({ step, dur, midi, vel, echo: echoThrow, panOffset: 0 });
     });
 
-    // --- TRACK 2: SPARSE, RHYTHMIC BACKING CHORDS (C3..C4 Register) ---
+    // --- TRACK 2: SPARSE, RHYTHMIC BACKING CHORDS (C3..C4 Register + Stereo Spread) ---
     const cPattern = chordSpec.pattern || 'reggae_skank';
     const cVoicing = chordSpec.voicing || 'triad';
+    const cVelScale = Math.max(0.36, Math.min(0.58, Number(chordSpec.vel_scale) || 0.48));
 
     for (let bar = 0; bar < 8; bar++) {
       const chordObj = srcChords[bar % srcChords.length] || { deg: 0, qual: 'maj' };
@@ -855,51 +1268,68 @@
       const chordNotes = buildChordNotes(barRoot, chordObj.qual, cVoicing, scaleMode, piece.mode);
       const baseStep = bar * 16;
 
+      const pushChordHit = (s, dur, hitVelMult = 1.0) => {
+        chordNotes.forEach((m, vIdx) => {
+          const spread = (vIdx - (chordNotes.length - 1) / 2) * 0.07;
+          events.chords.push({
+            step: baseStep + s,
+            dur,
+            midi: m,
+            vel: Math.max(0.32, Math.min(0.60, cVelScale * hitVelMult)),
+            panOffset: spread
+          });
+        });
+      };
+
       if (cPattern === 'reggae_skank' || cPattern === 'house_offbeat') {
-        // Crisp offbeat skanks on beats 2 & 4 (or "&" of beats)
-        [2, 6, 10, 14].forEach(s => {
-          chordNotes.forEach(m => events.chords.push({ step: baseStep + s, dur: 1.2, midi: m, vel: 0.52 }));
-        });
+        [2, 6, 10, 14].forEach(s => pushChordHit(s, 1.2, 1.0));
       } else if (cPattern === 'ska_upstrokes' || cPattern === 'ragtime_stride') {
-        [2, 6, 10, 14].forEach(s => {
-          chordNotes.forEach(m => events.chords.push({ step: baseStep + s, dur: 1.0, midi: m, vel: 0.54 }));
-        });
+        [2, 6, 10, 14].forEach(s => pushChordHit(s, 1.0, 1.02));
       } else if (cPattern === 'bossa_clave') {
         [
-          { s: 0, d: 2.5, v: 0.52 },
-          { s: 3, d: 2.0, v: 0.48 },
-          { s: 6, d: 2.5, v: 0.50 },
-          { s: 10, d: 2.0, v: 0.46 },
-          { s: 12, d: 2.5, v: 0.50 }
-        ].forEach(hit => {
-          chordNotes.forEach(m => events.chords.push({ step: baseStep + hit.s, dur: hit.d, midi: m, vel: hit.v }));
-        });
+          { s: 0, d: 2.5, v: 1.02 },
+          { s: 3, d: 2.0, v: 0.94 },
+          { s: 6, d: 2.5, v: 0.98 },
+          { s: 10, d: 2.0, v: 0.92 },
+          { s: 12, d: 2.5, v: 0.98 }
+        ].forEach(hit => pushChordHit(hit.s, hit.d, hit.v));
       } else if (cPattern === 'boombap_stabs') {
         [
-          { s: 0, d: 4.5, v: 0.52 },
-          { s: 10, d: 3.5, v: 0.48 }
-        ].forEach(hit => {
-          chordNotes.forEach(m => events.chords.push({ step: baseStep + hit.s, dur: hit.d, midi: m, vel: hit.v }));
-        });
+          { s: 0, d: 4.5, v: 1.02 },
+          { s: 10, d: 3.5, v: 0.94 }
+        ].forEach(hit => pushChordHit(hit.s, hit.d, hit.v));
       } else if (cPattern === 'cyber_16th_arp' || cPattern === 'western_gallop') {
-        // Sparse 8th-note single-note arpeggio so it never clutters the melody
         for (let s = 0; s < 16; s += 2) {
-          const note = chordNotes[(s / 2) % chordNotes.length];
-          events.chords.push({ step: baseStep + s, dur: 1.4, midi: note, vel: 0.48 });
+          const vIdx = (s / 2) % chordNotes.length;
+          const note = chordNotes[vIdx];
+          events.chords.push({
+            step: baseStep + s,
+            dur: 1.4,
+            midi: note,
+            vel: cVelScale * 0.96,
+            panOffset: (vIdx - 1) * 0.08
+          });
         }
       } else if (cPattern === 'trap_half_bells') {
         [0, 6, 12].forEach((s, idx) => {
           const note = chordNotes[idx % chordNotes.length];
-          events.chords.push({ step: baseStep + s, dur: 3.0, midi: note, vel: 0.50 });
+          events.chords.push({
+            step: baseStep + s,
+            dur: 3.0,
+            midi: note,
+            vel: cVelScale,
+            panOffset: (idx - 1) * 0.09
+          });
         });
       } else {
-        // doom_wall / warm pad on beat 1
-        chordNotes.forEach(m => events.chords.push({ step: baseStep, dur: 12.0, midi: m, vel: 0.48 }));
+        pushChordHit(0, 12.0, 0.96);
       }
     }
 
     // --- TRACK 3: DEEP BASSLINE (Strictly C2..B2 Register, MIDI 36..47) ---
     const bPattern = bassSpec.pattern || 'one_drop_bubble';
+    const bVelScale = Math.max(0.70, Math.min(0.95, Number(bassSpec.vel_scale) || 0.85)) / 0.85;
+
     for (let bar = 0; bar < 8; bar++) {
       const chordObj = srcChords[bar % srcChords.length] || { deg: 0, qual: 'maj' };
       const nextChordObj = srcChords[(bar + 1) % srcChords.length] || { deg: 0, qual: 'maj' };
@@ -910,6 +1340,16 @@
       const third = bRoot + (chordObj.qual === 'min' || scaleMode === 'parallel_minor' ? 3 : 4);
       const baseStep = bar * 16;
 
+      const pushBass = (n) => {
+        events.bass.push({
+          step: baseStep + n.s,
+          dur: n.d,
+          midi: n.m,
+          vel: Math.max(0.65, Math.min(0.96, n.v * bVelScale)),
+          panOffset: 0
+        });
+      };
+
       if (bPattern === 'one_drop_bubble') {
         [
           { s: 2, d: 2, m: bRoot, v: 0.85 },
@@ -917,26 +1357,25 @@
           { s: 8, d: 3.5, m: bRoot, v: 0.90 },
           { s: 12, d: 2, m: third, v: 0.78 },
           { s: 14, d: 2, m: fifth, v: 0.80 }
-        ].forEach(n => events.bass.push({ step: baseStep + n.s, dur: n.d, midi: n.m, vel: n.v }));
+        ].forEach(pushBass);
       } else if (bPattern === 'trap_808_glide') {
         [
           { s: 0, d: 5.5, m: bRoot, v: 0.92 },
           { s: 6, d: 3.5, m: bRoot, v: 0.84 },
           { s: 10, d: 4.0, m: fifth, v: 0.86 }
-        ].forEach(n => events.bass.push({ step: baseStep + n.s, dur: n.d, midi: n.m, vel: n.v }));
+        ].forEach(pushBass);
       } else if (bPattern === 'cyber_rolling_16th') {
         for (let s = 0; s < 16; s += 2) {
           const m = (s % 4 === 2) ? oct : bRoot;
-          events.bass.push({ step: baseStep + s, dur: 1.6, midi: m, vel: s % 4 === 0 ? 0.86 : 0.72 });
+          pushBass({ s, d: 1.6, m, v: s % 4 === 0 ? 0.86 : 0.72 });
         }
       } else if (bPattern === 'acid_303_sequence') {
-        const acidSteps = [
-          { s: 0, m: bRoot, v: 0.88 }, { s: 2, m: oct, v: 0.78 },
-          { s: 4, m: bRoot, v: 0.82 }, { s: 6, m: third, v: 0.88 },
-          { s: 8, m: fifth, v: 0.84 }, { s: 10, m: bRoot, v: 0.78 },
-          { s: 12, m: oct, v: 0.90 }, { s: 14, m: fifth, v: 0.80 }
-        ];
-        acidSteps.forEach(n => events.bass.push({ step: baseStep + n.s, dur: 1.6, midi: n.m, vel: n.v }));
+        [
+          { s: 0, d: 1.6, m: bRoot, v: 0.88 }, { s: 2, d: 1.6, m: oct, v: 0.78 },
+          { s: 4, d: 1.6, m: bRoot, v: 0.82 }, { s: 6, d: 1.6, m: third, v: 0.88 },
+          { s: 8, d: 1.6, m: fifth, v: 0.84 }, { s: 10, d: 1.6, m: bRoot, v: 0.78 },
+          { s: 12, d: 1.6, m: oct, v: 0.90 }, { s: 14, d: 1.6, m: fifth, v: 0.80 }
+        ].forEach(pushBass);
       } else if (bPattern === 'walking_jazz') {
         const nextRoot = 36 + (((rootBase + remapSemitone(nextChordObj.deg, scaleMode, piece.mode)) - 36) % 12 + 12) % 12;
         const approach = nextRoot > bRoot ? nextRoot - 1 : nextRoot + 1;
@@ -945,27 +1384,26 @@
           { s: 4, d: 3.8, m: third, v: 0.78 },
           { s: 8, d: 3.8, m: fifth, v: 0.82 },
           { s: 12, d: 3.8, m: approach, v: 0.78 }
-        ].forEach(n => events.bass.push({ step: baseStep + n.s, dur: n.d, midi: n.m, vel: n.v }));
+        ].forEach(pushBass);
       } else if (bPattern === 'bossa_tumbao' || bPattern === 'western_alternating') {
         [
           { s: 0, d: 5.5, m: bRoot, v: 0.84 },
           { s: 6, d: 2.0, m: fifth, v: 0.76 },
           { s: 8, d: 5.5, m: fifth, v: 0.82 },
           { s: 14, d: 2.0, m: bRoot, v: 0.76 }
-        ].forEach(n => events.bass.push({ step: baseStep + n.s, dur: n.d, midi: n.m, vel: n.v }));
+        ].forEach(pushBass);
       } else if (bPattern === 'doom_drone') {
         [
           { s: 0, d: 7.5, m: bRoot, v: 0.88 },
           { s: 8, d: 7.5, m: bRoot, v: 0.88 }
-        ].forEach(n => events.bass.push({ step: baseStep + n.s, dur: n.d, midi: n.m, vel: n.v }));
+        ].forEach(pushBass);
       } else {
-        // boombap_pocket
         [
           { s: 0, d: 3.5, m: bRoot, v: 0.86 },
           { s: 7, d: 2.5, m: fifth, v: 0.78 },
           { s: 10, d: 3.5, m: bRoot, v: 0.84 },
           { s: 14, d: 2.0, m: third, v: 0.76 }
-        ].forEach(n => events.bass.push({ step: baseStep + n.s, dur: n.d, midi: n.m, vel: n.v }));
+        ].forEach(pushBass);
       }
     }
 
@@ -1012,10 +1450,90 @@
   }
 
   // --------------------------------------------------------------------------
-  // 5. WEB AUDIO PROCEDURAL SYNTHESIZER & FX ENGINE (Melody-Forward Mix)
+  // 5. WEB AUDIO PROCEDURAL SYNTHESIZER, PAIRED FX & DRUM ENGINE
+  //    Supports full LLM per-stem ADSR, breath/chiff, 3-reed musette chorus,
+  //    9-drawbar Hammond B3 + Leslie rotary horn, 2-op FM, tube drive & panning
   // --------------------------------------------------------------------------
   function midiToFreq(m) {
     return 440 * Math.pow(2, (m - 69) / 12);
+  }
+
+  // Per-AudioContext cache for PeriodicWaves, Noise Buffers, and Saturation Curves
+  const dspCache = new WeakMap();
+  const driveCurveCache = new Map();
+
+  function getDriveCurve(driveAmount = 0.2) {
+    const amt = Math.max(0, Math.min(1, Number(driveAmount) || 0));
+    const key = Math.round(amt * 100);
+    if (driveCurveCache.has(key)) return driveCurveCache.get(key);
+
+    const n = 1024;
+    const curve = new Float32Array(n);
+    const k = 1 + amt * 18;
+    for (let i = 0; i < n; i++) {
+      const x = (i * 2) / n - 1;
+      // Asymmetric warm tube saturation (slight even-order harmonic bias)
+      curve[i] = Math.tanh(k * (x + 0.06 * amt * x * x)) / Math.tanh(k);
+    }
+    driveCurveCache.set(key, curve);
+    return curve;
+  }
+
+  function getDspResources(ctx) {
+    if (dspCache.has(ctx)) return dspCache.get(ctx);
+
+    // 1. 2-Second Filtered Noise Buffer (for flute breath/chiff, accordion air, snare rattle & hat sizzle)
+    const rate = ctx.sampleRate;
+    const len = Math.floor(rate * 2.0);
+    const noiseBuffer = ctx.createBuffer(1, len, rate);
+    const data = noiseBuffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < len; i++) {
+      const white = Math.random() * 2 - 1;
+      // Warm pink-white hybrid noise so breath and snares sound natural, never harsh
+      b0 = 0.997 * b0 + white * 0.029;
+      b1 = 0.985 * b1 + white * 0.032;
+      b2 = 0.950 * b2 + white * 0.048;
+      data[i] = (b0 + b1 + b2 + white * 0.55) * 0.65;
+    }
+
+    // 2. Hammond B3 9-Drawbar PeriodicWave (16', 5 1/3', 8', 4', 2 2/3', 2', 1 3/5', 1 1/3', 1')
+    const b3Real = new Float32Array(17);
+    const b3Imag = new Float32Array(17);
+    b3Imag[1] = 1.00;  // 8' fundamental
+    b3Imag[2] = 0.82;  // 4' octave
+    b3Imag[3] = 0.68;  // 2 2/3' twelfth (classic Hammond B3 grit)
+    b3Imag[4] = 0.52;  // 2' fifteenth
+    b3Imag[5] = 0.28;  // 1 3/5' tierce
+    b3Imag[6] = 0.34;  // 1 1/3' larigot
+    b3Imag[8] = 0.24;  // 1' super-octave
+    const b3Wave = ctx.createPeriodicWave(b3Real, b3Imag, { disableNormalization: false });
+
+    // 3. Free-Reed Accordion / Melodica PeriodicWave (rich odd+even reed spectrum)
+    const reedReal = new Float32Array(13);
+    const reedImag = new Float32Array(13);
+    reedImag[1] = 1.00;
+    reedImag[2] = 0.72;
+    reedImag[3] = 0.85;
+    reedImag[4] = 0.40;
+    reedImag[5] = 0.52;
+    reedImag[6] = 0.22;
+    reedImag[7] = 0.30;
+    reedImag[8] = 0.12;
+    reedImag[9] = 0.15;
+    const reedWave = ctx.createPeriodicWave(reedReal, reedImag, { disableNormalization: false });
+
+    // 4. Warm Brass Horn PeriodicWave
+    const brassReal = new Float32Array(13);
+    const brassImag = new Float32Array(13);
+    for (let h = 1; h <= 12; h++) {
+      brassImag[h] = Math.pow(0.84, h - 1);
+    }
+    const brassWave = ctx.createPeriodicWave(brassReal, brassImag, { disableNormalization: false });
+
+    const res = { noiseBuffer, b3Wave, reedWave, brassWave };
+    dspCache.set(ctx, res);
+    return res;
   }
 
   function createImpulseResponse(ctx, durationSec = 1.4, decay = 3.2) {
@@ -1037,31 +1555,34 @@
 
     const masterFilter = ctx.createBiquadFilter();
     masterFilter.type = 'lowpass';
-    masterFilter.frequency.value = Math.max(1200, Math.min(16000, Number(fxSpec?.filter_cutoff) || 8500));
+    masterFilter.frequency.value = Math.max(1200, Math.min(16000, Number(fxSpec?.filter_cutoff) || 8800));
     masterFilter.Q.value = 0.8;
 
-    // Subtle stereo delay (used ONLY by Lead Melody so chords/bass stay 100% tight & clean)
+    // Resonant Tape / Dub Delay Bus (with warm saturation in feedback loop)
     const delayNode = ctx.createDelay(2.0);
     const delaySteps = Number(fxSpec?.delay_steps) || 3;
     delayNode.delayTime.value = Math.min(1.5, Math.max(0.09, delaySteps * stepDurSec));
     const delayFeedback = ctx.createGain();
-    delayFeedback.gain.value = 0.32;
+    delayFeedback.gain.value = 0.36;
     const delayFilter = ctx.createBiquadFilter();
     delayFilter.type = 'bandpass';
-    delayFilter.frequency.value = 1400;
-    delayFilter.Q.value = 1.0;
+    delayFilter.frequency.value = 1450;
+    delayFilter.Q.value = 1.1;
+    const delaySat = ctx.createWaveShaper();
+    delaySat.curve = getDriveCurve(0.18);
     const delayWet = ctx.createGain();
-    delayWet.gain.value = Math.max(0, Math.min(0.45, Number(fxSpec?.delay_wet) ?? 0.18));
+    delayWet.gain.value = Math.max(0, Math.min(0.48, Number(fxSpec?.delay_wet) ?? 0.18));
 
     delayNode.connect(delayFilter);
-    delayFilter.connect(delayFeedback);
+    delayFilter.connect(delaySat);
+    delaySat.connect(delayFeedback);
     delayFeedback.connect(delayNode);
     delayNode.connect(delayWet);
 
     const convolver = ctx.createConvolver();
-    convolver.buffer = createImpulseResponse(ctx, 1.3, 3.2);
+    convolver.buffer = createImpulseResponse(ctx, 1.45, 3.1);
     const reverbWet = ctx.createGain();
-    reverbWet.gain.value = Math.max(0, Math.min(0.35, Number(fxSpec?.reverb_wet) ?? 0.15));
+    reverbWet.gain.value = Math.max(0, Math.min(0.40, Number(fxSpec?.reverb_wet) ?? 0.18));
     convolver.connect(reverbWet);
 
     const comp = ctx.createDynamicsCompressor();
@@ -1093,308 +1614,743 @@
     };
   }
 
-  // Synthesize a single voice with strict role-based gain & EQ separation (`role`: 'melody' | 'chord' | 'bass')
-  function triggerSynthNote(ctx, graph, patch, midi, startTime, durationSec, velocity, extraEcho = false, role = 'melody') {
+  // Synthesize a single voice with full ADSR, physical/FM/additive modeling, paired insert FX, and stereo pan
+  function triggerSynthNote(ctx, graph, specOrPatch, midi, startTime, durationSec, velocity, extraEcho = false, role = 'melody', panOffset = 0) {
+    const dsp = getDspResources(ctx);
+    const spec = (typeof specOrPatch === 'object' && specOrPatch !== null)
+      ? specOrPatch
+      : { patch: String(specOrPatch || 'melodica_dub') };
+    const patch = spec.patch || 'melodica_dub';
+    const timbre = spec.timbre || {};
+    const adsr = spec.adsr || {};
+    const sends = spec.sends || {};
+
     const freq = midiToFreq(midi);
-    const out = ctx.createGain();
     const dur = Math.max(0.045, durationSec);
 
     // STRICT ROLE GAIN HIERARCHY:
-    // - 'melody': 0.34 peak (loudest, front-and-center!)
+    // - 'melody': 0.34 peak (front-and-center lead!)
     // - 'bass':   0.19 peak (deep low-end foundation)
-    // - 'chord':  0.048 per note (so a 3-note chord sums to ~0.14, never overpowering the 0.34 lead!)
+    // - 'chord':  0.048 per voice (so 3-note chords sum to ~0.14, sitting warmly under the lead)
     const roleScale = role === 'melody' ? 0.34 : (role === 'bass' ? 0.19 : 0.048);
     const peak = Math.max(0.005, velocity * roleScale);
 
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
+    // Default ADSR & Timbre values tailored by patch, overridden by LLM's explicit parameters
+    let defAttack = 0.010, defDecay = 0.18, defSustain = 0.72, defRelease = 0.08;
+    let defCutoff = role === 'melody' ? 4000 : (role === 'bass' ? 480 : 1900);
+    let defQ = 1.4;
+    let defDrive = 0.12;
+    let defBreath = 0.0;
+    let defChorus = 6;
+    let defVibRate = 5.4;
+    let defVibDepth = role === 'melody' ? 8 : 0;
+    let defRotary = 'off';
+
+    if (patch === 'flute_airy' || patch === 'whistle_western') {
+      defAttack = 0.028; defDecay = 0.20; defSustain = 0.82; defRelease = 0.14;
+      defBreath = 0.24; defVibRate = 5.5; defVibDepth = 15; defDrive = 0.05;
+    } else if (patch === 'accordion_musette' || patch === 'melodica_dub') {
+      defAttack = 0.022; defDecay = 0.20; defSustain = 0.85; defRelease = 0.10;
+      defBreath = 0.11; defChorus = patch === 'accordion_musette' ? 16 : 9;
+      defVibRate = 5.1; defVibDepth = 8; defDrive = 0.14;
+    } else if (patch === 'roto_organ' || patch === 'organ_skank') {
+      defAttack = 0.004; defDecay = 0.12; defSustain = role === 'melody' ? 0.88 : 0.40;
+      defRelease = role === 'melody' ? 0.07 : 0.035;
+      defRotary = patch === 'roto_organ' ? (role === 'melody' ? 'accel' : 'fast') : 'fast';
+      defDrive = 0.25; defBreath = 0.05;
+    } else if (patch === 'rhodes_ep' || patch === 'warm_rhodes' || patch === 'vibraphone_jazz' || patch === 'dark_trap_bells') {
+      defAttack = 0.004; defDecay = 0.32; defSustain = 0.38; defRelease = 0.18;
+      defDrive = 0.10;
+    } else if (patch === 'brass_horn') {
+      defAttack = 0.016; defDecay = 0.18; defSustain = 0.82; defRelease = 0.09;
+      defDrive = 0.28; defVibDepth = 11; defBreath = 0.07;
+    } else if (patch === 'fuzz_lead' || patch === 'doom_power_stack' || patch === 'doom_fuzz') {
+      defAttack = 0.007; defDecay = 0.22; defSustain = 0.80; defRelease = 0.11;
+      defDrive = 0.65; defChorus = 10;
+    } else if (patch === 'square_8bit' || patch === 'chip_arp') {
+      defAttack = 0.002; defDecay = 0.10; defSustain = 0.65; defRelease = 0.025;
+      defCutoff = role === 'chord' ? 2500 : 7800; defVibDepth = 4;
+    }
+
+    const attack = Math.max(0.002, Math.min(0.18, Number(adsr.attack) || defAttack));
+    const decay = Math.max(0.03, Math.min(0.80, Number(adsr.decay) || defDecay));
+    const sustain = Math.max(0.10, Math.min(0.98, Number(adsr.sustain) || defSustain));
+    const release = Math.max(0.02, Math.min(0.45, Number(adsr.release) || defRelease));
+    const stopTime = startTime + dur + release + 0.03;
+
+    const cutoff = Math.max(220, Math.min(12000, Number(timbre.filter_cutoff) || defCutoff));
+    const filterQ = Math.max(0.5, Math.min(8.0, Number(timbre.filter_q) || defQ));
+    const driveAmt = Math.max(0, Math.min(0.85, Number(timbre.drive) ?? defDrive));
+    const breathAmt = Math.max(0, Math.min(0.40, Number(timbre.breath_noise) ?? defBreath));
+    const chorusDetune = Math.max(0, Math.min(24, Number(timbre.chorus_detune) ?? defChorus));
+    const vibRate = Math.max(3.0, Math.min(8.5, Number(timbre.vibrato_rate) || defVibRate));
+    const vibDepth = Math.max(0, Math.min(30, Number(timbre.vibrato_depth) ?? defVibDepth));
+    const rotaryMode = timbre.rotary_speed || defRotary;
+
+    // Voice envelope & stereo panning stage
+    const voiceBus = ctx.createGain();
+    const outEnv = ctx.createGain();
+    const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    const basePan = role === 'bass' ? 0.0 : (Number(spec.pan) || (role === 'chord' ? 0.24 : -0.04));
+    if (panner) {
+      panner.pan.setValueAtTime(Math.max(-0.85, Math.min(0.85, basePan + panOffset)), startTime);
+    }
+
     const vcf = ctx.createBiquadFilter();
     vcf.type = 'lowpass';
+    vcf.frequency.setValueAtTime(cutoff, startTime);
+    vcf.Q.value = filterQ;
 
-    let attack = 0.01;
-    let release = 0.07;
-    let sendReverb = role === 'melody' ? 0.22 : 0.0;
-    let sendDelay = role === 'melody' ? (extraEcho ? 0.45 : 0.16) : 0.0;
+    // Optional Tube / Fuzz WaveShaper stage
+    let postFilterNode = vcf;
+    if (driveAmt > 0.04) {
+      const shaper = ctx.createWaveShaper();
+      shaper.curve = getDriveCurve(driveAmt);
+      vcf.connect(shaper);
+      postFilterNode = shaper;
+    }
 
-    switch (patch) {
-      case 'melodica_dub':
-      case 'brass_horn': {
-        osc1.type = 'sawtooth';
-        osc2.type = 'triangle';
-        osc2.detune.value = 6;
-        vcf.frequency.setValueAtTime(900, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(3600, startTime + 0.04);
-        vcf.Q.value = 1.8;
-        attack = 0.018;
-        release = 0.09;
-        break;
+    // Track oscillators/sources to stop cleanly
+    const activeNodes = [];
+    const oscPitchTargets = [];
+
+    // --- ARCHITECTURE A: FLUTES & PAN PIPES (Chiff + Breath Air + Harmonics + Delayed Vibrato) ---
+    if (patch === 'flute_airy' || patch === 'whistle_western') {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      const startFreq = patch === 'whistle_western' ? freq * 0.985 : freq;
+      osc1.frequency.setValueAtTime(startFreq, startTime);
+      if (patch === 'whistle_western') {
+        osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.03);
       }
-      case 'supersaw_cyber': {
+      osc2.frequency.setValueAtTime(freq * 2, startTime);
+
+      const g2 = ctx.createGain();
+      g2.gain.value = 0.26;
+      osc1.connect(voiceBus);
+      osc2.connect(g2);
+      g2.connect(voiceBus);
+      oscPitchTargets.push(osc1.frequency);
+      activeNodes.push(osc1, osc2);
+
+      // Embouchure Chiff Transient (first 35ms) + Sustained Breath Air Layer
+      const noiseSrc = ctx.createBufferSource();
+      noiseSrc.buffer = dsp.noiseBuffer;
+      noiseSrc.loop = true;
+      noiseSrc.loopStart = (midi % 12) * 0.11;
+      noiseSrc.loopEnd = 1.9;
+
+      const chiffBp = ctx.createBiquadFilter();
+      chiffBp.type = 'bandpass';
+      chiffBp.frequency.setValueAtTime(Math.min(4800, freq * 2.2), startTime);
+      chiffBp.Q.value = 3.2;
+
+      const chiffGain = ctx.createGain();
+      const airLevel = Math.max(0.14, breathAmt);
+      chiffGain.gain.setValueAtTime(0.001, startTime);
+      // Initial lip-plate chiff burst
+      chiffGain.gain.linearRampToValueAtTime(airLevel * 1.9, startTime + 0.012);
+      // Settle into continuous breathy air stream
+      chiffGain.gain.exponentialRampToValueAtTime(airLevel * 0.65, startTime + 0.048);
+
+      noiseSrc.connect(chiffBp);
+      chiffBp.connect(chiffGain);
+      chiffGain.connect(voiceBus);
+      activeNodes.push(noiseSrc);
+    }
+
+    // --- ARCHITECTURE B: ACCORDION MUSETTE & DUB MELODICA (3-Reed Wet Tuning + Reed Cavity Formant + Bellows Air) ---
+    else if (patch === 'accordion_musette' || patch === 'melodica_dub') {
+      const detuneSpread = patch === 'accordion_musette' ? Math.max(12, chorusDetune) : Math.max(6, chorusDetune);
+      const detunes = [0, detuneSpread, -detuneSpread];
+      const gains = [0.52, 0.34, 0.34];
+
+      // Reed cavity woody formant resonator (~1350 Hz)
+      const reedFormant = ctx.createBiquadFilter();
+      reedFormant.type = 'peaking';
+      reedFormant.frequency.setValueAtTime(patch === 'accordion_musette' ? 1320 : 1480, startTime);
+      reedFormant.Q.value = 2.2;
+      reedFormant.gain.value = 5.5;
+      reedFormant.connect(voiceBus);
+
+      detunes.forEach((dt, idx) => {
+        const osc = ctx.createOscillator();
+        osc.setPeriodicWave(dsp.reedWave);
+        osc.frequency.setValueAtTime(freq, startTime);
+        osc.detune.setValueAtTime(dt, startTime);
+        const rg = ctx.createGain();
+        rg.gain.value = gains[idx];
+        osc.connect(rg);
+        rg.connect(reedFormant);
+        oscPitchTargets.push(osc.frequency);
+        activeNodes.push(osc);
+      });
+
+      // Subtle mechanical valve click + bellows air flow
+      if (breathAmt > 0.02) {
+        const airSrc = ctx.createBufferSource();
+        airSrc.buffer = dsp.noiseBuffer;
+        airSrc.loop = true;
+        const airBp = ctx.createBiquadFilter();
+        airBp.type = 'bandpass';
+        airBp.frequency.value = 1900;
+        airBp.Q.value = 2.0;
+        const airGain = ctx.createGain();
+        airGain.gain.setValueAtTime(breathAmt * 1.4, startTime);
+        airGain.gain.exponentialRampToValueAtTime(Math.max(0.01, breathAmt * 0.5), startTime + 0.015);
+        airSrc.connect(airBp);
+        airBp.connect(airGain);
+        airGain.connect(reedFormant);
+        activeNodes.push(airSrc);
+      }
+    }
+
+    // --- ARCHITECTURE C: HAMMOND B3 ROTO-ORGAN (9-Drawbar PeriodicWave + 3rd-Harmonic Percussion + Key Click + Leslie Rotary) ---
+    else if (patch === 'roto_organ' || patch === 'organ_skank') {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.setPeriodicWave(dsp.b3Wave);
+      osc2.setPeriodicWave(dsp.b3Wave);
+      osc1.frequency.setValueAtTime(freq, startTime);
+      osc2.frequency.setValueAtTime(freq, startTime);
+      osc2.detune.setValueAtTime(6, startTime);
+
+      const g1 = ctx.createGain();
+      const g2 = ctx.createGain();
+      g1.gain.value = 0.58;
+      g2.gain.value = 0.42;
+      osc1.connect(g1);
+      osc2.connect(g2);
+      g1.connect(voiceBus);
+      g2.connect(voiceBus);
+      oscPitchTargets.push(osc1.frequency, osc2.frequency);
+      activeNodes.push(osc1, osc2);
+
+      // B3 3rd-Harmonic Percussion Ping (2 2/3' drawbar pop on attack)
+      const percOsc = ctx.createOscillator();
+      percOsc.type = 'sine';
+      percOsc.frequency.setValueAtTime(freq * 3, startTime);
+      const percGain = ctx.createGain();
+      percGain.gain.setValueAtTime(role === 'melody' ? 0.32 : 0.18, startTime);
+      percGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.075);
+      percOsc.connect(percGain);
+      percGain.connect(voiceBus);
+      activeNodes.push(percOsc);
+
+      // Electrical B3 Key-Click Transient (5ms contact scratch)
+      const clickSrc = ctx.createBufferSource();
+      clickSrc.buffer = dsp.noiseBuffer;
+      const clickBp = ctx.createBiquadFilter();
+      clickBp.type = 'bandpass';
+      clickBp.frequency.value = 2600;
+      clickBp.Q.value = 2.5;
+      const clickGain = ctx.createGain();
+      clickGain.gain.setValueAtTime(0.22, startTime);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.006);
+      clickSrc.connect(clickBp);
+      clickBp.connect(clickGain);
+      clickGain.connect(voiceBus);
+      activeNodes.push(clickSrc);
+    }
+
+    // --- ARCHITECTURE D: 2-OPERATOR FM ELECTRIC PIANOS, VIBRAPHONES & BELLS ---
+    else if (patch === 'rhodes_ep' || patch === 'warm_rhodes' || patch === 'vibraphone_jazz' || patch === 'dark_trap_bells') {
+      const carrier = ctx.createOscillator();
+      const modulator = ctx.createOscillator();
+      carrier.type = 'sine';
+      modulator.type = 'sine';
+
+      const fmRatio = patch === 'dark_trap_bells' ? 2.76 : (patch === 'vibraphone_jazz' ? 4.0 : 7.0);
+      const fmIndexPeak = patch === 'dark_trap_bells' ? freq * 2.2 : (patch === 'vibraphone_jazz' ? freq * 1.4 : freq * 1.1);
+      const fmIndexSustain = freq * 0.12;
+
+      carrier.frequency.setValueAtTime(freq, startTime);
+      modulator.frequency.setValueAtTime(freq * fmRatio, startTime);
+
+      const fmGain = ctx.createGain();
+      fmGain.gain.setValueAtTime(fmIndexPeak, startTime);
+      fmGain.gain.exponentialRampToValueAtTime(Math.max(1, fmIndexSustain), startTime + 0.11);
+
+      // Warm fundamental body harmonic (2x)
+      const bodyOsc = ctx.createOscillator();
+      bodyOsc.type = 'triangle';
+      bodyOsc.frequency.setValueAtTime(freq, startTime);
+      const bodyGain = ctx.createGain();
+      bodyGain.gain.value = 0.35;
+
+      modulator.connect(fmGain);
+      fmGain.connect(carrier.frequency);
+      carrier.connect(voiceBus);
+      bodyOsc.connect(bodyGain);
+      bodyGain.connect(voiceBus);
+
+      oscPitchTargets.push(carrier.frequency, bodyOsc.frequency);
+      activeNodes.push(carrier, modulator, bodyOsc);
+    }
+
+    // --- ARCHITECTURE E: BRASS HORN SECTION (Lip-Slur Scoop + Bell Formant + Saturation) ---
+    else if (patch === 'brass_horn') {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.setPeriodicWave(dsp.brassWave);
+      osc2.type = 'sawtooth';
+
+      // Lip-slur pitch scoop (-38 cents -> 0 over 24ms)
+      const scoopStart = freq * 0.978;
+      osc1.frequency.setValueAtTime(scoopStart, startTime);
+      osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.024);
+      osc2.frequency.setValueAtTime(scoopStart, startTime);
+      osc2.frequency.exponentialRampToValueAtTime(freq, startTime + 0.026);
+      osc2.detune.setValueAtTime(chorusDetune, startTime);
+
+      // Brass bell filter blare envelope
+      vcf.frequency.setValueAtTime(550, startTime);
+      vcf.frequency.exponentialRampToValueAtTime(cutoff, startTime + 0.045);
+
+      const g2 = ctx.createGain();
+      g2.gain.value = 0.48;
+      osc1.connect(voiceBus);
+      osc2.connect(g2);
+      g2.connect(voiceBus);
+      oscPitchTargets.push(osc1.frequency, osc2.frequency);
+      activeNodes.push(osc1, osc2);
+    }
+
+    // --- ARCHITECTURE F: FUZZ GUITAR & DOOM POWER STACK (High-Gain Fuzz + Speaker Cabinet Simulator) ---
+    else if (patch === 'fuzz_lead' || patch === 'doom_power_stack' || patch === 'doom_fuzz') {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc2.type = 'square';
+      osc1.frequency.setValueAtTime(freq, startTime);
+      osc2.frequency.setValueAtTime(freq, startTime);
+      osc2.detune.setValueAtTime(chorusDetune, startTime);
+
+      // Guitar speaker cabinet presence peak (1.75 kHz)
+      const cabMid = ctx.createBiquadFilter();
+      cabMid.type = 'peaking';
+      cabMid.frequency.value = 1750;
+      cabMid.Q.value = 1.6;
+      cabMid.gain.value = 4.5;
+
+      const g2 = ctx.createGain();
+      g2.gain.value = 0.55;
+      osc1.connect(cabMid);
+      osc2.connect(g2);
+      g2.connect(cabMid);
+      cabMid.connect(voiceBus);
+      oscPitchTargets.push(osc1.frequency, osc2.frequency);
+      activeNodes.push(osc1, osc2);
+    }
+
+    // --- ARCHITECTURE G: SUPERSAW, ACID 303, CHIPTUNE, PLUCKED GUITAR & BASSES ---
+    else {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+
+      if (patch === 'supersaw_cyber' || patch === 'cyber_pwm') {
         osc1.type = 'sawtooth';
         osc2.type = 'sawtooth';
-        osc2.detune.value = 12;
-        vcf.frequency.setValueAtTime(4800, startTime);
-        vcf.Q.value = 1.6;
-        attack = 0.008;
-        release = 0.10;
-        break;
-      }
-      case 'square_8bit':
-      case 'chip_arp': {
+        osc2.detune.setValueAtTime(Math.max(12, chorusDetune), startTime);
+        const osc3 = ctx.createOscillator();
+        osc3.type = 'sawtooth';
+        osc3.frequency.setValueAtTime(freq, startTime);
+        osc3.detune.setValueAtTime(-Math.max(12, chorusDetune), startTime);
+        const g3 = ctx.createGain();
+        g3.gain.value = 0.45;
+        osc3.connect(g3);
+        g3.connect(voiceBus);
+        oscPitchTargets.push(osc3.frequency);
+        activeNodes.push(osc3);
+      } else if (patch === 'acid_303_lead' || patch === 'tb303_acid') {
+        osc1.type = 'sawtooth';
+        osc2.type = 'square';
+        vcf.frequency.setValueAtTime(cutoff, startTime);
+        vcf.frequency.exponentialRampToValueAtTime(Math.max(240, cutoff * 0.14), startTime + Math.min(0.20, dur));
+      } else if (patch === 'square_8bit' || patch === 'chip_arp') {
         osc1.type = 'square';
-        osc2.type = 'triangle';
-        vcf.frequency.setValueAtTime(role === 'chord' ? 2200 : 7500, startTime);
-        vcf.Q.value = 0.7;
-        attack = 0.003;
-        release = 0.025;
-        sendReverb = 0.04;
-        break;
-      }
-      case 'acid_303_lead':
-      case 'tb303_acid': {
-        osc1.type = 'sawtooth';
         osc2.type = 'square';
-        const topFreq = role === 'bass' ? 1400 : 3800;
-        vcf.frequency.setValueAtTime(topFreq, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(280, startTime + Math.min(0.20, dur));
-        vcf.Q.value = role === 'bass' ? 5.5 : 4.0;
-        attack = 0.004;
-        release = 0.04;
-        break;
-      }
-      case 'flute_airy':
-      case 'whistle_western': {
-        osc1.type = 'triangle';
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(freq * 2, startTime);
-        vcf.frequency.setValueAtTime(3800, startTime);
-        attack = 0.025;
-        release = 0.11;
-        break;
-      }
-      case 'fuzz_lead':
-      case 'doom_power_stack':
-      case 'doom_fuzz': {
-        osc1.type = 'sawtooth';
-        osc2.type = 'square';
-        osc2.detune.value = 10;
-        vcf.frequency.setValueAtTime(role === 'melody' ? 3200 : 1200, startTime);
-        vcf.Q.value = 2.2;
-        attack = 0.008;
-        release = 0.10;
-        break;
-      }
-      case 'organ_skank': {
-        osc1.type = 'triangle';
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(freq * 2, startTime);
-        vcf.frequency.setValueAtTime(1900, startTime);
-        vcf.Q.value = 1.0;
-        attack = 0.004;
-        release = 0.035;
-        break;
-      }
-      case 'nylon_guitar':
-      case 'clavinet_funk':
-      case 'honky_tonk': {
-        osc1.type = 'triangle';
-        osc2.type = 'sawtooth';
-        osc2.detune.value = 4;
-        vcf.frequency.setValueAtTime(2100, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(550, startTime + Math.min(0.24, dur));
-        vcf.Q.value = 1.0;
-        attack = 0.004;
-        release = 0.07;
-        break;
-      }
-      case 'sub_dub':
-      case 'trap_808': {
+        // Classic NES 15ms octave grace-note blip on lead notes
+        if (role === 'melody') {
+          osc1.frequency.setValueAtTime(freq * 2, startTime);
+          osc1.frequency.setValueAtTime(freq, startTime + 0.016);
+        }
+      } else if (patch === 'sub_dub' || patch === 'trap_808') {
         osc1.type = 'sine';
         osc2.type = 'triangle';
-        osc1.frequency.setValueAtTime(freq * 1.4, startTime);
-        osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.04);
-        osc2.frequency.setValueAtTime(freq, startTime);
-        vcf.frequency.setValueAtTime(360, startTime);
-        vcf.Q.value = 1.0;
-        attack = 0.005;
-        release = 0.12;
-        break;
-      }
-      case 'reese_cyber':
-      case 'slap_funk': {
-        osc1.type = 'sawtooth';
-        osc2.type = 'triangle';
-        osc2.detune.value = 10;
-        vcf.frequency.setValueAtTime(720, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(260, startTime + Math.min(0.22, dur));
-        vcf.Q.value = 1.8;
-        attack = 0.005;
-        release = 0.06;
-        break;
-      }
-      case 'upright_jazz':
-      case 'nes_triangle': {
-        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(freq * 1.45, startTime);
+        osc1.frequency.exponentialRampToValueAtTime(freq, startTime + 0.042);
+      } else if (patch === 'nylon_guitar' || patch === 'clavinet_funk' || patch === 'honky_tonk') {
+        osc1.type = patch === 'clavinet_funk' ? 'sawtooth' : 'triangle';
+        osc2.type = 'sawtooth';
+        osc2.detune.setValueAtTime(patch === 'honky_tonk' ? 14 : 4, startTime);
+        vcf.frequency.setValueAtTime(cutoff * 1.4, startTime);
+        vcf.frequency.exponentialRampToValueAtTime(Math.max(480, cutoff * 0.35), startTime + Math.min(0.24, dur));
+      } else {
+        // upright_jazz, slap_funk, reese_cyber, nes_triangle
+        osc1.type = (patch === 'reese_cyber' || patch === 'slap_funk') ? 'sawtooth' : 'triangle';
         osc2.type = 'sine';
-        vcf.frequency.setValueAtTime(620, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(240, startTime + Math.min(0.25, dur));
-        attack = 0.006;
-        release = 0.08;
-        break;
+        osc2.detune.setValueAtTime(chorusDetune, startTime);
+        vcf.frequency.setValueAtTime(cutoff * 1.3, startTime);
+        vcf.frequency.exponentialRampToValueAtTime(Math.max(220, cutoff * 0.45), startTime + Math.min(0.24, dur));
       }
-      default: {
-        osc1.type = role === 'melody' ? 'triangle' : 'sine';
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(freq * 2, startTime);
-        vcf.frequency.setValueAtTime(role === 'melody' ? 3600 : 1600, startTime);
-        vcf.frequency.exponentialRampToValueAtTime(role === 'melody' ? 1400 : 650, startTime + Math.min(0.35, dur));
-        attack = 0.006;
-        release = 0.10;
-        break;
-      }
-    }
 
-    if (patch !== 'sub_dub' && patch !== 'trap_808') {
-      osc1.frequency.setValueAtTime(freq, startTime);
-    }
-    if (!['melodica_dub', 'organ_skank', 'flute_airy', 'whistle_western', 'rhodes_ep', 'warm_rhodes', 'vibraphone_jazz', 'dark_trap_bells'].includes(patch)) {
+      if (patch !== 'sub_dub' && patch !== 'trap_808' && !(patch === 'square_8bit' && role === 'melody')) {
+        osc1.frequency.setValueAtTime(freq, startTime);
+      }
       osc2.frequency.setValueAtTime(freq, startTime);
+
+      const g2 = ctx.createGain();
+      g2.gain.value = role === 'melody' ? 0.48 : 0.30;
+      osc1.connect(voiceBus);
+      osc2.connect(g2);
+      g2.connect(voiceBus);
+      oscPitchTargets.push(osc1.frequency, osc2.frequency);
+      activeNodes.push(osc1, osc2);
     }
 
-    const osc2Mix = ctx.createGain();
-    osc2Mix.gain.value = role === 'melody' ? 0.5 : 0.25;
+    // --- PAIRED EFFECT 1: LESLIE ROTARY SPEAKER SIMULATOR (Doppler FM + Filter Swirl + Horn AM) ---
+    let rotaryTremoloNode = null;
+    if (rotaryMode && rotaryMode !== 'off') {
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      if (rotaryMode === 'accel') {
+        lfo.frequency.setValueAtTime(1.5, startTime);
+        lfo.frequency.exponentialRampToValueAtTime(6.4, startTime + Math.min(0.45, dur));
+      } else {
+        lfo.frequency.setValueAtTime(rotaryMode === 'slow' ? 1.4 : 6.3, startTime);
+      }
 
-    osc1.connect(vcf);
-    osc2.connect(osc2Mix);
-    osc2Mix.connect(vcf);
-    vcf.connect(out);
+      // 1. Horn Filter Swirl (modulates vcf.frequency +/- 650 Hz)
+      const filterMod = ctx.createGain();
+      filterMod.gain.value = role === 'melody' ? 680 : 420;
+      lfo.connect(filterMod);
+      filterMod.connect(vcf.frequency);
 
-    out.gain.setValueAtTime(0.0001, startTime);
-    out.gain.linearRampToValueAtTime(peak, startTime + attack);
-    out.gain.exponentialRampToValueAtTime(Math.max(0.001, peak * 0.55), startTime + dur);
-    out.gain.exponentialRampToValueAtTime(0.0001, startTime + dur + release);
+      // 2. Doppler Pitch Vibrato
+      const pitchMod = ctx.createGain();
+      pitchMod.gain.value = freq * 0.0075;
+      lfo.connect(pitchMod);
+      oscPitchTargets.forEach(param => pitchMod.connect(param));
 
-    out.connect(graph.inputBus);
+      // 3. Horn Amplitude Pulsing (AM)
+      rotaryTremoloNode = ctx.createGain();
+      rotaryTremoloNode.gain.value = 0.84;
+      const amDepth = ctx.createGain();
+      amDepth.gain.value = 0.16;
+      lfo.connect(amDepth);
+      amDepth.connect(rotaryTremoloNode.gain);
 
-    if (sendDelay > 0.02) {
+      activeNodes.push(lfo);
+    }
+    // --- PAIRED EFFECT 2: DELAYED EXPRESSIVE VIBRATO (Flutes, Brass, Leads) ---
+    else if (vibDepth > 1 && role === 'melody' && dur > 0.14) {
+      const vibLfo = ctx.createOscillator();
+      vibLfo.type = 'sine';
+      vibLfo.frequency.setValueAtTime(vibRate, startTime);
+
+      const vibGain = ctx.createGain();
+      const maxHzShift = freq * (Math.pow(2, vibDepth / 1200) - 1);
+      // Delay vibrato bloom by 110ms like a real wind/string player!
+      vibGain.gain.setValueAtTime(0.0001, startTime);
+      vibGain.gain.linearRampToValueAtTime(maxHzShift, startTime + Math.min(dur, 0.16));
+
+      vibLfo.connect(vibGain);
+      oscPitchTargets.forEach(param => vibGain.connect(param));
+      activeNodes.push(vibLfo);
+    }
+
+    // Wire voice signal chain: voiceBus -> vcf -> [WaveShaper] -> [Rotary AM] -> outEnv -> [StereoPanner] -> Buses
+    voiceBus.connect(vcf);
+    if (rotaryTremoloNode) {
+      postFilterNode.connect(rotaryTremoloNode);
+      rotaryTremoloNode.connect(outEnv);
+    } else {
+      postFilterNode.connect(outEnv);
+    }
+
+    const finalOut = panner || outEnv;
+    if (panner) {
+      outEnv.connect(panner);
+    }
+
+    // Full 4-Stage ADSR Envelope (Attack -> Decay -> Sustain -> Release)
+    const sustainLevel = Math.max(0.001, peak * sustain);
+    outEnv.gain.setValueAtTime(0.0001, startTime);
+    outEnv.gain.linearRampToValueAtTime(peak, startTime + attack);
+    outEnv.gain.exponentialRampToValueAtTime(sustainLevel, startTime + attack + Math.min(decay, dur * 0.7));
+    outEnv.gain.setValueAtTime(sustainLevel, startTime + dur);
+    outEnv.gain.exponentialRampToValueAtTime(0.0001, startTime + dur + release);
+
+    finalOut.connect(graph.inputBus);
+
+    // Role-Aware & LLM-Configured Delay / Reverb Sends
+    const sendDelayAmt = role === 'melody'
+      ? (extraEcho ? Math.max(0.42, Number(sends.delay) || 0.25) : (Number(sends.delay) ?? 0.18))
+      : (role === 'chord' ? Math.min(0.08, Number(sends.delay) || 0.0) : 0.0);
+    const sendRevAmt = role === 'melody'
+      ? (Number(sends.reverb) ?? 0.24)
+      : (role === 'chord' ? Math.min(0.12, Number(sends.reverb) || 0.06) : 0.0);
+
+    if (sendDelayAmt > 0.02) {
       const dSend = ctx.createGain();
-      dSend.gain.value = sendDelay;
-      out.connect(dSend);
+      dSend.gain.value = sendDelayAmt;
+      finalOut.connect(dSend);
       dSend.connect(graph.delaySend);
     }
-    if (sendReverb > 0.02) {
+    if (sendRevAmt > 0.02) {
       const rSend = ctx.createGain();
-      rSend.gain.value = sendReverb;
-      out.connect(rSend);
+      rSend.gain.value = sendRevAmt;
+      finalOut.connect(rSend);
       rSend.connect(graph.reverbSend);
     }
 
-    osc1.start(startTime);
-    osc2.start(startTime);
-    osc1.stop(startTime + dur + release + 0.02);
-    osc2.stop(startTime + dur + release + 0.02);
+    activeNodes.forEach(node => {
+      node.start(startTime);
+      node.stop(stopTime);
+    });
   }
 
-  // Tight, balanced drum hits that never wash out the melody
-  function triggerDrumHit(ctx, graph, kit, type, startTime, velocity, stepDurSec) {
+  // Multi-Layer Drum Synthesizer (3-Stage Kick, Dual-Mode Snare & Dub Rimshot, 6-Osc Metallic Hats & Cowbell/Shaker)
+  function triggerDrumHit(ctx, graph, drumSpecOrKit, type, startTime, velocity, stepDurSec) {
+    const dsp = getDspResources(ctx);
+    const drumSpec = (typeof drumSpecOrKit === 'object' && drumSpecOrKit !== null)
+      ? drumSpecOrKit
+      : { kit: String(drumSpecOrKit || 'dub_kit') };
+    const kit = drumSpec.kit || 'dub_kit';
+    const tuning = drumSpec.tuning || {};
     const v = Math.max(0.1, Math.min(1.0, velocity));
 
+    // --- 1. 3-STAGE KICK DRUM (Beater Click + 2-Stage Pitch Snap + Soft Saturation) ---
     if (type === 'kick') {
+      const punch = Math.max(0.4, Math.min(1.0, Number(tuning.kick_punch) || 0.78));
       const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const bodyGain = ctx.createGain();
+      const shaper = ctx.createWaveShaper();
+      shaper.curve = getDriveCurve(0.22 * punch);
+
       osc.type = kit === 'chip_kit' ? 'triangle' : 'sine';
-      const startFreq = kit === 'trap_kit' ? 135 : 120;
-      const endFreq = kit === 'trap_kit' ? 40 : 48;
-      const decay = kit === 'trap_kit' ? 0.26 : 0.18;
+      const subFreq = kit === 'trap_kit' ? 42 : (kit === 'bossa_kit' ? 54 : 47);
+      const decay = kit === 'trap_kit' ? 0.28 : 0.19;
 
-      osc.frequency.setValueAtTime(startFreq, startTime);
-      osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + 0.055);
-      gain.gain.setValueAtTime(v * 0.36, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
+      // 2-stage pitch envelope: 320 Hz beater snap -> 105 Hz chest punch -> subFreq
+      osc.frequency.setValueAtTime(310, startTime);
+      osc.frequency.exponentialRampToValueAtTime(105, startTime + 0.012);
+      osc.frequency.exponentialRampToValueAtTime(subFreq, startTime + 0.068);
 
-      osc.connect(gain);
-      gain.connect(graph.inputBus);
+      bodyGain.gain.setValueAtTime(v * 0.36, startTime);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
+
+      osc.connect(shaper);
+      shaper.connect(bodyGain);
+      bodyGain.connect(graph.inputBus);
       osc.start(startTime);
       osc.stop(startTime + decay + 0.02);
-      return;
-    }
 
-    if (type === 'snare') {
-      const osc = ctx.createOscillator();
-      const oscGain = ctx.createGain();
-      osc.type = 'triangle';
-      const isDubRim = kit === 'dub_kit' || kit === 'bossa_kit';
-      osc.frequency.setValueAtTime(isDubRim ? 380 : 200, startTime);
-      osc.frequency.exponentialRampToValueAtTime(isDubRim ? 180 : 110, startTime + 0.05);
-      oscGain.gain.setValueAtTime(v * 0.18, startTime);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08);
-      osc.connect(oscGain);
-      oscGain.connect(graph.inputBus);
-      osc.start(startTime);
-      osc.stop(startTime + 0.09);
-
-      const noiseLen = Math.floor(ctx.sampleRate * 0.11);
-      const nBuf = ctx.createBuffer(1, noiseLen, ctx.sampleRate);
-      const data = nBuf.getChannelData(0);
-      for (let i = 0; i < noiseLen; i++) data[i] = Math.random() * 2 - 1;
-      const noise = ctx.createBufferSource();
-      noise.buffer = nBuf;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = isDubRim ? 1800 : 1400;
-      filter.Q.value = 1.2;
-
-      const nGain = ctx.createGain();
-      nGain.gain.setValueAtTime(v * 0.16, startTime);
-      nGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.10);
-
-      noise.connect(filter);
-      filter.connect(nGain);
-      nGain.connect(graph.inputBus);
-      noise.start(startTime);
-      return;
-    }
-
-    if (type === 'hat' || type === 'hat_open_or_roll') {
-      const isTrapRoll = type === 'hat_open_or_roll' && kit === 'trap_kit';
-      const subHits = isTrapRoll ? 2 : 1;
-      for (let h = 0; h < subHits; h++) {
-        const t = startTime + h * (stepDurSec * 0.5);
-        const dur = (type === 'hat_open_or_roll' && !isTrapRoll) ? 0.11 : 0.032;
-        const len = Math.floor(ctx.sampleRate * dur);
-        const nBuf = ctx.createBuffer(1, len, ctx.sampleRate);
-        const data = nBuf.getChannelData(0);
-        for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
-
-        const noise = ctx.createBufferSource();
-        noise.buffer = nBuf;
-        const hp = ctx.createBiquadFilter();
-        hp.type = 'highpass';
-        hp.frequency.value = 7500;
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(v * 0.09, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-
-        noise.connect(hp);
-        hp.connect(g);
-        g.connect(graph.inputBus);
-        noise.start(t);
+      // Beater Click Transient (12ms filtered noise impulse)
+      if (kit !== 'chip_kit') {
+        const clickSrc = ctx.createBufferSource();
+        clickSrc.buffer = dsp.noiseBuffer;
+        const clickBp = ctx.createBiquadFilter();
+        clickBp.type = 'bandpass';
+        clickBp.frequency.value = 1850;
+        clickBp.Q.value = 1.8;
+        const clickGain = ctx.createGain();
+        clickGain.gain.setValueAtTime(v * 0.14 * punch, startTime);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.012);
+        clickSrc.connect(clickBp);
+        clickBp.connect(clickGain);
+        clickGain.connect(graph.inputBus);
+        clickSrc.start(startTime);
+        clickSrc.stop(startTime + 0.015);
       }
       return;
     }
 
+    // --- 2. MULTI-LAYER SNARE & KING TUBBY DUB RIMSHOT ---
+    if (type === 'snare') {
+      const snap = Math.max(0.4, Math.min(1.0, Number(tuning.snare_snap) || 0.75));
+      const isDubRim = kit === 'dub_kit' || kit === 'bossa_kit';
+
+      if (isDubRim) {
+        // Woody Cross-Stick / Rimshot: Dual high-Q resonators (490 Hz + 1720 Hz) + Dub Echo send
+        const rimOut = ctx.createGain();
+        const freqs = [485, 1720];
+        freqs.forEach((rf, idx) => {
+          const osc = ctx.createOscillator();
+          osc.type = idx === 0 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(rf * 1.15, startTime);
+          osc.frequency.exponentialRampToValueAtTime(rf, startTime + 0.018);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(v * (idx === 0 ? 0.22 : 0.16), startTime);
+          g.gain.exponentialRampToValueAtTime(0.001, startTime + (idx === 0 ? 0.055 : 0.032));
+          osc.connect(g);
+          g.connect(rimOut);
+          osc.start(startTime);
+          osc.stop(startTime + 0.065);
+        });
+
+        // Crisp stick transient
+        const nSrc = ctx.createBufferSource();
+        nSrc.buffer = dsp.noiseBuffer;
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = 2200;
+        bp.Q.value = 3.5;
+        const ng = ctx.createGain();
+        ng.gain.setValueAtTime(v * 0.18, startTime);
+        ng.gain.exponentialRampToValueAtTime(0.001, startTime + 0.038);
+        nSrc.connect(bp);
+        bp.connect(ng);
+        ng.connect(rimOut);
+        nSrc.start(startTime);
+        nSrc.stop(startTime + 0.045);
+
+        rimOut.connect(graph.inputBus);
+        const rimEcho = Math.max(0.10, Math.min(0.45, Number(tuning.rim_dub_echo) ?? 0.28));
+        const dSend = ctx.createGain();
+        dSend.gain.value = rimEcho;
+        rimOut.connect(dSend);
+        dSend.connect(graph.delaySend);
+        return;
+      }
+
+      // Full Snare Drum: Dual shell modes (185 Hz + 330 Hz) + Snare Wire Rattle
+      const snareBus = ctx.createGain();
+      [185, 330].forEach((sf, idx) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(sf * 1.4, startTime);
+        osc.frequency.exponentialRampToValueAtTime(sf, startTime + 0.035);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(v * (idx === 0 ? 0.20 : 0.11), startTime);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.085);
+        osc.connect(g);
+        g.connect(snareBus);
+        osc.start(startTime);
+        osc.stop(startTime + 0.095);
+      });
+
+      const nSrc = ctx.createBufferSource();
+      nSrc.buffer = dsp.noiseBuffer;
+      const wireHp = ctx.createBiquadFilter();
+      wireHp.type = 'highpass';
+      wireHp.frequency.value = 1800;
+      const wireGain = ctx.createGain();
+      const tailDur = kit === 'cyber_kit' || kit === 'doom_kit' ? 0.16 : 0.115;
+      wireGain.gain.setValueAtTime(v * 0.20 * snap, startTime);
+      wireGain.gain.exponentialRampToValueAtTime(0.001, startTime + tailDur);
+
+      nSrc.connect(wireHp);
+      wireHp.connect(wireGain);
+      wireGain.connect(snareBus);
+      nSrc.start(startTime);
+      nSrc.stop(startTime + tailDur + 0.02);
+
+      snareBus.connect(graph.inputBus);
+      const rSend = ctx.createGain();
+      rSend.gain.value = kit === 'cyber_kit' ? 0.22 : 0.10;
+      snareBus.connect(rSend);
+      rSend.connect(graph.reverbSend);
+      return;
+    }
+
+    // --- 3. METALLIC 6-OSCILLATOR HI-HATS & CYMBALS (TR-808/909 Bronze Matrix + Sizzle) ---
+    if (type === 'hat' || type === 'hat_open_or_roll') {
+      const sizzle = Math.max(0.4, Math.min(1.0, Number(tuning.hat_sizzle) || 0.68));
+      const isTrapRoll = type === 'hat_open_or_roll' && kit === 'trap_kit';
+      const subHits = isTrapRoll ? 2 : 1;
+      const metalRatios = [246.3, 365.4, 443.5, 627.2, 648.0, 960.0];
+
+      for (let h = 0; h < subHits; h++) {
+        const t = startTime + h * (stepDurSec * 0.5);
+        const dur = (type === 'hat_open_or_roll' && !isTrapRoll) ? 0.135 : 0.036;
+
+        const hatBus = ctx.createGain();
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value = 7200;
+
+        // Metallic square cluster (3 key ratios for crisp bronze shimmer without CPU bloat)
+        [metalRatios[0], metalRatios[2], metalRatios[4]].forEach(mf => {
+          const mOsc = ctx.createOscillator();
+          mOsc.type = 'square';
+          mOsc.frequency.setValueAtTime(mf, t);
+          const mg = ctx.createGain();
+          mg.gain.value = 0.18;
+          mOsc.connect(mg);
+          mg.connect(hp);
+          mOsc.start(t);
+          mOsc.stop(t + dur + 0.01);
+        });
+
+        // High-passed air sizzle
+        const nSrc = ctx.createBufferSource();
+        nSrc.buffer = dsp.noiseBuffer;
+        nSrc.loop = true;
+        nSrc.loopStart = (h * 0.17) % 1.5;
+        nSrc.loopEnd = 1.9;
+        const ng = ctx.createGain();
+        ng.gain.value = 0.65;
+        nSrc.connect(ng);
+        ng.connect(hp);
+        nSrc.start(t);
+        nSrc.stop(t + dur + 0.01);
+
+        hp.connect(hatBus);
+        hatBus.gain.setValueAtTime(v * 0.095 * sizzle, t);
+        hatBus.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+
+        if (ctx.createStereoPanner) {
+          const pan = ctx.createStereoPanner();
+          pan.pan.value = Number(tuning.hat_pan) || 0.24;
+          hatBus.connect(pan);
+          pan.connect(graph.inputBus);
+        } else {
+          hatBus.connect(graph.inputBus);
+        }
+      }
+      return;
+    }
+
+    // --- 4. KIT-AWARE PERCUSSION (808 Dual-Tone Cowbell / Agogo / Clave) ---
     if (type === 'perc') {
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(920, startTime);
-      g.gain.setValueAtTime(v * 0.11, startTime);
-      g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.045);
-      osc.connect(g);
-      g.connect(graph.inputBus);
-      osc.start(startTime);
-      osc.stop(startTime + 0.05);
+      const percBus = ctx.createGain();
+      const freqs = kit === 'trap_kit' ? [540, 800] : [680, 1020];
+      freqs.forEach((pf, idx) => {
+        const osc = ctx.createOscillator();
+        osc.type = kit === 'trap_kit' ? 'square' : 'triangle';
+        osc.frequency.setValueAtTime(pf, startTime);
+        const g = ctx.createGain();
+        g.gain.value = idx === 0 ? 0.55 : 0.45;
+        osc.connect(g);
+        g.connect(percBus);
+        osc.start(startTime);
+        osc.stop(startTime + 0.065);
+      });
+
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 760;
+      bp.Q.value = 2.4;
+
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(v * 0.11, startTime);
+      env.gain.exponentialRampToValueAtTime(0.001, startTime + 0.055);
+
+      percBus.connect(bp);
+      bp.connect(env);
+
+      if (ctx.createStereoPanner) {
+        const pan = ctx.createStereoPanner();
+        pan.pan.value = Number(tuning.perc_pan) || -0.26;
+        env.connect(pan);
+        pan.connect(graph.inputBus);
+      } else {
+        env.connect(graph.inputBus);
+      }
     }
   }
 
@@ -1458,6 +2414,8 @@
     ];
 
     const gmProgramMap = {
+      accordion_musette: 21,
+      roto_organ: 18,
       melodica_dub: 22,
       supersaw_cyber: 81,
       square_8bit: 80,
@@ -1487,10 +2445,13 @@
       slap_funk: 36
     };
 
-    function buildNoteTrack(notesArray, channel, programNum, maxMidiVel) {
+    function buildNoteTrack(notesArray, channel, programNum, maxMidiVel, panVal = 0) {
       const evs = [];
       if (channel !== 9) {
         evs.push({ tick: 0, order: 0, bytes: [0xC0 | channel, programNum & 0x7F] });
+        // Standard MIDI CC 10 (Pan) so exported .MID files preserve the LLM's stereo stage!
+        const midiPan = Math.max(0, Math.min(127, Math.round(64 + panVal * 56)));
+        evs.push({ tick: 0, order: 0, bytes: [0xB0 | channel, 10, midiPan] });
       }
       for (let l = 0; l < loops; l++) {
         const loopOffsetSteps = l * 128;
@@ -1506,13 +2467,12 @@
       return buildTrackChunk(evs);
     }
 
-    // Export 4 balanced tracks where Lead Melody has velocity 120 and Chords are tucked at velocity 64
     const chunks = [
       buildTrackChunk(metaEvents),
-      buildNoteTrack(compiled.melody, 0, gmProgramMap[bp.melody_spec?.patch] ?? 73, 120),
-      buildNoteTrack(compiled.chords, 1, gmProgramMap[bp.chord_spec?.patch] ?? 4, 62),
-      buildNoteTrack(compiled.bass, 2, gmProgramMap[bp.bass_spec?.patch] ?? 32, 86),
-      buildNoteTrack(compiled.drums, 9, 0, 78)
+      buildNoteTrack(compiled.melody, 0, gmProgramMap[bp.melody_spec?.patch] ?? 73, 120, Number(bp.melody_spec?.pan) || -0.04),
+      buildNoteTrack(compiled.chords, 1, gmProgramMap[bp.chord_spec?.patch] ?? 4, 62, Number(bp.chord_spec?.pan) || 0.26),
+      buildNoteTrack(compiled.bass, 2, gmProgramMap[bp.bass_spec?.patch] ?? 32, 86, 0.0),
+      buildNoteTrack(compiled.drums, 9, 0, 78, 0.0)
     ];
 
     const numTracks = chunks.length;
@@ -1610,7 +2570,6 @@
     }
 
     if (allNotes.length === 0) throw new Error('No melodic notes found in MIDI file');
-    // Pick highest note at each step so we extract the top skyline melody rather than low chords!
     allNotes.sort((a, b) => a.tick - b.tick || b.midi - a.midi);
     const firstTick = allNotes[0].tick;
     const ticksPer16th = ppq / 4;
@@ -1725,22 +2684,22 @@
       const base = l * 128;
       if (!stemMutes.melody) {
         compiled.melody.forEach(n => {
-          triggerSynthNote(offlineCtx, graph, bp.melody_spec?.patch || 'melodica_dub', n.midi, stepToTime(base + n.step), n.dur * stepDurSec, n.vel, n.echo, 'melody');
+          triggerSynthNote(offlineCtx, graph, bp.melody_spec || 'melodica_dub', n.midi, stepToTime(base + n.step), n.dur * stepDurSec, n.vel, n.echo, 'melody', n.panOffset || 0);
         });
       }
       if (!stemMutes.chords) {
         compiled.chords.forEach(n => {
-          triggerSynthNote(offlineCtx, graph, bp.chord_spec?.patch || 'organ_skank', n.midi, stepToTime(base + n.step), n.dur * stepDurSec, n.vel, false, 'chord');
+          triggerSynthNote(offlineCtx, graph, bp.chord_spec || 'roto_organ', n.midi, stepToTime(base + n.step), n.dur * stepDurSec, n.vel, false, 'chord', n.panOffset || 0);
         });
       }
       if (!stemMutes.bass) {
         compiled.bass.forEach(n => {
-          triggerSynthNote(offlineCtx, graph, bp.bass_spec?.patch || 'sub_dub', n.midi, stepToTime(base + n.step), n.dur * stepDurSec, n.vel, false, 'bass');
+          triggerSynthNote(offlineCtx, graph, bp.bass_spec || 'sub_dub', n.midi, stepToTime(base + n.step), n.dur * stepDurSec, n.vel, false, 'bass', 0);
         });
       }
       if (!stemMutes.drums) {
         compiled.drums.forEach(d => {
-          triggerDrumHit(offlineCtx, graph, bp.drum_spec?.kit || 'dub_kit', d.type, stepToTime(base + d.step), d.vel, stepDurSec);
+          triggerDrumHit(offlineCtx, graph, bp.drum_spec || 'dub_kit', d.type, stepToTime(base + d.step), d.vel, stepDurSec);
         });
       }
     }
@@ -1794,7 +2753,6 @@
       this.schedulerTimer = null;
       this.rafId = null;
 
-      // Strictly mutually exclusive: 'preset' OR 'custom'
       this.modeType = 'preset';
       this.currentPiece = COMPOSER_LIBRARY.mozart_nachtmusik;
       this.currentGenreId = 'reggae_dub';
@@ -1840,7 +2798,6 @@
       this.filterSlider = document.getElementById('mm-slider-filter');
       this.filterVal = document.getElementById('mm-val-filter');
 
-      // Mutually Exclusive Mode Toggle: Preset Dropdown vs Custom AI Vibe Input
       const setGenreMode = (mode) => {
         this.modeType = mode;
         const isCustom = mode === 'custom';
@@ -1866,7 +2823,6 @@
         this.modeCustomBtn.addEventListener('click', () => setGenreMode('custom'));
       }
 
-      // Immediately update score preview when user changes composer or preset genre dropdown
       if (this.composerSelect) {
         this.composerSelect.addEventListener('change', () => {
           const compId = this.composerSelect.value;
@@ -1895,12 +2851,10 @@
         });
       }
 
-      // Bind Morph button
       if (this.morphBtn) {
         this.morphBtn.addEventListener('click', () => this.runAiMorph(true));
       }
 
-      // Bind Play/Pause
       if (this.playBtn) {
         this.playBtn.addEventListener('click', () => {
           if (this.isPlaying) this.stop();
@@ -1908,7 +2862,6 @@
         });
       }
 
-      // Bind MIDI Upload
       if (this.midiUploadInput) {
         this.midiUploadInput.addEventListener('change', async (e) => {
           const file = e.target.files?.[0];
@@ -1937,7 +2890,6 @@
         });
       }
 
-      // Bind Stem Mute Toggles
       document.querySelectorAll('.mm-stem-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const stem = btn.getAttribute('data-stem');
@@ -1948,7 +2900,6 @@
         });
       });
 
-      // Bind Live Sliders
       if (this.bpmSlider) {
         this.bpmSlider.addEventListener('input', (e) => {
           const v = Number(e.target.value);
@@ -1984,7 +2935,6 @@
         });
       }
 
-      // Bind Download .MID
       if (this.downloadMidBtn) {
         this.downloadMidBtn.addEventListener('click', () => {
           const blob = encodeArrangementToMidiBlob(this.compiled, this.currentBlueprint, 2);
@@ -1998,7 +2948,6 @@
         });
       }
 
-      // Bind Download .MP3 / .WAV
       if (this.downloadMp3Btn) {
         this.downloadMp3Btn.addEventListener('click', async () => {
           const origHtml = this.downloadMp3Btn.innerHTML;
@@ -2060,7 +3009,6 @@
     async runAiMorph(autoPlay = true) {
       const compId = this.composerSelect?.value || 'mozart_nachtmusik';
       const genreId = this.genreSelect?.value || 'reggae_dub';
-      // Strictly use customPrompt ONLY when modeType === 'custom'
       const isCustom = this.modeType === 'custom';
       const customPrompt = isCustom ? (this.customPromptInput?.value?.trim() || 'Experimental Electronic Groove') : '';
 
@@ -2223,25 +3171,25 @@
 
       if (!this.stemMutes.melody) {
         this.compiled.melody.filter(n => Math.floor(n.step) === step).forEach(n => {
-          triggerSynthNote(this.ctx, this.graph, bp.melody_spec?.patch || 'melodica_dub', n.midi, time, n.dur * stepDurSec, n.vel, n.echo, 'melody');
+          triggerSynthNote(this.ctx, this.graph, bp.melody_spec || 'melodica_dub', n.midi, time, n.dur * stepDurSec, n.vel, n.echo, 'melody', n.panOffset || 0);
           flashTrack('melody');
         });
       }
       if (!this.stemMutes.chords) {
         this.compiled.chords.filter(n => Math.floor(n.step) === step).forEach(n => {
-          triggerSynthNote(this.ctx, this.graph, bp.chord_spec?.patch || 'organ_skank', n.midi, time, n.dur * stepDurSec, n.vel, false, 'chord');
+          triggerSynthNote(this.ctx, this.graph, bp.chord_spec || 'roto_organ', n.midi, time, n.dur * stepDurSec, n.vel, false, 'chord', n.panOffset || 0);
           flashTrack('chords');
         });
       }
       if (!this.stemMutes.bass) {
         this.compiled.bass.filter(n => Math.floor(n.step) === step).forEach(n => {
-          triggerSynthNote(this.ctx, this.graph, bp.bass_spec?.patch || 'sub_dub', n.midi, time, n.dur * stepDurSec, n.vel, false, 'bass');
+          triggerSynthNote(this.ctx, this.graph, bp.bass_spec || 'sub_dub', n.midi, time, n.dur * stepDurSec, n.vel, false, 'bass', 0);
           flashTrack('bass');
         });
       }
       if (!this.stemMutes.drums) {
         this.compiled.drums.filter(d => Math.floor(d.step) === step).forEach(d => {
-          triggerDrumHit(this.ctx, this.graph, bp.drum_spec?.kit || 'dub_kit', d.type, time, d.vel, stepDurSec);
+          triggerDrumHit(this.ctx, this.graph, bp.drum_spec || 'dub_kit', d.type, time, d.vel, stepDurSec);
           flashTrack('drums');
         });
       }
