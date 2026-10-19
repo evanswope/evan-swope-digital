@@ -104,7 +104,8 @@
           <a href="#" class="nav-link dropdown-toggle">AI Lab <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
           <div class="dropdown-menu">
             <a href="experiments.html" class="dropdown-item">Audio / Visual</a>
-            <a href="checked-out.html" class="dropdown-item">Games</a>
+            <a href="checked-out.html" class="dropdown-item">Checked Out</a>
+            <a href="past-life.html" class="dropdown-item">Past Lives</a>
           </div>
         </div>
         <a href="#contact" class="nav-link btn-contact">Let's Connect</a>
@@ -120,7 +121,8 @@
       <a href="#resume" class="mobile-nav-link">Experience</a>
       <a href="#about" class="mobile-nav-link">About</a>
       <a href="experiments.html" class="mobile-nav-link">AI Lab: Audio/Visual</a>
-      <a href="checked-out.html" class="mobile-nav-link">AI Lab: Games</a>
+      <a href="checked-out.html" class="mobile-nav-link">AI Lab: Checked Out</a>
+      <a href="past-life.html" class="mobile-nav-link">AI Lab: Past Lives</a>
       <a href="#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
     </nav>
   </div>
@@ -209,8 +211,53 @@
         <div class="lab-carousel-viewport">
           <div class="lab-carousel-track" id="lab-carousel-track" style="transform: translateX(0%);">
 
-            <!-- SLIDE 0: Camera Collage -->
-            <div class="lab-carousel-slide" data-slide="0" id="card-camera-collage">
+            <!-- SLIDE 0: Past Lives (Past Life Oracle) -->
+            <div class="lab-carousel-slide" data-slide="0" id="card-past-life">
+              <article class="lab-feature-card">
+                
+                <!-- Left: Video Preview -->
+                <div class="lab-card-media-wrapper">
+                  <div class="lab-card-media">
+                    <video class="lab-preview-video" autoplay="" loop="" muted="" playsinline="" poster="assets/images/preview_past_life_poster.jpg">
+                      <source src="assets/images/preview_past_life.webm" type="video/webm">
+                      <source src="assets/images/preview_past_life.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                </div>
+
+                <!-- Right: Content & Copy -->
+                <div class="lab-card-content">
+                  <div class="lab-media-subbadge">Client-Side Biometric Oracle &amp; History Matcher</div>
+                  
+                  <div class="lab-card-subheader">PAST LIVES: CONSULT THE VEIL OF BYGONE CENTURIES</div>
+                  
+                  <p class="lab-card-premise">
+                    Gaze into the scrying glass to divine your historical reflection across 8,023 forgotten daguerreotypes, antique oil paintings, and bygone spirits. Combines client-side 512D ArcFace facial embeddings with 478 3D celestial cranial landmarks, an interactive phrenology globe, and satirical karmic horoscopes.
+                  </p>
+                  <p class="lab-card-premise" style="font-weight: 900;">
+                    Turns out in 1904 I was a Victorian con artist smiling through my mugshot.
+                  </p>
+
+                  <div class="lab-tech-tags">
+                    <span class="lab-tech-pill"><i class="fa-solid fa-brain"></i> ONNX 512D ArcFace</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-compass"></i> 3D Cranial Astrolabe</span>
+                    <span class="lab-tech-pill"><i class="fa-solid fa-users"></i> 8,023 Soul Vector Database</span>
+                  </div>
+
+                  <div class="lab-card-action" style="flex-direction: column; align-items: flex-start; gap: 0.85rem;">
+                    <a href="past-life.html" class="lab-cta-btn">
+                      <span>CONSULT THE ORACLE</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <span class="lab-cta-subtext">Runs 100% locally in your browser (no photos leave your device)</span>
+                  </div>
+                </div>
+
+              </article>
+            </div>
+
+            <!-- SLIDE 1: Camera Collage -->
+            <div class="lab-carousel-slide" data-slide="1" id="card-camera-collage">
               <article class="lab-feature-card">
                 
                 <!-- Left: Media Preview Slideshow -->
@@ -349,8 +396,8 @@
               </article>
             </div>
 
-            <!-- SLIDE 1: Waveshaper Synth -->
-            <div class="lab-carousel-slide" data-slide="1" id="card-wavetable-synth">
+            <!-- SLIDE 2: Waveshaper Synth -->
+            <div class="lab-carousel-slide" data-slide="2" id="card-wavetable-synth">
               <article class="lab-feature-card">
                 
                 <!-- Left: Video Preview -->
@@ -389,8 +436,8 @@
               </article>
             </div>
 
-            <!-- SLIDE 2: ASCII Portrait -->
-            <div class="lab-carousel-slide" data-slide="2" id="card-ascii-portrait">
+            <!-- SLIDE 3: ASCII Portrait -->
+            <div class="lab-carousel-slide" data-slide="3" id="card-ascii-portrait">
               <article class="lab-feature-card">
                 
                 <!-- Left: Video Preview -->
@@ -429,8 +476,8 @@
               </article>
             </div>
 
-            <!-- SLIDE 3: Checked Out -->
-            <div class="lab-carousel-slide" data-slide="3" id="card-checked-out">
+            <!-- SLIDE 4: Checked Out -->
+            <div class="lab-carousel-slide" data-slide="4" id="card-checked-out">
               <article class="lab-feature-card">
                 
                 <!-- Left: Video Preview -->
@@ -475,10 +522,11 @@
 
         <!-- Carousel Pagination Dots -->
         <div class="lab-carousel-dots" id="lab-carousel-dots">
-          <button class="lab-dot active" data-slide-to="0" aria-label="Slide 1: Camera Collage"></button>
-          <button class="lab-dot" data-slide-to="1" aria-label="Slide 2: Waveshaper Synth"></button>
-          <button class="lab-dot" data-slide-to="2" aria-label="Slide 3: ASCII Portrait"></button>
-          <button class="lab-dot" data-slide-to="3" aria-label="Slide 4: Checked Out"></button>
+          <button class="lab-dot active" data-slide-to="0" aria-label="Slide 1: Past Lives"></button>
+          <button class="lab-dot" data-slide-to="1" aria-label="Slide 2: Camera Collage"></button>
+          <button class="lab-dot" data-slide-to="2" aria-label="Slide 3: Waveshaper Synth"></button>
+          <button class="lab-dot" data-slide-to="3" aria-label="Slide 4: ASCII Portrait"></button>
+          <button class="lab-dot" data-slide-to="4" aria-label="Slide 5: Checked Out"></button>
         </div>
       </div>
     </section>
