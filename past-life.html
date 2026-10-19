@@ -723,9 +723,51 @@
     .twin-orbs-container {
       display: flex;
       justify-content: center;
-      gap: 32px;
-      margin: 18px 0 16px;
+      align-items: center;
+      gap: 20px;
+      margin: 18px 0 12px;
       flex-wrap: wrap;
+    }
+
+    .affinity-bridge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-width: 84px;
+      padding: 6px 4px;
+      align-self: center;
+    }
+
+    .bridge-line {
+      width: 64px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(212,175,55,0.12) 0%, var(--gold) 50%, rgba(212,175,55,0.12) 100%);
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.55);
+    }
+
+    .bridge-sigil {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #fff4d0;
+      background: radial-gradient(circle, rgba(45, 32, 18, 0.95) 0%, rgba(14, 11, 9, 0.98) 100%);
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      padding: 4px 12px;
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.35), inset 0 0 8px rgba(212, 175, 55, 0.2);
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+      white-space: nowrap;
+    }
+
+    .bridge-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
     }
 
     .twin-orb-card {
@@ -1458,20 +1500,20 @@
     <!-- LEFT COLUMN: CRYSTAL BALL & OFFERING CONTROLS -->
     <section class="card">
       <div class="card-header">
-        <span>I. The Scrying Glass</span>
+        <span>The Scrying Glass</span>
         <span id="detConfLabel">AWAITING COUNTENANCE</span>
       </div>
 
       <div class="crystal-ball-stage">
         <div class="crystal-ball-wrap" id="mirrorBox">
-          <div class="crystal-ball" id="crystalBall">
+          <div class="crystal-ball" id="crystalBall" style="cursor:pointer;" title="Click to offer a portrait">
             <div class="crystal-ball-inner">
               <video id="webcamVideo" autoplay playsinline muted style="display:none;"></video>
               <canvas id="inputCanvas" style="display:none;"></canvas>
               <div class="mirror-placeholder" id="mirrorPlaceholder">
                 <div class="sigil">🔮</div>
                 <div style="font-size:1.25rem; color:var(--text); margin-bottom:4px;">Gaze into the Glass</div>
-                <div class="mono" style="font-size:10.5px;">Upload a selfie or peer through your webcam</div>
+                <div class="mono" style="font-size:10.5px;">Click or drop a portrait to begin</div>
               </div>
             </div>
             <div class="crystal-ball-glare"></div>
@@ -1500,52 +1542,28 @@
       </div>
 
       <div class="mode-panel" id="webcamModePanel" style="display:none;">
-        <div class="webcam-controls-row" id="webcamControlsRow">
-          <button type="button" class="antique-action-btn" id="freezeWebcamBtn">
-            <span id="freezeBtnText">📸 Freeze Countenance</span>
-          </button>
-          <button type="button" class="antique-action-btn" id="unfreezeWebcamBtn" style="display:none;">
-            <span>↺ Live Feed</span>
-          </button>
-        </div>
+        <button type="button" class="antique-action-btn" id="unfreezeWebcamBtn" style="display:none;">
+          <span>↺ Return to Live Mirror</span>
+        </button>
       </div>
 
       <!-- PERMANENT MASTER ACTION BUTTON -->
       <div class="master-action-container">
         <button type="button" class="divine-master-btn is-dormant" id="masterDivineBtn" disabled>
-          <span class="master-btn-rune">⚡</span>
-          <span class="master-btn-text" id="masterBtnText">DIVINE MY PAST LIFE</span>
-          <span class="master-btn-hint" id="masterBtnHint">Offer or snap a visage first</span>
+          <span class="master-btn-text" id="masterBtnText">✦ CONSULT THE ORACLE</span>
+          <span class="master-btn-hint" id="masterBtnHint">Offer a portrait to awaken the glass</span>
         </button>
       </div>
 
       <!-- SECONDARY ACTION: RANDOM SOUL FROM THE VEIL -->
-      <div class="secondary-action-row" style="margin-bottom: 8px;">
+      <div class="secondary-action-row" style="margin-bottom: 4px;">
         <button type="button" class="veil-random-btn" id="randomTestBtn">
-          ✦ Divine Random Soul from the Veil
+          ✦ Summon Random Soul
         </button>
       </div>
 
-      <!-- COLLAPSIBLE TELEMETRY DRAWER (HIDING DENSE SCIENCE BEHIND A FUN EXPANDABLE TOGGLE) -->
-      <details class="oracle-drawer">
-        <summary class="oracle-drawer-trigger">
-          <span>👁 Cranial Wireframe &amp; Alchemical Mesh</span>
-          <span class="drawer-arrow">▾</span>
-        </summary>
-        <div class="oracle-drawer-body">
-          <div class="aligned-row">
-            <canvas id="alignedCanvas" class="aligned-thumb" width="112" height="112"></canvas>
-            <div class="telemetry-meta" id="telemetryText">
-              <strong>Cranial Alignment:</strong> 478 Astral Mesh Points<br/>
-              <strong>Countenance Nuance:</strong> 52 Expression Harmonics<br/>
-              <strong>Private Sanctuary:</strong> Divined 100% privately in your browser.
-            </div>
-          </div>
-          <div class="blendshape-bars" id="blendshapeBars"></div>
-          <canvas id="barcodeCanvas" class="vector-barcode" width="380" height="32"></canvas>
-          <div class="vector-raw" id="vectorRawBox">[512D Biometric &amp; 128D Cranial Vector will materialize here]</div>
-        </div>
-      </details>
+      <!-- Hidden 112x112 affine alignment canvas required for ArcFace 512D feature extraction -->
+      <canvas id="alignedCanvas" width="112" height="112" style="display:none;"></canvas>
     </section>
 
     <!-- RIGHT COLUMN: REVEAL & FILTERABLE ARCHIVE -->
@@ -1591,6 +1609,13 @@
               <button id="vesselToggleBtn" class="vessel-toggle-pill" type="button">🔮 View 3D Astral Mask</button>
             </div>
 
+            <div class="affinity-bridge" id="affinityBridge">
+              <div class="bridge-line"></div>
+              <div class="bridge-sigil" id="bestSimBadge">96.4%</div>
+              <div class="bridge-label">SOUL AFFINITY</div>
+              <div class="bridge-line"></div>
+            </div>
+
             <div class="twin-orb-card" id="twinCropCard">
               <span class="crop-tag" id="spiritOrbTag">THE SPIRIT REVEALED</span>
               <div class="scrying-orb orb-twin">
@@ -1600,13 +1625,8 @@
             </div>
           </div>
 
-          <div class="sim-badge" id="bestSimBadge">96.4% SOUL RESONANCE</div>
-          <div class="mono" style="font-size:10px; color:var(--muted); margin-top:8px; text-align:center;" id="scoreBreakdownText">
-            CRANIAL TOPOLOGY + 512D BIOMETRIC FUSION
-          </div>
-
           <!-- ASTRAL HOROSCOPE SEAL -->
-          <div style="text-align: center; margin-top: 14px;">
+          <div style="text-align: center; margin-top: 10px;">
             <div class="astral-horoscope-pill" id="astralHoroscopePill" style="display:none;">
               <span class="zodiac-glyph" id="zodiacGlyph">♈</span>
               <span class="zodiac-info" id="zodiacInfo">ASTRAL CONSTELLATION</span>
@@ -1615,24 +1635,20 @@
 
           <!-- KARMIC VICES & PECULIARITIES (BADGES) -->
           <div class="karmic-traits-section" id="karmicTraitsSection" style="display:none;">
-            <div class="karmic-section-label">✦ KARMIC VICES &amp; PECULIARITIES ✦</div>
+            <div class="karmic-section-label">✦ PAST LIFE PECULIARITIES ✦</div>
             <div class="karmic-badges-wrap" id="karmicBadgesWrap"></div>
           </div>
 
           <!-- MORTAL ATTRIBUTES & ALCHEMICAL GAUGES (PROGRESS BARS) -->
           <div class="mortal-bars-section" id="mortalBarsSection" style="display:none;">
-            <div class="karmic-section-label">✦ MORTAL ATTRIBUTES &amp; ALCHEMICAL GAUGES ✦</div>
+            <div class="karmic-section-label">✦ HUMOURS &amp; TEMPERAMENT ✦</div>
             <div class="mortal-bars-grid" id="mortalBarsGrid"></div>
-          </div>
-
-          <div id="randomSoulActionRow" style="display:none; justify-content:center; gap:12px; margin-top:14px;">
-            <button id="summonAnotherBtn" class="oracle-action-btn" type="button">✦ Summon Another Ancient Soul</button>
           </div>
 
           <!-- COLLAPSIBLE BEHIND-THE-VEIL DRAWER FOR HISTORICAL ARTWORK & MUSEUM RECORDS -->
           <details class="oracle-drawer" id="oracleDrawer">
             <summary class="oracle-drawer-trigger">
-              <span>📜 Historical Record in Our Realm (Uncropped Artwork)</span>
+              <span>📜 Unveil Historical Artifact &amp; Provenance</span>
               <span class="drawer-arrow">▾</span>
             </summary>
             <div class="oracle-drawer-body">
@@ -1661,16 +1677,16 @@
 
       <div class="card">
         <div class="card-header">
-          <span id="galleryHeaderTitle">III. Closest Souls Across Pre-1950 Portraits</span>
-          <span id="filterCountLabel">TOP 12 MATCHES</span>
+          <span id="galleryHeaderTitle">Echoes Across the Veil</span>
+          <span id="filterCountLabel">12 KINDRED SPIRITS</span>
         </div>
 
         <div class="filter-bar" id="filterBar">
           <button class="filter-tab active" data-cat="all" id="tabAll">All Incarnations</button>
-          <button class="filter-tab" data-cat="portrait" id="tabPortrait">Paintings &amp; Sculptures</button>
-          <button class="filter-tab" data-cat="daguerreotype" id="tabDaguerreotype">Daguerreotypes &amp; Photos</button>
-          <button class="filter-tab" data-cat="mugshot" id="tabMugshot">1900s Mugshots</button>
-          <button class="filter-tab" data-cat="animal_or_creature" id="tabCreature">Beasts &amp; Pareidolia</button>
+          <button class="filter-tab" data-cat="portrait" id="tabPortrait">Portraits &amp; Busts</button>
+          <button class="filter-tab" data-cat="daguerreotype" id="tabDaguerreotype">Daguerreotypes</button>
+          <button class="filter-tab" data-cat="mugshot" id="tabMugshot">Vintage Mugshots</button>
+          <button class="filter-tab" data-cat="animal_or_creature" id="tabCreature">Beasts &amp; Oddities</button>
         </div>
 
         <div class="matches-grid" id="matchesGrid"></div>
@@ -1718,10 +1734,7 @@
     const webcamModePanel = document.getElementById('webcamModePanel');
     const fileInput = document.getElementById('fileInput');
     const fileButtonText = document.getElementById('fileButtonText');
-    const freezeWebcamBtn = document.getElementById('freezeWebcamBtn');
-    const freezeBtnText = document.getElementById('freezeBtnText');
     const unfreezeWebcamBtn = document.getElementById('unfreezeWebcamBtn');
-    const webcamControlsRow = document.getElementById('webcamControlsRow');
     const masterDivineBtn = document.getElementById('masterDivineBtn');
     const masterBtnText = document.getElementById('masterBtnText');
     const masterBtnHint = document.getElementById('masterBtnHint');
@@ -1732,10 +1745,6 @@
     const inputCanvas = document.getElementById('inputCanvas');
     const mirrorPlaceholder = document.getElementById('mirrorPlaceholder');
     const alignedCanvas = document.getElementById('alignedCanvas');
-    const telemetryText = document.getElementById('telemetryText');
-    const blendshapeBars = document.getElementById('blendshapeBars');
-    const barcodeCanvas = document.getElementById('barcodeCanvas');
-    const vectorRawBox = document.getElementById('vectorRawBox');
 
     const crystalBall = document.getElementById('crystalBall');
     const revealPre = document.getElementById('revealPre');
@@ -1757,15 +1766,13 @@
     let vessel3DAnimId = null;
 
     const spiritOrbTag = document.getElementById('spiritOrbTag');
-    const randomSoulActionRow = document.getElementById('randomSoulActionRow');
-    const summonAnotherBtn = document.getElementById('summonAnotherBtn');
+    const affinityBridge = document.getElementById('affinityBridge');
     const artworkDetails = document.getElementById('artworkDetails');
     const userMirrorCard = document.getElementById('userMirrorCard');
     const twinCropCard = document.getElementById('twinCropCard');
     const userMiniCanvas = document.getElementById('userMiniCanvas');
     const bestCropViewport = document.getElementById('bestCropViewport');
     const bestSimBadge = document.getElementById('bestSimBadge');
-    const scoreBreakdownText = document.getElementById('scoreBreakdownText');
     const astralHoroscopePill = document.getElementById('astralHoroscopePill');
     const zodiacGlyph = document.getElementById('zodiacGlyph');
     const zodiacInfo = document.getElementById('zodiacInfo');
@@ -1836,12 +1843,12 @@
       document.getElementById('heroSubtitle').textContent =
         `Gaze into the scrying glass to divine your historical reflection across ${fmtTotal} forgotten portraits, vintage daguerreotypes, and bygone spirits.`;
       document.getElementById('galleryHeaderTitle').textContent =
-        `III. Spirits of Akin Countenance (${fmtTotal} in Archive)`;
+        `Echoes Across the Veil (${fmtTotal} Souls)`;
       document.getElementById('tabAll').textContent = `All Incarnations (${fmtTotal})`;
-      document.getElementById('tabPortrait').textContent = `Paintings & Sculptures (${(counts.portrait || 0).toLocaleString()})`;
-      document.getElementById('tabDaguerreotype').textContent = `Daguerreotypes & Photos (${(counts.daguerreotype || 0).toLocaleString()})`;
-      document.getElementById('tabMugshot').textContent = `1900s Mugshots (${(counts.mugshot || 0).toLocaleString()})`;
-      document.getElementById('tabCreature').textContent = `Beasts & Pareidolia (${(counts.animal_or_creature || 0).toLocaleString()})`;
+      document.getElementById('tabPortrait').textContent = `Portraits & Busts (${(counts.portrait || 0).toLocaleString()})`;
+      document.getElementById('tabDaguerreotype').textContent = `Daguerreotypes (${(counts.daguerreotype || 0).toLocaleString()})`;
+      document.getElementById('tabMugshot').textContent = `Vintage Mugshots (${(counts.mugshot || 0).toLocaleString()})`;
+      document.getElementById('tabCreature').textContent = `Beasts & Oddities (${(counts.animal_or_creature || 0).toLocaleString()})`;
     }
 
     async function initEngine() {
@@ -2661,41 +2668,6 @@
       uctx.drawImage(imgEl, 0, 0, 220, 220);
     }
 
-    function renderBlendshapes(blendshapes) {
-      blendshapeBars.innerHTML = '';
-      if (!blendshapes || !blendshapes.categories) return;
-      const top = blendshapes.categories
-        .filter(c => c.categoryName !== '_neutral')
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 6);
-
-      top.forEach(b => {
-        const pct = Math.round(b.score * 100);
-        const div = document.createElement('div');
-        div.className = 'bs-item';
-        div.innerHTML = `
-          <div class="bs-label"><span>${b.categoryName}</span><span>${pct}%</span></div>
-          <div class="bs-track"><div class="bs-fill" style="width:${pct}%"></div></div>
-        `;
-        blendshapeBars.appendChild(div);
-      });
-    }
-
-    function drawVectorBarcode(vec) {
-      const ctx = barcodeCanvas.getContext('2d');
-      const w = barcodeCanvas.width, h = barcodeCanvas.height;
-      ctx.clearRect(0, 0, w, h);
-      const len = Math.min(128, vec.length);
-      const barW = w / len;
-      for (let i = 0; i < len; i++) {
-        const norm = Math.max(0, Math.min(1, (vec[i] + 0.18) / 0.36));
-        const r = Math.round(40 + norm * 195);
-        const g = Math.round(30 + norm * 145);
-        const b = Math.round(25 + (1 - norm) * 120);
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(i * barW, 0, Math.ceil(barW), h);
-      }
-    }
 
     function rankArchiveMatches(arcVec, meshVec, excludeIndex = -1) {
       const N = archiveMeta.count;
@@ -2959,24 +2931,21 @@
 
       if (item.isSummonedSoul) {
         userMirrorCard.style.display = 'none';
+        if (affinityBridge) affinityBridge.style.display = 'none';
         if (spiritOrbTag) spiritOrbTag.textContent = "ANCIENT SOUL SUMMONED";
-        if (randomSoulActionRow) randomSoulActionRow.style.display = 'flex';
         revealPre.textContent = "🔮 ANCIENT SOUL SUMMONED FROM THE VEIL";
         revealPrompt.textContent = "From the mists of history emerges...";
-        bestSimBadge.textContent = `SUMMONED SOUL • ${m.c.toUpperCase().replace('_OR_CREATURE', '')}`;
-        scoreBreakdownText.textContent = `${m.t} — ${m.a || 'Unknown Master'} (${m.d || 'Historic Era'})`;
       } else {
-        userMirrorCard.style.display = 'flex';
+        const hasVessel = Boolean(currentActiveSqCanvas);
+        userMirrorCard.style.display = hasVessel ? 'flex' : 'none';
+        if (affinityBridge) affinityBridge.style.display = hasVessel ? 'flex' : 'none';
         if (spiritOrbTag) spiritOrbTag.textContent = "THE SPIRIT REVEALED";
-        if (randomSoulActionRow) randomSoulActionRow.style.display = 'none';
-        revealPre.textContent = `🔮 THE ORACLE HAS SPOKEN // ${item.resonancePct ? item.resonancePct.toFixed(1) + '% SOUL AFFINITY' : 'ARCHIVE RECORD'}`;
+        revealPre.textContent = "🔮 THE ORACLE HAS SPOKEN";
         revealPrompt.textContent = "In a past life, you were...";
-        bestSimBadge.textContent = item.resonancePct
-          ? `${item.resonancePct.toFixed(1)}% SOUL RESONANCE`
-          : `ARCHIVE RECORD`;
-
-        if (item.zScore !== undefined) {
-          scoreBreakdownText.textContent = `ASTRAL ALIGNMENT CONFIRMED • COUNTENANCE HARMONY VERIFIED`;
+        if (bestSimBadge) {
+          bestSimBadge.textContent = item.resonancePct
+            ? `${item.resonancePct.toFixed(1)}%`
+            : `KIN`;
         }
       }
 
@@ -3115,8 +3084,6 @@
 
       activeConstellation = ASTRAL_CONSTELLATIONS[Math.floor(Math.random() * ASTRAL_CONSTELLATIONS.length)];
 
-      renderBlendshapes(bs);
-
       // Trigger ascension lift ring on left scrying orb
       if (cranialLiftRing) {
         cranialLiftRing.style.display = 'block';
@@ -3159,26 +3126,18 @@
         ctx.restore();
       }
 
-      const activeVec = arcVec || meshVec;
       lastQueryState = { arcVec, meshVec, excludeIndex: -1 };
-      drawVectorBarcode(activeVec);
-      vectorRawBox.textContent = `[Astral Constellation ${activeConstellation.name}]: [${Array.from(activeVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
 
       const topMatches = rankArchiveMatches(arcVec, meshVec);
       detConfLabel.textContent = `SOUL RESONANCE LOCKED`;
-      telemetryText.innerHTML = `
-        <strong>Astral Alignment:</strong> ${activeConstellation.name} (${activeConstellation.glyph})<br/>
-        <strong>Cranial Star Field:</strong> 478 Celestial Nodes Traced<br/>
-        <strong>Top Affinity:</strong> ${topMatches[0]?.resonancePct.toFixed(1)}% Spirit Resonance
-      `;
 
       clearInterval(scryingTimer);
       if (crystalBall) crystalBall.classList.remove('is-scrying');
 
       // Restore Twin Orbs mode for live user countenance
       userMirrorCard.style.display = 'flex';
+      if (affinityBridge) affinityBridge.style.display = 'flex';
       if (spiritOrbTag) spiritOrbTag.textContent = "THE SPIRIT REVEALED";
-      if (randomSoulActionRow) randomSoulActionRow.style.display = 'none';
 
       renderMatchesGrid(topMatches);
       if (topMatches.length > 0) selectMatchForReveal(topMatches[0], 0, topMatches);
@@ -3190,7 +3149,7 @@
     let stagedWebcamCanvas = null;
     let stagedUserCanvas = null;
 
-    function awakenMasterButton(btnText = 'DIVINE MY PAST LIFE', hint = 'Click to consult the astral veil') {
+    function awakenMasterButton(btnText = '✦ CONSULT THE ORACLE', hint = 'Gaze into the astral veil') {
       masterDivineBtn.classList.remove('is-dormant', 'is-scrying');
       masterDivineBtn.classList.add('is-awakened');
       masterDivineBtn.disabled = false;
@@ -3198,11 +3157,11 @@
       masterBtnHint.textContent = hint;
     }
 
-    function dormantMasterButton(hint = 'Offer or snap a visage first') {
+    function dormantMasterButton(hint = 'Offer a portrait to awaken the glass') {
       masterDivineBtn.classList.remove('is-awakened', 'is-scrying');
       masterDivineBtn.classList.add('is-dormant');
       masterDivineBtn.disabled = true;
-      masterBtnText.textContent = 'DIVINE MY PAST LIFE';
+      masterBtnText.textContent = '✦ CONSULT THE ORACLE';
       masterBtnHint.textContent = hint;
     }
 
@@ -3210,7 +3169,7 @@
       masterDivineBtn.classList.remove('is-awakened', 'is-dormant');
       masterDivineBtn.classList.add('is-scrying');
       masterDivineBtn.disabled = true;
-      masterBtnText.textContent = 'CONSULTING THE VEIL...';
+      masterBtnText.textContent = '✦ PARTING THE VEIL...';
       masterBtnHint.textContent = 'Consulting eight thousand souls';
     }
 
@@ -3243,7 +3202,7 @@
     async function startWebcam() {
       stopWebcam();
       try {
-        detConfLabel.textContent = 'PEERING INTO MIRROR...';
+        detConfLabel.textContent = 'AWAKENING MIRROR...';
         currentStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: 640, height: 640 }
         });
@@ -3252,14 +3211,11 @@
         inputCanvas.style.display = 'none';
         mirrorPlaceholder.style.display = 'none';
 
-        // Reset freeze buttons
-        freezeBtnText.textContent = '📸 Freeze Countenance';
-        unfreezeWebcamBtn.style.display = 'none';
-        webcamControlsRow.classList.remove('has-unfreeze');
+        if (unfreezeWebcamBtn) unfreezeWebcamBtn.style.display = 'none';
 
         stagedUserCanvas = null;
-        detConfLabel.textContent = 'PEERING INTO GLASS';
-        dormantMasterButton('Freeze your countenance to divine');
+        detConfLabel.textContent = 'LIVE MIRROR ACTIVE';
+        awakenMasterButton('✦ CONSULT THE ORACLE', 'Click to snap your reflection & divine');
       } catch (err) {
         console.warn('Webcam access error:', err);
         detConfLabel.textContent = 'MIRROR VEILED';
@@ -3269,7 +3225,7 @@
     }
 
     function freezeWebcam() {
-      if (!currentStream || !webcamVideo.videoWidth) return;
+      if (!currentStream || !webcamVideo.videoWidth) return false;
 
       const vw = webcamVideo.videoWidth, vh = webcamVideo.videoHeight;
       const minSide = Math.min(vw, vh);
@@ -3292,12 +3248,9 @@
 
       displayCanvasInBall(sq);
 
-      freezeBtnText.textContent = '📸 Re-freeze Visage';
-      unfreezeWebcamBtn.style.display = 'inline-flex';
-      webcamControlsRow.classList.add('has-unfreeze');
-
-      detConfLabel.textContent = 'COUNTENANCE FROZEN • READY';
-      awakenMasterButton('DIVINE MY PAST LIFE', 'Click to consult the astral veil');
+      if (unfreezeWebcamBtn) unfreezeWebcamBtn.style.display = 'inline-flex';
+      detConfLabel.textContent = 'REFLECTION CAPTURED';
+      return true;
     }
 
     function unfreezeWebcam() {
@@ -3310,12 +3263,10 @@
       mirrorPlaceholder.style.display = 'none';
 
       stagedUserCanvas = null;
-      freezeBtnText.textContent = '📸 Freeze Countenance';
-      unfreezeWebcamBtn.style.display = 'none';
-      webcamControlsRow.classList.remove('has-unfreeze');
+      if (unfreezeWebcamBtn) unfreezeWebcamBtn.style.display = 'none';
 
-      detConfLabel.textContent = 'PEERING INTO GLASS';
-      dormantMasterButton('Freeze your countenance to divine');
+      detConfLabel.textContent = 'LIVE MIRROR ACTIVE';
+      awakenMasterButton('✦ CONSULT THE ORACLE', 'Click to snap your reflection & divine');
     }
 
     function setMode(mode) {
@@ -3325,6 +3276,10 @@
         toggleWebcamMode.classList.remove('active');
         uploadModePanel.style.display = 'block';
         webcamModePanel.style.display = 'none';
+        if (crystalBall) {
+          crystalBall.style.cursor = 'pointer';
+          crystalBall.title = 'Click to offer a portrait';
+        }
 
         stopWebcam();
 
@@ -3332,18 +3287,26 @@
           stagedUserCanvas = stagedUploadedCanvas;
           displayCanvasInBall(stagedUploadedCanvas);
           detConfLabel.textContent = 'VISAGE OFFERED • READY';
-          awakenMasterButton('DIVINE MY PAST LIFE', 'Click to consult the astral veil');
+          if (stagedUserCanvas === currentActiveSqCanvas && currentMatchCandidates.length > 0) {
+            awakenMasterButton('✦ DIVINE ANOTHER VISION', 'Cycle to your next closest historical soul');
+          } else {
+            awakenMasterButton('✦ CONSULT THE ORACLE', 'Gaze into the astral veil');
+          }
         } else {
           stagedUserCanvas = null;
           showPlaceholderInBall();
           detConfLabel.textContent = 'AWAITING COUNTENANCE';
-          dormantMasterButton('Offer a portrait to begin');
+          dormantMasterButton('Offer a portrait to awaken the glass');
         }
       } else if (mode === 'webcam') {
         toggleWebcamMode.classList.add('active');
         toggleUploadMode.classList.remove('active');
         webcamModePanel.style.display = 'block';
         uploadModePanel.style.display = 'none';
+        if (crystalBall) {
+          crystalBall.style.cursor = 'default';
+          crystalBall.title = '';
+        }
 
         startWebcam();
       }
@@ -3351,8 +3314,15 @@
 
     toggleUploadMode.addEventListener('click', () => setMode('upload'));
     toggleWebcamMode.addEventListener('click', () => setMode('webcam'));
-    freezeWebcamBtn.addEventListener('click', freezeWebcam);
-    unfreezeWebcamBtn.addEventListener('click', unfreezeWebcam);
+    if (unfreezeWebcamBtn) unfreezeWebcamBtn.addEventListener('click', unfreezeWebcam);
+
+    if (crystalBall) {
+      crystalBall.addEventListener('click', () => {
+        if (currentMode === 'upload') {
+          fileInput.click();
+        }
+      });
+    }
 
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -3407,7 +3377,7 @@
               } else {
                 cropSize = Math.min(img.width, img.height);
                 cropX = (img.width - cropSize) / 2;
-                cropY = (img.height - cropSize) * 0.15; // default vertical bias to upper portion for portrait selfies
+                cropY = (img.height - cropSize) * 0.15;
               }
             } catch (err) {
               console.warn('Face pre-crop detection fallback:', err);
@@ -3433,7 +3403,7 @@
           displayCanvasInBall(sq);
           fileButtonText.textContent = '↺ Change Portrait File';
           detConfLabel.textContent = 'VISAGE OFFERED • READY';
-          awakenMasterButton('DIVINE MY PAST LIFE', 'Click to consult the astral veil');
+          awakenMasterButton('✦ CONSULT THE ORACLE', 'Gaze into the astral veil');
         };
         img.src = ev.target.result;
       };
@@ -3441,17 +3411,35 @@
     });
 
     masterDivineBtn.addEventListener('click', async () => {
-      if (!stagedUserCanvas || masterDivineBtn.disabled || masterDivineBtn.classList.contains('is-dormant')) {
+      if (masterDivineBtn.disabled || masterDivineBtn.classList.contains('is-dormant')) {
         return;
       }
+
+      // One-Click Live Mirror Scrying: if webcam is live and not yet snapped, snap it now!
+      if (currentMode === 'webcam' && !stagedUserCanvas) {
+        const snapped = freezeWebcam();
+        if (!snapped) return;
+      }
+
+      if (!stagedUserCanvas) return;
+
+      // If this exact visage was already divined, cycle to the next closest matched historical soul!
+      if (stagedUserCanvas === currentActiveSqCanvas && currentMatchCandidates.length > 1) {
+        const nextIdx = (currentCandidateIndex + 1) % currentMatchCandidates.length;
+        activeConstellation = ASTRAL_CONSTELLATIONS[Math.floor(Math.random() * ASTRAL_CONSTELLATIONS.length)];
+        selectMatchForReveal(currentMatchCandidates[nextIdx], nextIdx, currentMatchCandidates);
+        awakenMasterButton('✦ DIVINE ANOTHER VISION', `Viewing kindred spirit #${nextIdx + 1} of ${currentMatchCandidates.length}`);
+        return;
+      }
+
       scryingMasterButton();
       try {
         await processUserCanvas(stagedUserCanvas);
-        awakenMasterButton('⚡ DIVINE AGAIN', 'Consult the veil again with this visage');
+        awakenMasterButton('✦ DIVINE ANOTHER VISION', 'Cycle to your next closest historical soul');
       } catch (err) {
         console.error('Divination error:', err);
         alert('The veil clouded unexpectedly: ' + err.message);
-        awakenMasterButton('⚡ RETRY DIVINATION', 'Click to try again');
+        awakenMasterButton('✦ RETRY DIVINATION', 'Click to consult the veil again');
       }
     });
 
@@ -3486,7 +3474,7 @@
     async function summonRandomSoul() {
       if (!archiveMeta || !arcfaceMatrix) return;
       stopWebcam();
-      dormantMasterButton('Offer a visage to divine your past life');
+      dormantMasterButton('Offer a portrait to awaken the glass');
       if (currentMode === 'webcam') {
         unfreezeWebcam();
       }
@@ -3503,7 +3491,6 @@
       revealPrompt.textContent = "Parting the mists of bygone centuries...";
       revealPersona.textContent = "An ancient presence awakens...";
       revealEra.style.display = 'none';
-      
 
       // Load summoned soul into the main crystal ball on the left
       const img = new Image();
@@ -3524,19 +3511,10 @@
       };
       img.src = seed.iu;
 
-      const arcVec = arcfaceMatrix.subarray(randIdx * 512, (randIdx + 1) * 512);
-      drawVectorBarcode(arcVec);
-      vectorRawBox.textContent = `[Summoned Soul #${seed.id}]: [${Array.from(arcVec.slice(0, 48)).map(v => v.toFixed(4)).join(', ')}, ...]`;
-
       await new Promise(r => setTimeout(r, 800));
       if (crystalBall) crystalBall.classList.remove('is-scrying');
 
       detConfLabel.textContent = `ANCIENT SOUL SUMMONED`;
-      telemetryText.innerHTML = `
-        <strong>Summoned Soul:</strong> ${seed.t.slice(0, 34)}<br/>
-        <strong>Era &amp; Medium:</strong> ${seed.d || 'Historic'} • ${seed.m || 'Fine Art'}<br/>
-        <strong>Archive Source:</strong> ${seed.s}
-      `;
 
       // Single Orb Mode: Reveal this soul directly without matching against itself
       selectMatchForReveal({ meta: seed, isSummonedSoul: true, resonancePct: null }, 0, null);
@@ -3555,7 +3533,6 @@
     }
 
     randomTestBtn.addEventListener('click', summonRandomSoul);
-    if (summonAnotherBtn) summonAnotherBtn.addEventListener('click', summonRandomSoul);
 
     function toggleVesselView() {
       if (!currentVisage3DMesh || !currentActiveSqCanvas) return;
