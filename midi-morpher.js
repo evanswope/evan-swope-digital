@@ -1200,13 +1200,21 @@
     return [baseRoot, baseRoot + third, baseRoot + fifth];
   }
 
+  // Safe finite number parser + clamper (prevents Number(undefined) -> NaN bugs!)
+  function clampNum(val, min, max, fallback) {
+    if (val === undefined || val === null || val === '') return fallback;
+    const n = Number(val);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(min, Math.min(max, n));
+  }
+
   // --------------------------------------------------------------------------
   // 4. SCORE COMPILER: SOURCE PIECE + AI BLUEPRINT -> 4 CLEAR TRACKS
   //    Applies LLM velocity curves, humanization, stereo spread & dub throws
   // --------------------------------------------------------------------------
   function compileMorphedArrangement(piece, bp) {
     const scaleMode = bp.scale_mode || 'keep_original';
-    const transpose = Math.max(-3, Math.min(3, Number(bp.transpose_semitones) || 0));
+    const transpose = clampNum(bp.transpose_semitones, -3, 3, 0);
     let rootBase = (piece.keyRoot || 64) + transpose;
     if (rootBase < 62) rootBase += 12;
 
@@ -1227,11 +1235,11 @@
 
     // --- TRACK 1: MAIN MELODY (FRONT & CENTER WITH EXPRESSIVE VELOCITY CURVE) ---
     const feel = melSpec.feel || 'authentic';
-    const octShift = Math.max(-1, Math.min(1, Number(melSpec.octave_shift) || 0)) * 12;
-    const velBase = Math.max(0.88, Math.min(1.0, Number(melSpec.vel_curve?.base) || 0.95));
-    const accentDown = Math.max(0, Math.min(0.12, Number(melSpec.vel_curve?.accent_downbeat) ?? 0.06));
-    const humanize = Math.max(0, Math.min(0.12, Number(melSpec.vel_curve?.humanize) ?? 0.05));
-    const echoProb = Number(melSpec.sends?.dub_echo_throws ?? melSpec.dub_echo_throws ?? 0.22);
+    const octShift = clampNum(melSpec.octave_shift, -1, 1, 0) * 12;
+    const velBase = clampNum(melSpec.vel_curve?.base, 0.88, 1.0, 0.95);
+    const accentDown = clampNum(melSpec.vel_curve?.accent_downbeat, 0, 0.12, 0.06);
+    const humanize = clampNum(melSpec.vel_curve?.humanize, 0, 0.12, 0.05);
+    const echoProb = clampNum(melSpec.sends?.dub_echo_throws ?? melSpec.dub_echo_throws, 0, 0.8, 0.22);
 
     srcMelody.forEach((n, idx) => {
       let step = n.step % 128;
@@ -1250,7 +1258,7 @@
 
       const isDownbeat = (step % 4 === 0);
       const determJitter = Math.sin(idx * 2.71828) * humanize;
-      const vel = Math.max(0.84, Math.min(1.0, velBase + (isDownbeat ? accentDown : 0) + determJitter));
+      const vel = clampNum(velBase + (isDownbeat ? accentDown : 0) + determJitter, 0.84, 1.0, 0.95);
 
       const isPhraseEnd = dur >= 6 || (step % 16 >= 12);
       const echoThrow = isPhraseEnd && Math.random() < echoProb;
@@ -1260,7 +1268,7 @@
     // --- TRACK 2: SPARSE, RHYTHMIC BACKING CHORDS (C3..C4 Register + Stereo Spread) ---
     const cPattern = chordSpec.pattern || 'reggae_skank';
     const cVoicing = chordSpec.voicing || 'triad';
-    const cVelScale = Math.max(0.36, Math.min(0.58, Number(chordSpec.vel_scale) || 0.48));
+    const cVelScale = clampNum(chordSpec.vel_scale, 0.36, 0.58, 0.48);
 
     for (let bar = 0; bar < 8; bar++) {
       const chordObj = srcChords[bar % srcChords.length] || { deg: 0, qual: 'maj' };
@@ -1328,7 +1336,7 @@
 
     // --- TRACK 3: DEEP BASSLINE (Strictly C2..B2 Register, MIDI 36..47) ---
     const bPattern = bassSpec.pattern || 'one_drop_bubble';
-    const bVelScale = Math.max(0.70, Math.min(0.95, Number(bassSpec.vel_scale) || 0.85)) / 0.85;
+    const bVelScale = clampNum(bassSpec.vel_scale, 0.70, 0.95, 0.85) / 0.85;
 
     for (let bar = 0; bar < 8; bar++) {
       const chordObj = srcChords[bar % srcChords.length] || { deg: 0, qual: 'maj' };
@@ -1463,17 +1471,18 @@
   const driveCurveCache = new Map();
 
   function getDriveCurve(driveAmount = 0.2) {
-    const amt = Math.max(0, Math.min(1, Number(driveAmount) || 0));
+    const amt = clampNum(driveAmount, 0, 1, 0.2);
     const key = Math.round(amt * 100);
     if (driveCurveCache.has(key)) return driveCurveCache.get(key);
 
-    const n = 1024;
+    // Odd length (1025) guarantees exact center index 512 === 0.0 with zero DC offset!
+    const n = 1025;
     const curve = new Float32Array(n);
-    const k = 1 + amt * 18;
+    const k = 1 + amt * 2.8;
+    const norm = Math.tanh(k) || 1;
     for (let i = 0; i < n; i++) {
-      const x = (i * 2) / n - 1;
-      // Asymmetric warm tube saturation (slight even-order harmonic bias)
-      curve[i] = Math.tanh(k * (x + 0.06 * amt * x * x)) / Math.tanh(k);
+      const x = (i * 2) / (n - 1) - 1;
+      curve[i] = Math.tanh(k * x) / norm;
     }
     driveCurveCache.set(key, curve);
     return curve;
@@ -1555,34 +1564,31 @@
 
     const masterFilter = ctx.createBiquadFilter();
     masterFilter.type = 'lowpass';
-    masterFilter.frequency.value = Math.max(1200, Math.min(16000, Number(fxSpec?.filter_cutoff) || 8800));
+    masterFilter.frequency.value = clampNum(fxSpec?.filter_cutoff, 1200, 16000, 8800);
     masterFilter.Q.value = 0.8;
 
-    // Resonant Tape / Dub Delay Bus (with warm saturation in feedback loop)
+    // Strictly Passive Tape / Dub Delay Bus (no WaveShaper inside feedback loop so loop gain < 1.0 always!)
     const delayNode = ctx.createDelay(2.0);
-    const delaySteps = Number(fxSpec?.delay_steps) || 3;
+    const delaySteps = clampNum(fxSpec?.delay_steps, 1, 8, 3);
     delayNode.delayTime.value = Math.min(1.5, Math.max(0.09, delaySteps * stepDurSec));
     const delayFeedback = ctx.createGain();
-    delayFeedback.gain.value = 0.36;
+    delayFeedback.gain.value = 0.28; // Decays naturally in 3-4 repeats, never self-oscillates
     const delayFilter = ctx.createBiquadFilter();
     delayFilter.type = 'bandpass';
-    delayFilter.frequency.value = 1450;
-    delayFilter.Q.value = 1.1;
-    const delaySat = ctx.createWaveShaper();
-    delaySat.curve = getDriveCurve(0.18);
+    delayFilter.frequency.value = 1250;
+    delayFilter.Q.value = 0.9;
     const delayWet = ctx.createGain();
-    delayWet.gain.value = Math.max(0, Math.min(0.48, Number(fxSpec?.delay_wet) ?? 0.18));
+    delayWet.gain.value = clampNum(fxSpec?.delay_wet, 0, 0.48, 0.18);
 
     delayNode.connect(delayFilter);
-    delayFilter.connect(delaySat);
-    delaySat.connect(delayFeedback);
+    delayFilter.connect(delayFeedback);
     delayFeedback.connect(delayNode);
     delayNode.connect(delayWet);
 
     const convolver = ctx.createConvolver();
     convolver.buffer = createImpulseResponse(ctx, 1.45, 3.1);
     const reverbWet = ctx.createGain();
-    reverbWet.gain.value = Math.max(0, Math.min(0.40, Number(fxSpec?.reverb_wet) ?? 0.18));
+    reverbWet.gain.value = clampNum(fxSpec?.reverb_wet, 0, 0.40, 0.18);
     convolver.connect(reverbWet);
 
     const comp = ctx.createDynamicsCompressor();
@@ -1608,6 +1614,7 @@
       reverbSend: convolver,
       masterFilter,
       delayWet,
+      delayFeedback,
       delayNode,
       reverbWet,
       masterGain
@@ -1616,6 +1623,7 @@
 
   // Synthesize a single voice with full ADSR, physical/FM/additive modeling, paired insert FX, and stereo pan
   function triggerSynthNote(ctx, graph, specOrPatch, midi, startTime, durationSec, velocity, extraEcho = false, role = 'melody', panOffset = 0) {
+    if (!graph || !ctx) return;
     const dsp = getDspResources(ctx);
     const spec = (typeof specOrPatch === 'object' && specOrPatch !== null)
       ? specOrPatch
@@ -1625,15 +1633,16 @@
     const adsr = spec.adsr || {};
     const sends = spec.sends || {};
 
-    const freq = midiToFreq(midi);
-    const dur = Math.max(0.045, durationSec);
+    const freq = midiToFreq(clampNum(midi, 24, 108, 60));
+    const dur = Math.max(0.05, clampNum(durationSec, 0.05, 8.0, 0.25));
+    const safeVel = clampNum(velocity, 0.1, 1.0, 0.85);
 
     // STRICT ROLE GAIN HIERARCHY:
     // - 'melody': 0.34 peak (front-and-center lead!)
     // - 'bass':   0.19 peak (deep low-end foundation)
     // - 'chord':  0.048 per voice (so 3-note chords sum to ~0.14, sitting warmly under the lead)
     const roleScale = role === 'melody' ? 0.34 : (role === 'bass' ? 0.19 : 0.048);
-    const peak = Math.max(0.005, velocity * roleScale);
+    const peak = Math.max(0.005, safeVel * roleScale);
 
     // Default ADSR & Timbre values tailored by patch, overridden by LLM's explicit parameters
     let defAttack = 0.010, defDecay = 0.18, defSustain = 0.72, defRelease = 0.08;
@@ -1672,28 +1681,37 @@
       defCutoff = role === 'chord' ? 2500 : 7800; defVibDepth = 4;
     }
 
-    const attack = Math.max(0.002, Math.min(0.18, Number(adsr.attack) || defAttack));
-    const decay = Math.max(0.03, Math.min(0.80, Number(adsr.decay) || defDecay));
-    const sustain = Math.max(0.10, Math.min(0.98, Number(adsr.sustain) || defSustain));
-    const release = Math.max(0.02, Math.min(0.45, Number(adsr.release) || defRelease));
-    const stopTime = startTime + dur + release + 0.03;
+    const attack = clampNum(adsr.attack, 0.002, 0.18, defAttack);
+    const decay = clampNum(adsr.decay, 0.03, 0.80, defDecay);
+    const sustain = clampNum(adsr.sustain, 0.10, 0.98, defSustain);
+    const release = clampNum(adsr.release, 0.02, 0.45, defRelease);
 
-    const cutoff = Math.max(220, Math.min(12000, Number(timbre.filter_cutoff) || defCutoff));
-    const filterQ = Math.max(0.5, Math.min(8.0, Number(timbre.filter_q) || defQ));
-    const driveAmt = Math.max(0, Math.min(0.85, Number(timbre.drive) ?? defDrive));
-    const breathAmt = Math.max(0, Math.min(0.40, Number(timbre.breath_noise) ?? defBreath));
-    const chorusDetune = Math.max(0, Math.min(24, Number(timbre.chorus_detune) ?? defChorus));
-    const vibRate = Math.max(3.0, Math.min(8.5, Number(timbre.vibrato_rate) || defVibRate));
-    const vibDepth = Math.max(0, Math.min(30, Number(timbre.vibrato_depth) ?? defVibDepth));
+    // Strictly monotonic ADSR envelope timestamps even on rapid 16th-note ornaments!
+    const effAttack = Math.min(attack, dur * 0.35);
+    const effDecay = Math.min(decay, Math.max(0.012, (dur - effAttack) * 0.60));
+    const tAttack = startTime + effAttack;
+    const tDecay = tAttack + effDecay;
+    const tNoteOff = Math.max(tDecay + 0.005, startTime + dur);
+    const tRelease = tNoteOff + release;
+    const stopTime = tRelease + 0.025;
+
+    const cutoff = clampNum(timbre.filter_cutoff, 220, 12000, defCutoff);
+    const filterQ = clampNum(timbre.filter_q, 0.5, 8.0, defQ);
+    const driveAmt = clampNum(timbre.drive, 0, 0.85, defDrive);
+    const breathAmt = clampNum(timbre.breath_noise, 0, 0.40, defBreath);
+    const chorusDetune = clampNum(timbre.chorus_detune, 0, 24, defChorus);
+    const vibRate = clampNum(timbre.vibrato_rate, 3.0, 8.5, defVibRate);
+    const vibDepth = clampNum(timbre.vibrato_depth, 0, 30, defVibDepth);
     const rotaryMode = timbre.rotary_speed || defRotary;
 
     // Voice envelope & stereo panning stage
     const voiceBus = ctx.createGain();
     const outEnv = ctx.createGain();
     const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-    const basePan = role === 'bass' ? 0.0 : (Number(spec.pan) || (role === 'chord' ? 0.24 : -0.04));
+    const defaultRolePan = role === 'bass' ? 0.0 : (role === 'chord' ? 0.24 : -0.04);
+    const basePan = role === 'bass' ? 0.0 : clampNum(spec.pan, -0.85, 0.85, defaultRolePan);
     if (panner) {
-      panner.pan.setValueAtTime(Math.max(-0.85, Math.min(0.85, basePan + panOffset)), startTime);
+      panner.pan.setValueAtTime(clampNum(basePan + (Number(panOffset) || 0), -0.85, 0.85, 0), startTime);
     }
 
     const vcf = ctx.createBiquadFilter();
@@ -1739,7 +1757,7 @@
       const noiseSrc = ctx.createBufferSource();
       noiseSrc.buffer = dsp.noiseBuffer;
       noiseSrc.loop = true;
-      noiseSrc.loopStart = (midi % 12) * 0.11;
+      noiseSrc.loopStart = ((Math.round(midi) % 12 + 12) % 12) * 0.11;
       noiseSrc.loopEnd = 1.9;
 
       const chiffBp = ctx.createBiquadFilter();
@@ -2023,9 +2041,9 @@
         lfo.frequency.setValueAtTime(rotaryMode === 'slow' ? 1.4 : 6.3, startTime);
       }
 
-      // 1. Horn Filter Swirl (modulates vcf.frequency +/- 650 Hz)
+      // 1. Horn Filter Swirl (clamped to <= 28% of cutoff so vcf.frequency never underflows)
       const filterMod = ctx.createGain();
-      filterMod.gain.value = role === 'melody' ? 680 : 420;
+      filterMod.gain.value = Math.min(cutoff * 0.28, role === 'melody' ? 480 : 280);
       lfo.connect(filterMod);
       filterMod.connect(vcf.frequency);
 
@@ -2076,23 +2094,24 @@
       outEnv.connect(panner);
     }
 
-    // Full 4-Stage ADSR Envelope (Attack -> Decay -> Sustain -> Release)
+    // Full 4-Stage ADSR Envelope with strictly monotonic timestamps
     const sustainLevel = Math.max(0.001, peak * sustain);
     outEnv.gain.setValueAtTime(0.0001, startTime);
-    outEnv.gain.linearRampToValueAtTime(peak, startTime + attack);
-    outEnv.gain.exponentialRampToValueAtTime(sustainLevel, startTime + attack + Math.min(decay, dur * 0.7));
-    outEnv.gain.setValueAtTime(sustainLevel, startTime + dur);
-    outEnv.gain.exponentialRampToValueAtTime(0.0001, startTime + dur + release);
+    outEnv.gain.linearRampToValueAtTime(peak, tAttack);
+    outEnv.gain.exponentialRampToValueAtTime(sustainLevel, tDecay);
+    outEnv.gain.setValueAtTime(sustainLevel, tNoteOff);
+    outEnv.gain.exponentialRampToValueAtTime(0.0001, tRelease);
 
     finalOut.connect(graph.inputBus);
 
     // Role-Aware & LLM-Configured Delay / Reverb Sends
+    const baseDelaySend = clampNum(sends.delay, 0, 0.45, 0.16);
     const sendDelayAmt = role === 'melody'
-      ? (extraEcho ? Math.max(0.42, Number(sends.delay) || 0.25) : (Number(sends.delay) ?? 0.18))
-      : (role === 'chord' ? Math.min(0.08, Number(sends.delay) || 0.0) : 0.0);
+      ? (extraEcho ? Math.max(0.32, baseDelaySend) : baseDelaySend * 0.45)
+      : (role === 'chord' ? clampNum(sends.delay, 0, 0.06, 0.0) : 0.0);
     const sendRevAmt = role === 'melody'
-      ? (Number(sends.reverb) ?? 0.24)
-      : (role === 'chord' ? Math.min(0.12, Number(sends.reverb) || 0.06) : 0.0);
+      ? clampNum(sends.reverb, 0, 0.45, 0.22)
+      : (role === 'chord' ? clampNum(sends.reverb, 0, 0.12, 0.06) : 0.0);
 
     if (sendDelayAmt > 0.02) {
       const dSend = ctx.createGain();
@@ -2115,17 +2134,18 @@
 
   // Multi-Layer Drum Synthesizer (3-Stage Kick, Dual-Mode Snare & Dub Rimshot, 6-Osc Metallic Hats & Cowbell/Shaker)
   function triggerDrumHit(ctx, graph, drumSpecOrKit, type, startTime, velocity, stepDurSec) {
+    if (!graph || !ctx) return;
     const dsp = getDspResources(ctx);
     const drumSpec = (typeof drumSpecOrKit === 'object' && drumSpecOrKit !== null)
       ? drumSpecOrKit
       : { kit: String(drumSpecOrKit || 'dub_kit') };
     const kit = drumSpec.kit || 'dub_kit';
     const tuning = drumSpec.tuning || {};
-    const v = Math.max(0.1, Math.min(1.0, velocity));
+    const v = clampNum(velocity, 0.1, 1.0, 0.8);
 
     // --- 1. 3-STAGE KICK DRUM (Beater Click + 2-Stage Pitch Snap + Soft Saturation) ---
     if (type === 'kick') {
-      const punch = Math.max(0.4, Math.min(1.0, Number(tuning.kick_punch) || 0.78));
+      const punch = clampNum(tuning.kick_punch, 0.4, 1.0, 0.78);
       const osc = ctx.createOscillator();
       const bodyGain = ctx.createGain();
       const shaper = ctx.createWaveShaper();
@@ -2171,7 +2191,7 @@
 
     // --- 2. MULTI-LAYER SNARE & KING TUBBY DUB RIMSHOT ---
     if (type === 'snare') {
-      const snap = Math.max(0.4, Math.min(1.0, Number(tuning.snare_snap) || 0.75));
+      const snap = clampNum(tuning.snare_snap, 0.4, 1.0, 0.75);
       const isDubRim = kit === 'dub_kit' || kit === 'bossa_kit';
 
       if (isDubRim) {
@@ -2209,7 +2229,7 @@
         nSrc.stop(startTime + 0.045);
 
         rimOut.connect(graph.inputBus);
-        const rimEcho = Math.max(0.10, Math.min(0.45, Number(tuning.rim_dub_echo) ?? 0.28));
+        const rimEcho = clampNum(tuning.rim_dub_echo, 0.05, 0.35, 0.22);
         const dSend = ctx.createGain();
         dSend.gain.value = rimEcho;
         rimOut.connect(dSend);
@@ -2980,10 +3000,10 @@
       if (this.titleDisplay) this.titleDisplay.textContent = bp.mashup_title || 'Untitled AI Arrangement';
       if (this.logDisplay) this.logDisplay.textContent = bp.producer_log || '';
 
-      const bpm = Math.round(Number(bp.tempo_bpm) || 110);
-      const swingPct = Math.round((Number(bp.swing) || 0) * 100);
-      const echoPct = Math.round((Number(bp.fx_spec?.delay_wet) ?? 0.18) * 100);
-      const cutoff = Math.round(Number(bp.fx_spec?.filter_cutoff) || 8500);
+      const bpm = Math.round(clampNum(bp.tempo_bpm, 50, 190, 110));
+      const swingPct = Math.round(clampNum(bp.swing, 0, 0.65, 0) * 100);
+      const echoPct = Math.round(clampNum(bp.fx_spec?.delay_wet, 0, 0.48, 0.18) * 100);
+      const cutoff = Math.round(clampNum(bp.fx_spec?.filter_cutoff, 1200, 16000, 8500));
 
       if (this.bpmSlider) this.bpmSlider.value = bpm;
       if (this.bpmVal) this.bpmVal.textContent = `${bpm} BPM`;
@@ -3001,7 +3021,11 @@
       }
 
       if (this.graph && this.ctx) {
+        const stepDurSec = 60 / bpm / 4;
+        const delaySteps = clampNum(bp.fx_spec?.delay_steps, 1, 8, 3);
+        this.graph.delayNode.delayTime.setTargetAtTime(Math.min(1.5, Math.max(0.09, delaySteps * stepDurSec)), this.ctx.currentTime, 0.04);
         this.graph.delayWet.gain.setTargetAtTime(echoPct / 100, this.ctx.currentTime, 0.04);
+        this.graph.reverbWet.gain.setTargetAtTime(clampNum(bp.fx_spec?.reverb_wet, 0, 0.40, 0.18), this.ctx.currentTime, 0.04);
         this.graph.masterFilter.frequency.setTargetAtTime(cutoff, this.ctx.currentTime, 0.04);
       }
     }
@@ -3011,6 +3035,11 @@
       const genreId = this.genreSelect?.value || 'reggae_dub';
       const isCustom = this.modeType === 'custom';
       const customPrompt = isCustom ? (this.customPromptInput?.value?.trim() || 'Experimental Electronic Groove') : '';
+
+      // Cleanly silence any currently playing loop & delay tails before morphing
+      if (this.isPlaying) {
+        this.stop();
+      }
 
       if (COMPOSER_LIBRARY[compId]) {
         this.currentPiece = COMPOSER_LIBRARY[compId];
@@ -3088,14 +3117,16 @@
       if (this.ctx.state === 'suspended') {
         this.ctx.resume();
       }
-      const bpm = Math.max(50, Math.min(190, Number(this.currentBlueprint.tempo_bpm) || 110));
+      if (!this.analyser) {
+        this.analyser = this.ctx.createAnalyser();
+        this.analyser.fftSize = 256;
+        this.analyser.connect(this.ctx.destination);
+      }
+      const bpm = clampNum(this.currentBlueprint.tempo_bpm, 50, 190, 110);
       const stepDurSec = 60 / bpm / 4;
       if (!this.graph) {
         this.graph = createAudioGraph(this.ctx, this.currentBlueprint.fx_spec, stepDurSec);
-        this.analyser = this.ctx.createAnalyser();
-        this.analyser.fftSize = 256;
         this.graph.masterGain.connect(this.analyser);
-        this.analyser.connect(this.ctx.destination);
       }
     }
 
@@ -3128,6 +3159,28 @@
       if (this.rafId) {
         cancelAnimationFrame(this.rafId);
         this.rafId = null;
+      }
+      // Immediately kill delay feedback, fade master out over 20ms, and disconnect old audio graph!
+      if (this.graph && this.ctx) {
+        const deadGraph = this.graph;
+        this.graph = null;
+        try {
+          const now = this.ctx.currentTime;
+          if (deadGraph.delayFeedback) {
+            deadGraph.delayFeedback.gain.cancelScheduledValues(now);
+            deadGraph.delayFeedback.gain.setValueAtTime(0, now);
+          }
+          if (deadGraph.delayWet) {
+            deadGraph.delayWet.gain.cancelScheduledValues(now);
+            deadGraph.delayWet.gain.setValueAtTime(0, now);
+          }
+          deadGraph.masterGain.gain.cancelScheduledValues(now);
+          deadGraph.masterGain.gain.setValueAtTime(deadGraph.masterGain.gain.value, now);
+          deadGraph.masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.02);
+          setTimeout(() => {
+            try { deadGraph.masterGain.disconnect(); } catch (_) {}
+          }, 35);
+        } catch (_) {}
       }
       if (this.playBtn) {
         this.playBtn.innerHTML = '<i class="fa-solid fa-play"></i> PLAY';
