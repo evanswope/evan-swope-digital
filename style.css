@@ -3013,6 +3013,7 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   font-size: clamp(1.1rem, 2.4vw, 2.75rem) !important;
   line-height: 1.2;
   color: #ff7eb3;
+  margin-top: 2rem;
   margin-bottom: 1.25rem;
   transform: rotate(-1deg);
   display: inline-block;
