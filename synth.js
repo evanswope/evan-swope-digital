@@ -2702,13 +2702,15 @@ const modules = [
   {
     start: () => {},
     stop: () => {} // Camera Collage module
-  },
-  {
+  }
+  /* ARCHIVED:
+  , {
     start: () => {},
     stop: () => {
       if (window.midiMorpherInstance) window.midiMorpherInstance.stop();
     }
   }
+  */
 ];
 let currentIndex = 0;
 let prevIndex = 0;
@@ -2885,10 +2887,10 @@ function handleHashNavigation() {
     '#crank-ai': 4,
     '#camera-collage': 5,
     '#collage': 5,
-    '#scrambler': 5,
-    '#midi-morpher': 6,
-    '#midi': 6,
-    '#morpher': 6
+    '#scrambler': 5
+    // '#midi-morpher': 6,
+    // '#midi': 6,
+    // '#morpher': 6
   };
   if (routeMap.hasOwnProperty(hash)) {
     const targetIdx = routeMap[hash];
