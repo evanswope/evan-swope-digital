@@ -119,7 +119,13 @@
       this.origVertices = null;
       this.pointLight1 = null;
       this.pointLight2 = null;
-      this.pulseIntensity = 0;
+
+      // Node markers & localized flash lighting
+      this.nodeMeshes = [];
+      this.nodeSphereGeo = null;
+      this.nodePulses = new Float32Array(16);
+      this.nodeLight = null;
+      this.nodeLightIntensity = 0.0;
 
       this.init3D();
       this.initUI();
@@ -166,7 +172,6 @@
       this.scene.add(this.pointLight2);
 
       // Geodesic Icosahedron (detail: 5 = 10,240 smooth, uniformly distributed faces)
-      // Eliminates UV-sphere polar pinching and renders silky-smooth organic curves
       this.baseGeometry = new THREE.IcosahedronGeometry(2.1, 5);
       const posAttr = this.baseGeometry.attributes.position;
       this.origVertices = new Float32Array(posAttr.array);
@@ -176,12 +181,19 @@
         metalness: 0.94,
         roughness: 0.16,
         emissive: 0x000000,
-        emissiveIntensity: 0.0,
+        emissiveIntensity: 0.02,
         flatShading: false
       });
 
       this.mesh = new THREE.Mesh(this.baseGeometry, this.material);
       this.scene.add(this.mesh);
+
+      // Localized Node Point Light (parented to mesh so it moves in local space with active node)
+      this.nodeLight = new THREE.PointLight(0x00f2fe, 0.0, 4.0, 2.0);
+      this.mesh.add(this.nodeLight);
+
+      // Shared sphere geometry for node pearl markers
+      this.nodeSphereGeo = new THREE.SphereGeometry(0.14, 16, 16);
 
       // Mouse / Touch Orbit Interaction
       const dom = this.renderer.domElement;
@@ -233,7 +245,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 2. PROCEDURAL 3D TOPOLOGY DEFORMATION (True Helical Torsion Kinetic Sculpture)
+    // 2. PROCEDURAL 3D TOPOLOGY DEFORMATION & LOCALIZED NODE MARKERS
     // ------------------------------------------------------------------------
     updateMeshGeometry() {
       if (!this.mesh) return;
@@ -241,11 +253,11 @@
       const pos = posAttr.array;
       const orig = this.origVertices;
 
-      const N = Math.round(this.params.sprout); // 3 to 12 fluted lobes
-      const twistRate = this.params.twist * 4.6; // True helical torsion (wraps gracefully around the axis)
+      const N = Math.round(this.params.sprout); // 3 to 12 fluted lobes & nodes
+      const twistRate = this.params.twist * 4.6; // True helical torsion
       const bloatAmt = 0.55 + this.params.bloat * 0.85; // Slender spindle to bulbous gourd
-      const spikeAmt = this.params.spike; // 0..1 sharpness (soft undulating folds to crisp aerodynamic fins)
-      const bumpAmt = this.params.bump; // 0..1 subtle tactile surface rippling
+      const spikeAmt = this.params.spike; // 0..1 sharpness
+      const bumpAmt = this.params.bump; // 0..1 surface ripples
 
       // Bloat modifies the vertical-to-horizontal aspect ratio
       const yScale = 1.30 - this.params.bloat * 0.55;
@@ -268,8 +280,7 @@
         const phi = Math.asin(Math.max(-1, Math.min(1, ny))); // -PI/2 to PI/2
         const cosPhi = Math.cos(phi);
 
-        // True Helical Torsion:
-        // As elevation ny varies from -1 to +1, the cross-sectional rib angle spirals by twistRate * ny!
+        // True Helical Torsion
         const spiralAngle = theta - ny * twistRate;
 
         // 1. Sprout Lobes with smooth polar taper
@@ -280,7 +291,7 @@
         const shapedLobe = Math.sign(rawLobe) * Math.pow(Math.abs(rawLobe), power);
         const rRib = 1.0 + shapedLobe * (0.22 + spikeAmt * 0.42);
 
-        // 3. Bump Surface Micro-Texture (delicate tactile dimples that catch specular light)
+        // 3. Bump Surface Micro-Texture
         let rBump = 0;
         if (bumpAmt > 0.02) {
           rBump = bumpAmt * 0.14 * (
@@ -299,6 +310,55 @@
 
       posAttr.needsUpdate = true;
       this.baseGeometry.computeVertexNormals();
+
+      // Update physical node pearl markers positioned at each lobe's apex
+      this.updateNodeMarkers(N, bloatAmt, spikeAmt, bumpAmt);
+    }
+
+    updateNodeMarkers(N, bloatAmt, spikeAmt, bumpAmt) {
+      if (!this.mesh) return;
+
+      if (!this.nodePulses || this.nodePulses.length < N) {
+        this.nodePulses = new Float32Array(N);
+      }
+
+      const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
+      const scaleObj = SCALES[tIdx];
+
+      // Re-create node orbs if count changed
+      if (this.nodeMeshes.length !== N) {
+        this.nodeMeshes.forEach(m => {
+          this.mesh.remove(m);
+          if (m.material) m.material.dispose();
+        });
+        this.nodeMeshes = [];
+
+        for (let k = 0; k < N; k++) {
+          const mat = new THREE.MeshStandardMaterial({
+            color: scaleObj.color,
+            metalness: 0.90,
+            roughness: 0.15,
+            emissive: scaleObj.emissive,
+            emissiveIntensity: 0.25,
+            flatShading: false
+          });
+          const nodeMesh = new THREE.Mesh(this.nodeSphereGeo, mat);
+          this.mesh.add(nodeMesh);
+          this.nodeMeshes.push(nodeMesh);
+        }
+      }
+
+      // Position each node marker precisely on the outer apex/crest of its lobe
+      const rRib = 1.0 + (0.22 + spikeAmt * 0.42);
+      const finalR = 2.05 * bloatAmt * rRib * 1.01 + (bumpAmt * 0.04);
+
+      for (let k = 0; k < N; k++) {
+        const angle = (2 * Math.PI * k) / N;
+        const x = finalR * Math.cos(angle);
+        const y = 0;
+        const z = finalR * Math.sin(angle);
+        this.nodeMeshes[k].position.set(x, y, z);
+      }
     }
 
     updateMaterialProperties() {
@@ -308,11 +368,20 @@
       const scaleObj = SCALES[idx];
 
       this.material.color.setHex(scaleObj.color);
-      // Smooth liquid clearcoat with delicate tactile roughness mapped to bump
       this.material.roughness = 0.12 + (1.0 - this.params.bloat) * 0.10 + this.params.bump * 0.10;
+      this.material.emissive.setHex(scaleObj.emissive);
+      this.material.emissiveIntensity = 0.02;
 
       if (this.pointLight1) this.pointLight1.color.setHex(scaleObj.emissive);
       if (this.pointLight2) this.pointLight2.color.setHex(scaleObj.emissive);
+
+      // Update node orb colors to match scale
+      this.nodeMeshes.forEach(m => {
+        if (m.material) {
+          m.material.color.setHex(scaleObj.color);
+          m.material.emissive.setHex(scaleObj.emissive);
+        }
+      });
 
       if (this.delayFeedback && this.audioCtx) {
         this.delayFeedback.gain.setTargetAtTime(scaleObj.delayFeedback, this.audioCtx.currentTime, 0.05);
@@ -340,16 +409,56 @@
           this.mesh.rotation.z += tumbleSpeed * 0.30;
         }
 
-        // Emissive pulse decay on beat
-        if (this.pulseIntensity > 0.01) {
-          this.pulseIntensity *= 0.88;
-          this.material.emissiveIntensity = this.pulseIntensity * 1.6;
-        } else {
-          this.material.emissiveIntensity = 0.0;
+        // Localized node flash decay
+        if (this.nodeLightIntensity > 0.01) {
+          this.nodeLightIntensity *= 0.85;
+          if (this.nodeLight) {
+            this.nodeLight.intensity = this.nodeLightIntensity;
+          }
+        } else if (this.nodeLight) {
+          this.nodeLight.intensity = 0.0;
+        }
+
+        // Update each individual node orb's pulse animation
+        const N = this.nodeMeshes.length;
+        for (let k = 0; k < N; k++) {
+          const m = this.nodeMeshes[k];
+          if (!m) continue;
+
+          if (this.nodePulses[k] > 0.01) {
+            this.nodePulses[k] *= 0.85;
+          } else {
+            this.nodePulses[k] = 0.0;
+          }
+
+          const p = this.nodePulses[k];
+          const s = 1.0 + p * 0.95; // Elastic scale pop on active note
+          m.scale.set(s, s, s);
+          if (m.material) {
+            m.material.emissiveIntensity = 0.25 + p * 4.5; // Brilliant neon flare on active node only
+          }
         }
       }
 
       this.renderer.render(this.scene, this.camera);
+    }
+
+    triggerNodeFlash(stepIdx, scaleObj) {
+      const N = this.nodeMeshes.length;
+      if (N === 0) return;
+      const nodeIdx = stepIdx % N;
+
+      // Flash ONLY the specific node from which the note originated
+      this.nodePulses[nodeIdx] = 1.0;
+
+      // Position the localized point light right at this node's 3D coordinates
+      // This casts real-time specular gleam across only this specific lobe's ribs
+      if (this.nodeLight && this.nodeMeshes[nodeIdx]) {
+        this.nodeLight.position.copy(this.nodeMeshes[nodeIdx].position);
+        this.nodeLight.color.setHex(scaleObj.emissive);
+        const isDownbeat = (stepIdx === 0);
+        this.nodeLightIntensity = isDownbeat ? 6.0 : 4.2;
+      }
     }
 
     // ------------------------------------------------------------------------
@@ -365,7 +474,6 @@
         return curve;
       }
       // Warm analog soft-clipping tape saturation (smooth arctan drive)
-      // Adds luscious odd harmonics and analog body without harsh digital distortion
       const drive = 1.0 + amount * 3.8;
       const norm = 2.0 / Math.PI;
       for (let i = 0; i < n; i++) {
@@ -446,6 +554,16 @@
         clearTimeout(this.timerId);
         this.timerId = null;
       }
+
+      // Reset node flash states
+      if (this.nodeLight) this.nodeLight.intensity = 0.0;
+      this.nodeLightIntensity = 0.0;
+      if (this.nodePulses) this.nodePulses.fill(0);
+      this.nodeMeshes.forEach(m => {
+        m.scale.set(1, 1, 1);
+        if (m.material) m.material.emissiveIntensity = 0.25;
+      });
+
       const btn = document.getElementById('btn-topo-play');
       if (btn) {
         btn.classList.remove('active');
@@ -498,10 +616,7 @@
       const intervals = scaleObj.intervals;
       const interval = intervals[stepIdx % intervals.length];
 
-      // 2. Base Octave governed musically by Bloat:
-      // Bloat = 0.0: C5 (523 Hz, crystalline glassy chimes)
-      // Bloat = 0.5: C4 (261 Hz, melodic lead arpeggio)
-      // Bloat = 1.0: C2 (65 Hz, rich deep bassline)
+      // 2. Base Octave governed musically by Bloat
       const baseMidi = 60 - Math.round(this.params.bloat * 24);
       const isDownbeat = stepIdx === 0;
       const noteOctShift = (isDownbeat && Math.round(this.params.sprout) % 2 !== 0) ? 12 : 0;
@@ -549,7 +664,6 @@
       this.lastFreq = targetFreq;
 
       // 4. Resonant Lowpass Filter Envelope Sweep (Spike)
-      // Plucks dynamically on every note attack for classic analog warmth
       const baseCutoff = 350 + Math.pow(this.params.spike, 1.8) * 8000;
       const peakCutoff = Math.min(14000, baseCutoff + 600 + this.params.spike * 3500);
       const resQ = 1.2 + this.params.spike * 5.5;
@@ -614,14 +728,11 @@
       oscSaw.stop(time + noteDur + 0.05);
       subOsc.stop(time + noteDur + 0.05);
 
-      // Visual Beat Trigger (Emissive Pulse on 3D metallic mesh)
+      // Localized Node Flash Trigger (Flash ONLY the specific node from which the note originated)
       const delayMs = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
       setTimeout(() => {
         if (!this.isPlaying) return;
-        this.pulseIntensity = 1.0;
-        if (this.material) {
-          this.material.emissive.setHex(scaleObj.emissive);
-        }
+        this.triggerNodeFlash(stepIdx, scaleObj);
       }, delayMs);
     }
 
