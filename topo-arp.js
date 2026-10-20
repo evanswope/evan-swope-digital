@@ -1,81 +1,75 @@
 /**
  * TopoArp - 3D Topological Arpeggiator Synthesizer
- * Connects high-resolution liquid-metal geometry deformations to a multi-timbral Web Audio arpeggiator engine.
+ * Connects high-density metallic kinetic sculpture deformations to a warm, melodic Web Audio arpeggiator engine.
  * 
  * Sliders (opaque iconography with tooltips):
- * 1. Sprout  - Node / vertex count <-> Arpeggio note count, meter & downbeat pulse (3..12)
- * 2. Twist   - Torsion / helical twist <-> Portamento glide & stereo unison chorus
- * 3. Bloat   - Cross-sectional inflation <-> Octave register (C1 sub-bass to C6 glass) & sub-oscillator body
- * 4. Spike   - Extrusion / sharpness <-> VCF resonant cutoff (350Hz..14kHz), Q bite & FM modulator depth
- * 5. Bump    - Surface ripples / cellular noise <-> Wavefolding overdrive, ring-mod grit & continuous crackle
- * 6. Tint    - Metallic color & iridescence <-> 6 musical modal scales & spatial echo space
- * 7. Tumble  - Gyro rotation speed <-> Arpeggiator tempo (60..190 BPM) & rotary stereo pan
+ * 1. Sprout  - Node / vertex count <-> Arpeggio note count & loop meter (3..12)
+ * 2. Twist   - Helical torsion <-> Portamento note glide & analog unison chorus
+ * 3. Bloat   - Cross-sectional inflation <-> Octave register (C2 deep bass to C6 chime) & sub-oscillator body
+ * 4. Spike   - Fluted rib sharpness <-> Resonant VCF filter cutoff & juicy pluck envelope bite
+ * 5. Bump    - Surface ripples / dimples <-> Warm tape saturation drive & vintage vinyl warmth
+ * 6. Tint    - Metallic finish & emissive glow <-> 6 musical modal scale moods
+ * 7. Tumble  - Gyro rotation speed <-> Arpeggiator tempo (60..190 BPM) & bouncy stereo auto-pan
  */
 
 (function () {
   'use strict';
 
-  // --- 6 MUSICAL MODAL SCALES & ECHO SPACES (Mapped to Tint without clamping other sliders) ---
+  // --- 6 MUSICAL MODAL SCALES (Mapped to Tint) ---
   const SCALES = [
     // 0.00 - 0.16: Obsidian Void (Dark, subterranean Phrygian)
     {
       name: 'Obsidian Void',
       scaleName: 'Phrygian',
       intervals: [0, 1, 3, 5, 7, 8, 10, 12, 13, 15, 17, 19],
-      color: 0x0e131d,
+      color: 0x141824,
       emissive: 0x00f2fe,
-      delayFeedback: 0.55,
-      delayTimeMult: 2.0
+      delayFeedback: 0.48
     },
-    // 0.17 - 0.33: Liquid Mercury (Glassy Dorian)
+    // 0.17 - 0.33: Liquid Mercury (Glassy, soulful Dorian)
     {
       name: 'Liquid Mercury',
       scaleName: 'Dorian',
       intervals: [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19],
       color: 0xd2d6dc,
       emissive: 0x4facfe,
-      delayFeedback: 0.46,
-      delayTimeMult: 1.5
+      delayFeedback: 0.44
     },
-    // 0.34 - 0.50: Burnished Bronze (Warm Aeolian)
+    // 0.34 - 0.50: Burnished Bronze (Warm, nostalgic Aeolian)
     {
       name: 'Burnished Bronze',
       scaleName: 'Aeolian',
       intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19],
       color: 0xc87d55,
       emissive: 0xffb199,
-      delayFeedback: 0.40,
-      delayTimeMult: 1.0
+      delayFeedback: 0.40
     },
-    // 0.51 - 0.67: Rose Gold (Dramatic Harmonic Minor)
+    // 0.51 - 0.67: Rose Gold (Dramatic, neoclassical Harmonic Minor)
     {
       name: 'Rose Gold',
       scaleName: 'Harmonic Minor',
       intervals: [0, 2, 3, 5, 7, 8, 11, 12, 14, 15, 19, 20],
       color: 0xb53471,
       emissive: 0xff7eb3,
-      delayFeedback: 0.50,
-      delayTimeMult: 1.5
+      delayFeedback: 0.46
     },
-    // 0.68 - 0.83: Acid Emerald (Sci-Fi Lydian)
+    // 0.68 - 0.83: Acid Emerald (Dreamy, sci-fi Lydian)
     {
       name: 'Acid Emerald',
       scaleName: 'Lydian',
       intervals: [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19],
       color: 0x00b894,
       emissive: 0x55efc4,
-      delayFeedback: 0.38,
-      delayTimeMult: 0.75
+      delayFeedback: 0.42
     },
-    // 0.84 - 1.00: Electric Cobalt (Radiant Mixolydian)
+    // 0.84 - 1.00: Electric Cobalt (Radiant, uplifting Mixolydian)
     {
       name: 'Electric Cobalt',
       scaleName: 'Mixolydian',
       intervals: [0, 2, 4, 5, 7, 9, 10, 12, 14, 16, 17, 19],
       color: 0x0984e3,
       emissive: 0x74b9ff,
-      delayFeedback: 0.58,
-      delayTimeMult: 1.25
+      delayFeedback: 0.50
     }
   ];
 
@@ -90,24 +84,24 @@
       this.delayNode = null;
       this.delayFeedback = null;
       this.filterNode = null;
-      this.waveShaperNode = null;
+      this.tapeShaperNode = null;
       this.noiseBuffer = null;
 
       // Clock / Arp state
       this.currentStep = 0;
       this.nextNoteTime = 0;
       this.timerId = null;
-      this.lastFreq = 220;
+      this.lastFreq = 261.63; // C4 default
 
       // Independent Parameters
       this.params = {
-        sprout: 5,     // 3..12 nodes
-        twist: 0.30,   // 0..1
-        bloat: 0.50,   // 0..1
-        spike: 0.45,   // 0..1
-        bump: 0.25,    // 0..1
-        tint: 0.35,    // 0..1
-        tumble: 0.45   // 0..1
+        sprout: 5,     // 3..12 nodes / notes
+        twist: 0.35,   // 0..1 helical torsion / portamento glide
+        bloat: 0.50,   // 0..1 fullness / octave register
+        spike: 0.35,   // 0..1 rib sharpness / filter cutoff & pluck
+        bump: 0.20,    // 0..1 surface ripples / warm tape drive
+        tint: 0.35,    // 0..1 modal scale & metallic color
+        tumble: 0.45   // 0..1 rotation speed / tempo & stereo pan
       };
 
       // Mouse drag rotation state
@@ -134,7 +128,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 1. THREE.JS 3D SCENE & HIGH-RESOLUTION FLUID GEOMETRY
+    // 1. THREE.JS 3D SCENE & HIGH-DENSITY GEODESIC GEOMETRY
     // ------------------------------------------------------------------------
     init3D() {
       const width = this.container.clientWidth || 640;
@@ -142,7 +136,7 @@
 
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-      this.camera.position.set(0, 0, 7.5);
+      this.camera.position.set(0, 0, 7.2);
 
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -152,14 +146,14 @@
       this.renderer.setSize(width, height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      this.renderer.toneMappingExposure = 1.35;
+      this.renderer.toneMappingExposure = 1.30;
       this.container.appendChild(this.renderer.domElement);
 
-      // Studio Lighting for metallic liquid reflections
-      const ambient = new THREE.AmbientLight(0xffffff, 0.70);
+      // Studio Lighting for metallic reflections
+      const ambient = new THREE.AmbientLight(0xffffff, 0.75);
       this.scene.add(ambient);
 
-      const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
       keyLight.position.set(6, 8, 7);
       this.scene.add(keyLight);
 
@@ -171,16 +165,16 @@
       this.pointLight2.position.set(5, 4, -3);
       this.scene.add(this.pointLight2);
 
-      // High-resolution UV sphere (128 radial x 96 vertical segments = ~12,500 vertices)
-      // Eliminates crystalline facets and produces silky-smooth fluid fluted twisting
-      this.baseGeometry = new THREE.SphereGeometry(2.0, 128, 96);
+      // Geodesic Icosahedron (detail: 5 = 10,240 smooth, uniformly distributed faces)
+      // Eliminates UV-sphere polar pinching and renders silky-smooth organic curves
+      this.baseGeometry = new THREE.IcosahedronGeometry(2.1, 5);
       const posAttr = this.baseGeometry.attributes.position;
       this.origVertices = new Float32Array(posAttr.array);
 
       this.material = new THREE.MeshStandardMaterial({
         color: 0x8a929e,
-        metalness: 0.96,
-        roughness: 0.14,
+        metalness: 0.94,
+        roughness: 0.16,
         emissive: 0x000000,
         emissiveIntensity: 0.0,
         flatShading: false
@@ -239,7 +233,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 2. PROCEDURAL 3D TOPOLOGY DEFORMATION (Fluid Chrome Kinetic Sculpture)
+    // 2. PROCEDURAL 3D TOPOLOGY DEFORMATION (True Helical Torsion Kinetic Sculpture)
     // ------------------------------------------------------------------------
     updateMeshGeometry() {
       if (!this.mesh) return;
@@ -247,11 +241,14 @@
       const pos = posAttr.array;
       const orig = this.origVertices;
 
-      const N = Math.round(this.params.sprout); // 3 to 12 lobes
-      const twistAmt = this.params.twist * 9.5; // Dramatic helical torsion (up to 1.5 full turns)
-      const bloatAmt = 0.45 + this.params.bloat * 0.95; // Slender spindle to bulbous balloon
-      const spikeAmt = this.params.spike; // 0..1 sharpness
-      const bumpAmt = this.params.bump; // 0..1 surface ripples
+      const N = Math.round(this.params.sprout); // 3 to 12 fluted lobes
+      const twistRate = this.params.twist * 4.6; // True helical torsion (wraps gracefully around the axis)
+      const bloatAmt = 0.55 + this.params.bloat * 0.85; // Slender spindle to bulbous gourd
+      const spikeAmt = this.params.spike; // 0..1 sharpness (soft undulating folds to crisp aerodynamic fins)
+      const bumpAmt = this.params.bump; // 0..1 subtle tactile surface rippling
+
+      // Bloat modifies the vertical-to-horizontal aspect ratio
+      const yScale = 1.30 - this.params.bloat * 0.55;
 
       const count = orig.length / 3;
 
@@ -262,44 +259,42 @@
         const oz = orig[idx + 2];
 
         const len = Math.sqrt(ox * ox + oy * oy + oz * oz);
+        const nx = ox / (len || 1);
         const ny = oy / (len || 1);
+        const nz = oz / (len || 1);
 
-        // Spherical coordinates
-        const theta = Math.atan2(oz, ox);
-        const phi = Math.acos(Math.max(-1, Math.min(1, ny))); // 0 (north pole) to PI (south pole)
-        const sinPhi = Math.sin(phi);
+        // Cylindrical / Spherical coordinates
+        const theta = Math.atan2(nz, nx);
+        const phi = Math.asin(Math.max(-1, Math.min(1, ny))); // -PI/2 to PI/2
+        const cosPhi = Math.cos(phi);
 
-        // 1. Helical Twist on azimuth angle (spirals smoothly along full height)
-        const thetaTwisted = theta + ny * twistAmt;
+        // True Helical Torsion:
+        // As elevation ny varies from -1 to +1, the cross-sectional rib angle spirals by twistRate * ny!
+        const spiralAngle = theta - ny * twistRate;
 
-        // 2. Sprout Lobes with smooth polar taper (avoids zeroing out prematurely)
-        const lobeVal = Math.cos(N * thetaTwisted) * (0.65 + 0.35 * Math.pow(sinPhi, 1.2));
+        // 1. Sprout Lobes with smooth polar taper
+        const rawLobe = Math.cos(N * spiralAngle) * (0.45 + 0.55 * cosPhi);
 
-        // Helical fluting ribs that swirl visibly along the twist axis
-        const fluting = Math.sin(N * thetaTwisted + phi * 3.2) * 0.30 * this.params.twist;
+        // 2. Spike Profile (Smooth pillowy mounds at low spike, crisp defined flutes at high spike)
+        const power = Math.max(0.7, 2.2 - spikeAmt * 1.3);
+        const shapedLobe = Math.sign(rawLobe) * Math.pow(Math.abs(rawLobe), power);
+        const rRib = 1.0 + shapedLobe * (0.22 + spikeAmt * 0.42);
 
-        // 3. Spike Power Curve (smooth hills -> curved razor horns)
-        const spikeShape = Math.sign(lobeVal) * Math.pow(Math.abs(lobeVal), Math.max(0.6, 2.6 - spikeAmt * 1.8));
-        const rLobe = 1.0 + spikeShape * (0.38 + spikeAmt * 1.05) + fluting;
-
-        // 4. Bloat Scale (squashes wider when bloated, stretches taller when thin)
-        const rBloat = bloatAmt * (1.0 + 0.12 * Math.cos(phi * 2.0));
-        const yScale = 0.80 + (1.0 - this.params.bloat) * 0.60;
-
-        // 5. Bump 3D Ripples (Cellular noise simulation)
+        // 3. Bump Surface Micro-Texture (delicate tactile dimples that catch specular light)
         let rBump = 0;
         if (bumpAmt > 0.02) {
-          rBump = bumpAmt * 0.35 * (
-            Math.sin(ox * 24.0) * Math.cos(oy * 24.0) * Math.sin(oz * 24.0) +
-            0.5 * Math.sin(ox * 48.0) * Math.cos(oz * 48.0)
+          rBump = bumpAmt * 0.14 * (
+            Math.sin(nx * 18.0) * Math.cos(ny * 18.0) * Math.sin(nz * 18.0) +
+            0.5 * Math.sin(nx * 36.0 + nz * 36.0)
           );
         }
 
-        const finalR = 2.05 * rBloat * rLobe + rBump;
+        // Final radial profile in the XZ plane
+        const finalR = 2.05 * bloatAmt * rRib + rBump;
 
-        pos[idx]     = Math.cos(thetaTwisted) * (sinPhi || 0.001) * finalR;
-        pos[idx + 1] = Math.cos(phi) * finalR * yScale;
-        pos[idx + 2] = Math.sin(thetaTwisted) * (sinPhi || 0.001) * finalR;
+        pos[idx]     = nx * finalR;
+        pos[idx + 1] = oy * bloatAmt * yScale + (rBump * 0.5);
+        pos[idx + 2] = nz * finalR;
       }
 
       posAttr.needsUpdate = true;
@@ -313,8 +308,8 @@
       const scaleObj = SCALES[idx];
 
       this.material.color.setHex(scaleObj.color);
-      // Smoother, deeper mirror-like clearcoat
-      this.material.roughness = 0.10 + (1.0 - this.params.bloat) * 0.14 + this.params.bump * 0.10;
+      // Smooth liquid clearcoat with delicate tactile roughness mapped to bump
+      this.material.roughness = 0.12 + (1.0 - this.params.bloat) * 0.10 + this.params.bump * 0.10;
 
       if (this.pointLight1) this.pointLight1.color.setHex(scaleObj.emissive);
       if (this.pointLight2) this.pointLight2.color.setHex(scaleObj.emissive);
@@ -322,8 +317,8 @@
       if (this.delayFeedback && this.audioCtx) {
         this.delayFeedback.gain.setTargetAtTime(scaleObj.delayFeedback, this.audioCtx.currentTime, 0.05);
       }
-      if (this.waveShaperNode) {
-        this.waveShaperNode.curve = this.makeWavefolderCurve(this.params.bump);
+      if (this.tapeShaperNode) {
+        this.tapeShaperNode.curve = this.makeTapeSaturationCurve(this.params.bump);
       }
     }
 
@@ -332,7 +327,7 @@
 
       if (this.mesh) {
         // Tumble kinetic spin speed
-        const tumbleSpeed = 0.003 + this.params.tumble * 0.042;
+        const tumbleSpeed = 0.003 + this.params.tumble * 0.038;
 
         if (this.isDragging) {
           // Handled in pointermove
@@ -342,13 +337,13 @@
           this.manualVelocity.y *= 0.94;
           this.mesh.rotation.y += tumbleSpeed + this.manualVelocity.x;
           this.mesh.rotation.x += tumbleSpeed * 0.65 + this.manualVelocity.y;
-          this.mesh.rotation.z += tumbleSpeed * 0.35;
+          this.mesh.rotation.z += tumbleSpeed * 0.30;
         }
 
         // Emissive pulse decay on beat
         if (this.pulseIntensity > 0.01) {
           this.pulseIntensity *= 0.88;
-          this.material.emissiveIntensity = this.pulseIntensity * 1.8;
+          this.material.emissiveIntensity = this.pulseIntensity * 1.6;
         } else {
           this.material.emissiveIntensity = 0.0;
         }
@@ -358,24 +353,24 @@
     }
 
     // ------------------------------------------------------------------------
-    // 3. WEB AUDIO ENGINE (Multi-Timbral Synthesis & Wavefolding Distortion)
+    // 3. WARM MELODIC WEB AUDIO SYNTHESIZER ENGINE
     // ------------------------------------------------------------------------
-    makeWavefolderCurve(amount) {
+    makeTapeSaturationCurve(amount) {
       const n = 1024;
       const curve = new Float32Array(n);
-      if (amount < 0.03) {
+      if (amount < 0.04) {
         for (let i = 0; i < n; i++) {
           curve[i] = (i * 2) / n - 1;
         }
         return curve;
       }
-      // West-Coast style sine wavefolder + soft-saturation drive
-      // Sits directly on the voice output, giving warm analog fuzz and grit
-      const drive = 1.0 + amount * 14.0;
+      // Warm analog soft-clipping tape saturation (smooth arctan drive)
+      // Adds luscious odd harmonics and analog body without harsh digital distortion
+      const drive = 1.0 + amount * 3.8;
+      const norm = 2.0 / Math.PI;
       for (let i = 0; i < n; i++) {
         const x = (i * 2) / n - 1;
-        const scaled = x * drive;
-        curve[i] = Math.sin(scaled * 1.5707963);
+        curve[i] = norm * Math.atan(x * drive);
       }
       return curve;
     }
@@ -385,36 +380,36 @@
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioCtx();
 
-      // Master output bus with warm compression
+      // Master output bus
       this.masterGain = this.audioCtx.createGain();
       this.masterGain.gain.setValueAtTime(0.72, this.audioCtx.currentTime);
 
-      // Dedicated Wavefolder / Distortion Shaper for Bump grit!
-      this.waveShaperNode = this.audioCtx.createWaveShaper();
-      this.waveShaperNode.curve = this.makeWavefolderCurve(this.params.bump);
+      // Warm Tape Saturation Shaper for Bump
+      this.tapeShaperNode = this.audioCtx.createWaveShaper();
+      this.tapeShaperNode.curve = this.makeTapeSaturationCurve(this.params.bump);
 
-      // Stereo Ping-Pong Delay
+      // Dotted-eighth Hypnotic Echo Delay
       this.delayNode = this.audioCtx.createDelay(1.5);
       this.delayNode.delayTime.value = 0.28;
       this.delayFeedback = this.audioCtx.createGain();
-      this.delayFeedback.gain.value = 0.42;
+      this.delayFeedback.gain.value = 0.44;
 
       this.delayNode.connect(this.delayFeedback);
       this.delayFeedback.connect(this.delayNode);
       this.delayNode.connect(this.masterGain);
 
-      // Resonant Lowpass Filter (Full 350Hz..14kHz range controlled by Spike)
+      // Resonant Lowpass Filter (Spike gives sweet, musical, juicy sweeps)
       this.filterNode = this.audioCtx.createBiquadFilter();
       this.filterNode.type = 'lowpass';
-      this.filterNode.frequency.value = 3500;
-      this.filterNode.Q.value = 3.5;
+      this.filterNode.frequency.value = 2400;
+      this.filterNode.Q.value = 2.5;
 
-      // Filter -> Wavefolder -> Master & Delay
-      this.filterNode.connect(this.waveShaperNode);
-      this.waveShaperNode.connect(this.masterGain);
-      this.waveShaperNode.connect(this.delayNode);
+      // Filter -> Tape Saturation -> Master & Delay
+      this.filterNode.connect(this.tapeShaperNode);
+      this.tapeShaperNode.connect(this.masterGain);
+      this.tapeShaperNode.connect(this.delayNode);
 
-      // White noise buffer for Bump texture
+      // White noise buffer for subtle vintage vinyl air on Bump
       const bufferSize = this.audioCtx.sampleRate * 2;
       const noiseBuffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -474,15 +469,13 @@
       while (this.nextNoteTime < this.audioCtx.currentTime + 0.12) {
         this.playStep(this.nextNoteTime, this.currentStep);
 
-        // Tempo mapped from Tumble (60 BPM to 190 BPM)
-        const bpm = 60 + this.params.tumble * 130;
+        // Tempo mapped from Tumble (65 BPM to 185 BPM)
+        const bpm = 65 + this.params.tumble * 120;
         const stepSec = 60 / (bpm * 2); // 8th note steps
 
-        // Delay sync to tempo and current Tint multiplier
-        const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
-        const scaleObj = SCALES[tIdx];
+        // Hypnotic dotted-eighth echo sync (1.5x step)
         if (this.delayNode) {
-          this.delayNode.delayTime.setTargetAtTime(stepSec * (scaleObj.delayTimeMult || 1.5), this.nextNoteTime, 0.05);
+          this.delayNode.delayTime.setTargetAtTime(stepSec * 1.5, this.nextNoteTime, 0.05);
         }
 
         this.nextNoteTime += stepSec;
@@ -499,106 +492,106 @@
       const t = this.audioCtx.currentTime;
       if (time < t) time = t;
 
-      // 1. Current Scale Profile from Tint (Modal intervals & harmonic key)
+      // 1. Current Scale Profile from Tint
       const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
       const scaleObj = SCALES[tIdx];
       const intervals = scaleObj.intervals;
       const interval = intervals[stepIdx % intervals.length];
 
-      // 2. Base Octave fully governed by Bloat:
-      // When Bloat = 0: baseMidi = 64 (C5) -> crystalline glassy plucks up to C7
-      // When Bloat = 1: baseMidi = 28 (E1/C1) -> earth-shaking 32Hz sub-bass
-      const baseMidi = 64 - Math.round(this.params.bloat * 36);
+      // 2. Base Octave governed musically by Bloat:
+      // Bloat = 0.0: C5 (523 Hz, crystalline glassy chimes)
+      // Bloat = 0.5: C4 (261 Hz, melodic lead arpeggio)
+      // Bloat = 1.0: C2 (65 Hz, rich deep bassline)
+      const baseMidi = 60 - Math.round(this.params.bloat * 24);
       const isDownbeat = stepIdx === 0;
       const noteOctShift = (isDownbeat && Math.round(this.params.sprout) % 2 !== 0) ? 12 : 0;
       const midi = baseMidi + interval + noteOctShift;
       const targetFreq = 440 * Math.pow(2, (midi - 69) / 12);
 
-      // 3. Dual-Oscillator Core (Sawtooth + Pulse for rich harmonic overtone content)
-      const carrier1 = this.audioCtx.createOscillator();
-      const carrier2 = this.audioCtx.createOscillator();
+      // 3. Charming Melodic Voice (Triangle smoothly morphing into Sawtooth via Spike)
+      const oscTri = this.audioCtx.createOscillator();
+      const oscSaw = this.audioCtx.createOscillator();
       const subOsc = this.audioCtx.createOscillator();
-      const modulator = this.audioCtx.createOscillator();
-      const fmGain = this.audioCtx.createGain();
+
+      const triGain = this.audioCtx.createGain();
+      const sawGain = this.audioCtx.createGain();
+      const subGain = this.audioCtx.createGain();
       const voiceGain = this.audioCtx.createGain();
 
-      carrier1.type = 'sawtooth'; // Guarantees rich harmonics for Spike & Bump to carve
-      carrier2.type = 'triangle';
+      oscTri.type = 'triangle';
+      oscSaw.type = 'sawtooth';
       subOsc.type = 'sine';
-      modulator.type = 'sine';
 
-      // Portamento Glide (Twist)
-      const glideTime = 0.003 + this.params.twist * 0.30;
-      carrier1.frequency.setValueAtTime(this.lastFreq, time);
-      carrier1.frequency.exponentialRampToValueAtTime(targetFreq, time + glideTime);
+      // Crossfade smoothly between warm cozy triangle and bright singing sawtooth
+      const spikeMix = this.params.spike; // 0..1
+      triGain.gain.setValueAtTime(Math.cos(spikeMix * Math.PI * 0.5), time);
+      sawGain.gain.setValueAtTime(Math.sin(spikeMix * Math.PI * 0.5) * 0.85, time);
 
-      carrier2.frequency.setValueAtTime(this.lastFreq, time);
-      carrier2.frequency.exponentialRampToValueAtTime(targetFreq, time + glideTime);
+      // Sub-bass body layer (governed by Bloat)
+      subGain.gain.setValueAtTime(0.15 + this.params.bloat * 0.55, time);
 
-      // Stereo Unison Chorus Detune (Twist)
-      const detuneCents = this.params.twist * 16.0;
-      carrier1.detune.setValueAtTime(detuneCents, time);
-      carrier2.detune.setValueAtTime(-detuneCents, time);
+      // Portamento Pitch Glide (Twist)
+      const glideTime = 0.004 + this.params.twist * 0.24;
+      oscTri.frequency.setValueAtTime(this.lastFreq, time);
+      oscTri.frequency.exponentialRampToValueAtTime(targetFreq, time + glideTime);
+
+      oscSaw.frequency.setValueAtTime(this.lastFreq, time);
+      oscSaw.frequency.exponentialRampToValueAtTime(targetFreq, time + glideTime);
 
       subOsc.frequency.setValueAtTime(this.lastFreq * 0.5, time);
       subOsc.frequency.exponentialRampToValueAtTime(targetFreq * 0.5, time + glideTime);
 
-      // 4. FM Modulator Bite (Spike)
-      // Modulator adds razor-sharp metallic bell sidebands as Spike rises
-      const modFreq = targetFreq * 2.0;
-      modulator.frequency.setValueAtTime(modFreq, time);
-      const fmPeak = targetFreq * Math.pow(this.params.spike, 1.4) * 3.6;
-      fmGain.gain.setValueAtTime(fmPeak, time);
-      fmGain.gain.exponentialRampToValueAtTime(Math.max(1, fmPeak * 0.12), time + 0.12);
-
-      modulator.connect(fmGain);
-      fmGain.connect(carrier1.frequency);
+      // Analog Unison Detune (Twist adds lush chorusing)
+      const detuneCents = this.params.twist * 12.0;
+      oscTri.detune.setValueAtTime(detuneCents, time);
+      oscSaw.detune.setValueAtTime(-detuneCents, time);
 
       this.lastFreq = targetFreq;
 
-      // 5. Resonant Lowpass Filter (Spike has massive 350Hz..14kHz authority)
-      const cutoff = Math.min(14000, 350 * Math.pow(40, this.params.spike));
-      const resQ = 1.0 + Math.pow(this.params.spike, 1.2) * 7.5;
-      this.filterNode.frequency.setTargetAtTime(cutoff, time, 0.02);
-      this.filterNode.Q.setTargetAtTime(resQ, time, 0.02);
+      // 4. Resonant Lowpass Filter Envelope Sweep (Spike)
+      // Plucks dynamically on every note attack for classic analog warmth
+      const baseCutoff = 350 + Math.pow(this.params.spike, 1.8) * 8000;
+      const peakCutoff = Math.min(14000, baseCutoff + 600 + this.params.spike * 3500);
+      const resQ = 1.2 + this.params.spike * 5.5;
 
-      // 6. Sub-Bass Body (Bloat)
-      const subGain = this.audioCtx.createGain();
-      subGain.gain.setValueAtTime(this.params.bloat * 0.75, time);
+      this.filterNode.Q.setTargetAtTime(resQ, time, 0.02);
+      this.filterNode.frequency.setValueAtTime(peakCutoff, time);
+      this.filterNode.frequency.exponentialRampToValueAtTime(baseCutoff, time + 0.14);
+
+      // Connect oscillators to voice
+      oscTri.connect(triGain);
+      oscSaw.connect(sawGain);
       subOsc.connect(subGain);
+
+      triGain.connect(voiceGain);
+      sawGain.connect(voiceGain);
       subGain.connect(this.filterNode);
 
-      // 7. Bump Audio Artifacts: Wavefolding + Sub-Harmonic Ring Mod + Continuous Noise
-      if (this.params.bump > 0.06) {
-        // Continuous gritty hiss & vinyl texture throughout note duration
-        if (this.noiseBuffer) {
-          const noiseSrc = this.audioCtx.createBufferSource();
-          noiseSrc.buffer = this.noiseBuffer;
-          const nGain = this.audioCtx.createGain();
-          const nLevel = this.params.bump * 0.25;
-          nGain.gain.setValueAtTime(nLevel, time);
-          nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
-          noiseSrc.connect(nGain);
-          nGain.connect(this.filterNode);
-          noiseSrc.start(time);
-          noiseSrc.stop(time + 0.20);
-        }
+      // 5. Subtle Vintage Vinyl Air & Grit (Bump)
+      if (this.params.bump > 0.08 && this.noiseBuffer) {
+        const noiseSrc = this.audioCtx.createBufferSource();
+        noiseSrc.buffer = this.noiseBuffer;
+        const nFilter = this.audioCtx.createBiquadFilter();
+        nFilter.type = 'bandpass';
+        nFilter.frequency.value = 1800;
+        nFilter.Q.value = 1.5;
 
-        // Sub-harmonic ring modulation for dirty metallic rasp
-        const ringOsc = this.audioCtx.createOscillator();
-        const ringGain = this.audioCtx.createGain();
-        ringOsc.frequency.setValueAtTime(targetFreq * 0.5, time);
-        ringGain.gain.setValueAtTime(this.params.bump * 0.42, time);
-        ringOsc.connect(ringGain);
-        ringGain.connect(carrier1.frequency);
-        ringOsc.start(time);
-        ringOsc.stop(time + 0.25);
+        const nGain = this.audioCtx.createGain();
+        const nLevel = this.params.bump * 0.16;
+        nGain.gain.setValueAtTime(nLevel, time);
+        nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+
+        noiseSrc.connect(nFilter);
+        nFilter.connect(nGain);
+        nGain.connect(this.filterNode);
+        noiseSrc.start(time);
+        noiseSrc.stop(time + 0.09);
       }
 
-      // 8. Stereo Auto-Pan (Tumble)
+      // 6. Stereo Auto-Pan (Tumble)
       if (this.audioCtx.createStereoPanner) {
         const panner = this.audioCtx.createStereoPanner();
-        const panVal = Math.sin(stepIdx * 1.8 + this.params.tumble * 5.0) * 0.72;
+        const panVal = Math.sin(stepIdx * 1.8 + this.params.tumble * 5.0) * 0.65;
         panner.pan.setValueAtTime(panVal, time);
         voiceGain.connect(panner);
         panner.connect(this.filterNode);
@@ -606,25 +599,20 @@
         voiceGain.connect(this.filterNode);
       }
 
-      // 9. Amplitude Envelope (ADSR) with Downbeat Dynamics
-      const noteDur = 0.14 + (1.0 - this.params.tumble) * 0.16;
-      const peakVol = isDownbeat ? 0.85 : 0.68;
+      // 7. Amplitude Envelope (Punchy pluck with downbeat accent)
+      const noteDur = 0.15 + (1.0 - this.params.tumble) * 0.15;
+      const peakVol = isDownbeat ? 0.78 : 0.65;
       voiceGain.gain.setValueAtTime(0.0001, time);
-      voiceGain.gain.linearRampToValueAtTime(peakVol, time + 0.012);
+      voiceGain.gain.linearRampToValueAtTime(peakVol, time + 0.010);
       voiceGain.gain.exponentialRampToValueAtTime(0.001, time + noteDur);
 
-      carrier1.connect(voiceGain);
-      carrier2.connect(voiceGain);
-
-      carrier1.start(time);
-      carrier2.start(time);
+      oscTri.start(time);
+      oscSaw.start(time);
       subOsc.start(time);
-      modulator.start(time);
 
-      carrier1.stop(time + noteDur + 0.05);
-      carrier2.stop(time + noteDur + 0.05);
+      oscTri.stop(time + noteDur + 0.05);
+      oscSaw.stop(time + noteDur + 0.05);
       subOsc.stop(time + noteDur + 0.05);
-      modulator.stop(time + noteDur + 0.05);
 
       // Visual Beat Trigger (Emissive Pulse on 3D metallic mesh)
       const delayMs = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
@@ -687,12 +675,12 @@
 
     mutate() {
       this.params.sprout = Math.floor(Math.random() * 8) + 3; // 3 to 10
-      this.params.twist = Math.random();
-      this.params.bloat = 0.2 + Math.random() * 0.7;
-      this.params.spike = Math.random();
-      this.params.bump = Math.random() * 0.85;
+      this.params.twist = 0.15 + Math.random() * 0.75;
+      this.params.bloat = 0.25 + Math.random() * 0.65;
+      this.params.spike = 0.15 + Math.random() * 0.70;
+      this.params.bump = Math.random() * 0.70;
       this.params.tint = Math.random();
-      this.params.tumble = 0.2 + Math.random() * 0.7;
+      this.params.tumble = 0.25 + Math.random() * 0.65;
 
       const idMap = {
         sprout: 'topo-slider-sprout',
@@ -716,10 +704,10 @@
     reset() {
       this.params = {
         sprout: 5,
-        twist: 0.30,
+        twist: 0.35,
         bloat: 0.50,
-        spike: 0.45,
-        bump: 0.25,
+        spike: 0.35,
+        bump: 0.20,
         tint: 0.35,
         tumble: 0.45
       };
