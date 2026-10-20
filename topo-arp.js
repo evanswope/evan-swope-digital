@@ -24,7 +24,7 @@
       intervals: [0, 1, 3, 5, 7, 8, 10, 12, 13, 15, 17, 19],
       color: 0x141824,
       emissive: 0x00f2fe,
-      delayFeedback: 0.48
+      delayFeedback: 0.46
     },
     // 0.17 - 0.33: Liquid Mercury (Glassy, soulful Dorian)
     {
@@ -33,7 +33,7 @@
       intervals: [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19],
       color: 0xd2d6dc,
       emissive: 0x4facfe,
-      delayFeedback: 0.44
+      delayFeedback: 0.42
     },
     // 0.34 - 0.50: Burnished Bronze (Warm, nostalgic Aeolian)
     {
@@ -42,7 +42,7 @@
       intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19],
       color: 0xc87d55,
       emissive: 0xffb199,
-      delayFeedback: 0.40
+      delayFeedback: 0.38
     },
     // 0.51 - 0.67: Rose Gold (Dramatic, neoclassical Harmonic Minor)
     {
@@ -51,7 +51,7 @@
       intervals: [0, 2, 3, 5, 7, 8, 11, 12, 14, 15, 19, 20],
       color: 0xb53471,
       emissive: 0xff7eb3,
-      delayFeedback: 0.46
+      delayFeedback: 0.44
     },
     // 0.68 - 0.83: Acid Emerald (Dreamy, sci-fi Lydian)
     {
@@ -60,7 +60,7 @@
       intervals: [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19],
       color: 0x00b894,
       emissive: 0x55efc4,
-      delayFeedback: 0.42
+      delayFeedback: 0.40
     },
     // 0.84 - 1.00: Electric Cobalt (Radiant, uplifting Mixolydian)
     {
@@ -69,7 +69,7 @@
       intervals: [0, 2, 4, 5, 7, 9, 10, 12, 14, 16, 17, 19],
       color: 0x0984e3,
       emissive: 0x74b9ff,
-      delayFeedback: 0.50
+      delayFeedback: 0.48
     }
   ];
 
@@ -81,11 +81,13 @@
       this.isPlaying = false;
       this.audioCtx = null;
       this.masterGain = null;
+      this.limiterNode = null;
       this.delayNode = null;
       this.delayFeedback = null;
       this.filterNode = null;
       this.tapeShaperNode = null;
       this.noiseBuffer = null;
+      this.lastAppliedBump = 0.20;
 
       // Clock / Arp state
       this.currentStep = 0;
@@ -103,6 +105,10 @@
         tint: 0.35,    // 0..1 modal scale & metallic color
         tumble: 0.45   // 0..1 rotation speed / tempo & stereo pan
       };
+
+      // Animation & mesh update flags (prevents 120Hz slider DOM events from starving audio thread)
+      this.needsMeshUpdate = false;
+      this.needsMaterialUpdate = false;
 
       // Mouse drag rotation state
       this.isDragging = false;
@@ -386,13 +392,26 @@
       if (this.delayFeedback && this.audioCtx) {
         this.delayFeedback.gain.setTargetAtTime(scaleObj.delayFeedback, this.audioCtx.currentTime, 0.05);
       }
-      if (this.tapeShaperNode) {
+
+      // Only regenerate shaper curve if bump changed meaningfully (prevents audio click)
+      if (this.tapeShaperNode && Math.abs(this.lastAppliedBump - this.params.bump) > 0.06) {
         this.tapeShaperNode.curve = this.makeTapeSaturationCurve(this.params.bump);
+        this.lastAppliedBump = this.params.bump;
       }
     }
 
     animate() {
       requestAnimationFrame(() => this.animate());
+
+      // Throttled geometry updates (runs at 60fps max, decoupled from 120Hz slider events)
+      if (this.needsMeshUpdate) {
+        this.updateMeshGeometry();
+        this.needsMeshUpdate = false;
+      }
+      if (this.needsMaterialUpdate) {
+        this.updateMaterialProperties();
+        this.needsMaterialUpdate = false;
+      }
 
       if (this.mesh) {
         // Tumble kinetic spin speed
@@ -452,7 +471,6 @@
       this.nodePulses[nodeIdx] = 1.0;
 
       // Position the localized point light right at this node's 3D coordinates
-      // This casts real-time specular gleam across only this specific lobe's ribs
       if (this.nodeLight && this.nodeMeshes[nodeIdx]) {
         this.nodeLight.position.copy(this.nodeMeshes[nodeIdx].position);
         this.nodeLight.color.setHex(scaleObj.emissive);
@@ -462,7 +480,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 3. WARM MELODIC WEB AUDIO SYNTHESIZER ENGINE
+    // 3. WARM MELODIC WEB AUDIO SYNTHESIZER ENGINE (Click-Free & Master-Limited)
     // ------------------------------------------------------------------------
     makeTapeSaturationCurve(amount) {
       const n = 1024;
@@ -474,7 +492,7 @@
         return curve;
       }
       // Warm analog soft-clipping tape saturation (smooth arctan drive)
-      const drive = 1.0 + amount * 3.8;
+      const drive = 1.0 + amount * 3.5;
       const norm = 2.0 / Math.PI;
       for (let i = 0; i < n; i++) {
         const x = (i * 2) / n - 1;
@@ -488,9 +506,17 @@
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioCtx();
 
-      // Master output bus
+      // Master output bus with calibrated gain headroom
       this.masterGain = this.audioCtx.createGain();
-      this.masterGain.gain.setValueAtTime(0.72, this.audioCtx.currentTime);
+      this.masterGain.gain.setValueAtTime(0.65, this.audioCtx.currentTime);
+
+      // Studio Brickwall Limiter to prevent ANY digital clipping, DAC overflow, or popping
+      this.limiterNode = this.audioCtx.createDynamicsCompressor();
+      this.limiterNode.threshold.setValueAtTime(-2.5, this.audioCtx.currentTime); // -2.5 dBFS ceiling
+      this.limiterNode.knee.setValueAtTime(6.0, this.audioCtx.currentTime);
+      this.limiterNode.ratio.setValueAtTime(16.0, this.audioCtx.currentTime);    // Hard limiting
+      this.limiterNode.attack.setValueAtTime(0.003, this.audioCtx.currentTime);  // 3ms catch
+      this.limiterNode.release.setValueAtTime(0.12, this.audioCtx.currentTime);  // 120ms transparent release
 
       // Warm Tape Saturation Shaper for Bump
       this.tapeShaperNode = this.audioCtx.createWaveShaper();
@@ -500,7 +526,7 @@
       this.delayNode = this.audioCtx.createDelay(1.5);
       this.delayNode.delayTime.value = 0.28;
       this.delayFeedback = this.audioCtx.createGain();
-      this.delayFeedback.gain.value = 0.44;
+      this.delayFeedback.gain.value = 0.40;
 
       this.delayNode.connect(this.delayFeedback);
       this.delayFeedback.connect(this.delayNode);
@@ -512,10 +538,13 @@
       this.filterNode.frequency.value = 2400;
       this.filterNode.Q.value = 2.5;
 
-      // Filter -> Tape Saturation -> Master & Delay
+      // Filter -> Tape Saturation -> Master & Delay -> Limiter -> Destination
       this.filterNode.connect(this.tapeShaperNode);
       this.tapeShaperNode.connect(this.masterGain);
       this.tapeShaperNode.connect(this.delayNode);
+
+      this.masterGain.connect(this.limiterNode);
+      this.limiterNode.connect(this.audioCtx.destination);
 
       // White noise buffer for subtle vintage vinyl air on Bump
       const bufferSize = this.audioCtx.sampleRate * 2;
@@ -525,8 +554,6 @@
         output[i] = Math.random() * 2 - 1;
       }
       this.noiseBuffer = noiseBuffer;
-
-      this.masterGain.connect(this.audioCtx.destination);
     }
 
     start() {
@@ -555,7 +582,7 @@
         this.timerId = null;
       }
 
-      // Reset node flash states
+      // Reset node flash states cleanly
       if (this.nodeLight) this.nodeLight.intensity = 0.0;
       this.nodeLightIntensity = 0.0;
       if (this.nodePulses) this.nodePulses.fill(0);
@@ -584,16 +611,25 @@
     scheduleLoop() {
       if (!this.isPlaying) return;
 
-      while (this.nextNoteTime < this.audioCtx.currentTime + 0.12) {
+      const now = this.audioCtx.currentTime;
+
+      // Resync cleanly if slider drags or main thread jank caused late scheduling
+      // (This guarantees overdue notes NEVER clump together into a clipped burst)
+      if (this.nextNoteTime < now) {
+        this.nextNoteTime = now + 0.02;
+      }
+
+      while (this.nextNoteTime < now + 0.12) {
         this.playStep(this.nextNoteTime, this.currentStep);
 
         // Tempo mapped from Tumble (65 BPM to 185 BPM)
         const bpm = 65 + this.params.tumble * 120;
         const stepSec = 60 / (bpm * 2); // 8th note steps
 
-        // Hypnotic dotted-eighth echo sync (1.5x step)
+        // Hypnotic dotted-eighth echo sync with gentle, continuous smoothing
         if (this.delayNode) {
-          this.delayNode.delayTime.setTargetAtTime(stepSec * 1.5, this.nextNoteTime, 0.05);
+          const targetDelay = Math.min(1.4, stepSec * 1.5);
+          this.delayNode.delayTime.setTargetAtTime(targetDelay, this.nextNoteTime, 0.25);
         }
 
         this.nextNoteTime += stepSec;
@@ -643,7 +679,7 @@
       sawGain.gain.setValueAtTime(Math.sin(spikeMix * Math.PI * 0.5) * 0.85, time);
 
       // Sub-bass body layer (governed by Bloat)
-      subGain.gain.setValueAtTime(0.15 + this.params.bloat * 0.55, time);
+      subGain.gain.setValueAtTime(0.12 + this.params.bloat * 0.48, time);
 
       // Portamento Pitch Glide (Twist)
       const glideTime = 0.004 + this.params.twist * 0.24;
@@ -663,13 +699,15 @@
 
       this.lastFreq = targetFreq;
 
-      // 4. Resonant Lowpass Filter Envelope Sweep (Spike)
+      // 4. Resonant Lowpass Filter Envelope Sweep (Click-free continuous ramps)
       const baseCutoff = 350 + Math.pow(this.params.spike, 1.8) * 8000;
-      const peakCutoff = Math.min(14000, baseCutoff + 600 + this.params.spike * 3500);
-      const resQ = 1.2 + this.params.spike * 5.5;
+      const peakCutoff = Math.min(13500, baseCutoff + 500 + this.params.spike * 3200);
+      const resQ = 1.2 + this.params.spike * 5.0;
 
-      this.filterNode.Q.setTargetAtTime(resQ, time, 0.02);
-      this.filterNode.frequency.setValueAtTime(peakCutoff, time);
+      this.filterNode.Q.setTargetAtTime(resQ, time, 0.03);
+      this.filterNode.frequency.cancelScheduledValues(time);
+      this.filterNode.frequency.setValueAtTime(Math.max(60, this.filterNode.frequency.value), time);
+      this.filterNode.frequency.linearRampToValueAtTime(peakCutoff, time + 0.008);
       this.filterNode.frequency.exponentialRampToValueAtTime(baseCutoff, time + 0.14);
 
       // Connect oscillators to voice
@@ -691,9 +729,9 @@
         nFilter.Q.value = 1.5;
 
         const nGain = this.audioCtx.createGain();
-        const nLevel = this.params.bump * 0.16;
+        const nLevel = this.params.bump * 0.14;
         nGain.gain.setValueAtTime(nLevel, time);
-        nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+        nGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.08);
 
         noiseSrc.connect(nFilter);
         nFilter.connect(nGain);
@@ -713,20 +751,20 @@
         voiceGain.connect(this.filterNode);
       }
 
-      // 7. Amplitude Envelope (Punchy pluck with downbeat accent)
+      // 7. Amplitude Envelope (Punchy pluck with downbeat accent & click-free ramps)
       const noteDur = 0.15 + (1.0 - this.params.tumble) * 0.15;
-      const peakVol = isDownbeat ? 0.78 : 0.65;
+      const peakVol = isDownbeat ? 0.72 : 0.58;
       voiceGain.gain.setValueAtTime(0.0001, time);
-      voiceGain.gain.linearRampToValueAtTime(peakVol, time + 0.010);
-      voiceGain.gain.exponentialRampToValueAtTime(0.001, time + noteDur);
+      voiceGain.gain.linearRampToValueAtTime(peakVol, time + 0.012);
+      voiceGain.gain.exponentialRampToValueAtTime(0.0001, time + noteDur);
 
       oscTri.start(time);
       oscSaw.start(time);
       subOsc.start(time);
 
-      oscTri.stop(time + noteDur + 0.05);
-      oscSaw.stop(time + noteDur + 0.05);
-      subOsc.stop(time + noteDur + 0.05);
+      oscTri.stop(time + noteDur + 0.04);
+      oscSaw.stop(time + noteDur + 0.04);
+      subOsc.stop(time + noteDur + 0.04);
 
       // Localized Node Flash Trigger (Flash ONLY the specific node from which the note originated)
       const delayMs = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
@@ -757,8 +795,9 @@
 
         const updateVal = (val) => {
           this.params[key] = isInt ? Math.round(Number(val)) : Number(val);
-          this.updateMeshGeometry();
-          this.updateMaterialProperties();
+          // Decouple audio parameter updates from heavy 3D mesh deformation
+          this.needsMeshUpdate = true;
+          this.needsMaterialUpdate = true;
         };
 
         el.addEventListener('input', (e) => updateVal(e.target.value));
@@ -808,8 +847,8 @@
         if (el) el.value = this.params[key];
       });
 
-      this.updateMeshGeometry();
-      this.updateMaterialProperties();
+      this.needsMeshUpdate = true;
+      this.needsMaterialUpdate = true;
     }
 
     reset() {
@@ -838,8 +877,8 @@
         if (el) el.value = this.params[key];
       });
 
-      this.updateMeshGeometry();
-      this.updateMaterialProperties();
+      this.needsMeshUpdate = true;
+      this.needsMaterialUpdate = true;
     }
   }
 
