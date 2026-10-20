@@ -1,6 +1,6 @@
 /**
  * TopoArp - 3D Topological Arpeggiator Synthesizer
- * Connects high-density metallic kinetic sculpture deformations to a warm, melodic Web Audio arpeggiator engine.
+ * Connects faceted metallic kinetic sculpture deformations to a warm, melodic Web Audio arpeggiator engine.
  * 
  * Sliders (opaque iconography with tooltips):
  * 1. Sprout  - Node / vertex count <-> Arpeggio note count & loop meter (3..12)
@@ -125,33 +125,16 @@
       this.origVertices = null;
       this.pointLight1 = null;
       this.pointLight2 = null;
-
-      // Radiating Luma Waves (Surface vertex ripples)
-      this.ripples = [];
-      for (let i = 0; i < 8; i++) {
-        this.ripples.push({
-          active: false,
-          origin: new THREE.Vector3(),
-          age: -1.0,
-          speed: 2.2
-        });
-      }
-      this.rippleHead = 0;
-      this.lastFrameTime = performance.now();
-
-      this.rippleUniforms = {
-        uRippleOrigins: {
-          value: [
-            new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(),
-            new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()
-          ]
-        },
-        uRippleAges: { value: new Float32Array(8).fill(-1.0) },
-        uLumaColor: { value: new THREE.Color(0x00f2fe) }
-      };
-
       this.nodeLight = null;
       this.nodeLightIntensity = 0.0;
+
+      // Facet Adjacency Graph & Stepped Luma Pulses
+      this.triNeighbors = [];
+      this.triCentroids = [];
+      this.triBrightness = null;
+      this.activePulses = [];
+      this.vertexColors = null;
+      this.lastFrameTime = performance.now();
 
       this.init3D();
       this.initUI();
@@ -160,7 +143,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 1. THREE.JS 3D SCENE & HIGH-DENSITY GEODESIC GEOMETRY
+    // 1. THREE.JS 3D SCENE & FACETED METALLIC SCULPTURE
     // ------------------------------------------------------------------------
     init3D() {
       const width = this.container.clientWidth || 640;
@@ -197,74 +180,37 @@
       this.pointLight2.position.set(5, 4, -3);
       this.scene.add(this.pointLight2);
 
-      // Geodesic Icosahedron (detail: 5 = 10,240 smooth, uniformly distributed faces)
-      this.baseGeometry = new THREE.IcosahedronGeometry(2.1, 5);
+      // Non-indexed Geodesic Icosahedron (1,280 independent flat triangular facets)
+      // Allows individual facets to illuminate crisp and stepped like a kinetic jewel
+      const indexedGeo = new THREE.IcosahedronGeometry(2.1, 3);
+      this.baseGeometry = indexedGeo.toNonIndexed();
+      indexedGeo.dispose();
+
       const posAttr = this.baseGeometry.attributes.position;
+      const count = posAttr.count; // 3840 vertices (1280 triangles)
       this.origVertices = new Float32Array(posAttr.array);
 
-      // Seamless metallic material with custom GPU shader for radiating luma waves
+      // Dynamic vertex colors array for per-facet stepped luma illumination
+      this.vertexColors = new Float32Array(count * 3);
+      this.baseGeometry.setAttribute('color', new THREE.BufferAttribute(this.vertexColors, 3));
+
+      // Build topological graph adjacency between triangular facets
+      this.buildFacetAdjacency();
+
+      // Flat-shaded reflective metallic material
       this.material = new THREE.MeshStandardMaterial({
-        color: 0x8a929e,
-        metalness: 0.94,
-        roughness: 0.16,
-        emissive: 0x000000,
-        emissiveIntensity: 0.0,
-        flatShading: false
+        color: 0xffffff,
+        metalness: 0.92,
+        roughness: 0.18,
+        flatShading: true,
+        vertexColors: true
       });
-
-      this.material.onBeforeCompile = (shader) => {
-        shader.uniforms.uRippleOrigins = this.rippleUniforms.uRippleOrigins;
-        shader.uniforms.uRippleAges = this.rippleUniforms.uRippleAges;
-        shader.uniforms.uLumaColor = this.rippleUniforms.uLumaColor;
-
-        shader.vertexShader = `
-          varying vec3 vLocalPos;
-        ` + shader.vertexShader;
-
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          `
-          #include <begin_vertex>
-          vLocalPos = transformed;
-          `
-        );
-
-        shader.fragmentShader = `
-          varying vec3 vLocalPos;
-          uniform vec3 uRippleOrigins[8];
-          uniform float uRippleAges[8];
-          uniform vec3 uLumaColor;
-        ` + shader.fragmentShader;
-
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <emissivemap_fragment>',
-          `
-          #include <emissivemap_fragment>
-          vec3 lumaAccum = vec3(0.0);
-          for (int i = 0; i < 8; i++) {
-            float age = uRippleAges[i];
-            if (age >= 0.0 && age < 1.0) {
-              float d = distance(vLocalPos, uRippleOrigins[i]);
-              float waveRadius = age * 1.5;
-              // Radiant wavefront ring radiating out across vertices
-              float ring = exp(-pow((d - waveRadius) * 4.5, 2.0));
-              // Soft warm origin core
-              float core = exp(-d * 3.0) * (1.0 - age);
-              // Composite luma fading as it expands
-              float intensity = (ring * 1.6 + core * 2.4) * pow(1.0 - age, 1.6);
-              lumaAccum += uLumaColor * intensity;
-            }
-          }
-          totalEmissiveRadiance += lumaAccum;
-          `
-        );
-      };
 
       this.mesh = new THREE.Mesh(this.baseGeometry, this.material);
       this.scene.add(this.mesh);
 
-      // Localized point light at active ripple origin
-      this.nodeLight = new THREE.PointLight(0x00f2fe, 0.0, 4.0, 2.0);
+      // Localized point light at the active origin facet
+      this.nodeLight = new THREE.PointLight(0x00f2fe, 0.0, 4.5, 2.0);
       this.mesh.add(this.nodeLight);
 
       // Mouse / Touch Orbit Interaction
@@ -303,6 +249,87 @@
 
       // Start render loop
       this.animate();
+    }
+
+    buildFacetAdjacency() {
+      const posAttr = this.baseGeometry.attributes.position;
+      const count = posAttr.count;
+      const triCount = count / 3;
+
+      // Group triangles by shared vertex positions
+      const vertexMap = new Map();
+      for (let i = 0; i < count; i++) {
+        const x = Math.round(posAttr.getX(i) * 200);
+        const y = Math.round(posAttr.getY(i) * 200);
+        const z = Math.round(posAttr.getZ(i) * 200);
+        const key = `${x},${y},${z}`;
+        const triIdx = Math.floor(i / 3);
+
+        if (!vertexMap.has(key)) {
+          vertexMap.set(key, [triIdx]);
+        } else {
+          vertexMap.get(key).push(triIdx);
+        }
+      }
+
+      // Adjacency sets (triangles sharing at least one vertex = 1 step away)
+      const neighbors = [];
+      for (let t = 0; t < triCount; t++) {
+        neighbors.push(new Set());
+      }
+
+      vertexMap.forEach((triList) => {
+        const len = triList.length;
+        for (let a = 0; a < len; a++) {
+          for (let b = a + 1; b < len; b++) {
+            const tA = triList[a];
+            const tB = triList[b];
+            neighbors[tA].add(tB);
+            neighbors[tB].add(tA);
+          }
+        }
+      });
+
+      this.triNeighbors = neighbors.map(set => Array.from(set));
+
+      // Centroids for origin lookup
+      this.triCentroids = [];
+      for (let t = 0; t < triCount; t++) {
+        const i = t * 3;
+        const cx = (posAttr.getX(i) + posAttr.getX(i + 1) + posAttr.getX(i + 2)) / 3;
+        const cy = (posAttr.getY(i) + posAttr.getY(i + 1) + posAttr.getY(i + 2)) / 3;
+        const cz = (posAttr.getZ(i) + posAttr.getZ(i + 1) + posAttr.getZ(i + 2)) / 3;
+        const len = Math.sqrt(cx * cx + cy * cy + cz * cz) || 1;
+        this.triCentroids.push(new THREE.Vector3(cx / len, cy / len, cz / len));
+      }
+
+      // Pre-allocate triangle brightness tracker
+      this.triBrightness = new Float32Array(triCount);
+      this.activePulses = [];
+    }
+
+    getFacetSteps(originTriIdx, maxSteps = 3) {
+      const steps = new Map();
+      steps.set(originTriIdx, 0);
+      let queue = [originTriIdx];
+
+      for (let d = 1; d <= maxSteps; d++) {
+        const nextQueue = [];
+        for (let q = 0; q < queue.length; q++) {
+          const t = queue[q];
+          const nbrs = this.triNeighbors[t];
+          if (!nbrs) continue;
+          for (let j = 0; j < nbrs.length; j++) {
+            const nb = nbrs[j];
+            if (!steps.has(nb)) {
+              steps.set(nb, d);
+              nextQueue.push(nb);
+            }
+          }
+        }
+        queue = nextQueue;
+      }
+      return steps;
     }
 
     onSlideEnter() {
@@ -390,15 +417,10 @@
       const idx = Math.min(SCALES.length - 1, Math.floor(t * SCALES.length));
       const scaleObj = SCALES[idx];
 
-      this.material.color.setHex(scaleObj.color);
       this.material.roughness = 0.12 + (1.0 - this.params.bloat) * 0.10 + this.params.bump * 0.10;
 
       if (this.pointLight1) this.pointLight1.color.setHex(scaleObj.emissive);
       if (this.pointLight2) this.pointLight2.color.setHex(scaleObj.emissive);
-
-      if (this.rippleUniforms) {
-        this.rippleUniforms.uLumaColor.value.setHex(scaleObj.emissive);
-      }
 
       if (this.delayFeedback && this.audioCtx) {
         this.delayFeedback.gain.setTargetAtTime(scaleObj.delayFeedback, this.audioCtx.currentTime, 0.05);
@@ -439,26 +461,69 @@
           this.mesh.rotation.z += tumbleSpeed * 0.30;
         }
 
-        // Calculate delta time for smooth wave expansion
+        // Advance active facet pulses and calculate stepped brightness
+        // Step brightness falloff curve: root facet is 1.0, adjacent is 0.65, next is 0.35, edge is 0.12
+        const STEP_FALLOFF = [1.0, 0.65, 0.35, 0.12];
+
+        if (this.triBrightness) {
+          this.triBrightness.fill(0);
+        }
+
         const now = performance.now();
         const dt = Math.min(0.05, (now - this.lastFrameTime) * 0.001);
         this.lastFrameTime = now;
 
-        // Advance radiating luma ripples across surface vertices
-        for (let i = 0; i < 8; i++) {
-          const r = this.ripples[i];
-          if (r.active) {
-            r.age += r.speed * dt;
-            if (r.age >= 1.0) {
-              r.active = false;
-              r.age = -1.0;
+        for (let pIdx = this.activePulses.length - 1; pIdx >= 0; pIdx--) {
+          const pulse = this.activePulses[pIdx];
+          pulse.life -= pulse.decaySpeed * dt;
+          if (pulse.life <= 0) {
+            this.activePulses.splice(pIdx, 1);
+            continue;
+          }
+
+          pulse.facets.forEach((stepDepth, triIdx) => {
+            if (stepDepth < STEP_FALLOFF.length && triIdx < this.triBrightness.length) {
+              const b = pulse.life * STEP_FALLOFF[stepDepth];
+              if (b > this.triBrightness[triIdx]) {
+                this.triBrightness[triIdx] = b;
+              }
             }
-          }
-          if (this.rippleUniforms) {
-            this.rippleUniforms.uRippleAges.value[i] = r.age;
-            this.rippleUniforms.uRippleOrigins.value[i].copy(r.origin);
-          }
+          });
         }
+
+        // Update vertex colors array for individual facet lighting
+        const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
+        const scaleObj = SCALES[tIdx];
+
+        const baseC = new THREE.Color(scaleObj.color);
+        const lumaC = new THREE.Color(scaleObj.emissive);
+
+        const colorAttr = this.baseGeometry.attributes.color;
+        const colorArr = colorAttr.array;
+        const triCount = this.triBrightness.length;
+
+        for (let t = 0; t < triCount; t++) {
+          const b = this.triBrightness[t];
+          let r, g, bl;
+          if (b > 0.001) {
+            // Facet lights up with neon radiance, scaling by stepped falloff
+            r = Math.min(1.0, baseC.r * 0.3 + lumaC.r * b * 1.7);
+            g = Math.min(1.0, baseC.g * 0.3 + lumaC.g * b * 1.7);
+            bl = Math.min(1.0, baseC.b * 0.3 + lumaC.b * b * 1.7);
+          } else {
+            // Resting metallic facet
+            r = baseC.r;
+            g = baseC.g;
+            bl = baseC.b;
+          }
+
+          const vBase = t * 9; // 3 vertices * 3 components
+          colorArr[vBase]     = r;  colorArr[vBase + 1] = g;  colorArr[vBase + 2] = bl;
+          colorArr[vBase + 3] = r;  colorArr[vBase + 4] = g;  colorArr[vBase + 5] = bl;
+          colorArr[vBase + 6] = r;  colorArr[vBase + 7] = g;  colorArr[vBase + 8] = bl;
+        }
+
+        colorAttr.needsUpdate = true;
 
         // Localized point light decay
         if (this.nodeLightIntensity > 0.01) {
@@ -474,56 +539,61 @@
       this.renderer.render(this.scene, this.camera);
     }
 
-    triggerLumaRipple(stepIdx, interval, isDownbeat, scaleObj) {
+    triggerFacetPulse(stepIdx, interval, isDownbeat, scaleObj) {
+      if (!this.triCentroids || this.triCentroids.length === 0) return;
+
       const N = Math.round(this.params.sprout);
       const lobeIdx = stepIdx % N;
 
-      // Base azimuth angle for this lobe
+      // Azimuth angle for this lobe
       const theta = (2 * Math.PI * lobeIdx) / N;
 
-      // Elevation maps organically to the note pitch interval in the scale
+      // Elevation maps subtly to note pitch interval in the scale
       const pitchRatio = Math.min(1.0, Math.max(0.0, (interval || 0) / 20));
-      const ny = -0.35 + pitchRatio * 0.70;
+      const ny = -0.40 + pitchRatio * 0.80;
 
-      // Compute exact 3D coordinates of the target vertex on the deformed mesh surface
+      // Target direction on the unit sphere
       const twistRate = this.params.twist * 4.6;
       const spiralTheta = theta + ny * twistRate;
+      const cosPhi = Math.sqrt(Math.max(0.01, 1.0 - ny * ny));
+      const targetDir = new THREE.Vector3(
+        Math.cos(spiralTheta) * cosPhi,
+        ny,
+        Math.sin(spiralTheta) * cosPhi
+      ).normalize();
 
-      const bloatAmt = 0.55 + this.params.bloat * 0.85;
-      const spikeAmt = this.params.spike;
-      const yScale = 1.30 - this.params.bloat * 0.55;
-
-      const phi = Math.asin(Math.max(-1, Math.min(1, ny)));
-      const cosPhi = Math.cos(phi);
-
-      const rawLobe = 0.45 + 0.55 * cosPhi;
-      const power = Math.max(0.7, 2.2 - spikeAmt * 1.3);
-      const rRib = 1.0 + Math.pow(rawLobe, power) * (0.22 + spikeAmt * 0.42);
-      const finalR = 2.05 * bloatAmt * rRib;
-
-      const origin = new THREE.Vector3(
-        finalR * Math.cos(spiralTheta),
-        ny * 2.1 * bloatAmt * yScale,
-        finalR * Math.sin(spiralTheta)
-      );
-
-      // Trigger radiating ripple in ring buffer
-      const r = this.ripples[this.rippleHead];
-      r.active = true;
-      r.origin.copy(origin);
-      r.age = 0.0;
-      r.speed = 1.5 + this.params.tumble * 1.8;
-      this.rippleHead = (this.rippleHead + 1) % 8;
-
-      if (this.rippleUniforms) {
-        this.rippleUniforms.uLumaColor.value.setHex(scaleObj.emissive);
+      // Find the triangle whose centroid is closest to target direction
+      let bestTri = 0;
+      let maxDot = -999;
+      for (let t = 0; t < this.triCentroids.length; t++) {
+        const dot = this.triCentroids[t].dot(targetDir);
+        if (dot > maxDot) {
+          maxDot = dot;
+          bestTri = t;
+        }
       }
 
-      // Flash localized point light at the origin vertex
-      if (this.nodeLight) {
-        this.nodeLight.position.copy(origin);
+      // Compute stepped facet cluster (depths 0, 1, 2, 3)
+      const facetSteps = this.getFacetSteps(bestTri, 3);
+
+      this.activePulses.push({
+        facets: facetSteps,
+        life: 1.0,
+        decaySpeed: 3.2 + this.params.tumble * 2.2,
+        scaleObj: scaleObj,
+        isDownbeat: isDownbeat
+      });
+
+      // Position localized point light at origin facet
+      if (this.nodeLight && this.baseGeometry) {
+        const pos = this.baseGeometry.attributes.position;
+        const i = bestTri * 3;
+        const fx = (pos.getX(i) + pos.getX(i + 1) + pos.getX(i + 2)) / 3;
+        const fy = (pos.getY(i) + pos.getY(i + 1) + pos.getY(i + 2)) / 3;
+        const fz = (pos.getZ(i) + pos.getZ(i + 1) + pos.getZ(i + 2)) / 3;
+        this.nodeLight.position.set(fx, fy, fz);
         this.nodeLight.color.setHex(scaleObj.emissive);
-        this.nodeLightIntensity = isDownbeat ? 5.0 : 3.6;
+        this.nodeLightIntensity = isDownbeat ? 4.5 : 3.0;
       }
     }
 
@@ -630,15 +700,24 @@
         this.timerId = null;
       }
 
-      // Reset ripples and light cleanly
+      // Reset pulses and lights cleanly
       if (this.nodeLight) this.nodeLight.intensity = 0.0;
       this.nodeLightIntensity = 0.0;
-      for (let i = 0; i < 8; i++) {
-        this.ripples[i].active = false;
-        this.ripples[i].age = -1.0;
-        if (this.rippleUniforms) {
-          this.rippleUniforms.uRippleAges.value[i] = -1.0;
+      this.activePulses = [];
+      if (this.triBrightness) this.triBrightness.fill(0);
+
+      // Reset vertex colors back to base
+      if (this.baseGeometry && this.baseGeometry.attributes.color) {
+        const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
+        const scaleObj = SCALES[tIdx];
+        const baseC = new THREE.Color(scaleObj.color);
+        const colorArr = this.baseGeometry.attributes.color.array;
+        for (let i = 0; i < colorArr.length; i += 3) {
+          colorArr[i] = baseC.r;
+          colorArr[i + 1] = baseC.g;
+          colorArr[i + 2] = baseC.b;
         }
+        this.baseGeometry.attributes.color.needsUpdate = true;
       }
 
       const btn = document.getElementById('btn-topo-play');
@@ -815,11 +894,11 @@
       oscSaw.stop(time + noteDur + 0.04);
       subOsc.stop(time + noteDur + 0.04);
 
-      // Visual Beat Trigger: radiate luma wave from vertex on corresponding lobe
+      // Visual Beat Trigger: light up individual facets stepping outward with falloff
       const delayMs = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
       setTimeout(() => {
         if (!this.isPlaying) return;
-        this.triggerLumaRipple(stepIdx, interval, isDownbeat, scaleObj);
+        this.triggerFacetPulse(stepIdx, interval, isDownbeat, scaleObj);
       }, delayMs);
     }
 
