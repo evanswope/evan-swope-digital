@@ -106,7 +106,7 @@
         tumble: 0.45   // 0..1 rotation speed / tempo & stereo pan
       };
 
-      // Animation & mesh update flags (prevents 120Hz slider DOM events from starving audio thread)
+      // Animation & mesh update flags
       this.needsMeshUpdate = false;
       this.needsMaterialUpdate = false;
 
@@ -126,10 +126,30 @@
       this.pointLight1 = null;
       this.pointLight2 = null;
 
-      // Node markers & localized flash lighting
-      this.nodeMeshes = [];
-      this.nodeSphereGeo = null;
-      this.nodePulses = new Float32Array(16);
+      // Radiating Luma Waves (Surface vertex ripples)
+      this.ripples = [];
+      for (let i = 0; i < 8; i++) {
+        this.ripples.push({
+          active: false,
+          origin: new THREE.Vector3(),
+          age: -1.0,
+          speed: 2.2
+        });
+      }
+      this.rippleHead = 0;
+      this.lastFrameTime = performance.now();
+
+      this.rippleUniforms = {
+        uRippleOrigins: {
+          value: [
+            new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(),
+            new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()
+          ]
+        },
+        uRippleAges: { value: new Float32Array(8).fill(-1.0) },
+        uLumaColor: { value: new THREE.Color(0x00f2fe) }
+      };
+
       this.nodeLight = null;
       this.nodeLightIntensity = 0.0;
 
@@ -182,24 +202,70 @@
       const posAttr = this.baseGeometry.attributes.position;
       this.origVertices = new Float32Array(posAttr.array);
 
+      // Seamless metallic material with custom GPU shader for radiating luma waves
       this.material = new THREE.MeshStandardMaterial({
         color: 0x8a929e,
         metalness: 0.94,
         roughness: 0.16,
         emissive: 0x000000,
-        emissiveIntensity: 0.02,
+        emissiveIntensity: 0.0,
         flatShading: false
       });
+
+      this.material.onBeforeCompile = (shader) => {
+        shader.uniforms.uRippleOrigins = this.rippleUniforms.uRippleOrigins;
+        shader.uniforms.uRippleAges = this.rippleUniforms.uRippleAges;
+        shader.uniforms.uLumaColor = this.rippleUniforms.uLumaColor;
+
+        shader.vertexShader = `
+          varying vec3 vLocalPos;
+        ` + shader.vertexShader;
+
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `
+          #include <begin_vertex>
+          vLocalPos = transformed;
+          `
+        );
+
+        shader.fragmentShader = `
+          varying vec3 vLocalPos;
+          uniform vec3 uRippleOrigins[8];
+          uniform float uRippleAges[8];
+          uniform vec3 uLumaColor;
+        ` + shader.fragmentShader;
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <emissivemap_fragment>',
+          `
+          #include <emissivemap_fragment>
+          vec3 lumaAccum = vec3(0.0);
+          for (int i = 0; i < 8; i++) {
+            float age = uRippleAges[i];
+            if (age >= 0.0 && age < 1.0) {
+              float d = distance(vLocalPos, uRippleOrigins[i]);
+              float waveRadius = age * 1.5;
+              // Radiant wavefront ring radiating out across vertices
+              float ring = exp(-pow((d - waveRadius) * 4.5, 2.0));
+              // Soft warm origin core
+              float core = exp(-d * 3.0) * (1.0 - age);
+              // Composite luma fading as it expands
+              float intensity = (ring * 1.6 + core * 2.4) * pow(1.0 - age, 1.6);
+              lumaAccum += uLumaColor * intensity;
+            }
+          }
+          totalEmissiveRadiance += lumaAccum;
+          `
+        );
+      };
 
       this.mesh = new THREE.Mesh(this.baseGeometry, this.material);
       this.scene.add(this.mesh);
 
-      // Localized Node Point Light (parented to mesh so it moves in local space with active node)
+      // Localized point light at active ripple origin
       this.nodeLight = new THREE.PointLight(0x00f2fe, 0.0, 4.0, 2.0);
       this.mesh.add(this.nodeLight);
-
-      // Shared sphere geometry for node pearl markers
-      this.nodeSphereGeo = new THREE.SphereGeometry(0.14, 16, 16);
 
       // Mouse / Touch Orbit Interaction
       const dom = this.renderer.domElement;
@@ -251,7 +317,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 2. PROCEDURAL 3D TOPOLOGY DEFORMATION & LOCALIZED NODE MARKERS
+    // 2. PROCEDURAL 3D TOPOLOGY DEFORMATION (Fluid Chrome Kinetic Sculpture)
     // ------------------------------------------------------------------------
     updateMeshGeometry() {
       if (!this.mesh) return;
@@ -259,7 +325,7 @@
       const pos = posAttr.array;
       const orig = this.origVertices;
 
-      const N = Math.round(this.params.sprout); // 3 to 12 fluted lobes & nodes
+      const N = Math.round(this.params.sprout); // 3 to 12 fluted lobes
       const twistRate = this.params.twist * 4.6; // True helical torsion
       const bloatAmt = 0.55 + this.params.bloat * 0.85; // Slender spindle to bulbous gourd
       const spikeAmt = this.params.spike; // 0..1 sharpness
@@ -316,55 +382,6 @@
 
       posAttr.needsUpdate = true;
       this.baseGeometry.computeVertexNormals();
-
-      // Update physical node pearl markers positioned at each lobe's apex
-      this.updateNodeMarkers(N, bloatAmt, spikeAmt, bumpAmt);
-    }
-
-    updateNodeMarkers(N, bloatAmt, spikeAmt, bumpAmt) {
-      if (!this.mesh) return;
-
-      if (!this.nodePulses || this.nodePulses.length < N) {
-        this.nodePulses = new Float32Array(N);
-      }
-
-      const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
-      const scaleObj = SCALES[tIdx];
-
-      // Re-create node orbs if count changed
-      if (this.nodeMeshes.length !== N) {
-        this.nodeMeshes.forEach(m => {
-          this.mesh.remove(m);
-          if (m.material) m.material.dispose();
-        });
-        this.nodeMeshes = [];
-
-        for (let k = 0; k < N; k++) {
-          const mat = new THREE.MeshStandardMaterial({
-            color: scaleObj.color,
-            metalness: 0.90,
-            roughness: 0.15,
-            emissive: scaleObj.emissive,
-            emissiveIntensity: 0.25,
-            flatShading: false
-          });
-          const nodeMesh = new THREE.Mesh(this.nodeSphereGeo, mat);
-          this.mesh.add(nodeMesh);
-          this.nodeMeshes.push(nodeMesh);
-        }
-      }
-
-      // Position each node marker precisely on the outer apex/crest of its lobe
-      const rRib = 1.0 + (0.22 + spikeAmt * 0.42);
-      const finalR = 2.05 * bloatAmt * rRib * 1.01 + (bumpAmt * 0.04);
-
-      for (let k = 0; k < N; k++) {
-        const angle = (2 * Math.PI * k) / N;
-        const x = finalR * Math.cos(angle);
-        const y = 0;
-        const z = finalR * Math.sin(angle);
-        this.nodeMeshes[k].position.set(x, y, z);
-      }
     }
 
     updateMaterialProperties() {
@@ -375,19 +392,13 @@
 
       this.material.color.setHex(scaleObj.color);
       this.material.roughness = 0.12 + (1.0 - this.params.bloat) * 0.10 + this.params.bump * 0.10;
-      this.material.emissive.setHex(scaleObj.emissive);
-      this.material.emissiveIntensity = 0.02;
 
       if (this.pointLight1) this.pointLight1.color.setHex(scaleObj.emissive);
       if (this.pointLight2) this.pointLight2.color.setHex(scaleObj.emissive);
 
-      // Update node orb colors to match scale
-      this.nodeMeshes.forEach(m => {
-        if (m.material) {
-          m.material.color.setHex(scaleObj.color);
-          m.material.emissive.setHex(scaleObj.emissive);
-        }
-      });
+      if (this.rippleUniforms) {
+        this.rippleUniforms.uLumaColor.value.setHex(scaleObj.emissive);
+      }
 
       if (this.delayFeedback && this.audioCtx) {
         this.delayFeedback.gain.setTargetAtTime(scaleObj.delayFeedback, this.audioCtx.currentTime, 0.05);
@@ -428,54 +439,91 @@
           this.mesh.rotation.z += tumbleSpeed * 0.30;
         }
 
-        // Localized node flash decay
+        // Calculate delta time for smooth wave expansion
+        const now = performance.now();
+        const dt = Math.min(0.05, (now - this.lastFrameTime) * 0.001);
+        this.lastFrameTime = now;
+
+        // Advance radiating luma ripples across surface vertices
+        for (let i = 0; i < 8; i++) {
+          const r = this.ripples[i];
+          if (r.active) {
+            r.age += r.speed * dt;
+            if (r.age >= 1.0) {
+              r.active = false;
+              r.age = -1.0;
+            }
+          }
+          if (this.rippleUniforms) {
+            this.rippleUniforms.uRippleAges.value[i] = r.age;
+            this.rippleUniforms.uRippleOrigins.value[i].copy(r.origin);
+          }
+        }
+
+        // Localized point light decay
         if (this.nodeLightIntensity > 0.01) {
-          this.nodeLightIntensity *= 0.85;
+          this.nodeLightIntensity *= 0.86;
           if (this.nodeLight) {
             this.nodeLight.intensity = this.nodeLightIntensity;
           }
         } else if (this.nodeLight) {
           this.nodeLight.intensity = 0.0;
         }
-
-        // Update each individual node orb's pulse animation
-        const N = this.nodeMeshes.length;
-        for (let k = 0; k < N; k++) {
-          const m = this.nodeMeshes[k];
-          if (!m) continue;
-
-          if (this.nodePulses[k] > 0.01) {
-            this.nodePulses[k] *= 0.85;
-          } else {
-            this.nodePulses[k] = 0.0;
-          }
-
-          const p = this.nodePulses[k];
-          const s = 1.0 + p * 0.95; // Elastic scale pop on active note
-          m.scale.set(s, s, s);
-          if (m.material) {
-            m.material.emissiveIntensity = 0.25 + p * 4.5; // Brilliant neon flare on active node only
-          }
-        }
       }
 
       this.renderer.render(this.scene, this.camera);
     }
 
-    triggerNodeFlash(stepIdx, scaleObj) {
-      const N = this.nodeMeshes.length;
-      if (N === 0) return;
-      const nodeIdx = stepIdx % N;
+    triggerLumaRipple(stepIdx, interval, isDownbeat, scaleObj) {
+      const N = Math.round(this.params.sprout);
+      const lobeIdx = stepIdx % N;
 
-      // Flash ONLY the specific node from which the note originated
-      this.nodePulses[nodeIdx] = 1.0;
+      // Base azimuth angle for this lobe
+      const theta = (2 * Math.PI * lobeIdx) / N;
 
-      // Position the localized point light right at this node's 3D coordinates
-      if (this.nodeLight && this.nodeMeshes[nodeIdx]) {
-        this.nodeLight.position.copy(this.nodeMeshes[nodeIdx].position);
+      // Elevation maps organically to the note pitch interval in the scale
+      const pitchRatio = Math.min(1.0, Math.max(0.0, (interval || 0) / 20));
+      const ny = -0.35 + pitchRatio * 0.70;
+
+      // Compute exact 3D coordinates of the target vertex on the deformed mesh surface
+      const twistRate = this.params.twist * 4.6;
+      const spiralTheta = theta + ny * twistRate;
+
+      const bloatAmt = 0.55 + this.params.bloat * 0.85;
+      const spikeAmt = this.params.spike;
+      const yScale = 1.30 - this.params.bloat * 0.55;
+
+      const phi = Math.asin(Math.max(-1, Math.min(1, ny)));
+      const cosPhi = Math.cos(phi);
+
+      const rawLobe = 0.45 + 0.55 * cosPhi;
+      const power = Math.max(0.7, 2.2 - spikeAmt * 1.3);
+      const rRib = 1.0 + Math.pow(rawLobe, power) * (0.22 + spikeAmt * 0.42);
+      const finalR = 2.05 * bloatAmt * rRib;
+
+      const origin = new THREE.Vector3(
+        finalR * Math.cos(spiralTheta),
+        ny * 2.1 * bloatAmt * yScale,
+        finalR * Math.sin(spiralTheta)
+      );
+
+      // Trigger radiating ripple in ring buffer
+      const r = this.ripples[this.rippleHead];
+      r.active = true;
+      r.origin.copy(origin);
+      r.age = 0.0;
+      r.speed = 1.5 + this.params.tumble * 1.8;
+      this.rippleHead = (this.rippleHead + 1) % 8;
+
+      if (this.rippleUniforms) {
+        this.rippleUniforms.uLumaColor.value.setHex(scaleObj.emissive);
+      }
+
+      // Flash localized point light at the origin vertex
+      if (this.nodeLight) {
+        this.nodeLight.position.copy(origin);
         this.nodeLight.color.setHex(scaleObj.emissive);
-        const isDownbeat = (stepIdx === 0);
-        this.nodeLightIntensity = isDownbeat ? 6.0 : 4.2;
+        this.nodeLightIntensity = isDownbeat ? 5.0 : 3.6;
       }
     }
 
@@ -582,14 +630,16 @@
         this.timerId = null;
       }
 
-      // Reset node flash states cleanly
+      // Reset ripples and light cleanly
       if (this.nodeLight) this.nodeLight.intensity = 0.0;
       this.nodeLightIntensity = 0.0;
-      if (this.nodePulses) this.nodePulses.fill(0);
-      this.nodeMeshes.forEach(m => {
-        m.scale.set(1, 1, 1);
-        if (m.material) m.material.emissiveIntensity = 0.25;
-      });
+      for (let i = 0; i < 8; i++) {
+        this.ripples[i].active = false;
+        this.ripples[i].age = -1.0;
+        if (this.rippleUniforms) {
+          this.rippleUniforms.uRippleAges.value[i] = -1.0;
+        }
+      }
 
       const btn = document.getElementById('btn-topo-play');
       if (btn) {
@@ -614,7 +664,6 @@
       const now = this.audioCtx.currentTime;
 
       // Resync cleanly if slider drags or main thread jank caused late scheduling
-      // (This guarantees overdue notes NEVER clump together into a clipped burst)
       if (this.nextNoteTime < now) {
         this.nextNoteTime = now + 0.02;
       }
@@ -766,11 +815,11 @@
       oscSaw.stop(time + noteDur + 0.04);
       subOsc.stop(time + noteDur + 0.04);
 
-      // Localized Node Flash Trigger (Flash ONLY the specific node from which the note originated)
+      // Visual Beat Trigger: radiate luma wave from vertex on corresponding lobe
       const delayMs = Math.max(0, (time - this.audioCtx.currentTime) * 1000);
       setTimeout(() => {
         if (!this.isPlaying) return;
-        this.triggerNodeFlash(stepIdx, scaleObj);
+        this.triggerLumaRipple(stepIdx, interval, isDownbeat, scaleObj);
       }, delayMs);
     }
 
@@ -795,7 +844,6 @@
 
         const updateVal = (val) => {
           this.params[key] = isInt ? Math.round(Number(val)) : Number(val);
-          // Decouple audio parameter updates from heavy 3D mesh deformation
           this.needsMeshUpdate = true;
           this.needsMaterialUpdate = true;
         };
