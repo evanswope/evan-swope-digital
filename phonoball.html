@@ -282,6 +282,60 @@
     .tier-step.unlocked .tier-organ {
       color: #fef08a;
     }
+    .tier-step.active-quest {
+      background: rgba(255, 170, 0, 0.22);
+      border-color: #ffaa00;
+      box-shadow: 0 0 12px rgba(255, 170, 0, 0.65);
+      animation: tierQuestPulse 1.1s infinite alternate ease-in-out;
+    }
+    .tier-step.active-quest .tier-lamp {
+      background: #ffaa00;
+      border-color: #ffffff;
+      box-shadow: 0 0 12px #ffaa00, 0 0 20px #ff7700;
+    }
+    .tier-step.active-quest .tier-name {
+      color: #ffeedd;
+      text-shadow: 0 0 8px #ffaa00;
+    }
+    .tier-step.active-quest .tier-organ {
+      color: #ffd8a8;
+    }
+    @keyframes tierQuestPulse {
+      0% { transform: translateY(0); box-shadow: 0 0 6px rgba(255, 170, 0, 0.4); }
+      100% { transform: translateY(-2px); box-shadow: 0 0 16px rgba(255, 170, 0, 0.9); }
+    }
+    .tower-quest-banner {
+      margin-top: 0.30rem;
+      padding: 0.24rem 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      background: linear-gradient(90deg, rgba(28, 14, 5, 0.92), rgba(65, 32, 10, 0.96), rgba(28, 14, 5, 0.92));
+      border: 1px solid var(--gold-bright);
+      border-radius: 4px;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
+    }
+    .quest-label {
+      font-family: var(--font-artdeco);
+      font-size: 0.46rem;
+      color: var(--gold-bright);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      font-weight: 900;
+    }
+    .quest-text {
+      font-family: var(--font-mono);
+      font-size: 0.42rem;
+      color: #ffeedd;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: right;
+    }
     .tower-apex-badge {
       margin-top: 0.35rem;
       padding: 0.2rem 0.5rem;
@@ -726,6 +780,10 @@
             <span class="tier-name">SUMMIT</span>
             <span class="tier-organ">MARDUK</span>
           </div>
+        </div>
+        <div class="tower-quest-banner" id="tower-quest-banner">
+          <span class="quest-label">✦ ACTIVE MISSION ✦</span>
+          <span class="quest-text" id="tower-quest-text">TIER I: QUENCH THE KILNS (PLUNGE SPHERE &amp; HIT INLANE SWITCHES)</span>
         </div>
         <div class="tower-apex-badge" id="tower-apex-badge">
           <span class="apex-icon">★</span>
@@ -2282,6 +2340,43 @@
         osc.start(now);
         osc.stop(now + 0.40);
       }
+
+      // Heavy Metallic Clank when hitting a closed Portcullis Gate
+      playGateClank() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(480, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
+        gain.gain.setValueAtTime(0.40, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.15);
+        this.playNoiseBurst(now, 2200, 0.04, 0.35);
+      }
+
+      // Ball Clattering down off the Upper Mezzanine Platform Shelf
+      playMezzanineDrop() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        [0, 0.04].forEach((delay, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(idx === 0 ? 320 : 220, now + delay);
+          osc.frequency.exponentialRampToValueAtTime(80, now + delay + 0.06);
+          gain.gain.setValueAtTime(0.25, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.07);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + delay);
+          osc.stop(now + delay + 0.08);
+        });
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -2338,6 +2433,11 @@
         };
         this.isMultiballActive = false;
         this.isWizardModeActive = false;
+        this.currentMissionTier = 1;
+        this.tierMultiplier = 1;
+        this.skyRampGate = { isOpen: false, anim: 0, lastHit: 0 };
+        this.shockwaves = [];
+        this.mezzanineDropCooldown = 0;
         this.tierFlashTimer = 0;
         this.lastUnlockedTier = 0;
         this.lightningBolts = [];
@@ -2413,13 +2513,13 @@
           angularSpeed: 0.42
         };
 
-        // Subarea 4: Upper Right Mini-Flipper ("The Palatal Valve" - Cross-table Skill Shot)
+        // Subarea 4: Upper Right Mini-Flipper ("The Palatal Mezzanine Valve" - Cross-table Skill Shot)
         this.upperFlipper = {
-          pivotX: 360,
-          pivotY: 310,
+          pivotX: 355,
+          pivotY: 325,
           length: 46,
-          baseAngle: Math.PI - 0.70, // Rest angle pointing down-left
-          upAngle: Math.PI + 0.40,   // Active flipped angle
+          baseAngle: Math.PI - 0.70, // Rest angle pointing down-left across exit gap
+          upAngle: Math.PI + 0.35,   // Active flipped angle rockets ball up-left
           currentAngle: Math.PI - 0.70,
           isPressed: false,
           angularVelocity: 0,
@@ -2692,6 +2792,7 @@
         this.valF2El = document.getElementById('val-f2');
         this.discoveredListEl = document.getElementById('discovered-words-list');
         this.wordsCountBadge = document.getElementById('words-count-badge');
+        this.towerQuestTextEl = document.getElementById('tower-quest-text');
 
         this.updateHUD();
       }
@@ -3063,6 +3164,92 @@
         this.stormFlashAlpha = 0.35;
       }
 
+      speakAnnouncement(text) {
+        if (!('speechSynthesis' in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const utt = new SpeechSynthesisUtterance(text);
+          utt.rate = 1.02;
+          utt.pitch = 0.92;
+          utt.volume = 0.90;
+          const voices = window.speechSynthesis.getVoices();
+          if (voices && voices.length > 0) {
+            const enVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('David') || v.name.includes('Male')));
+            if (enVoice) utt.voice = enVoice;
+          }
+          window.speechSynthesis.speak(utt);
+        } catch (e) {
+          // Graceful fallback
+        }
+      }
+
+      announceAscension(tierNum) {
+        const proclamations = {
+          1: "Level One built! The kilns of Shinar are ignited. March the Avenue of Lions!",
+          2: "Level Two built! The Avenue of Lions is paved. The Sky-Ramp gate is unsealed!",
+          3: "Level Three built! The Twin Minarets awaken. Enter the Palatal Citadel!",
+          4: "Level Four built! The Royal Colonnade breached. Unseal the Cuneiform Archive!",
+          5: "Level Five built! The Cuneiform Archive secured. Ascend the Sky-Ramp to Heaven!",
+          6: "Level Six built! The Stairway to Heaven traversed. The High Temple gate opens!",
+          7: "Level Seven built! The High Temple of Marduk is conquered! The Wrath of Marduk is unleashed!"
+        };
+        const phrase = proclamations[tierNum];
+        if (phrase) {
+          this.speakAnnouncement(phrase);
+        }
+      }
+
+      getMissionData(tierNum) {
+        const missions = {
+          1: {
+            title: 'TIER I: KILNS OF SHINAR',
+            inst: 'PLUNGE SPHERE & HIT INLANE SWITCHES',
+            target: { x: 88, y: 620 }
+          },
+          2: {
+            title: 'TIER II: AVENUE OF LIONS',
+            inst: 'STRIKE LINGUAL ALTAR & SLINGSHOTS',
+            target: { x: 210, y: 490 }
+          },
+          3: {
+            title: 'TIER III: TWIN MINARETS',
+            inst: 'LOCK IN SCOOP [M] OR SCOOP [N]',
+            target: { x: 54, y: 450 }
+          },
+          4: {
+            title: 'TIER IV: ROYAL COLONNADE',
+            inst: 'HIT DENTAL DROP BANK [D-E-N-T]',
+            target: { x: 92, y: 250 }
+          },
+          5: {
+            title: 'TIER V: CUNEIFORM ARCHIVE',
+            inst: 'LOCK SPHERE IN VELAR VAULT [K]',
+            target: { x: 74, y: 256 }
+          },
+          6: {
+            title: 'TIER VI: STAIRWAY TO HEAVEN',
+            inst: 'SHOOT UNSEALED SKY-RAMP HABITRAIL',
+            target: { x: 78, y: 410 }
+          },
+          7: {
+            title: 'TIER VII: HIGH TEMPLE MARDUK',
+            inst: 'STRIKE APEX VAULT [G] AT SUMMIT',
+            target: { x: 210, y: 34 }
+          }
+        };
+        return missions[tierNum] || missions[7];
+      }
+
+      updateMissionBanner() {
+        if (!this.towerQuestTextEl) return;
+        const m = this.getMissionData(this.currentMissionTier);
+        if (this.isWizardModeActive) {
+          this.towerQuestTextEl.innerHTML = `<span style="color:#ffd700; font-weight:900;">★ WRATH OF MARDUK: CONFUSION OF TONGUES (3X MULTIPLIER) ★</span>`;
+        } else {
+          this.towerQuestTextEl.textContent = `${m.title} (${m.inst})`;
+        }
+      }
+
       unlockTier(tierNum) {
         if (!this.towerTiers || !this.towerTiers[tierNum]) return;
         const tier = this.towerTiers[tierNum];
@@ -3071,25 +3258,57 @@
         tier.unl = true;
         const pts = 1000 * tierNum;
         this.score += pts;
-        this.updateHUD();
+        this.tierMultiplier = Math.max(this.tierMultiplier || 1, tierNum);
+        this.bonusMultiplier = this.tierMultiplier;
 
         this.synth.playTierUnlockChime(tierNum);
+        this.announceAscension(tierNum);
 
         this.tierFlashTimer = performance.now();
         this.lastUnlockedTier = tierNum;
 
+        // Expanding divine energy shockwave from the ascended terrace
+        const shockY = 650 - (tierNum * 65);
+        if (this.shockwaves) {
+          this.shockwaves.push({
+            x: 210,
+            y: shockY,
+            r: 10,
+            maxR: 190,
+            alpha: 1.0,
+            color: '#ffd700'
+          });
+        }
+
+        // Mechanical Portcullis Gate Actuation!
+        if (tierNum >= 2 && this.skyRampGate) {
+          this.skyRampGate.isOpen = true;
+          if (this.synth.playVaultGateServo) this.synth.playVaultGateServo(true);
+        }
+        if (tierNum >= 6 && this.velarVaults && this.velarVaults.gate) {
+          this.velarVaults.gate.isOpen = true;
+          if (this.synth.playVaultGateServo) this.synth.playVaultGateServo(true);
+        }
+
+        // Advance active mission tier
+        if (this.currentMissionTier <= tierNum) {
+          this.currentMissionTier = Math.min(7, tierNum + 1);
+        }
+
         // Visual lightning spark descending to the newly built tier
-        this.spawnLightningBolt(210, 35, 210, 650 - (tierNum * 12));
+        this.spawnLightningBolt(210, 35, 210, shockY);
 
         this.floaters.push({
-          text: `✦ TIER ${tierNum} BUILT: ${tier.name} +${pts.toLocaleString()} ✦`,
+          text: `✦ TIER ${tierNum} ASCENDED: ${tier.name} +${pts.toLocaleString()} (${this.tierMultiplier}X BONUS) ✦`,
           x: 210,
-          y: 280 - (tierNum * 18),
+          y: Math.max(80, shockY - 20),
           vy: -1.1,
           alpha: 1.0,
           isImpressive: true
         });
 
+        this.updateHUD();
+        this.updateMissionBanner();
         this.updateArticulatorLamps();
         this.checkApexAscension();
       }
@@ -3226,8 +3445,16 @@
           for (let i = 1; i <= 7; i++) {
             const stepEl = document.getElementById(`tier-${i}`);
             if (stepEl) {
-              if (this.towerTiers[i] && this.towerTiers[i].unl) stepEl.classList.add('unlocked');
-              else stepEl.classList.remove('unlocked');
+              if (this.towerTiers[i] && this.towerTiers[i].unl) {
+                stepEl.classList.add('unlocked');
+                stepEl.classList.remove('active-quest');
+              } else if (i === this.currentMissionTier && !this.isWizardModeActive) {
+                stepEl.classList.remove('unlocked');
+                stepEl.classList.add('active-quest');
+              } else {
+                stepEl.classList.remove('unlocked');
+                stepEl.classList.remove('active-quest');
+              }
             }
           }
         }
@@ -3600,6 +3827,9 @@
             this.multiplierEl.style.textShadow = '';
           }
         }
+
+        this.updateMissionBanner();
+        this.updateArticulatorLamps();
 
         // Update Discovered Words Tag Card (compact rolling history, no long backlog!)
         if (this.discoveredWords.size === 0) {
@@ -4070,6 +4300,7 @@
           if (this.glottalKickback.anim > 0) this.glottalKickback.anim -= 0.04;
           if (this.glottalKickback.cooldown > 0) this.glottalKickback.cooldown -= dt;
         }
+        if (this.mezzanineDropCooldown > 0) this.mezzanineDropCooldown -= (dt / 16.67);
         if (this.pharynxRamp && this.pharynxRamp.glowAnim > 0) {
           this.pharynxRamp.glowAnim -= 0.03;
         }
@@ -4255,11 +4486,39 @@
         this.collideLineSegment(375, 80, 375, 130, 0.8, b);
         this.collideLineSegment(405, 90, 405, 138, 0.8, b);
 
-        // Vocal Grotto Exit Guide Wire (calibrated return channel feeding down to Right Inlane)
-        this.collideLineSegment(405, 138, 385, 200, 0.8, b);
-        this.collideLineSegment(385, 200, 365, 280, 0.8, b);
-        this.collideLineSegment(365, 280, 348, 370, 0.8, b);
-        this.collideLineSegment(348, 370, 348, 540, 0.8, b);
+        // Subarea 4: Palatal Citadel Mezzanine Platform Rails & Chutes
+        // Right Outer Mezzanine Guide Rail (from Vocal Grotto exit down into Mezzanine Deck)
+        this.collideLineSegment(405, 138, 392, 195, 0.85, b);
+        this.collideLineSegment(392, 195, 392, 315, 0.85, b);
+        this.collideLineSegment(392, 315, 375, 335, 0.85, b);
+        this.collideCircle(375, 335, 3.5, 0.8, b);
+
+        // Left Inner Balustrade Divider Rail (separates Mezzanine Deck from Center Pop Bumpers)
+        this.collideLineSegment(255, 215, 255, 325, 0.82, b);
+        this.collideCircle(255, 215, 4.0, 0.8, b);
+        this.collideCircle(255, 325, 4.0, 0.8, b);
+
+        // Lower Feed Wire Guide below Mezzanine (leading down past Scoop [N] to Right Inlane)
+        this.collideLineSegment(348, 410, 348, 540, 0.8, b);
+
+        // Palatal Mezzanine Drop Chute Detection (x: 255..315, y: 335..360)
+        if (b.x >= 255 && b.x <= 315 && b.y >= 335 && b.y <= 360 && b.vy > 0) {
+          if (this.mezzanineDropCooldown <= 0) {
+            this.mezzanineDropCooldown = 25;
+            this.synth.playMezzanineDrop();
+            this.floaters.push({
+              text: '▾ MEZZANINE DROP ▾',
+              x: 285, y: 375, vy: 0.8, alpha: 0.85, isImpressive: false
+            });
+          }
+        }
+
+        // Sky-Ramp Portcullis Gate Collision (blocks entrance at y=410 when closed)
+        if (this.skyRampGate && !this.skyRampGate.isOpen) {
+          this.collideLineSegment(66, 410, 90, 410, 0.75, b);
+          this.collideCircle(66, 410, 3.5, 0.8, b);
+          this.collideCircle(90, 410, 3.5, 0.8, b);
+        }
 
         // 2.5 THE LEFT ORBIT CHANNEL RAIL (Dedicated Outer Loop up the left flank)
         // Continuous outer corridor from x=20 to x=54 (width 34px, ball diameter 15.6px)
@@ -4927,6 +5186,21 @@
         b = b || this.ball;
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
 
+        // Check if Sky-Ramp Portcullis Gate is sealed (requires Tier II)
+        if (this.skyRampGate && !this.skyRampGate.isOpen) {
+          const ent = this.pharynxRamp.entrance;
+          const dist = Math.hypot(b.x - ent.x, b.y - ent.y);
+          if (dist < ent.r + 8 && b.vy < 0) {
+            b.vy = Math.abs(b.vy) * 0.75 + 2.0;
+            if (this.synth && this.synth.playGateClank) this.synth.playGateClank();
+            this.floaters.push({
+              text: '🔒 SKY-RAMP SEALED • COMPLETE TIER II FIRST',
+              x: 140, y: 395, vy: -0.8, alpha: 1.0, isImpressive: false
+            });
+          }
+          return;
+        }
+
         const ent = this.pharynxRamp.entrance;
         const dist = Math.hypot(b.x - ent.x, b.y - ent.y);
 
@@ -5173,20 +5447,26 @@
         // 1. Vault G Gate Barrier Collision (when closed, blocks entrance at y=38)
         if (!gate.isOpen && b.x > 188 && b.x < 232 && b.y - b.radius < 42 && b.y > 22) {
           b.y = 42 + b.radius;
-          b.vy = Math.abs(b.vy) * 0.75;
+          b.vy = Math.abs(b.vy) * 0.75 + 1.5;
           // Spark off heavy brass gate
-          for (let i = 0; i < 4; i++) {
+          for (let i = 0; i < 6; i++) {
             this.particles.push({
               x: b.x,
               y: 40,
-              vx: (Math.random() - 0.5) * 4,
-              vy: Math.random() * 3,
-              r: 1.5,
+              vx: (Math.random() - 0.5) * 6,
+              vy: Math.random() * 4,
+              r: 1.8,
               alpha: 1.0,
-              color: '#dfb15b'
+              color: '#ffd700'
             });
           }
-          if (this.synth && this.synth.playRolloverClick) this.synth.playRolloverClick();
+          if (this.synth && this.synth.playGateClank) this.synth.playGateClank();
+          this.score += 250;
+          this.updateHUD();
+          this.floaters.push({
+            text: '✦ HIGH TEMPLE GATE +250 (ASCEND TIER VI TO UNSEAL) ✦',
+            x: 210, y: 65, vy: -0.9, alpha: 1.0, isImpressive: false
+          });
         }
 
         // 2. Vault G Capture (at 210, 34 when gate is open)
@@ -5370,6 +5650,22 @@
         this.phonemeStream = [];
         this.renderPhonemeStream();
 
+        // Tally Babel Ascension End-of-Ball Bonus!
+        const unlCount = this.towerTiers ? Object.values(this.towerTiers).filter(t => t.unl).length : 0;
+        if (unlCount > 0) {
+          const mult = this.bonusMultiplier || 1;
+          const ascentBonus = unlCount * 5000 * mult;
+          this.score += ascentBonus;
+          this.floaters.push({
+            text: `✦ BABEL ASCENT BONUS: +${ascentBonus.toLocaleString()} PTS (${unlCount} TIERS x ${mult}X) ✦`,
+            x: 210,
+            y: 480,
+            vy: -1.2,
+            alpha: 1.0,
+            isImpressive: true
+          });
+        }
+
         if (this.ballCount < this.maxBalls) {
           this.ballCount++;
           this.updateHUD();
@@ -5451,8 +5747,23 @@
           this.velarVaults.hold.ball = null;
         }
 
+        this.currentMissionTier = 1;
+        this.tierMultiplier = 1;
+        this.isWizardModeActive = false;
+        this.isMultiballActive = false;
+        if (this.skyRampGate) this.skyRampGate.isOpen = false;
+        this.shockwaves = [];
+        this.mezzanineDropCooldown = 0;
+        if (this.towerTiers) {
+          for (let i = 1; i <= 7; i++) {
+            if (this.towerTiers[i]) this.towerTiers[i].unl = false;
+          }
+        }
+        this.updateArticulatorLamps();
+        this.updateMissionBanner();
+
         this.resetBall();
-        this.showCelebrationBanner('5 SUBAREAS ACTIVE', 0, false, 'SPACE CADET ARCHITECTURE • PULL & RELEASE PLUNGER');
+        this.showCelebrationBanner('ÉTEMENANKI • BABEL', 0, false, 'ASCEND THE 7 TIERS • PULL & RELEASE PLUNGER');
       }
 
       // -----------------------------------------------------------------------
@@ -5468,11 +5779,23 @@
         // 1. The Great Ziggurat of Babel Playfield (Mudbrick Kilns, Glazed Lapis Avenue, Terraces & Storm Sky)
         this.renderZigguratPlayfield(ctx);
 
+        // 1.4 Palatal Citadel Mezzanine Elevated Platform Deck (Subarea 4 3D Raised Shelf)
+        this.renderPalatalMezzanineDeck(ctx);
+
         // 1.5 Subarea Architecture & Monumental Facades (Arches, Battlements, Minarets & Dedication Plaques)
         this.renderSubareaArchitecture(ctx);
 
+        // 1.6 Physical Portcullis Ascension Gates (Sky-Ramp & High Temple)
+        this.renderAscensionGates(ctx);
+
         // 1.7 Central 7-Tier Ziggurat Progress Insert Matrix (Inlaid between Slingshots)
         this.renderZigguratProgressMatrix(ctx);
+
+        // 1.8 Active Mission Guidance & Illuminated Target Chevrons
+        this.renderActiveMissionGuidance(ctx);
+
+        // 1.9 Expanding Ascension Energy Shockwaves
+        this.renderAscensionShockwaves(ctx);
 
         // 2. Pharyngeal Wireform Ramp Drop Shadow (Cast below obstacles)
         this.renderWireformRampShadow(ctx);
@@ -5521,6 +5844,336 @@
 
         // 9. Floating Text & Word Toasts
         this.renderFloaters(ctx);
+      }
+
+      // =======================================================================
+      // SUBAREA 4: THE PALATAL CITADEL MEZZANINE (ELEVATED 3D UPPER DECK)
+      // =======================================================================
+      renderPalatalMezzanineDeck(ctx) {
+        ctx.save();
+        const time = performance.now();
+
+        // 1. Deep cast drop-shadow under the elevated mezzanine deck (onto the lapis tiles below)
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.92)';
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 10;
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.moveTo(255, 215);
+        ctx.lineTo(392, 195);
+        ctx.lineTo(392, 315);
+        ctx.lineTo(375, 335);
+        ctx.lineTo(315, 355);
+        ctx.lineTo(255, 325);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // 2. Raised Mezzanine Deck Surface (Polished Mesopotamian Malachite & Alabaster)
+        const deckGrad = ctx.createLinearGradient(255, 215, 392, 355);
+        deckGrad.addColorStop(0, 'rgba(6, 44, 30, 0.96)');
+        deckGrad.addColorStop(0.5, 'rgba(4, 32, 22, 0.98)');
+        deckGrad.addColorStop(1, 'rgba(2, 20, 14, 0.99)');
+
+        ctx.fillStyle = deckGrad;
+        ctx.beginPath();
+        ctx.moveTo(255, 215);
+        ctx.lineTo(392, 195);
+        ctx.lineTo(392, 315);
+        ctx.lineTo(375, 335);
+        ctx.lineTo(315, 355);
+        ctx.lineTo(255, 325);
+        ctx.closePath();
+        ctx.fill();
+
+        // 3. Ornate Bronze Trim & Beveled Deck Edge
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.0;
+        ctx.stroke();
+
+        // 4. Fine Geometric Paving Grid on Deck
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.18)';
+        ctx.lineWidth = 0.8;
+        for (let gx = 265; gx < 390; gx += 16) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 210);
+          ctx.lineTo(gx, 340);
+          ctx.stroke();
+        }
+        for (let gy = 215; gy < 350; gy += 16) {
+          ctx.beginPath();
+          ctx.moveTo(255, gy);
+          ctx.lineTo(390, gy);
+          ctx.stroke();
+        }
+
+        // 5. Left Inner Balustrade Divider (separating Upper Mezzanine from Pop Bumpers)
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(255, 215);
+        ctx.lineTo(255, 325);
+        ctx.stroke();
+
+        // Baluster posts every 18px
+        for (let py = 215; py <= 325; py += 18) {
+          ctx.beginPath();
+          ctx.arc(255, py, 3.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#dfb15b';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+        }
+
+        // 6. Right Outer Mezzanine Guide Rail
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(405, 138);
+        ctx.lineTo(392, 195);
+        ctx.lineTo(392, 315);
+        ctx.lineTo(375, 335);
+        ctx.stroke();
+
+        // 7. Mezzanine Drop Chute Hazard Markings (Exit gap: x: 255..315, y: 325..355)
+        const dropPulse = 0.5 + 0.5 * Math.sin(time * 0.007);
+        ctx.font = '900 0.42rem "Space Mono", monospace';
+        ctx.fillStyle = `rgba(239, 68, 68, ${0.45 + 0.4 * dropPulse})`;
+        ctx.textAlign = 'center';
+        ctx.fillText('▼ CHUTE EXIT ▼', 285, 346);
+
+        // 8. Flipper Bushing & Mount Plate
+        ctx.beginPath();
+        ctx.arc(355, 325, 9.0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(20, 20, 20, 0.85)';
+        ctx.fill();
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 9. Mezzanine Dedication Plaque on Deck Floor
+        ctx.font = '900 0.44rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.88)';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 6;
+        ctx.fillText('✦ PALATAL MEZZANINE ✦', 324, 230);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 0.30rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.70)';
+        ctx.fillText('ELEVATED CITADEL DECK', 324, 239);
+
+        ctx.restore();
+      }
+
+      // =======================================================================
+      // PHYSICAL PORTCULLIS ASCENSION GATES (MECHANICAL LEVEL BARRIERS)
+      // =======================================================================
+      renderAscensionGates(ctx) {
+        ctx.save();
+        const time = performance.now();
+
+        // A. SKY-RAMP PORTCULLIS GATE (Entrance to Habitrail at x: 78, y: 410)
+        const isSkyOpen = this.skyRampGate && this.skyRampGate.isOpen;
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(62, 388, 32, 26, 4);
+        else ctx.rect(62, 388, 32, 26);
+        ctx.fill();
+        ctx.strokeStyle = isSkyOpen ? '#10b981' : '#dfb15b';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        if (!isSkyOpen) {
+          // Closed Spiked Iron Portcullis Bars
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 2.0;
+          for (let bx = 67; bx <= 89; bx += 5.5) {
+            ctx.beginPath();
+            ctx.moveTo(bx, 390);
+            ctx.lineTo(bx, 412);
+            // Spiked arrow tip
+            ctx.lineTo(bx - 1.5, 415);
+            ctx.lineTo(bx, 417);
+            ctx.lineTo(bx + 1.5, 415);
+            ctx.lineTo(bx, 412);
+            ctx.stroke();
+          }
+          // Cross tie beam
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 3.0;
+          ctx.beginPath();
+          ctx.moveTo(64, 402);
+          ctx.lineTo(92, 402);
+          ctx.stroke();
+
+          // Red Lock Gem
+          ctx.beginPath();
+          ctx.arc(78, 396, 3.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#ef4444';
+          ctx.fill();
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 8;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          ctx.font = '900 0.32rem "Space Mono", monospace';
+          ctx.fillStyle = '#f87171';
+          ctx.textAlign = 'center';
+          ctx.fillText('SEALED [II]', 78, 426);
+        } else {
+          // Retracted Gate with Green Clearance Beacons & Runway Chevrons
+          const gatePulse = 0.5 + 0.5 * Math.sin(time * 0.009);
+          ctx.beginPath();
+          ctx.arc(78, 396, 3.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#10b981';
+          ctx.fill();
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Glowing entrance chevrons
+          ctx.font = '900 0.44rem "Space Mono", monospace';
+          ctx.fillStyle = `rgba(52, 211, 153, ${0.4 + 0.45 * gatePulse})`;
+          ctx.textAlign = 'center';
+          ctx.fillText('▲', 78, 416);
+          ctx.font = '700 0.30rem "Space Mono", monospace';
+          ctx.fillStyle = '#a7f3d0';
+          ctx.fillText('UNSEALED', 78, 426);
+        }
+
+        // B. SUMMIT HIGH TEMPLE GATE OF MARDUK (At Vault G at x: 210, y: 34)
+        const isSummitOpen = this.velarVaults && this.velarVaults.gate && this.velarVaults.gate.isOpen;
+        if (!isSummitOpen) {
+          // Golden Horns of Marduk Heavy Portcullis
+          ctx.save();
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2.5;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 10;
+
+          // Vertical golden bars
+          for (let gx = 194; gx <= 226; gx += 8) {
+            ctx.beginPath();
+            ctx.moveTo(gx, 22);
+            ctx.lineTo(gx, 44);
+            ctx.stroke();
+          }
+          // Horizontal heavy tie bar
+          ctx.beginPath();
+          ctx.moveTo(190, 34);
+          ctx.lineTo(230, 34);
+          ctx.stroke();
+
+          // Sacred Seal of Marduk Gem in center
+          ctx.beginPath();
+          ctx.arc(210, 34, 5.0, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd700';
+          ctx.fill();
+
+          ctx.font = '900 0.36rem "Cinzel", serif';
+          ctx.fillStyle = '#ffd700';
+          ctx.textAlign = 'center';
+          ctx.fillText('SEAL OF MARDUK', 210, 52);
+          ctx.restore();
+        } else {
+          // Radiant celestial beacon beaming out of the open summit vault!
+          ctx.save();
+          const beamPulse = 0.5 + 0.5 * Math.sin(time * 0.012);
+          const beamGrad = ctx.createRadialGradient(210, 34, 6, 210, 34, 65);
+          beamGrad.addColorStop(0, `rgba(255, 215, 0, ${0.45 + 0.3 * beamPulse})`);
+          beamGrad.addColorStop(0.5, `rgba(251, 191, 36, ${0.20 + 0.2 * beamPulse})`);
+          beamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = beamGrad;
+          ctx.beginPath();
+          ctx.arc(210, 34, 65, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.font = '900 0.42rem "Cinzel", serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 12;
+          ctx.textAlign = 'center';
+          ctx.fillText('★ MARDUK EXPOSED ★', 210, 54);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      // =======================================================================
+      // ACTIVE MISSION RUNWAY GUIDANCE & TARGET INDICATORS
+      // =======================================================================
+      renderActiveMissionGuidance(ctx) {
+        if (this.isWizardModeActive) return;
+        const time = performance.now();
+        const m = this.getMissionData(this.currentMissionTier);
+        if (!m || !m.target) return;
+
+        const tx = m.target.x;
+        const ty = m.target.y;
+        const pulse = 0.5 + 0.5 * Math.sin(time * 0.008);
+
+        ctx.save();
+        // 1. Concentric beacon rings around active mission target
+        ctx.strokeStyle = `rgba(255, 215, 0, ${0.45 + 0.45 * pulse})`;
+        ctx.lineWidth = 2.0 + pulse * 1.5;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(tx, ty, 26 + pulse * 10, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 2. Animated floating beacon label
+        ctx.font = '900 0.48rem "Cinzel", serif';
+        ctx.fillStyle = '#ffd700';
+        ctx.textAlign = 'center';
+        ctx.shadowBlur = 8;
+        ctx.fillText(`▼ ${m.title} ▼`, tx, ty - 34 - pulse * 4);
+        ctx.shadowBlur = 0;
+
+        ctx.font = '700 0.34rem "Space Mono", monospace';
+        ctx.fillStyle = '#ffeedd';
+        ctx.fillText(m.inst, tx, ty - 24 - pulse * 4);
+
+        // 3. Runway pulsing chevrons leading up from the flippers
+        if (ty < 550) {
+          const cy = 600 - ((time * 0.055) % 65);
+          ctx.font = '900 0.55rem "Space Mono", monospace';
+          ctx.fillStyle = `rgba(255, 215, 0, ${0.30 + 0.45 * pulse})`;
+          ctx.fillText('▲', 210, cy);
+          ctx.fillText('▲', 210, cy + 26);
+        }
+        ctx.restore();
+      }
+
+      // =======================================================================
+      // EXPANDING DIVINE ASCENSION ENERGY SHOCKWAVES
+      // =======================================================================
+      renderAscensionShockwaves(ctx) {
+        if (!this.shockwaves || this.shockwaves.length === 0) return;
+        for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+          const sw = this.shockwaves[i];
+          sw.r += 3.8;
+          sw.alpha -= 0.024;
+          if (sw.alpha <= 0 || sw.r >= sw.maxR) {
+            this.shockwaves.splice(i, 1);
+            continue;
+          }
+          ctx.save();
+          ctx.strokeStyle = sw.color || '#ffd700';
+          ctx.lineWidth = 3.2 * sw.alpha;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 16;
+          ctx.globalAlpha = sw.alpha;
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
       }
 
       // THE GREAT ZIGGURAT OF BABEL (ÉTEMENANKI): 7-TIER ARCHITECTURAL PERSPECTIVE
