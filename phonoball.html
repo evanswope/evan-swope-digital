@@ -501,6 +501,17 @@
         </button>
       </div>
 
+      <!-- Game Over Overlay -->
+      <div class="audio-overlay hidden" id="game-over-overlay">
+        <i class="fa-solid fa-trophy" style="font-size: 2.6rem; color: var(--neon-amber); margin-bottom: 0.8rem; filter: drop-shadow(0 0 15px rgba(255,177,66,0.6));"></i>
+        <h2 style="font-family: var(--font-display); letter-spacing: 2px; font-size: 1.5rem; color: #fff;">GAME OVER</h2>
+        <div style="font-family: var(--font-mono); font-size: 1.15rem; color: var(--neon-cyan); margin: 0.6rem 0;" id="game-over-score">FINAL SCORE: 000,000</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">WORDS SYNTHESIZED: 0</div>
+        <button class="overlay-coin-btn" id="btn-play-again">
+          <i class="fa-solid fa-rotate-right"></i> PLAY AGAIN
+        </button>
+      </div>
+
       <!-- Word Celebration Pop-Up -->
       <div class="word-celebration-banner" id="word-banner">
         <div class="banner-title">WORD SYNTHESIZED!</div>
@@ -956,6 +967,23 @@
           }
         }
       }
+
+      // Melancholy / funny descending vocal sigh on drain ("Aww...")
+      playVocalSigh() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        // Pitch slides downward
+        this.glottalOsc.frequency.setValueAtTime(140, now);
+        this.glottalOsc.frequency.exponentialRampToValueAtTime(70, now + 0.85);
+
+        // Formants glide to open /ɑ/ ("Aww")
+        this.f1Filter.frequency.setValueAtTime(680, now);
+        this.f2Filter.frequency.setValueAtTime(1100, now);
+
+        this.glottalGain.gain.setValueAtTime(0.38, now);
+        this.glottalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -1006,7 +1034,7 @@
         this.leftFlipper = {
           pivotX: 135,
           pivotY: 605,
-          length: 68,
+          length: 74,
           baseAngle: 0.55,   // Rest angle (pointing down-inward)
           upAngle: -0.55,    // Flipped up angle
           currentAngle: 0.55,
@@ -1019,7 +1047,7 @@
         this.rightFlipper = {
           pivotX: 285,
           pivotY: 605,
-          length: 68,
+          length: 74,
           baseAngle: Math.PI - 0.55,
           upAngle: Math.PI + 0.55,
           currentAngle: Math.PI - 0.55,
@@ -1178,6 +1206,16 @@
             this.firePlunger();
           }
         });
+
+        // Play Again Button
+        const playAgainBtn = document.getElementById('btn-play-again');
+        if (playAgainBtn) {
+          playAgainBtn.addEventListener('click', () => {
+            const overlay = document.getElementById('game-over-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            this.restartGame();
+          });
+        }
       }
 
       resetBall() {
@@ -1287,10 +1325,14 @@
         this.updateHUD();
       }
 
-      showCelebrationBanner(word, pts, isBounty) {
+      showCelebrationBanner(word, pts, isBounty, customSub = null) {
         if (this.bannerTimer) clearTimeout(this.bannerTimer);
         this.bannerWordEl.textContent = word;
-        this.bannerPtsEl.textContent = isBounty ? `BOUNTY! +${pts.toLocaleString()} PTS` : `+${pts.toLocaleString()} PTS`;
+        if (customSub) {
+          this.bannerPtsEl.textContent = customSub;
+        } else {
+          this.bannerPtsEl.textContent = isBounty ? `BOUNTY! +${pts.toLocaleString()} PTS` : `+${pts.toLocaleString()} PTS`;
+        }
         this.bannerEl.classList.add('active');
 
         this.bannerTimer = setTimeout(() => {
@@ -1338,35 +1380,44 @@
         this.updateFlipper(this.leftFlipper, true);
         this.updateFlipper(this.rightFlipper, false);
 
-        // 3. Ball Physics & Gravity
+        // 3. Sub-stepping physics (4 steps per frame to completely eliminate tunneling)
+        const subSteps = 4;
+        const subDt = 1.0 / subSteps;
+        const subGravity = this.gravity * subDt;
+
+        for (let s = 0; s < subSteps; s++) {
+          if (this.ball.inPlay) {
+            this.ball.vy += subGravity;
+            this.ball.vx *= Math.pow(0.996, subDt);
+            this.ball.vy *= Math.pow(0.996, subDt);
+
+            this.ball.x += this.ball.vx * subDt;
+            this.ball.y += this.ball.vy * subDt;
+
+            // Ball-to-wall collisions
+            this.handleWallCollisions();
+
+            // Ball-to-bumper collisions
+            this.handleBumperCollisions();
+
+            // Ball-to-flipper collisions
+            this.handleFlipperCollision(this.leftFlipper);
+            this.handleFlipperCollision(this.rightFlipper);
+
+            // Top Spinner
+            this.handleSpinner();
+
+            // Immediate Drain Check (Below flippers: y > 645)
+            if (this.ball.y > 645 && !this.ball.inPlungerLane) {
+              this.handleDrain();
+              break;
+            }
+          }
+        }
+
         if (this.ball.inPlay) {
-          this.ball.vy += this.gravity;
-          this.ball.vx *= 0.996; // Slight air resistance
-          this.ball.vy *= 0.996;
-
-          this.ball.x += this.ball.vx;
-          this.ball.y += this.ball.vy;
-
-          // Ball-to-wall collisions
-          this.handleWallCollisions();
-
-          // Ball-to-bumper collisions
-          this.handleBumperCollisions();
-
-          // Ball-to-flipper collisions
-          this.handleFlipperCollision(this.leftFlipper);
-          this.handleFlipperCollision(this.rightFlipper);
-
-          // Top Spinner
-          this.handleSpinner();
-
           // Continuous Formant Modulation & Vowel Region Detection
           this.evaluateVowelSpace();
-
-          // Ball Drain Check (Between or below flippers)
-          if (this.ball.y > this.height + 25) {
-            this.handleDrain();
-          }
         }
 
         // Decay Bumper Visual Hit Rings
@@ -1535,27 +1586,36 @@
         const distX = b.x - closestX;
         const distY = b.y - closestY;
         const dist = Math.hypot(distX, distY);
+        const hitRadius = b.radius + 6.5;
 
-        if (dist < b.radius + 6) {
-          const nx = distX / (dist || 1);
-          const ny = distY / (dist || 1);
+        if (dist < hitRadius) {
+          // True upward perpendicular normal vector of paddle surface
+          let nx = -dy / Math.sqrt(lenSq);
+          let ny = dx / Math.sqrt(lenSq);
+          // Always orient normal UPWARD toward playfield (ny < 0)
+          if (ny > 0) {
+            nx = -nx;
+            ny = -ny;
+          }
 
-          b.x = closestX + nx * (b.radius + 6);
-          b.y = closestY + ny * (b.radius + 6);
+          // Project ball to top surface (never underneath)
+          b.x = closestX + nx * hitRadius;
+          b.y = closestY + ny * hitRadius;
 
           // Normal collision reflection
           const dot = b.vx * nx + b.vy * ny;
-          b.vx = (b.vx - 2 * dot * nx) * 0.7;
-          b.vy = (b.vy - 2 * dot * ny) * 0.7;
+          if (dot < 0) {
+            b.vx = (b.vx - 1.8 * dot * nx) * 0.82;
+            b.vy = (b.vy - 1.8 * dot * ny) * 0.82;
+          }
 
-          // Add rotational kinetic impulse from flipper stroke
-          if (flipper.isPressed && Math.abs(flipper.angularVelocity) > 0.05) {
-            const rotationalSpeed = flipper.angularVelocity * flipper.length * (0.6 + t * 0.8);
-            const perpX = -Math.sin(flipper.currentAngle);
-            const perpY = Math.cos(flipper.currentAngle);
+          // Add rotational kinetic impulse from active flipper stroke
+          if (flipper.isPressed && Math.abs(flipper.angularVelocity) > 0.02) {
+            const tipRatio = 0.35 + t * 0.95;
+            const paddleSpeed = Math.abs(flipper.angularVelocity) * flipper.length * tipRatio;
 
-            b.vx += perpX * rotationalSpeed * 0.8;
-            b.vy += perpY * rotationalSpeed * 0.8 - 4.5; // Upward launch pop
+            b.vx += nx * paddleSpeed * 0.9;
+            b.vy += ny * paddleSpeed * 1.3 - 4.2; // Clean upward pop!
             this.synth.triggerConsonant('B'); // Bouncy flipper hit
           }
         }
@@ -1618,19 +1678,60 @@
       }
 
       handleDrain() {
-        this.synth.triggerConsonant('D');
-        this.ballCount++;
+        if (!this.ball.inPlay) return;
+        this.ball.inPlay = false;
+
+        // Descending vocal sigh "Aww..."
+        this.synth.playVocalSigh();
         this.phonemeStream = [];
         this.renderPhonemeStream();
 
-        if (this.ballCount > this.maxBalls) {
-          this.isGameOver = true;
-          this.ball.inPlay = false;
-          this.ballCount = 1;
-        } else {
+        if (this.ballCount < this.maxBalls) {
+          this.ballCount++;
+          this.updateHUD();
+
+          // Flash HUD toast
+          this.showCelebrationBanner(`BALL ${this.ballCount}`, 0, false, 'AUTO-LAUNCHING...');
+
+          // Reset to plunger and auto-launch next ball after 1.2s
           this.resetBall();
+          setTimeout(() => {
+            if (!this.isGameOver) {
+              this.launchBall();
+            }
+          }, 1200);
+        } else {
+          // Game Over!
+          this.isGameOver = true;
+          this.updateHUD();
+          this.resetBall();
+          this.showGameOver();
         }
+      }
+
+      showGameOver() {
+        const overlay = document.getElementById('game-over-overlay');
+        const scoreEl = document.getElementById('game-over-score');
+        const wordsEl = document.getElementById('game-over-words');
+        if (scoreEl) scoreEl.textContent = `FINAL SCORE: ${this.score.toLocaleString()}`;
+        if (wordsEl) wordsEl.textContent = `WORDS SYNTHESIZED: ${this.discoveredWords.size}`;
+        if (overlay) overlay.classList.remove('hidden');
+      }
+
+      restartGame() {
+        const overlay = document.getElementById('game-over-overlay');
+        if (overlay) overlay.classList.add('hidden');
+
+        this.score = 0;
+        this.ballCount = 1;
+        this.isGameOver = false;
+        this.discoveredWords.clear();
+        this.bountyIdx = 0;
+        this.phonemeStream = [];
         this.updateHUD();
+
+        this.resetBall();
+        this.launchBall();
       }
 
       // -----------------------------------------------------------------------
