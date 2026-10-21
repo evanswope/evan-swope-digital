@@ -184,77 +184,140 @@
       animation: pulse-glow 2s infinite ease-in-out;
     }
 
-    /* 5-Articulator Indicator Lamp Matrix */
-    .articulators-panel {
+    /* Tower of Babel Ascension Ziggurat Ladder Gauge */
+    .tower-ascension-panel {
       margin: 0.45rem 0;
-      padding: 0.35rem 0.5rem;
-      background: rgba(4, 7, 16, 0.7);
-      border: 1px solid rgba(223, 177, 91, 0.3);
+      padding: 0.45rem 0.6rem;
+      background: linear-gradient(180deg, rgba(8, 12, 24, 0.85) 0%, rgba(4, 6, 14, 0.95) 100%);
+      border: 1px solid rgba(223, 177, 91, 0.4);
       border-radius: 8px;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.5);
       transition: all 0.3s ease;
+      position: relative;
     }
-    .articulators-title {
-      font-family: var(--font-mono);
-      font-size: 0.52rem;
+    .tower-panel-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+    .tower-panel-title {
+      font-family: var(--font-artdeco);
+      font-size: 0.55rem;
       color: var(--gold-primary);
-      text-align: center;
-      letter-spacing: 1.8px;
-      margin-bottom: 0.25rem;
-      opacity: 0.85;
+      letter-spacing: 2px;
       text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(223, 177, 91, 0.5);
     }
-    .articulators-row {
+    .tower-deco-gem {
+      color: var(--gold-bright);
+      font-size: 0.55rem;
+    }
+    .tower-tiers-ladder {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 0.3rem;
+      gap: 0.35rem;
     }
-    .art-lamp {
+    .tier-step {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       background: rgba(13, 18, 32, 0.85);
-      border: 1px solid rgba(223, 177, 91, 0.2);
+      border: 1px solid rgba(223, 177, 91, 0.22);
       border-radius: 5px;
-      padding: 0.22rem 0.15rem;
-      transition: all 0.25s ease;
+      padding: 0.25rem 0.15rem;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
     }
-    .lamp-bulb {
+    .tier-num {
+      font-family: var(--font-artdeco);
+      font-size: 0.52rem;
+      color: #dfb15b;
+      opacity: 0.75;
+      margin-bottom: 0.1rem;
+    }
+    .tier-lamp {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #232733;
-      border: 1px solid #4a5568;
+      background: #1a2234;
+      border: 1px solid #3e4c66;
       margin-bottom: 0.18rem;
       transition: all 0.25s ease;
     }
-    .lamp-name {
+    .tier-name {
       font-family: var(--font-display);
       font-size: 0.52rem;
       color: #64748b;
       letter-spacing: 0.5px;
+      font-weight: 700;
       transition: color 0.25s ease;
     }
-    .art-lamp.active {
-      border-color: var(--gold-bright);
-      background: rgba(223, 177, 91, 0.18);
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.35);
+    .tier-organ {
+      font-family: var(--font-mono);
+      font-size: 0.40rem;
+      color: #475569;
+      letter-spacing: 0.4px;
     }
-    .art-lamp.active .lamp-bulb {
+    .tier-step.unlocked {
+      background: rgba(223, 177, 91, 0.18);
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
+      transform: translateY(-1px);
+    }
+    .tier-step.unlocked .tier-lamp {
       background: #ffd700;
       border-color: #ffffff;
-      box-shadow: 0 0 10px #ffd700, 0 0 18px #ffb142;
+      box-shadow: 0 0 10px #ffd700, 0 0 20px #ffb142;
     }
-    .art-lamp.active .lamp-name {
+    .tier-step.unlocked .tier-name {
       color: #ffffff;
       text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
-      font-weight: 700;
     }
-    .articulators-panel.all-active {
+    .tier-step.unlocked .tier-organ {
+      color: #fef08a;
+    }
+    .tower-apex-badge {
+      margin-top: 0.35rem;
+      padding: 0.2rem 0.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(223, 177, 91, 0.25);
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    .tower-apex-badge .apex-icon {
+      color: #64748b;
+      font-size: 0.65rem;
+      transition: color 0.3s ease;
+    }
+    .tower-apex-badge .apex-label {
+      font-family: var(--font-artdeco);
+      font-size: 0.52rem;
+      color: #64748b;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+    .tower-apex-badge.multiball-active {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.22), rgba(255, 71, 87, 0.3), rgba(255, 215, 0, 0.22));
       border-color: #ffd700;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.45);
-      animation: pulse-glow 1.5s infinite ease-in-out;
+      box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
+      animation: pulse-glow 1.2s infinite ease-in-out;
+    }
+    .tower-apex-badge.multiball-active .apex-icon {
+      color: #ffd700;
+      text-shadow: 0 0 8px #ffd700;
+    }
+    .tower-apex-badge.multiball-active .apex-label {
+      color: #ffffff;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
     }
 
     /* Phoneme Stream & Vowel Radar Bar */
@@ -593,30 +656,49 @@
         </div>
       </div>
 
-      <!-- 5-Articulator Indicator Lamp Matrix -->
-      <div class="articulators-panel" id="articulators-panel">
-        <div class="articulators-title">⚙ ANATOMICAL ARTICULATORS • MODEL 1928 ⚙</div>
-        <div class="articulators-row">
-          <div id="art-larynx" class="art-lamp" title="Larynx / Vocal Folds: Pitch Prosody F0">
-            <span class="lamp-bulb"></span>
-            <span class="lamp-name">LARYNX</span>
+      <!-- Tower of Babel Ascension Ziggurat Ladder Gauge -->
+      <div class="tower-ascension-panel" id="tower-ascension-panel">
+        <div class="tower-panel-header">
+          <span class="tower-deco-gem">✦</span>
+          <span class="tower-panel-title">BABEL TOWER ASCENSION • MODEL 1928</span>
+          <span class="tower-deco-gem">✦</span>
+        </div>
+        <div class="tower-tiers-ladder">
+          <div id="tier-1" class="tier-step" title="Tier I: Laryngeal Vault (Plunger Launch / Kickback)">
+            <span class="tier-num">I</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">LARYNX</span>
+            <span class="tier-organ">FOLDS</span>
           </div>
-          <div id="art-tongue" class="art-lamp" title="Tongue (Lingua): Vowel Formants F1/F2">
-            <span class="lamp-bulb"></span>
-            <span class="lamp-name">TONGUE</span>
+          <div id="tier-2" class="tier-step" title="Tier II: Labial Gateway (Flippers / [P] Slingshot)">
+            <span class="tier-num">II</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">LIPS</span>
+            <span class="tier-organ">LABIAL</span>
           </div>
-          <div id="art-palate" class="art-lamp" title="Palate & Dental Arch: Velar & Alveolar Stops">
-            <span class="lamp-bulb"></span>
-            <span class="lamp-name">PALATE</span>
+          <div id="tier-3" class="tier-step" title="Tier III: Lingual Plain (Tongue Post / Vowels)">
+            <span class="tier-num">III</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">TONGUE</span>
+            <span class="tier-organ">LINGUA</span>
           </div>
-          <div id="art-lips" class="art-lamp" title="Labial Valves: Bilabial Stops & Flippers">
-            <span class="lamp-bulb"></span>
-            <span class="lamp-name">LIPS</span>
+          <div id="tier-4" class="tier-step" title="Tier IV: Nasal Sanctuary (Lunar [M] & Solar [N])">
+            <span class="tier-num">IV</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">NASAL</span>
+            <span class="tier-organ">CHAMBERS</span>
           </div>
-          <div id="art-nasal" class="art-lamp" title="Nasal Cavity: M & N Resonant Chambers">
-            <span class="lamp-bulb"></span>
-            <span class="lamp-name">NASAL</span>
+          <div id="tier-5" class="tier-step" title="Tier V: Palatal Citadel (Sky-Ramp / Dental Arch)">
+            <span class="tier-num">V</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">PALATE</span>
+            <span class="tier-organ">VELUM</span>
           </div>
+        </div>
+        <div class="tower-apex-badge" id="tower-apex-badge">
+          <span class="apex-icon">★</span>
+          <span class="apex-label" id="apex-label">APEX CROWN: 0/5 TIERS CONQUERED</span>
+          <span class="apex-icon">★</span>
         </div>
       </div>
 
@@ -1449,6 +1531,96 @@
         this.speakWord(word, true);
       }
 
+      // Resonant harmonic chime for Tower of Babel Tier Ascension
+      playTierUnlockChime(tierNum) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const pitches = [
+          [261.63, 523.25],          // Tier 1 (Larynx): C4 / C5
+          [329.63, 659.25],          // Tier 2 (Lips): E4 / E5
+          [392.00, 783.99],          // Tier 3 (Tongue): G4 / G5
+          [493.88, 987.77],          // Tier 4 (Nasal): B4 / B5
+          [523.25, 1046.50, 1318.51] // Tier 5 (Palate): C5 / C6 / E6
+        ];
+        const notes = pitches[Math.min(4, Math.max(0, (tierNum || 1) - 1))];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.05);
+          gain.gain.linearRampToValueAtTime(0.24, now + idx * 0.05 + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.55);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.05);
+          osc.stop(now + idx * 0.05 + 0.60);
+        });
+      }
+
+      // Majestic Grand Fanfare for Polyglot Multiball Apex Event
+      playMultiballFanfare() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const notes = [261.63, 392.00, 523.25, 659.25, 783.99, 1046.50, 1318.51]; // C4, G4, C5, E5, G5, C6, E6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+
+          // Warm lowpass filter for Art Deco vintage brass warmth
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2200, now);
+          filter.Q.value = 3.5;
+
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.07);
+          gain.gain.linearRampToValueAtTime(0.25, now + idx * 0.07 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.07 + 0.75);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.07);
+          osc.stop(now + idx * 0.07 + 0.80);
+        });
+
+        if ('speechSynthesis' in window) {
+          try {
+            window.speechSynthesis.cancel();
+            const utt = new SpeechSynthesisUtterance('Babel Unleashed. Multiball!');
+            utt.rate = 1.0;
+            utt.pitch = 1.15;
+            window.speechSynthesis.speak(utt);
+          } catch(e) {}
+        }
+      }
+
+      // Brilliant Crystalline Jackpot Chime
+      playJackpotChime() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const notes = [1046.50, 1318.51, 1567.98, 2093.00]; // C6, E6, G6, C7
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.04);
+          gain.gain.linearRampToValueAtTime(0.28, now + idx * 0.04 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.04 + 0.65);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.04);
+          osc.stop(now + idx * 0.04 + 0.70);
+        });
+      }
+
       // Melancholy / funny descending vocal sigh on drain ("Aww...")
       playVocalSigh() {
         if (!this.isAudioReady) return;
@@ -1498,6 +1670,24 @@
         };
         this.isHomunculusAwakened = false;
 
+        // The 5-Tier Tower of Babel Ascension System
+        this.towerTiers = {
+          1: { id: 'larynx', name: 'LARYNGEAL VAULT', organ: 'Larynx / Folds', unl: false, icon: '⚡' },
+          2: { id: 'lips',   name: 'LABIAL GATEWAY',  organ: 'Lips / Labials', unl: false, icon: '👄' },
+          3: { id: 'tongue', name: 'LINGUAL PLAIN',   organ: 'Tongue (Lingua)', unl: false, icon: '👅' },
+          4: { id: 'nasal',  name: 'NASAL SANCTUARY', organ: 'Nasal Chambers', unl: false, icon: '🏛' },
+          5: { id: 'palate', name: 'PALATAL CITADEL', organ: 'Palate / Velum', unl: false, icon: '👑' }
+        };
+        this.tierProgress = {
+          flipperFlips: 0,
+          scoopM: false,
+          scoopN: false,
+          vowelsVisited: new Set(),
+          dentalArchCleared: false,
+          rampCompleted: false
+        };
+        this.isMultiballActive = false;
+
         // Phoneme Buffer State
         this.phonemeStream = [];
         this.lastPhonemeTime = 0;
@@ -1505,7 +1695,7 @@
         this.lastVowelToken = null;
         this.lastConsonantTime = 0;
 
-        // Ball Physics
+        // Ball Physics & Multi-Sphere Pool
         this.ball = {
           x: 430,
           y: 560,
@@ -1518,6 +1708,7 @@
           onRamp: false,
           rampProgress: 0
         };
+        this.balls = [ this.ball ];
 
         this.gravity = 0.18;
         this.plungerEnergy = 0;
@@ -1575,14 +1766,14 @@
 
         // Inlane Rollover Wire Switches (Awards +150 & Relights Glottal Kickback)
         this.inlaneRollovers = [
-          { id: 'left',  x: 66,  y: 535, r: 14, lastHit: -9999, anim: 0 },
-          { id: 'right', x: 362, y: 535, r: 14, lastHit: -9999, anim: 0 }
+          { id: 'left',  x: 88,  y: 525, r: 14, lastHit: -9999, anim: 0 },
+          { id: 'right', x: 372, y: 525, r: 14, lastHit: -9999, anim: 0 }
         ];
 
         // The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
         this.pharynxRamp = {
           entrance: { x: 80, y: 350, r: 18 },
-          exit: { x: 350, y: 545 },
+          exit: { x: 368, y: 535 },
           points: [
             { x: 80, y: 350 },   // 0: Entrance Funnel
             { x: 55, y: 250 },   // 1: Left Wall Ascent
@@ -1593,7 +1784,7 @@
             { x: 382, y: 200 },  // 6: Right Habitrail Drop
             { x: 375, y: 350 },  // 7: Mid Drop Track
             { x: 360, y: 470 },  // 8: Lower Habitrail
-            { x: 350, y: 545 }   // 9: Exit onto Right Inlane
+            { x: 368, y: 535 }   // 9: Exit onto Right Inlane Center
           ],
           glowAnim: 0
         };
@@ -1627,12 +1818,12 @@
         this.slingshots = [
           {
             id: 'P', label: 'P', phoneme: 'P', color: '#ffd700',
-            p1: { x: 82, y: 475 }, p2: { x: 124, y: 580 }, p3: { x: 56, y: 545 },
+            p1: { x: 135, y: 475 }, p2: { x: 185, y: 575 }, p3: { x: 105, y: 535 },
             anim: 0
           },
           {
             id: 'D', label: 'D', phoneme: 'D', color: '#dfb15b',
-            p1: { x: 338, y: 475 }, p2: { x: 296, y: 580 }, p3: { x: 364, y: 545 },
+            p1: { x: 325, y: 475 }, p2: { x: 275, y: 575 }, p3: { x: 355, y: 535 },
             anim: 0
           }
         ];
@@ -1726,19 +1917,24 @@
         };
 
         bindPress(leftBtn, 
-          () => { this.leftFlipper.isPressed = true; leftBtn.classList.add('pressed'); },
+          () => { 
+            this.leftFlipper.isPressed = true; 
+            leftBtn.classList.add('pressed'); 
+            this.onFlipperStroke();
+          },
           () => { this.leftFlipper.isPressed = false; leftBtn.classList.remove('pressed'); }
         );
 
         bindPress(rightBtn, 
           () => { 
             this.rightFlipper.isPressed = true; 
-            this.upperFlipper.isPressed = true;
+            if (this.upperFlipper) this.upperFlipper.isPressed = true;
             rightBtn.classList.add('pressed'); 
+            this.onFlipperStroke();
           },
           () => { 
             this.rightFlipper.isPressed = false; 
-            this.upperFlipper.isPressed = false;
+            if (this.upperFlipper) this.upperFlipper.isPressed = false;
             rightBtn.classList.remove('pressed'); 
           }
         );
@@ -1759,11 +1955,13 @@
           if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
             this.leftFlipper.isPressed = true;
             leftBtn.classList.add('pressed');
+            this.onFlipperStroke();
           }
           if (e.code === 'KeyD' || e.code === 'ArrowRight') {
             this.rightFlipper.isPressed = true;
-            this.upperFlipper.isPressed = true;
+            if (this.upperFlipper) this.upperFlipper.isPressed = true;
             rightBtn.classList.add('pressed');
+            this.onFlipperStroke();
           }
           if (e.code === 'Space' || e.code === 'ArrowDown') {
             e.preventDefault();
@@ -1834,6 +2032,8 @@
         this.ball.inPlungerLane = true;
         this.ball.onRamp = false;
         this.ball.rampProgress = 0;
+        this.balls = [ this.ball ];
+        this.isMultiballActive = false;
         if (this.glottalKickback) {
           this.glottalKickback.isLit = true;
           this.glottalKickback.anim = 0;
@@ -1853,8 +2053,9 @@
         this.ball.vy = -18.0;
         this.ball.inPlay = true;
         this.ball.inPlungerLane = true;
+        this.balls = [ this.ball ];
         this.synth.triggerConsonant('P'); // Plunger launch pop
-        this.activateArticulator('larynx');
+        this.unlockTier(1); // Tier I: Laryngeal Vault
       }
 
       firePlunger() {
@@ -1864,48 +2065,199 @@
           this.ball.vy = -power;
           this.ball.inPlay = true;
           this.synth.triggerConsonant('P');
-          this.activateArticulator('larynx');
+          this.unlockTier(1); // Tier I: Laryngeal Vault
         }
         this.plungerEnergy = 0;
       }
 
-      // -----------------------------------------------------------------------
-      // 5-ARTICULATOR SPEECH APPARATUS (ANATOMICAL MATRIX)
-      // -----------------------------------------------------------------------
-      activateArticulator(name) {
-        if (!this.articulators || this.articulators[name]) return;
-        this.articulators[name] = true;
-        this.updateArticulatorLamps();
-        this.checkHomunculusAwakening();
+      onFlipperStroke() {
+        if (this.tierProgress) {
+          this.tierProgress.flipperFlips = (this.tierProgress.flipperFlips || 0) + 1;
+          if (this.tierProgress.flipperFlips >= 3) {
+            this.unlockTier(2); // Tier II: Labial Gateway
+          }
+        }
       }
 
-      checkHomunculusAwakening() {
-        if (this.isHomunculusAwakened) return;
-        const allActive = Object.values(this.articulators).every(v => v === true);
-        if (allActive) {
+      // -----------------------------------------------------------------------
+      // TOWER OF BABEL 5-TIER ASCENSION & SPEECH ORGANS
+      // -----------------------------------------------------------------------
+      activateArticulator(name) {
+        if (!this.articulators) return;
+        this.articulators[name] = true;
+        const tierMap = {
+          larynx: 1,
+          lips: 2,
+          tongue: 3,
+          nasal: 4,
+          palate: 5
+        };
+        const t = tierMap[name];
+        if (t) {
+          this.unlockTier(t);
+        } else {
+          this.updateArticulatorLamps();
+        }
+      }
+
+      unlockTier(tierNum) {
+        if (!this.towerTiers || !this.towerTiers[tierNum]) return;
+        const tier = this.towerTiers[tierNum];
+        if (tier.unl) return; // Already unlocked
+
+        tier.unl = true;
+        if (this.articulators && tier.id) {
+          this.articulators[tier.id] = true;
+        }
+
+        const pts = 500 * tierNum;
+        this.score += pts;
+        this.updateHUD();
+
+        this.synth.playTierUnlockChime(tierNum);
+
+        this.floaters.push({
+          text: `✦ TIER ${tierNum} AWAKENED: ${tier.name} +${pts} ✦`,
+          x: 210,
+          y: 280 - (tierNum * 22),
+          vy: -1.1,
+          alpha: 1.0,
+          isImpressive: true
+        });
+
+        this.updateArticulatorLamps();
+        this.checkApexAscension();
+      }
+
+      checkApexAscension() {
+        if (this.isMultiballActive) return;
+        if (!this.towerTiers) return;
+        const allUnlocked = Object.values(this.towerTiers).every(t => t.unl === true);
+        if (allUnlocked) {
           this.isHomunculusAwakened = true;
-          this.score += 2500;
-          this.updateHUD();
-          this.showCelebrationBanner('HOMUNCULUS AWAKENED!', 2500, true, 'ALL 5 ARTICULATORS ACTIVE • 2X MULTIPLIER!');
-          this.synth.playWordCelebration('HOMUNCULUS');
-          const panel = document.getElementById('articulators-panel');
-          if (panel) panel.classList.add('all-active');
+          this.triggerMultiball();
+        }
+      }
+
+      triggerMultiball() {
+        if (this.isMultiballActive) return;
+        this.isMultiballActive = true;
+        this.score += 5000;
+        this.updateHUD();
+
+        this.showCelebrationBanner('★ POLYGLOT MULTIBALL! ★', 5000, true, '3 SPHERES UNLEASHED • 3X WORDS • 10,000 JACKPOTS!');
+        this.synth.playMultiballFanfare();
+
+        // Release 2 additional silver spheres onto playfield from the Lunar & Solar Wells!
+        const ball2 = {
+          x: 130, y: 375,
+          vx: 3.8, vy: -10.5,
+          radius: 9.5,
+          mass: 1.0,
+          inPlay: true,
+          inPlungerLane: false,
+          onRamp: false,
+          rampProgress: 0,
+          id: 2
+        };
+        const ball3 = {
+          x: 290, y: 375,
+          vx: -3.8, vy: -10.5,
+          radius: 9.5,
+          mass: 1.0,
+          inPlay: true,
+          inPlungerLane: false,
+          onRamp: false,
+          rampProgress: 0,
+          id: 3
+        };
+
+        if (!this.balls || this.balls.length === 0) {
+          this.balls = [ this.ball ];
+        }
+        this.balls.push(ball2, ball3);
+
+        // Golden celestial stardust burst
+        for (let i = 0; i < 40; i++) {
+          this.particles.push({
+            x: 210 + (Math.random() - 0.5) * 80,
+            y: 350 + (Math.random() - 0.5) * 60,
+            vx: (Math.random() - 0.5) * 7,
+            vy: (Math.random() - 0.5) * 7 - 2,
+            r: 1.5 + Math.random() * 2.5,
+            alpha: 1.0,
+            color: Math.random() > 0.5 ? '#ffd700' : '#ff4757'
+          });
+        }
+
+        this.updateArticulatorLamps();
+      }
+
+      handleBallToBallCollision(b1, b2) {
+        if (!b1.inPlay || !b2.inPlay || b1.inPlungerLane || b2.inPlungerLane || b1.onRamp || b2.onRamp) return;
+        const dx = b2.x - b1.x;
+        const dy = b2.y - b1.y;
+        const dist = Math.hypot(dx, dy);
+        const minDist = b1.radius + b2.radius;
+
+        if (dist < minDist && dist > 0) {
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const overlap = minDist - dist;
+
+          // Push apart equally
+          b1.x -= nx * (overlap * 0.5);
+          b1.y -= ny * (overlap * 0.5);
+          b2.x += nx * (overlap * 0.5);
+          b2.y += ny * (overlap * 0.5);
+
+          // Elastic momentum exchange
+          const kx = b1.vx - b2.vx;
+          const ky = b1.vy - b2.vy;
+          const p = 2 * (nx * kx + ny * ky) / 2;
+
+          b1.vx -= p * nx * 0.92;
+          b1.vy -= p * ny * 0.92;
+          b2.vx += p * nx * 0.92;
+          b2.vy += p * ny * 0.92;
+
+          // Crisp metallic impact click
+          this.synth.playDropTargetSnap();
         }
       }
 
       updateArticulatorLamps() {
-        if (!this.articulators) return;
-        for (const [key, val] of Object.entries(this.articulators)) {
-          const el = document.getElementById(`art-${key}`);
-          if (el) {
-            if (val) el.classList.add('active');
-            else el.classList.remove('active');
+        // Update Tower Ascension Ziggurat Ladder Steps
+        if (this.towerTiers) {
+          for (let i = 1; i <= 5; i++) {
+            const stepEl = document.getElementById(`tier-${i}`);
+            if (stepEl) {
+              if (this.towerTiers[i].unl) stepEl.classList.add('unlocked');
+              else stepEl.classList.remove('unlocked');
+            }
           }
         }
-        const panel = document.getElementById('articulators-panel');
-        if (panel) {
-          if (this.isHomunculusAwakened) panel.classList.add('all-active');
-          else panel.classList.remove('all-active');
+        // Update legacy articulator bulbs if present
+        if (this.articulators) {
+          for (const [key, val] of Object.entries(this.articulators)) {
+            const el = document.getElementById(`art-${key}`);
+            if (el) {
+              if (val) el.classList.add('active');
+              else el.classList.remove('active');
+            }
+          }
+        }
+        const badge = document.getElementById('tower-apex-badge');
+        const label = document.getElementById('apex-label');
+        if (badge && label) {
+          if (this.isMultiballActive) {
+            badge.classList.add('multiball-active');
+            label.textContent = '★ APEX CROWN: MULTIBALL ACTIVE (3X WORDS) ★';
+          } else {
+            badge.classList.remove('multiball-active');
+            const unlCount = this.towerTiers ? Object.values(this.towerTiers).filter(t => t.unl).length : 0;
+            label.textContent = unlCount === 5 ? '★ APEX CROWN: READY ★' : `APEX CROWN: ${unlCount}/5 TIERS CONQUERED`;
+          }
         }
       }
 
@@ -1917,7 +2269,21 @@
           lips: false,
           nasal: false
         };
+        if (this.towerTiers) {
+          for (let i = 1; i <= 5; i++) {
+            if (this.towerTiers[i]) this.towerTiers[i].unl = false;
+          }
+        }
+        if (this.tierProgress) {
+          this.tierProgress.flipperFlips = 0;
+          this.tierProgress.scoopM = false;
+          this.tierProgress.scoopN = false;
+          this.tierProgress.vowelsVisited.clear();
+          this.tierProgress.dentalArchCleared = false;
+          this.tierProgress.rampCompleted = false;
+        }
         this.isHomunculusAwakened = false;
+        this.isMultiballActive = false;
         this.updateArticulatorLamps();
       }
 
@@ -2039,7 +2405,9 @@
           this.bountyIdx = (this.bountyIdx + 1) % BOUNTY_LIST.length;
         }
 
-        if (this.isHomunculusAwakened) {
+        if (this.isMultiballActive) {
+          pts *= 3; // 3x Polyglot Multiball Multiplier!
+        } else if (this.isHomunculusAwakened) {
           pts *= 2; // 2x Homunculus Speech Organ Multiplier!
         }
 
@@ -2060,7 +2428,9 @@
         if (isImpressive) {
           // Major impressive word: true popup banner, grand fanfare, and proud voice!
           let subText = null;
-          if (isBounty && this.isHomunculusAwakened) {
+          if (this.isMultiballActive) {
+            subText = `★ 3X POLYGLOT MULTIBALL! +${pts.toLocaleString()} PTS ★`;
+          } else if (isBounty && this.isHomunculusAwakened) {
             subText = `6X TELEGRAPH & HOMUNCULUS! +${pts.toLocaleString()} PTS`;
           } else if (isBounty) {
             subText = `TELEGRAPH BOUNTY! +${pts.toLocaleString()} PTS`;
@@ -2149,43 +2519,53 @@
         this.updateFlipper(this.upperFlipper, false);
 
         // 3. Nasal Scoop Hold & Solenoid Ejection
-        if (this.scoopHold.active) {
+        if (this.scoopHold.active && this.scoopHold.ball) {
+          const hb = this.scoopHold.ball;
           this.scoopHold.timer -= dt;
-          this.ball.x = this.scoopHold.scoop.x;
-          this.ball.y = this.scoopHold.scoop.y;
-          this.ball.vx = 0;
-          this.ball.vy = 0;
+          hb.x = this.scoopHold.scoop.x;
+          hb.y = this.scoopHold.scoop.y;
+          hb.vx = 0;
+          hb.vy = 0;
 
           if (this.scoopHold.timer <= 0) {
             const sc = this.scoopHold.scoop;
             this.scoopHold.active = false;
+            this.scoopHold.ball = null;
             sc.cooldown = 1400; // 1.4s cooldown to prevent re-capture
             // Project ball cleanly above the scoop rim
-            this.ball.y = sc.y - (sc.r + this.ball.radius + 6);
-            this.ball.x = sc.x + (sc.id === 'M' ? 3 : -3);
-            this.ball.vy = -14.2;
-            this.ball.vx = (sc.id === 'M') ? 3.5 : -3.5;
+            hb.y = sc.y - (sc.r + hb.radius + 6);
+            hb.x = sc.x + (sc.id === 'M' ? 3 : -3);
+            hb.vy = -14.2;
+            hb.vx = (sc.id === 'M') ? 3.5 : -3.5;
             this.synth.triggerConsonant('T'); // Solenoid metallic thwack
           }
         }
 
         // 4. Pharyngeal Wireform Sky-Ramp Transit (Elevated Catmull-Rom Habitrail)
-        if (this.ball.onRamp) {
-          this.ball.rampProgress += (Math.max(8, Math.min(33, dt)) / 16.67) * 0.020;
-          if (this.ball.rampProgress >= 1.0) {
-            // Drop cleanly from wireform habitrail mouth onto the Right Inlane!
-            this.ball.onRamp = false;
-            this.ball.x = this.pharynxRamp.exit.x;
-            this.ball.y = this.pharynxRamp.exit.y;
-            this.ball.vx = -0.5;
-            this.ball.vy = 4.2;
-            this.synth.playCelestialChime(1900);
-          } else {
-            const pt = this.getSplinePoint(this.pharynxRamp.points, this.ball.rampProgress);
-            this.ball.x = pt.x;
-            this.ball.y = pt.y;
-            this.ball.vx = 0;
-            this.ball.vy = 0;
+        if (this.balls) {
+          for (const b of this.balls) {
+            if (b.onRamp) {
+              b.rampProgress += (Math.max(8, Math.min(33, dt)) / 16.67) * 0.020;
+              if (b.rampProgress >= 1.0) {
+                // Drop cleanly from wireform habitrail mouth onto the Right Inlane!
+                b.onRamp = false;
+                b.x = this.pharynxRamp.exit.x;
+                b.y = this.pharynxRamp.exit.y;
+                b.vx = -0.5;
+                b.vy = 4.2;
+                this.synth.playCelestialChime(1900);
+                if (this.tierProgress) {
+                  this.tierProgress.rampCompleted = true;
+                  this.unlockTier(5); // Tier V: Palatal Citadel
+                }
+              } else {
+                const pt = this.getSplinePoint(this.pharynxRamp.points, b.rampProgress);
+                b.x = pt.x;
+                b.y = pt.y;
+                b.vx = 0;
+                b.vy = 0;
+              }
+            }
           }
         }
 
@@ -2225,68 +2605,107 @@
         const subGravity = this.gravity * subDt;
         const friction = Math.pow(0.992, subDt);
 
+        if (!this.balls || this.balls.length === 0) {
+          this.balls = [ this.ball ];
+        }
+
         for (let s = 0; s < subSteps; s++) {
-          if (this.ball.inPlay && !this.scoopHold.active && !this.ball.onRamp) {
-            this.ball.vy += subGravity;
-            this.ball.vx *= friction;
-            this.ball.vy *= friction;
+          for (let bIdx = this.balls.length - 1; bIdx >= 0; bIdx--) {
+            const b = this.balls[bIdx];
+            const isHeld = this.scoopHold.active && this.scoopHold.ball === b;
+            if (b.inPlay && !isHeld && !b.onRamp) {
+              b.vy += subGravity;
+              b.vx *= friction;
+              b.vy *= friction;
 
-            // Speed cap to keep the game pleasantly trackable
-            const currentSpeed = Math.hypot(this.ball.vx, this.ball.vy);
-            if (currentSpeed > 13.5) {
-              this.ball.vx = (this.ball.vx / currentSpeed) * 13.5;
-              this.ball.vy = (this.ball.vy / currentSpeed) * 13.5;
+              // Speed cap to keep the game pleasantly trackable
+              const currentSpeed = Math.hypot(b.vx, b.vy);
+              if (currentSpeed > 13.5) {
+                b.vx = (b.vx / currentSpeed) * 13.5;
+                b.vy = (b.vy / currentSpeed) * 13.5;
+              }
+
+              b.x += b.vx * subDt;
+              b.y += b.vy * subDt;
+
+              // Ball-to-wall collisions (including Inlane / Outlane dividers)
+              this.handleWallCollisions(b);
+
+              // Ball-to-bumper collisions
+              this.handleBumperCollisions(b);
+
+              // Ball-to-scoop capture check
+              this.handleScoopCaptures(b);
+
+              // Ball-to-lingual deflector collision
+              this.handleLingualDeflector(b);
+
+              // Ball-to-slingshot collisions
+              this.handleSlingshotCollisions(b);
+
+              // Dental Arch Drop Target Bank Collisions
+              this.handleDropTargetCollisions(b);
+
+              // Ball-to-flipper collisions (Main Left, Main Right, and Upper Mini-Flipper)
+              this.handleFlipperCollision(this.leftFlipper, false, b);
+              this.handleFlipperCollision(this.rightFlipper, false, b);
+              if (this.upperFlipper) this.handleFlipperCollision(this.upperFlipper, true, b);
+
+              // Left Outlane Glottal Kickback Solenoid
+              this.handleGlottalKickback(b);
+
+              // Inlane Rollover Wire Triggers
+              this.handleInlaneRollovers(currentTime, b);
+
+              // Pharyngeal Ramp Entrance
+              this.handleRampEntrance(b);
+
+              // Top Spinner
+              this.handleSpinner(b);
+
+              // Immediate Drain Check (Below flippers: y > 645)
+              if (b.y > 645 && !b.inPlungerLane) {
+                if (this.balls.length > 1) {
+                  // Multiball sphere drain: remove this ball from play
+                  this.balls.splice(bIdx, 1);
+                  this.ball = this.balls[0];
+                  if (this.balls.length === 1 && this.isMultiballActive) {
+                    this.isMultiballActive = false;
+                    this.resetArticulators();
+                    this.updateArticulatorLamps();
+                    this.floaters.push({
+                      text: '✦ MULTIBALL COMPLETE ✦',
+                      x: 210,
+                      y: 500,
+                      vy: -1.0,
+                      alpha: 1.0,
+                      isImpressive: true
+                    });
+                  }
+                } else {
+                  this.handleDrain();
+                  break;
+                }
+              }
             }
+          }
 
-            this.ball.x += this.ball.vx * subDt;
-            this.ball.y += this.ball.vy * subDt;
-
-            // Ball-to-wall collisions (including Inlane / Outlane dividers)
-            this.handleWallCollisions();
-
-            // Ball-to-bumper collisions
-            this.handleBumperCollisions();
-
-            // Ball-to-scoop capture check
-            this.handleScoopCaptures();
-
-            // Ball-to-lingual deflector collision
-            this.handleLingualDeflector();
-
-            // Ball-to-slingshot collisions
-            this.handleSlingshotCollisions();
-
-            // Dental Arch Drop Target Bank Collisions
-            this.handleDropTargetCollisions();
-
-            // Ball-to-flipper collisions (Main Left, Main Right, and Upper Mini-Flipper)
-            this.handleFlipperCollision(this.leftFlipper, false);
-            this.handleFlipperCollision(this.rightFlipper, false);
-            this.handleFlipperCollision(this.upperFlipper, true);
-
-            // Left Outlane Glottal Kickback Solenoid
-            this.handleGlottalKickback();
-
-            // Inlane Rollover Wire Triggers
-            this.handleInlaneRollovers(currentTime);
-
-            // Pharyngeal Ramp Entrance
-            this.handleRampEntrance();
-
-            // Top Spinner
-            this.handleSpinner();
-
-            // Immediate Drain Check (Below flippers: y > 645)
-            if (this.ball.y > 645 && !this.ball.inPlungerLane) {
-              this.handleDrain();
-              break;
+          // Resolve ball-to-ball elastic collisions if multiple balls are active
+          if (this.balls.length > 1) {
+            for (let i = 0; i < this.balls.length; i++) {
+              for (let j = i + 1; j < this.balls.length; j++) {
+                this.handleBallToBallCollision(this.balls[i], this.balls[j]);
+              }
             }
           }
         }
 
-        if (this.ball.inPlay && !this.scoopHold.active && !this.ball.onRamp) {
-          // Continuous Formant Modulation & Vowel Region Detection
-          this.evaluateVowelSpace();
+        // Continuous Formant Modulation & Vowel Region Detection for active balls
+        for (const b of this.balls) {
+          const isHeld = this.scoopHold.active && this.scoopHold.ball === b;
+          if (b.inPlay && !isHeld && !b.onRamp) {
+            this.evaluateVowelSpace(b);
+          }
         }
 
         // Decay Bumper Visual Hit Rings & Astrolabe Planetary Rotation
@@ -2338,21 +2757,24 @@
           st.twinklePhase += st.twinkleSpeed;
         });
 
-        // Stardust Particle Trail
-        if (this.ball.inPlay && !this.scoopHold.active && !this.ball.onRamp) {
-          const speed = Math.hypot(this.ball.vx, this.ball.vy);
-          if (speed > 1.8 && Math.random() < 0.55) {
-            this.particles.push({
-              x: this.ball.x + (Math.random() - 0.5) * 6,
-              y: this.ball.y + (Math.random() - 0.5) * 6,
-              vx: (Math.random() - 0.5) * 0.8,
-              vy: (Math.random() - 0.5) * 0.8,
-              r: 0.9 + Math.random() * 1.5,
-              alpha: 0.85,
-              color: '#ffd700'
-            });
+        // Stardust Particle Trail (Emitted by all active spheres)
+        const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
+        activeBalls.forEach(b => {
+          if (b.inPlay && !this.scoopHold.active && !b.onRamp) {
+            const speed = Math.hypot(b.vx, b.vy);
+            if (speed > 1.8 && Math.random() < 0.55) {
+              this.particles.push({
+                x: b.x + (Math.random() - 0.5) * 6,
+                y: b.y + (Math.random() - 0.5) * 6,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 0.8,
+                r: 0.9 + Math.random() * 1.5,
+                alpha: 0.85,
+                color: this.isMultiballActive ? '#ff4757' : '#ffd700'
+              });
+            }
           }
-        }
+        });
 
         // Update Particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -2385,8 +2807,8 @@
         flipper.currentAngle += flipper.angularVelocity;
       }
 
-      handleWallCollisions() {
-        const b = this.ball;
+      handleWallCollisions(b = this.ball) {
+        b = b || this.ball;
         const r = b.radius;
 
         // 1. DEDICATED PLUNGER RUNWAY PHYSICS
@@ -2435,36 +2857,37 @@
         }
 
         // 3. INLANE & OUTLANE BALL RETURN CORRIDORS
-        // Left divider blade between outlane (x: 20..50) and inlane (x: 52..82):
-        this.collideLineSegment(50, 485, 50, 580, 0.75);
-        // Right divider blade between inlane (x: 340..382) and outlane (x: 386..418):
-        this.collideLineSegment(384, 485, 384, 580, 0.75);
+        // Left divider blade between outlane (x: 20..70) and inlane (x: 72..105):
+        this.collideLineSegment(70, 460, 70, 550, 0.75, b);
+        // Right divider blade between inlane (x: 355..388) and outlane (x: 392..418):
+        this.collideLineSegment(390, 460, 390, 550, 0.75, b);
 
         // Funnel guides leading into inlane / outlane entrances:
-        this.collideLineSegment(20, 460, 50, 485, 0.75);
-        this.collideLineSegment(418, 460, 384, 485, 0.75);
+        this.collideLineSegment(20, 440, 70, 460, 0.75, b);
+        this.collideLineSegment(418, 440, 390, 460, 0.75, b);
 
         // Lower return guides feeding balls smoothly onto main flipper heels:
-        this.collideLineSegment(50, 580, 125, 595, 0.78);
-        this.collideLineSegment(384, 580, 295, 595, 0.78);
+        this.collideLineSegment(70, 550, 155, 592, 0.78, b);
+        this.collideLineSegment(390, 550, 305, 592, 0.78, b);
 
         // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 80, 350):
-        this.collideLineSegment(20, 370, 65, 350, 0.75);
-        this.collideLineSegment(95, 350, 105, 380, 0.75);
+        this.collideLineSegment(20, 370, 65, 350, 0.75, b);
+        this.collideLineSegment(95, 350, 105, 380, 0.75, b);
 
         // Upper Arch Deflectors
-        this.collideLineSegment(20, 95, 90, 24, 0.85);
-        this.collideLineSegment(360, 24, 418, 75, 0.85);
+        this.collideLineSegment(20, 95, 90, 24, 0.85, b);
+        this.collideLineSegment(360, 24, 418, 75, 0.85, b);
 
-        // Anti-stuck watchdog: if ball is in play but almost motionless for too long, micro-nudge
+        // Anti-stuck watchdog: covers entire playfield down to flippers (y < 640)
         const speed = Math.hypot(b.vx, b.vy);
-        if (b.inPlay && speed < 0.25 && b.x < 415 && b.y < this.height - 100) {
+        if (b.inPlay && speed < 0.25 && b.x < 415 && b.y < 640) {
           this.stuckTimer = (this.stuckTimer || 0) + 1;
-          if (this.stuckTimer > 75) { // ~1.2s stuck
-            if (this.scoopHold.active) {
+          if (this.stuckTimer > 55) { // ~0.9s motionless
+            if (this.scoopHold && this.scoopHold.active) {
               this.scoopHold.timer = 0;
             } else {
-              b.vx = (Math.random() - 0.5) * 4.5;
+              // Direct directional impulse towards center and upward
+              b.vx = (b.x > 215 ? -3.8 : 3.8);
               b.vy = -7.5;
             }
             this.stuckTimer = 0;
@@ -2474,8 +2897,8 @@
         }
       }
 
-      collideLineSegment(x1, y1, x2, y2, elasticity = 0.8) {
-        const b = this.ball;
+      collideLineSegment(x1, y1, x2, y2, elasticity = 0.8, b = this.ball) {
+        b = b || this.ball;
         const dx = x2 - x1;
         const dy = y2 - y1;
         const lenSq = dx * dx + dy * dy;
@@ -2498,15 +2921,17 @@
           b.x = closestX + nx * b.radius;
           b.y = closestY + ny * b.radius;
 
-          // Reflect velocity vector
+          // Reflect velocity vector along normal only (preserves tangential rolling speed)
           const dot = b.vx * nx + b.vy * ny;
-          b.vx = (b.vx - 2 * dot * nx) * elasticity;
-          b.vy = (b.vy - 2 * dot * ny) * elasticity;
+          if (dot < 0) {
+            b.vx -= (1 + elasticity) * dot * nx;
+            b.vy -= (1 + elasticity) * dot * ny;
+          }
         }
       }
 
-      handleBumperCollisions() {
-        const b = this.ball;
+      handleBumperCollisions(b = this.ball) {
+        b = b || this.ball;
         this.bumpers.forEach(bumper => {
           const dx = b.x - bumper.x;
           const dy = b.y - bumper.y;
@@ -2540,9 +2965,9 @@
         });
       }
 
-      handleScoopCaptures() {
-        if (this.scoopHold.active || !this.ball.inPlay || this.ball.inPlungerLane) return;
-        const b = this.ball;
+      handleScoopCaptures(b = this.ball) {
+        b = b || this.ball;
+        if (this.scoopHold.active || !b.inPlay || b.inPlungerLane || b.onRamp) return;
 
         for (const scoop of this.scoops) {
           if (scoop.cooldown > 0) continue; // Respect cooldown to prevent re-capture
@@ -2553,6 +2978,7 @@
           if (dist < scoop.r + 4) {
             this.scoopHold.active = true;
             this.scoopHold.scoop = scoop;
+            this.scoopHold.ball = b;
             this.scoopHold.timer = 650; // hold 650ms for resonant nasal hum
             b.x = scoop.x;
             b.y = scoop.y;
@@ -2563,6 +2989,15 @@
             scoop.cooldown = 1400; // Set cooldown immediately
             this.synth.triggerConsonant(scoop.phoneme);
             this.registerPhoneme(scoop.phoneme, false);
+
+            if (this.tierProgress) {
+              if (scoop.id === 'M') this.tierProgress.scoopM = true;
+              if (scoop.id === 'N') this.tierProgress.scoopN = true;
+              if (this.tierProgress.scoopM && this.tierProgress.scoopN) {
+                this.unlockTier(4); // Tier IV: Nasal Sanctuary
+              }
+            }
+
             this.activateArticulator('nasal');
             this.score += 250;
             this.updateHUD();
@@ -2571,9 +3006,9 @@
         }
       }
 
-      handleLingualDeflector() {
-        const b = this.ball;
-        if (!b.inPlay || b.inPlungerLane) return;
+      handleLingualDeflector(b = this.ball) {
+        b = b || this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
         const def = this.lingualDeflector;
         const dx = b.x - def.x;
         const dy = b.y - def.y;
@@ -2597,13 +3032,29 @@
 
           this.synth.playCelestialChime(1550);
           this.synth.triggerConsonant('T');
+          this.unlockTier(3); // Tier III: Lingual Plain
           this.activateArticulator('tongue');
+
+          // Multiball Tongue Jackpot!
+          if (this.isMultiballActive) {
+            this.score += 10000;
+            this.updateHUD();
+            this.synth.playJackpotChime();
+            this.floaters.push({
+              text: '★ TONGUE JACKPOT! +10,000 ★',
+              x: def.x,
+              y: def.y - 18,
+              vy: -1.2,
+              alpha: 1.0,
+              isImpressive: true
+            });
+          }
         }
       }
 
-      handleSlingshotCollisions() {
-        const b = this.ball;
-        if (!b.inPlay || b.inPlungerLane) return;
+      handleSlingshotCollisions(b = this.ball) {
+        b = b || this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
 
         for (const sl of this.slingshots) {
           // 1. Check active kicking face: segment p1 -> p2
@@ -2639,7 +3090,10 @@
             sl.anim = 1.0;
             this.synth.triggerConsonant(sl.phoneme);
             this.registerPhoneme(sl.phoneme, false);
-            if (sl.phoneme === 'P') this.activateArticulator('lips');
+            if (sl.phoneme === 'P') {
+              this.unlockTier(2); // Tier II: Labial Gateway
+              this.activateArticulator('lips');
+            }
             if (sl.phoneme === 'D') this.activateArticulator('palate');
 
             this.score += 150;
@@ -2648,13 +3102,13 @@
           }
 
           // 2. Passive collision on back edges to prevent clipping inside slingshot body
-          this.collideLineSegment(sl.p2.x, sl.p2.y, sl.p3.x, sl.p3.y, 0.75);
-          this.collideLineSegment(sl.p3.x, sl.p3.y, sl.p1.x, sl.p1.y, 0.75);
+          this.collideLineSegment(sl.p2.x, sl.p2.y, sl.p3.x, sl.p3.y, 0.75, b);
+          this.collideLineSegment(sl.p3.x, sl.p3.y, sl.p1.x, sl.p1.y, 0.75, b);
         }
       }
 
-      handleFlipperCollision(flipper, isUpper = false) {
-        const b = this.ball;
+      handleFlipperCollision(flipper, isUpper = false, b = this.ball) {
+        b = b || this.ball;
         const tipX = flipper.pivotX + Math.cos(flipper.currentAngle) * flipper.length;
         const tipY = flipper.pivotY + Math.sin(flipper.currentAngle) * flipper.length;
 
@@ -2746,13 +3200,13 @@
       }
 
       // Glottal Kickback Solenoid (Left Outlane Ball Save Pocket)
-      handleGlottalKickback() {
-        const b = this.ball;
+      handleGlottalKickback(b = this.ball) {
+        b = b || this.ball;
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
         const gk = this.glottalKickback;
 
-        // In left outlane pocket (x: 20..50, y: 605..635)
-        if (b.x > 20 && b.x < 50 && b.y >= 605 && b.y <= 635) {
+        // In left outlane pocket (x: 20..68, y: 600..638)
+        if (b.x > 20 && b.x < 68 && b.y >= 600 && b.y <= 638) {
           if (gk.isLit && gk.cooldown <= 0) {
             gk.isLit = false;
             gk.anim = 1.0;
@@ -2763,6 +3217,7 @@
             b.vy = -18.2;
 
             this.synth.playGlottalKickback();
+            this.unlockTier(1); // Tier I: Laryngeal Vault
             this.activateArticulator('larynx');
             this.score += 500;
             this.updateHUD();
@@ -2793,8 +3248,8 @@
       }
 
       // Inlane Rollover Wire Switches (Awards +150 & Relights Kickback)
-      handleInlaneRollovers(currentTime) {
-        const b = this.ball;
+      handleInlaneRollovers(currentTime, b = this.ball) {
+        b = b || this.ball;
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
 
         for (const ro of this.inlaneRollovers) {
@@ -2823,8 +3278,8 @@
       }
 
       // Pharyngeal Sky-Ramp Entrance Trigger
-      handleRampEntrance() {
-        const b = this.ball;
+      handleRampEntrance(b = this.ball) {
+        b = b || this.ball;
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
 
         const ent = this.pharynxRamp.entrance;
@@ -2857,9 +3312,9 @@
       }
 
       // Dental Arch Drop Target Bank Collisions (4-Bank: [D]-[E]-[N]-[T])
-      handleDropTargetCollisions() {
-        const b = this.ball;
-        if (!b.inPlay || b.inPlungerLane || b.onRamp || this.scoopHold.active || !this.dropTargets) return;
+      handleDropTargetCollisions(b = this.ball) {
+        b = b || this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp || (this.scoopHold.active && this.scoopHold.ball === b) || !this.dropTargets) return;
 
         // Angle along bank: from (92, 215) to (110, 266)
         const bankAngle = Math.atan2(51, 18);
@@ -2933,6 +3388,10 @@
 
         // Relight Glottal Kickback & activate palate
         this.glottalKickback.isLit = true;
+        if (this.tierProgress) {
+          this.tierProgress.dentalArchCleared = true;
+          this.unlockTier(5); // Tier V: Palatal Citadel
+        }
         this.activateArticulator('palate');
 
         this.floaters.push({
@@ -2956,9 +3415,10 @@
         this.dropTargetResetTimer = 800;
       }
 
-      handleSpinner() {
+      handleSpinner(b = this.ball) {
+        b = b || this.ball;
         const s = this.spinner;
-        const b = this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
 
         if (b.x > s.x - 22 && b.x < s.x + 22 && Math.abs(b.y - s.y) < 14) {
           if (s.spinSpeed < 0.1) {
@@ -2968,6 +3428,21 @@
             this.activateArticulator('palate');
             this.score += 50;
             this.updateHUD();
+
+            // Multiball Astrolabe Jackpot!
+            if (this.isMultiballActive) {
+              this.score += 10000;
+              this.updateHUD();
+              this.synth.playJackpotChime();
+              this.floaters.push({
+                text: '★ ASTROLABE JACKPOT! +10,000 ★',
+                x: s.x,
+                y: s.y + 24,
+                vy: -1.2,
+                alpha: 1.0,
+                isImpressive: true
+              });
+            }
           }
         }
 
@@ -2980,8 +3455,9 @@
       }
 
       // Continuous Vowel Space Modulation & Diphthong Gliding
-      evaluateVowelSpace() {
-        const b = this.ball;
+      evaluateVowelSpace(b = this.ball) {
+        b = b || this.ball;
+        if (!b.inPlay || b.onRamp) return;
         const normX = Math.min(1.0, Math.max(0.0, (b.x - 30) / (this.width - 90)));
         const normY = Math.min(1.0, Math.max(0.0, (b.y - 40) / (this.height - 180)));
         const speed = Math.hypot(b.vx, b.vy);
@@ -3012,12 +3488,17 @@
         }
 
         // Register vowel when ball is moving across zones (speed > 1.2)
-        // Because lastVowelToken is reset to null whenever ANY consonant is hit,
-        // departing any consonant will immediately register the current vowel field!
         if (currentVowel && speed > 1.2 && currentVowel !== this.lastVowelToken) {
           this.lastVowelToken = currentVowel;
           this.registerPhoneme(currentVowel, true);
           this.activateArticulator('tongue');
+
+          if (this.tierProgress && this.tierProgress.vowelsVisited) {
+            this.tierProgress.vowelsVisited.add(currentVowel);
+            if (this.tierProgress.vowelsVisited.size >= 3) {
+              this.unlockTier(3); // Tier III: Lingual Plain
+            }
+          }
         }
       }
 
@@ -3119,18 +3600,23 @@
         this.renderPlunger(ctx);
         this.renderParticles(ctx);
 
-        // 6. Ball (Rendered at table level when not elevated on ramp)
-        if (!this.ball.onRamp) {
-          this.renderBall(ctx);
-        }
+        // 6. Balls (Rendered at table level when not elevated on ramp)
+        const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
+        activeBalls.forEach(b => {
+          if (!b.onRamp) {
+            this.renderBall(ctx, b);
+          }
+        });
 
-        // 7. Elevated Pharyngeal Wireform Twin Brass Rails & Cross-Struts (Rendered over ball)
+        // 7. Elevated Pharyngeal Wireform Twin Brass Rails & Cross-Struts (Rendered over balls)
         this.renderWireformRampRails(ctx);
 
-        // 8. Elevated Ball (Rendered inside the habitrail when onRamp = true)
-        if (this.ball.onRamp) {
-          this.renderElevatedBall(ctx);
-        }
+        // 8. Elevated Balls (Rendered inside the habitrail when onRamp = true)
+        activeBalls.forEach(b => {
+          if (b.onRamp) {
+            this.renderElevatedBall(ctx, b);
+          }
+        });
 
         // 9. Floating Text & Word Toasts
         this.renderFloaters(ctx);
@@ -3261,19 +3747,22 @@
           ctx.fillText(r.sub, r.x, r.y + 20);
         });
 
-        // 6. Radiant Acoustic Wave from Ball
-        if (this.ball.inPlay) {
-          const speed = Math.hypot(this.ball.vx, this.ball.vy);
-          const rad = Math.min(130, 40 + speed * 7);
-          const gradW = ctx.createRadialGradient(this.ball.x, this.ball.y, 4, this.ball.x, this.ball.y, rad);
-          gradW.addColorStop(0, 'rgba(255, 215, 0, 0.28)');
-          gradW.addColorStop(0.5, 'rgba(223, 177, 91, 0.10)');
-          gradW.addColorStop(1, 'transparent');
-          ctx.fillStyle = gradW;
-          ctx.beginPath();
-          ctx.arc(this.ball.x, this.ball.y, rad, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        // 6. Radiant Acoustic Wave from All Active Balls
+        const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
+        activeBalls.forEach(b => {
+          if (b.inPlay) {
+            const speed = Math.hypot(b.vx, b.vy);
+            const rad = Math.min(130, 40 + speed * 7);
+            const gradW = ctx.createRadialGradient(b.x, b.y, 4, b.x, b.y, rad);
+            gradW.addColorStop(0, this.isMultiballActive ? 'rgba(255, 71, 87, 0.35)' : 'rgba(255, 215, 0, 0.28)');
+            gradW.addColorStop(0.5, this.isMultiballActive ? 'rgba(255, 107, 129, 0.12)' : 'rgba(223, 177, 91, 0.10)');
+            gradW.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradW;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, rad, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
       }
 
       // Pharyngeal Wireform Ramp Drop Shadow (Cast underneath all obstacles)
@@ -3304,11 +3793,11 @@
         ctx.save();
 
         // 1. Divider Blades (Polished Brass Blades separating Outlane & Inlane)
-        // Left divider: (50, 485) to (50, 580)
-        // Right divider: (384, 485) to (384, 580)
+        // Left divider: (70, 460) to (70, 550)
+        // Right divider: (390, 460) to (390, 550)
         const dividers = [
-          { topX: 50, topY: 485, botX: 50, botY: 580 },
-          { topX: 384, topY: 485, botX: 384, botY: 580 }
+          { topX: 70, topY: 460, botX: 70, botY: 550 },
+          { topX: 390, topY: 460, botX: 390, botY: 550 }
         ];
 
         dividers.forEach(d => {
@@ -3348,20 +3837,20 @@
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        // Left inlane exit onto left flipper: (50, 580) -> (125, 595)
-        ctx.moveTo(50, 580);
-        ctx.lineTo(125, 595);
-        // Right inlane exit onto right flipper: (384, 580) -> (295, 595)
-        ctx.moveTo(384, 580);
-        ctx.lineTo(295, 595);
+        // Left inlane exit onto left flipper: (70, 550) -> (155, 592)
+        ctx.moveTo(70, 550);
+        ctx.lineTo(155, 592);
+        // Right inlane exit onto right flipper: (390, 550) -> (305, 592)
+        ctx.moveTo(390, 550);
+        ctx.lineTo(305, 592);
         // Funnel guides into lane entrances
-        ctx.moveTo(20, 460);
-        ctx.lineTo(50, 485);
-        ctx.moveTo(418, 460);
-        ctx.lineTo(384, 485);
+        ctx.moveTo(20, 440);
+        ctx.lineTo(70, 460);
+        ctx.moveTo(418, 440);
+        ctx.lineTo(390, 460);
         ctx.stroke();
 
-        // 3. Inlane Rollover Wire Switches (Left: 66, 535 / Right: 362, 535)
+        // 3. Inlane Rollover Wire Switches (Left: 88, 525 / Right: 372, 525)
         this.inlaneRollovers.forEach(ro => {
           // Playfield Deco Star Lamp Cartouche under wire
           ctx.save();
@@ -4071,16 +4560,27 @@
         ctx.restore();
       }
 
-      renderBall(ctx) {
-        const b = this.ball;
-        // Golden Astral Halo
+      renderBall(ctx, b = this.ball) {
+        if (!b) return;
+        const isMb = this.isMultiballActive;
+
+        // Golden / Solar Astral Halo (Blazing Ruby/Gold during Multiball!)
         ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius + 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.35)';
-        ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 12;
+        ctx.arc(b.x, b.y, b.radius + (isMb ? 5.0 : 3.5), 0, Math.PI * 2);
+        ctx.fillStyle = isMb ? 'rgba(255, 71, 87, 0.45)' : 'rgba(255, 215, 0, 0.35)';
+        ctx.shadowColor = isMb ? '#ff4757' : '#ffd700';
+        ctx.shadowBlur = isMb ? 18 : 12;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        // Outer Radiant Corona Ring during Multiball
+        if (isMb) {
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.radius + 2.5, 0, Math.PI * 2);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
 
         // Metallic Chrome Ball with Starlight Specular Glint
         const grad = ctx.createRadialGradient(
@@ -4088,8 +4588,8 @@
           b.x, b.y, b.radius
         );
         grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.35, '#e2e8f0');
-        grad.addColorStop(0.75, '#64748b');
+        grad.addColorStop(0.35, isMb ? '#ffeaa7' : '#e2e8f0');
+        grad.addColorStop(0.75, isMb ? '#d63031' : '#64748b');
         grad.addColorStop(1, '#090d16');
 
         ctx.beginPath();
@@ -4099,6 +4599,12 @@
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.lineWidth = 1;
         ctx.stroke();
+
+        // Starlight Specular Glint Dot
+        ctx.beginPath();
+        ctx.arc(b.x - 2.5, b.y - 2.5, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
       }
 
       // Elevated Pharyngeal Wireform Sky-Ramp (Twin Polished Brass Rails & Cross-Struts)
@@ -4239,12 +4745,13 @@
       }
 
       // Elevated Ball Rendering (Physical 3D Elevation over the Ziggurat Spire)
-      renderElevatedBall(ctx) {
-        const b = this.ball;
+      renderElevatedBall(ctx, b = this.ball) {
+        if (!b) return;
         const t = Math.max(0, Math.min(1, b.rampProgress || 0));
         // Elevation scale peaks around mid-transit (t = 0.5) over top spire
         const elevation = Math.sin(t * Math.PI);
         const currentRadius = b.radius + elevation * 3.0; // Grows up to 12.5px!
+        const isMb = this.isMultiballActive;
 
         ctx.save();
 
@@ -4254,12 +4761,12 @@
         ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
         ctx.fill();
 
-        // High Golden Astral Halo
+        // High Golden Astral Halo (Ruby/Gold during Multiball)
         ctx.beginPath();
         ctx.arc(b.x, b.y, currentRadius + 4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.45)';
-        ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 18;
+        ctx.fillStyle = isMb ? 'rgba(255, 71, 87, 0.55)' : 'rgba(255, 215, 0, 0.45)';
+        ctx.shadowColor = isMb ? '#ff4757' : '#ffd700';
+        ctx.shadowBlur = isMb ? 22 : 18;
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -4269,8 +4776,8 @@
           b.x, b.y, currentRadius
         );
         grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.3, '#f1f5f9');
-        grad.addColorStop(0.7, '#64748b');
+        grad.addColorStop(0.3, isMb ? '#ffeaa7' : '#f1f5f9');
+        grad.addColorStop(0.7, isMb ? '#d63031' : '#64748b');
         grad.addColorStop(1, '#0f172a');
 
         ctx.beginPath();
