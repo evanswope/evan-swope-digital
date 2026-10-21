@@ -1362,7 +1362,7 @@
           inPlungerLane: true
         };
 
-        this.gravity = 0.26;
+        this.gravity = 0.18;
         this.plungerEnergy = 0;
         this.isPlungerCharging = false;
 
@@ -1408,6 +1408,15 @@
           { id: 'N', label: 'N', phoneme: 'N', name: 'SOLAR WELL', x: 290, y: 375, r: 18, color: '#ffd700', glowAnim: 0, cooldown: 0 }
         ];
         this.scoopHold = { active: false, scoop: null, timer: 0 };
+
+        // Center-field Tongue Ridge ("Lingua Deflector Post")
+        this.lingualDeflector = {
+          x: 210,
+          y: 395,
+          r: 17,
+          hitAnim: 0,
+          label: 'LINGUA'
+        };
 
         // Active Triangular Slingshots ([P] on left, [D] on right - Art Deco Sunbursts)
         this.slingshots = [
@@ -1606,7 +1615,7 @@
         this.ball.x = 430;
         this.ball.y = 560;
         this.ball.vx = 0;
-        this.ball.vy = -18.5;
+        this.ball.vy = -18.0;
         this.ball.inPlay = true;
         this.ball.inPlungerLane = true;
         this.synth.triggerConsonant('P'); // Plunger launch pop
@@ -1615,7 +1624,7 @@
 
       firePlunger() {
         if (this.ball.inPlungerLane) {
-          const power = Math.max(13, Math.min(22, this.plungerEnergy));
+          const power = Math.max(16.5, Math.min(21.0, 16.5 + this.plungerEnergy * 0.22));
           this.ball.vx = 0;
           this.ball.vy = -power;
           this.ball.inPlay = true;
@@ -1839,7 +1848,7 @@
       // 4. MAIN GAME & PHYSICS LOOP
       // -----------------------------------------------------------------------
       loop(currentTime) {
-        const dt = Math.min(32, currentTime - this.lastTime);
+        const dt = Math.min(33, currentTime - this.lastTime);
         this.lastTime = currentTime;
 
         this.update(dt);
@@ -1873,22 +1882,32 @@
             // Project ball cleanly above the scoop rim
             this.ball.y = sc.y - (sc.r + this.ball.radius + 6);
             this.ball.x = sc.x + (sc.id === 'M' ? 3 : -3);
-            this.ball.vy = -15.8;
-            this.ball.vx = (sc.id === 'M') ? 4.2 : -4.2;
+            this.ball.vy = -14.2;
+            this.ball.vx = (sc.id === 'M') ? 3.5 : -3.5;
             this.synth.triggerConsonant('T'); // Solenoid metallic thwack
           }
         }
 
-        // 4. Sub-stepping physics (4 steps per frame to completely eliminate tunneling)
+        // 4. Sub-stepping physics with Refresh-Rate Independent Time Scale
+        const clampedDt = Math.max(8, Math.min(33, dt));
+        const timeScale = clampedDt / 16.67; // Normalized to 60fps baseline
         const subSteps = 4;
-        const subDt = 1.0 / subSteps;
+        const subDt = timeScale / subSteps;
         const subGravity = this.gravity * subDt;
+        const friction = Math.pow(0.992, subDt);
 
         for (let s = 0; s < subSteps; s++) {
           if (this.ball.inPlay && !this.scoopHold.active) {
             this.ball.vy += subGravity;
-            this.ball.vx *= Math.pow(0.996, subDt);
-            this.ball.vy *= Math.pow(0.996, subDt);
+            this.ball.vx *= friction;
+            this.ball.vy *= friction;
+
+            // Speed cap to keep the game pleasantly trackable
+            const currentSpeed = Math.hypot(this.ball.vx, this.ball.vy);
+            if (currentSpeed > 13.5) {
+              this.ball.vx = (this.ball.vx / currentSpeed) * 13.5;
+              this.ball.vy = (this.ball.vy / currentSpeed) * 13.5;
+            }
 
             this.ball.x += this.ball.vx * subDt;
             this.ball.y += this.ball.vy * subDt;
@@ -1901,6 +1920,9 @@
 
             // Ball-to-scoop capture check
             this.handleScoopCaptures();
+
+            // Ball-to-lingual deflector collision
+            this.handleLingualDeflector();
 
             // Ball-to-slingshot collisions
             this.handleSlingshotCollisions();
@@ -1936,6 +1958,11 @@
           if (sc.cooldown > 0) sc.cooldown -= dt;
           if (sc.glowAnim > 0) sc.glowAnim -= 0.04;
         });
+
+        // Decay Lingual Deflector Animation
+        if (this.lingualDeflector && this.lingualDeflector.hitAnim > 0) {
+          this.lingualDeflector.hitAnim -= 0.04;
+        }
 
         // Decay Slingshot Kick Animation
         this.slingshots.forEach(sl => {
@@ -2002,12 +2029,12 @@
             b.vy = 0;
           }
 
-          // When ball reaches the top of the runway (y <= 75), smoothly inject into playfield!
-          if (b.y <= 75) {
+          // When ball reaches the top of the runway (y <= 85), smoothly inject into playfield!
+          if (b.y <= 85) {
             b.inPlungerLane = false;
             b.x = 410;
-            b.vx = -12.5;
-            b.vy = 1.5;
+            b.vx = -10.5;
+            b.vy = 1.2;
           }
           return; // Do not apply playfield obstacles while ball is inside the runway
         }
@@ -2156,6 +2183,36 @@
         }
       }
 
+      handleLingualDeflector() {
+        const b = this.ball;
+        if (!b.inPlay || b.inPlungerLane) return;
+        const def = this.lingualDeflector;
+        const dx = b.x - def.x;
+        const dy = b.y - def.y;
+        const dist = Math.hypot(dx, dy);
+        const minDist = b.radius + def.r;
+
+        if (dist < minDist) {
+          const nx = dx / (dist || 1);
+          const ny = dy / (dist || 1);
+
+          b.x = def.x + nx * minDist;
+          b.y = def.y + ny * minDist;
+
+          const popSpeed = 9.2;
+          b.vx = nx * popSpeed;
+          b.vy = ny * popSpeed;
+
+          def.hitAnim = 1.0;
+          this.score += 75;
+          this.updateHUD();
+
+          this.synth.playCelestialChime(1550);
+          this.synth.triggerConsonant('T');
+          this.activateArticulator('tongue');
+        }
+      }
+
       handleSlingshotCollisions() {
         const b = this.ball;
         if (!b.inPlay || b.inPlungerLane) return;
@@ -2180,14 +2237,14 @@
           const dist = Math.hypot(distX, distY);
 
           if (dist < b.radius + 3.5) {
-            // Inward-pointing normal into playfield
-            const nx = (sl.id === 'P') ? 0.9105 : -0.9105;
-            const ny = -0.4138;
+            // Powerful upward-inward kick: sends ball soaring into mid and upper field!
+            const nx = (sl.id === 'P') ? 0.62 : -0.62;
+            const ny = -0.78;
 
             b.x = closestX + nx * (b.radius + 4);
             b.y = closestY + ny * (b.radius + 4);
 
-            const kickSpeed = 14.5;
+            const kickSpeed = 12.8;
             b.vx = nx * kickSpeed;
             b.vy = ny * kickSpeed;
 
@@ -2250,12 +2307,12 @@
           }
 
           // Add rotational kinetic impulse from active flipper stroke
-          if (flipper.isPressed && Math.abs(flipper.angularVelocity) > 0.02) {
-            const tipRatio = 0.35 + t * 0.95;
-            const paddleSpeed = Math.abs(flipper.angularVelocity) * flipper.length * tipRatio;
+          if (flipper.isPressed) {
+            const tipRatio = 0.5 + t * 0.85;
+            const flipPower = 14.5 * tipRatio;
 
-            b.vx += nx * paddleSpeed * 0.9;
-            b.vy += ny * paddleSpeed * 1.3 - 4.2; // Clean upward pop!
+            b.vx = nx * flipPower * 0.7;
+            b.vy = ny * flipPower - 3.8; // Guaranteed upward flight!
             this.synth.triggerConsonant('B'); // Bouncy flipper hit
             this.activateArticulator('lips');
             this.activateArticulator('larynx');
@@ -2397,6 +2454,7 @@
         this.renderVowelPlayfield(ctx);
         this.renderWalls(ctx);
         this.renderScoops(ctx);
+        this.renderLingualDeflector(ctx);
         this.renderSlingshots(ctx);
         this.renderBumpers(ctx);
         this.renderSpinner(ctx);
@@ -2473,6 +2531,10 @@
           [{ x: 270, y: 190 }, { x: 210, y: 280 }], // T -> K
           [{ x: 210, y: 280 }, { x: 130, y: 375 }], // K -> M
           [{ x: 210, y: 280 }, { x: 290, y: 375 }], // K -> N
+          [{ x: 210, y: 280 }, { x: 210, y: 395 }], // K -> LINGUA
+          [{ x: 130, y: 375 }, { x: 210, y: 395 }], // M -> LINGUA
+          [{ x: 290, y: 375 }, { x: 210, y: 395 }], // N -> LINGUA
+          [{ x: 210, y: 395 }, { x: 210, y: 520 }], // LINGUA -> AA
           [{ x: 130, y: 375 }, { x: 75,  y: 475 }], // M -> P
           [{ x: 290, y: 375 }, { x: 345, y: 475 }], // N -> D
           [{ x: 75,  y: 475 }, { x: 210, y: 520 }], // P -> AA
@@ -2775,6 +2837,68 @@
           ctx.fillStyle = 'rgba(255, 215, 0, 0.75)';
           ctx.fillText(sc.id === 'M' ? 'NASAL RES.' : 'NASAL RES.', sc.x, sc.y + 14);
         });
+      }
+
+      renderLingualDeflector(ctx) {
+        const def = this.lingualDeflector;
+        if (!def) return;
+
+        // 1. Shockwave Ripple on Impact
+        if (def.hitAnim > 0) {
+          ctx.beginPath();
+          ctx.arc(def.x, def.y, def.r + def.hitAnim * 18, 0, Math.PI * 2);
+          ctx.strokeStyle = '#ff7675';
+          ctx.lineWidth = 2.5 * def.hitAnim;
+          ctx.shadowColor = '#e74c3c';
+          ctx.shadowBlur = 18 * def.hitAnim;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        // 2. Art Deco Hexagonal Brass Bezel
+        ctx.save();
+        ctx.translate(def.x, def.y);
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = (i * Math.PI * 2) / 6 - Math.PI / 6;
+          const px = Math.cos(a) * (def.r + 3);
+          const py = Math.sin(a) * (def.r + 3);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = '#1e131d';
+        ctx.fill();
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = def.hitAnim > 0 ? 20 : 6;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // 3. Polished Ruby Gemstone Cabochon Core (The Anatomical Tongue / Lingua)
+        const gemGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, def.r);
+        gemGrad.addColorStop(0, '#ffffff');
+        gemGrad.addColorStop(0.3, '#ff7675');
+        gemGrad.addColorStop(0.7, '#d63031');
+        gemGrad.addColorStop(1, '#540916');
+
+        ctx.beginPath();
+        ctx.arc(0, 0, def.r - 2, 0, Math.PI * 2);
+        ctx.fillStyle = def.hitAnim > 0 ? '#fff0f3' : gemGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // 4. Deco Emblem Label
+        ctx.font = '800 0.46rem "Cinzel", serif';
+        ctx.fillStyle = def.hitAnim > 0 ? '#000000' : '#fef08a';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('LINGUA', 0, 0);
+
+        ctx.restore();
       }
 
       renderSlingshots(ctx) {
