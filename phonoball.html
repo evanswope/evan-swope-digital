@@ -2221,31 +2221,31 @@
           { id: 'u', vowel: 'u', label: '/u/', name: 'VELAR DOME', x: 390, y: 115, r: 13, isLit: false, wireAnim: 0, cooldown: 0 }
         ];
 
-        // Subarea 5: Flippers & Labial Chamber (y = 580..820)
-        // Main Left Flipper
+        // Subarea 5: Flippers & Labial Chamber (y = 560..820)
+        // Main Left Flipper (Generous clearspace below bounce pads)
         this.leftFlipper = {
-          pivotX: 130,
-          pivotY: 725,
-          length: 62,
-          baseAngle: 0.50,   // Rest angle (pointing down-inward)
-          upAngle: -0.52,    // Flipped up angle
-          currentAngle: 0.50,
+          pivotX: 135,
+          pivotY: 745,
+          length: 64,
+          baseAngle: 0.46,   // Rest angle (~26.3 deg pointing down-inward)
+          upAngle: -0.54,    // Active stroke angle (~ -31 deg)
+          currentAngle: 0.46,
           isPressed: false,
           angularVelocity: 0,
-          angularSpeed: 0.40
+          angularSpeed: 0.42
         };
 
         // Main Right Flipper
         this.rightFlipper = {
-          pivotX: 290,
-          pivotY: 725,
-          length: 62,
-          baseAngle: Math.PI - 0.50,
-          upAngle: Math.PI + 0.52,
-          currentAngle: Math.PI - 0.50,
+          pivotX: 285,
+          pivotY: 745,
+          length: 64,
+          baseAngle: Math.PI - 0.46,
+          upAngle: Math.PI + 0.54,
+          currentAngle: Math.PI - 0.46,
           isPressed: false,
           angularVelocity: 0,
-          angularSpeed: 0.40
+          angularSpeed: 0.42
         };
 
         // Subarea 4: Upper Right Mini-Flipper ("The Palatal Valve" - Cross-table Skill Shot)
@@ -2261,10 +2261,10 @@
           angularSpeed: 0.42
         };
 
-        // Glottal Kickback Solenoid (Inside the Open Left Outlane Corridor at 42, 720)
+        // Glottal Kickback Solenoid (Inside the Open Left Outlane Corridor at 44, 740)
         this.glottalKickback = {
-          x: 42,
-          y: 720,
+          x: 44,
+          y: 740,
           r: 16,
           isLit: true,
           cooldown: 0,
@@ -2273,14 +2273,14 @@
 
         // Inlane Rollover Wire Switches (Awards +150 & Relights Glottal Kickback)
         this.inlaneRollovers = [
-          { id: 'left',  x: 86,  y: 645, r: 14, lastHit: -9999, anim: 0 },
-          { id: 'right', x: 354, y: 645, r: 14, lastHit: -9999, anim: 0 }
+          { id: 'left',  x: 88,  y: 620, r: 14, lastHit: -9999, anim: 0 },
+          { id: 'right', x: 332, y: 620, r: 14, lastHit: -9999, anim: 0 }
         ];
 
         // Subarea 3: The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
         this.pharynxRamp = {
           entrance: { x: 78, y: 410, r: 18 },
-          exit: { x: 368, y: 660 },
+          exit: { x: 332, y: 560 },
           points: [
             { x: 78, y: 410 },   // 0: Entrance Funnel
             { x: 52, y: 310 },   // 1: Left Wall Ascent
@@ -2289,9 +2289,9 @@
             { x: 230, y: 58 },   // 4: Spire Cross
             { x: 350, y: 95 },   // 5: Upper Right Terrace
             { x: 385, y: 220 },  // 6: Right Habitrail Drop
-            { x: 382, y: 400 },  // 7: Mid Drop Track
-            { x: 368, y: 580 },  // 8: Lower Habitrail
-            { x: 368, y: 660 }   // 9: Exit onto Right Inlane Center
+            { x: 382, y: 380 },  // 7: Mid Drop Track
+            { x: 365, y: 510 },  // 8: Calibrated Inlane Feed Curve
+            { x: 332, y: 560 }   // 9: Exit smoothly into Right Inlane Chute
           ],
           glowAnim: 0
         };
@@ -2349,11 +2349,11 @@
           bridgeWave: 0
         };
 
-        // Subarea 3: Center-field Tongue Ridge ("Lingua Deflector Post" - Wide Flank Corridors)
+        // Subarea 3: Center-field Tongue Ridge ("Lingua Deflector Wedge" - Diamond Deflector)
         this.lingualDeflector = {
           x: 210,
-          y: 500,
-          r: 17,
+          y: 490,
+          r: 18,
           hitAnim: 0,
           label: 'LINGUA'
         };
@@ -2375,16 +2375,16 @@
         };
         this.slingshotBankIdx = { left: 0, right: 0 };
 
-        // Active Triangular Slingshots (Dynamic Phonetic Organ Sunbursts)
+        // Active Triangular Slingshots (Compact Art Deco Sunbursts with 100px Flipper Clearspace)
         this.slingshots = [
           {
             id: 'P', label: 'P', phoneme: 'P', family: 'LABIAL', color: '#ffd700',
-            p1: { x: 135, y: 595 }, p2: { x: 185, y: 695 }, p3: { x: 105, y: 655 },
+            p1: { x: 130, y: 565 }, p2: { x: 165, y: 645 }, p3: { x: 105, y: 615 },
             anim: 0
           },
           {
             id: 'D', label: 'D', phoneme: 'D', family: 'DENTAL', color: '#dfb15b',
-            p1: { x: 325, y: 595 }, p2: { x: 275, y: 695 }, p3: { x: 355, y: 655 },
+            p1: { x: 290, y: 565 }, p2: { x: 255, y: 645 }, p3: { x: 315, y: 615 },
             anim: 0
           }
         ];
@@ -3734,8 +3734,8 @@
               // The Velar Vaults Collisions & Portcullis Barrier
               this.handleVaultCollisions(b);
 
-              // Immediate Drain Check (Below flippers: y > 765)
-              if (b.y > 765 && !b.inPlungerLane) {
+              // Immediate Drain Check (Below flippers: y > 785)
+              if (b.y > 785 && !b.inPlungerLane) {
                 if (this.balls.length > 1) {
                   // Multiball sphere drain: remove this ball from play
                   this.balls.splice(bIdx, 1);
@@ -3976,23 +3976,44 @@
         this.collideLineSegment(375, 80, 375, 130, 0.8, b);
         this.collideLineSegment(405, 90, 405, 138, 0.8, b);
 
-        // Vocal Grotto Exit Guide Wire (channeling balls smoothly to Upper Mini-Flipper / Bumpers)
+        // Vocal Grotto Exit Guide Wire (calibrated return channel feeding down to Right Inlane)
         this.collideLineSegment(405, 138, 385, 200, 0.8, b);
         this.collideLineSegment(385, 200, 365, 280, 0.8, b);
+        this.collideLineSegment(365, 280, 348, 370, 0.8, b);
+        this.collideLineSegment(348, 370, 348, 540, 0.8, b);
+
+        // 2.5 THE LEFT ORBIT CHANNEL RAIL (Dedicated Outer Loop up the left flank)
+        this.collideLineSegment(58, 370, 58, 160, 0.85, b);
+        this.collideLineSegment(58, 160, 85, 90, 0.85, b);
+        this.collideCircle(58, 370, 4.0, 0.8, b);
+
+        // 2.6 MIDFIELD VELOPHARYNGEAL DEFLECTOR ARCHES (Intercepts direct falls from bumpers)
+        // Left Midfield Deflector (sloping down-left into Scoop [M] / Left Fairway):
+        this.collideLineSegment(160, 360, 92, 420, 0.82, b);
+        this.collideCircle(160, 360, 4.0, 0.8, b);
+        this.collideCircle(92, 420, 4.0, 0.8, b);
+
+        // Right Midfield Deflector (sloping down-right into Scoop [N] / Right Fairway):
+        this.collideLineSegment(260, 360, 328, 420, 0.82, b);
+        this.collideCircle(260, 360, 4.0, 0.8, b);
+        this.collideCircle(328, 420, 4.0, 0.8, b);
 
         // 3. INLANE & OUTLANE BALL RETURN CORRIDORS (Subarea 5: Labial Chamber)
-        // Left Divider Blade: separates outlane (x: 20..66) from inlane (x: 66..105)
-        this.collideLineSegment(66, 585, 66, 680, 0.75, b);
-        // Right Divider Blade: separates inlane (x: 335..374) from outlane (x: 374..418)
-        this.collideLineSegment(374, 585, 374, 680, 0.75, b);
+        // Left Divider Blade: separates outlane (x: 20..68) from inlane (x: 68..105)
+        this.collideLineSegment(68, 550, 68, 660, 0.75, b);
+        this.collideCircle(68, 550, 4.0, 0.8, b);
 
-        // Lower Inlane Return Wire Guides feeding balls smoothly onto main flipper heels:
-        this.collideLineSegment(66, 680, 125, 718, 0.78, b);
-        this.collideLineSegment(374, 680, 295, 718, 0.78, b);
+        // Right Divider Blade: separates inlane (x: 315..352) from outlane (x: 352..418)
+        this.collideLineSegment(352, 550, 352, 660, 0.75, b);
+        this.collideCircle(352, 550, 4.0, 0.8, b);
+
+        // Calibrated Lower Inlane Return Wire Guides feeding balls tangent onto main flipper heels:
+        this.collideLineSegment(68, 660, 128, 740, 0.80, b);
+        this.collideLineSegment(352, 660, 292, 740, 0.80, b);
 
         // Lower Outer Outlane Boundaries (guiding balls down past flippers into drain):
-        this.collideLineSegment(20, 660, 20, 770, 0.75, b);
-        this.collideLineSegment(418, 660, 418, 770, 0.75, b);
+        this.collideLineSegment(20, 650, 20, 785, 0.75, b);
+        this.collideLineSegment(418, 650, 418, 785, 0.75, b);
 
         // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 78, 410):
         this.collideLineSegment(20, 430, 65, 410, 0.75, b);
@@ -4420,8 +4441,8 @@
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
         const gk = this.glottalKickback;
 
-        // In left outlane corridor (x: 20..66, y: 700..755)
-        if (b.x >= 20 && b.x <= 66 && b.y >= 700 && b.y <= 755) {
+        // In left outlane corridor (x: 20..68, y: 715..775)
+        if (b.x >= 20 && b.x <= 68 && b.y >= 715 && b.y <= 775) {
           if (gk.isLit && gk.cooldown <= 0) {
             gk.isLit = false;
             gk.anim = 1.0;
@@ -5531,34 +5552,34 @@
         // SUBAREA 5: LABIAL CHAMBER & FLIPPER FAN (y: 580..820)
         // ---------------------------------------------------------------------
         ctx.save();
-        // A. Classic Lower Apron Framing Plate
-        const apronGrad = ctx.createLinearGradient(0, 715, 0, 820);
+        // A. Classic Lower Apron Framing Plate (Below flippers: y: 755..820)
+        const apronGrad = ctx.createLinearGradient(0, 755, 0, 820);
         apronGrad.addColorStop(0, 'rgba(10, 14, 28, 0.2)');
-        apronGrad.addColorStop(1, 'rgba(4, 5, 11, 0.85)');
+        apronGrad.addColorStop(1, 'rgba(4, 5, 11, 0.90)');
         ctx.fillStyle = apronGrad;
-        ctx.fillRect(20, 735, this.width - 40, 85);
+        ctx.fillRect(20, 765, this.width - 40, 55);
 
-        // Art Deco Sunburst Rays radiating outward from drain (x: 210, y: 775)
+        // Art Deco Sunburst Rays radiating outward from drain (x: 210, y: 795)
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.12)';
         ctx.lineWidth = 1;
         for (let angle = Math.PI * 0.15; angle <= Math.PI * 0.85; angle += 0.12) {
           ctx.beginPath();
-          ctx.moveTo(210 + Math.cos(angle) * 35, 775 - Math.sin(angle) * 35);
-          ctx.lineTo(210 + Math.cos(angle) * 110, 775 - Math.sin(angle) * 110);
+          ctx.moveTo(210 + Math.cos(angle) * 35, 795 - Math.sin(angle) * 35);
+          ctx.lineTo(210 + Math.cos(angle) * 110, 795 - Math.sin(angle) * 110);
           ctx.stroke();
         }
 
         // Subarea 5 Title Badge
-        ctx.font = '900 0.46rem "Cinzel", serif';
+        ctx.font = '900 0.44rem "Cinzel", serif';
         ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#ffd700';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ SUBAREA V : LABIAL CHAMBER ✦', 210, 792);
+        ctx.fillText('✦ SUBAREA V : LABIAL CHAMBER ✦', 210, 798);
         ctx.shadowBlur = 0;
-        ctx.font = '700 0.31rem "Space Mono", monospace';
+        ctx.font = '700 0.30rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
-        ctx.fillText('BILABIAL SOLENOIDS • GLOTTAL RECOVERY', 210, 802);
+        ctx.fillText('BILABIAL SOLENOIDS • GLOTTAL RECOVERY', 210, 807);
         ctx.restore();
       }
 
@@ -5590,11 +5611,11 @@
         ctx.save();
 
         // 1. Divider Blades (Polished Brass Blades separating Outlane & Inlane)
-        // Left divider: (66, 585) to (66, 680)
-        // Right divider: (374, 585) to (374, 680)
+        // Left divider: (68, 550) to (68, 660)
+        // Right divider: (352, 550) to (352, 660)
         const dividers = [
-          { topX: 66, topY: 585, botX: 66, botY: 680 },
-          { topX: 374, topY: 585, botX: 374, botY: 680 }
+          { topX: 68, topY: 550, botX: 68, botY: 660 },
+          { topX: 352, topY: 550, botX: 352, botY: 660 }
         ];
 
         dividers.forEach(d => {
@@ -5630,26 +5651,26 @@
           ctx.fill();
         });
 
-        // 2. Return Wire Rails leading from inlanes onto flipper pivots
+        // 2. Calibrated Return Wire Rails leading tangent onto flipper pivots at y=745
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        // Left inlane exit onto left flipper: (66, 680) -> (125, 718)
-        ctx.moveTo(66, 680);
-        ctx.lineTo(125, 718);
-        // Right inlane exit onto right flipper: (374, 680) -> (295, 718)
-        ctx.moveTo(374, 680);
-        ctx.lineTo(295, 718);
+        // Left inlane exit onto left flipper: (68, 660) -> (128, 740)
+        ctx.moveTo(68, 660);
+        ctx.lineTo(128, 740);
+        // Right inlane exit onto right flipper: (352, 660) -> (292, 740)
+        ctx.moveTo(352, 660);
+        ctx.lineTo(292, 740);
         ctx.stroke();
 
         // 3. Outlane Outer Wall Trim Guides
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(20, 660);
-        ctx.lineTo(20, 770);
-        ctx.moveTo(418, 660);
-        ctx.lineTo(418, 770);
+        ctx.moveTo(20, 650);
+        ctx.lineTo(20, 785);
+        ctx.moveTo(418, 650);
+        ctx.lineTo(418, 785);
         ctx.stroke();
 
         // 3. Inlane Rollover Wire Switches (Left: 88, 525 / Right: 372, 525)
@@ -5856,6 +5877,92 @@
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.65)';
         ctx.lineWidth = 2.0;
         ctx.stroke();
+
+        // 1. THE LEFT ORBIT CHANNEL RAIL (Dedicated Outer Loop)
+        ctx.save();
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 3.0;
+        ctx.beginPath();
+        ctx.moveTo(58, 370);
+        ctx.lineTo(58, 160);
+        ctx.quadraticCurveTo(58, 115, 85, 90);
+        ctx.stroke();
+
+        // Left Orbit Entrance Anchor Stud
+        ctx.beginPath();
+        ctx.arc(58, 370, 4.0, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffd700';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Orbit Route Label
+        ctx.save();
+        ctx.translate(50, 260);
+        ctx.rotate(-Math.PI / 2);
+        ctx.font = '700 0.38rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
+        ctx.textAlign = 'center';
+        ctx.fillText('◀ VOCAL ORBIT LOOP ◀', 0, 0);
+        ctx.restore();
+        ctx.restore();
+
+        // 2. THE RIGHT RETURN GUIDE WIRE (Vocal Grotto exit -> Right Inlane)
+        ctx.save();
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(365, 140);
+        ctx.lineTo(365, 270);
+        ctx.quadraticCurveTo(365, 330, 348, 370);
+        ctx.lineTo(348, 540);
+        ctx.stroke();
+
+        // Right Guide Exit Finial Stud
+        ctx.beginPath();
+        ctx.arc(348, 540, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffd700';
+        ctx.fill();
+        ctx.restore();
+
+        // 3. MIDFIELD VELOPHARYNGEAL DEFLECTOR ARCHES (Intercepts direct falls to the drain!)
+        ctx.save();
+        // Left Midfield Arch: (160, 360) -> (92, 420)
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 3.5;
+        ctx.shadowColor = '#dfb15b';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(160, 360);
+        ctx.lineTo(92, 420);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Right Midfield Arch: (260, 360) -> (328, 420)
+        ctx.beginPath();
+        ctx.moveTo(260, 360);
+        ctx.lineTo(328, 420);
+        ctx.stroke();
+
+        // Arch Terminal Brass Rivets
+        [[160, 360], [92, 420], [260, 360], [328, 420]].forEach(([px, py]) => {
+          ctx.beginPath();
+          ctx.arc(px, py, 4.0, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd700';
+          ctx.fill();
+          ctx.strokeStyle = '#060810';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        });
+
+        // Directional Fairway Guidance Decals on Arches
+        ctx.font = '700 0.32rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.7)';
+        ctx.textAlign = 'center';
+        ctx.fillText('◀ TO SCOOP [M]', 118, 385);
+        ctx.fillText('TO SCOOP [N] ▶', 302, 385);
+        ctx.restore();
       }
 
       renderBumpers(ctx) {
