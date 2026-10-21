@@ -1679,7 +1679,8 @@
           5: { id: 'palate', name: 'PALATAL CITADEL', organ: 'Palate / Velum', unl: false, icon: '👑' }
         };
         this.tierProgress = {
-          flipperFlips: 0,
+          labialHits: 0,
+          linguaHits: 0,
           scoopM: false,
           scoopN: false,
           vowelsVisited: new Set(),
@@ -1715,30 +1716,30 @@
         this.isPlungerCharging = false;
 
         // Flippers
-        // Main Left Flipper
+        // Main Left Flipper (Recentered with authentic 50px center drain gap)
         this.leftFlipper = {
-          pivotX: 135,
+          pivotX: 130,
           pivotY: 605,
-          length: 74,
-          baseAngle: 0.55,   // Rest angle (pointing down-inward)
-          upAngle: -0.55,    // Flipped up angle
-          currentAngle: 0.55,
+          length: 62,
+          baseAngle: 0.50,   // Rest angle (pointing down-inward)
+          upAngle: -0.52,    // Flipped up angle
+          currentAngle: 0.50,
           isPressed: false,
           angularVelocity: 0,
-          angularSpeed: 0.38
+          angularSpeed: 0.40
         };
 
         // Main Right Flipper
         this.rightFlipper = {
-          pivotX: 285,
+          pivotX: 290,
           pivotY: 605,
-          length: 74,
-          baseAngle: Math.PI - 0.55,
-          upAngle: Math.PI + 0.55,
-          currentAngle: Math.PI - 0.55,
+          length: 62,
+          baseAngle: Math.PI - 0.50,
+          upAngle: Math.PI + 0.52,
+          currentAngle: Math.PI - 0.50,
           isPressed: false,
           angularVelocity: 0,
-          angularSpeed: 0.38
+          angularSpeed: 0.40
         };
 
         // Upper Right Mini-Flipper ("The Palatal Valve" - Cross-table Skill Shot)
@@ -1754,10 +1755,10 @@
           angularSpeed: 0.42
         };
 
-        // Glottal Kickback Solenoid (Left Outlane Ball Save Pocket)
+        // Glottal Kickback Solenoid (Inside the Open Left Outlane Corridor at 42, 595)
         this.glottalKickback = {
-          x: 35,
-          y: 615,
+          x: 42,
+          y: 595,
           r: 16,
           isLit: true,
           cooldown: 0,
@@ -1766,8 +1767,8 @@
 
         // Inlane Rollover Wire Switches (Awards +150 & Relights Glottal Kickback)
         this.inlaneRollovers = [
-          { id: 'left',  x: 88,  y: 525, r: 14, lastHit: -9999, anim: 0 },
-          { id: 'right', x: 372, y: 525, r: 14, lastHit: -9999, anim: 0 }
+          { id: 'left',  x: 86,  y: 520, r: 14, lastHit: -9999, anim: 0 },
+          { id: 'right', x: 354, y: 520, r: 14, lastHit: -9999, anim: 0 }
         ];
 
         // The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
@@ -1814,15 +1815,30 @@
           label: 'LINGUA'
         };
 
-        // Active Triangular Slingshots ([P] on left, [D] on right - Art Deco Sunbursts)
+        // Dynamic Consonant Banks for Slingshots (Articulator Mutation Engine)
+        this.slingshotBanks = {
+          left: [
+            { label: 'P', phoneme: 'P', family: 'LABIAL', color: '#ffd700' },
+            { label: 'B', phoneme: 'B', family: 'LABIAL', color: '#4facfe' },
+            { label: 'M', phoneme: 'M', family: 'NASAL',  color: '#f6e58d' }
+          ],
+          right: [
+            { label: 'D', phoneme: 'D', family: 'DENTAL', color: '#dfb15b' },
+            { label: 'T', phoneme: 'T', family: 'DENTAL', color: '#f093fb' },
+            { label: 'N', phoneme: 'N', family: 'NASAL',  color: '#2ed573' }
+          ]
+        };
+        this.slingshotBankIdx = { left: 0, right: 0 };
+
+        // Active Triangular Slingshots (Dynamic Phonetic Organ Sunbursts)
         this.slingshots = [
           {
-            id: 'P', label: 'P', phoneme: 'P', color: '#ffd700',
+            id: 'P', label: 'P', phoneme: 'P', family: 'LABIAL', color: '#ffd700',
             p1: { x: 135, y: 475 }, p2: { x: 185, y: 575 }, p3: { x: 105, y: 535 },
             anim: 0
           },
           {
-            id: 'D', label: 'D', phoneme: 'D', color: '#dfb15b',
+            id: 'D', label: 'D', phoneme: 'D', family: 'DENTAL', color: '#dfb15b',
             p1: { x: 325, y: 475 }, p2: { x: 275, y: 575 }, p3: { x: 355, y: 535 },
             anim: 0
           }
@@ -2071,12 +2087,7 @@
       }
 
       onFlipperStroke() {
-        if (this.tierProgress) {
-          this.tierProgress.flipperFlips = (this.tierProgress.flipperFlips || 0) + 1;
-          if (this.tierProgress.flipperFlips >= 3) {
-            this.unlockTier(2); // Tier II: Labial Gateway
-          }
-        }
+        // Flipper stroke actuation
       }
 
       // -----------------------------------------------------------------------
@@ -2085,19 +2096,41 @@
       activateArticulator(name) {
         if (!this.articulators) return;
         this.articulators[name] = true;
-        const tierMap = {
-          larynx: 1,
-          lips: 2,
-          tongue: 3,
-          nasal: 4,
-          palate: 5
-        };
-        const t = tierMap[name];
-        if (t) {
-          this.unlockTier(t);
-        } else {
-          this.updateArticulatorLamps();
+        this.updateArticulatorLamps();
+      }
+
+      // Dynamic Consonant Mutation (Articulator Mutation Engine)
+      cycleConsonants(source = 'SHIFT') {
+        if (!this.slingshotBanks || !this.slingshots) return;
+        this.slingshotBankIdx.left = (this.slingshotBankIdx.left + 1) % this.slingshotBanks.left.length;
+        this.slingshotBankIdx.right = (this.slingshotBankIdx.right + 1) % this.slingshotBanks.right.length;
+
+        const leftEntry = this.slingshotBanks.left[this.slingshotBankIdx.left];
+        const rightEntry = this.slingshotBanks.right[this.slingshotBankIdx.right];
+
+        this.slingshots[0].label = leftEntry.label;
+        this.slingshots[0].phoneme = leftEntry.phoneme;
+        this.slingshots[0].family = leftEntry.family;
+        this.slingshots[0].color = leftEntry.color;
+
+        this.slingshots[1].label = rightEntry.label;
+        this.slingshots[1].phoneme = rightEntry.phoneme;
+        this.slingshots[1].family = rightEntry.family;
+        this.slingshots[1].color = rightEntry.color;
+
+        if (this.synth) {
+          this.synth.playCelestialChime(1800);
         }
+
+        if (!this.floaters) this.floaters = [];
+        this.floaters.push({
+          text: `✦ PHONEME SHIFT: [${leftEntry.label}] & [${rightEntry.label}] ✦`,
+          x: 210,
+          y: 440,
+          vy: -0.9,
+          alpha: 1.0,
+          isImpressive: false
+        });
       }
 
       unlockTier(tierNum) {
@@ -2275,7 +2308,8 @@
           }
         }
         if (this.tierProgress) {
-          this.tierProgress.flipperFlips = 0;
+          this.tierProgress.labialHits = 0;
+          this.tierProgress.linguaHits = 0;
           this.tierProgress.scoopM = false;
           this.tierProgress.scoopN = false;
           this.tierProgress.vowelsVisited.clear();
@@ -2413,6 +2447,7 @@
 
         this.score += pts;
         this.discoveredWords.add(match.word);
+        if (this.glottalKickback) this.glottalKickback.isLit = true;
 
         // Always spawn a non-intrusive floating canvas label at ball position
         if (!this.floaters) this.floaters = [];
@@ -2857,18 +2892,18 @@
         }
 
         // 3. INLANE & OUTLANE BALL RETURN CORRIDORS
-        // Left divider blade between outlane (x: 20..70) and inlane (x: 72..105):
-        this.collideLineSegment(70, 460, 70, 550, 0.75, b);
-        // Right divider blade between inlane (x: 355..388) and outlane (x: 392..418):
-        this.collideLineSegment(390, 460, 390, 550, 0.75, b);
+        // Left Divider Blade: separates outlane (x: 20..66) from inlane (x: 66..105)
+        this.collideLineSegment(66, 465, 66, 555, 0.75, b);
+        // Right Divider Blade: separates inlane (x: 335..374) from outlane (x: 374..418)
+        this.collideLineSegment(374, 465, 374, 555, 0.75, b);
 
-        // Funnel guides leading into inlane / outlane entrances:
-        this.collideLineSegment(20, 440, 70, 460, 0.75, b);
-        this.collideLineSegment(418, 440, 390, 460, 0.75, b);
+        // Lower Inlane Return Wire Guides feeding balls smoothly onto main flipper heels:
+        this.collideLineSegment(66, 555, 125, 598, 0.78, b);
+        this.collideLineSegment(374, 555, 295, 598, 0.78, b);
 
-        // Lower return guides feeding balls smoothly onto main flipper heels:
-        this.collideLineSegment(70, 550, 155, 592, 0.78, b);
-        this.collideLineSegment(390, 550, 305, 592, 0.78, b);
+        // Lower Outer Outlane Boundaries (guiding balls down past flippers into drain):
+        this.collideLineSegment(20, 540, 20, 645, 0.75, b);
+        this.collideLineSegment(418, 540, 418, 645, 0.75, b);
 
         // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 80, 350):
         this.collideLineSegment(20, 370, 65, 350, 0.75, b);
@@ -2959,8 +2994,15 @@
             this.synth.playCelestialChime(1420 + Math.random() * 280);
             this.registerPhoneme(bumper.phoneme, false);
 
-            this.activateArticulator('palate');
-            if (bumper.phoneme === 'B') this.activateArticulator('lips');
+            if (bumper.phoneme === 'B') {
+              this.activateArticulator('lips');
+              if (this.tierProgress) {
+                this.tierProgress.labialHits = (this.tierProgress.labialHits || 0) + 1;
+                if (this.tierProgress.labialHits >= 3) {
+                  this.unlockTier(2); // Tier II: Labial Gateway
+                }
+              }
+            }
           }
         });
       }
@@ -3032,8 +3074,18 @@
 
           this.synth.playCelestialChime(1550);
           this.synth.triggerConsonant('T');
-          this.unlockTier(3); // Tier III: Lingual Plain
           this.activateArticulator('tongue');
+
+          // Advance Tier III: Lingual Plain on 2 direct hits
+          if (this.tierProgress) {
+            this.tierProgress.linguaHits = (this.tierProgress.linguaHits || 0) + 1;
+            if (this.tierProgress.linguaHits >= 2) {
+              this.unlockTier(3); // Tier III: Lingual Plain
+            }
+          }
+
+          // Cycle consonants upon striking the Lingual post
+          this.cycleConsonants('LINGUA');
 
           // Multiball Tongue Jackpot!
           if (this.isMultiballActive) {
@@ -3090,11 +3142,21 @@
             sl.anim = 1.0;
             this.synth.triggerConsonant(sl.phoneme);
             this.registerPhoneme(sl.phoneme, false);
-            if (sl.phoneme === 'P') {
-              this.unlockTier(2); // Tier II: Labial Gateway
+
+            if (sl.family === 'LABIAL') {
               this.activateArticulator('lips');
+              if (this.tierProgress) {
+                this.tierProgress.labialHits = (this.tierProgress.labialHits || 0) + 1;
+                if (this.tierProgress.labialHits >= 3) {
+                  this.unlockTier(2); // Tier II: Labial Gateway
+                }
+              }
+            } else if (sl.family === 'DENTAL') {
+              this.activateArticulator('palate');
             }
-            if (sl.phoneme === 'D') this.activateArticulator('palate');
+
+            // Articulator Mutation: Rotate consonants after each kick!
+            this.cycleConsonants('SLINGSHOT');
 
             this.score += 150;
             this.updateHUD();
@@ -3205,16 +3267,16 @@
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
         const gk = this.glottalKickback;
 
-        // In left outlane pocket (x: 20..68, y: 600..638)
-        if (b.x > 20 && b.x < 68 && b.y >= 600 && b.y <= 638) {
+        // In left outlane corridor (x: 20..66, y: 575..630)
+        if (b.x >= 20 && b.x <= 66 && b.y >= 575 && b.y <= 630) {
           if (gk.isLit && gk.cooldown <= 0) {
             gk.isLit = false;
             gk.anim = 1.0;
             gk.cooldown = 1200;
 
-            // Explosive solenoid burst up towards astrolabe
-            b.vx = 3.2;
-            b.vy = -18.2;
+            // Explosive solenoid burst up the open left outlane corridor
+            b.vx = 2.8;
+            b.vy = -18.5;
 
             this.synth.playGlottalKickback();
             this.unlockTier(1); // Tier I: Laryngeal Vault
@@ -3425,7 +3487,10 @@
             s.spinSpeed = Math.abs(b.vy) * 0.35 + 0.5;
             this.synth.triggerConsonant('S'); // Fricative hiss
             this.registerPhoneme('S', false);
-            this.activateArticulator('palate');
+
+            // Cycle consonants upon Astrolabe spinner spin
+            this.cycleConsonants('SPINNER');
+
             this.score += 50;
             this.updateHUD();
 
@@ -3793,11 +3858,11 @@
         ctx.save();
 
         // 1. Divider Blades (Polished Brass Blades separating Outlane & Inlane)
-        // Left divider: (70, 460) to (70, 550)
-        // Right divider: (390, 460) to (390, 550)
+        // Left divider: (66, 465) to (66, 555)
+        // Right divider: (374, 465) to (374, 555)
         const dividers = [
-          { topX: 70, topY: 460, botX: 70, botY: 550 },
-          { topX: 390, topY: 460, botX: 390, botY: 550 }
+          { topX: 66, topY: 465, botX: 66, botY: 555 },
+          { topX: 374, topY: 465, botX: 374, botY: 555 }
         ];
 
         dividers.forEach(d => {
@@ -3837,17 +3902,22 @@
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        // Left inlane exit onto left flipper: (70, 550) -> (155, 592)
-        ctx.moveTo(70, 550);
-        ctx.lineTo(155, 592);
-        // Right inlane exit onto right flipper: (390, 550) -> (305, 592)
-        ctx.moveTo(390, 550);
-        ctx.lineTo(305, 592);
-        // Funnel guides into lane entrances
-        ctx.moveTo(20, 440);
-        ctx.lineTo(70, 460);
-        ctx.moveTo(418, 440);
-        ctx.lineTo(390, 460);
+        // Left inlane exit onto left flipper: (66, 555) -> (125, 598)
+        ctx.moveTo(66, 555);
+        ctx.lineTo(125, 598);
+        // Right inlane exit onto right flipper: (374, 555) -> (295, 598)
+        ctx.moveTo(374, 555);
+        ctx.lineTo(295, 598);
+        ctx.stroke();
+
+        // 3. Outlane Outer Wall Trim Guides (Open entrances above 465)
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(20, 540);
+        ctx.lineTo(20, 645);
+        ctx.moveTo(418, 540);
+        ctx.lineTo(418, 645);
         ctx.stroke();
 
         // 3. Inlane Rollover Wire Switches (Left: 88, 525 / Right: 372, 525)
@@ -3960,13 +4030,18 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('OFF', 0, 0);
+
+            // Gutter Drain Label when kickback is depleted
+            ctx.font = '700 0.38rem "Space Mono", monospace';
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.55)';
+            ctx.fillText('▼ DRAIN', 0, 25);
           }
           ctx.restore();
         }
 
         // 5. Right Outlane Gutter Drain Warning
         ctx.save();
-        ctx.translate(402, 595);
+        ctx.translate(396, 600);
         ctx.font = '700 0.42rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(239, 68, 68, 0.55)';
         ctx.textAlign = 'center';
