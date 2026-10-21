@@ -24,7 +24,7 @@
       intervals: [0, 1, 3, 5, 7, 8, 10, 12, 13, 15, 17, 19],
       color: 0x141824,
       emissive: 0x00f2fe,
-      delayFeedback: 0.46
+      delayFeedback: 0.44
     },
     // 0.17 - 0.33: Liquid Mercury (Glassy, soulful Dorian)
     {
@@ -33,7 +33,7 @@
       intervals: [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19],
       color: 0xd2d6dc,
       emissive: 0x4facfe,
-      delayFeedback: 0.42
+      delayFeedback: 0.40
     },
     // 0.34 - 0.50: Burnished Bronze (Warm, nostalgic Aeolian)
     {
@@ -42,7 +42,7 @@
       intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19],
       color: 0xc87d55,
       emissive: 0xffb199,
-      delayFeedback: 0.38
+      delayFeedback: 0.36
     },
     // 0.51 - 0.67: Rose Gold (Dramatic, neoclassical Harmonic Minor)
     {
@@ -51,7 +51,7 @@
       intervals: [0, 2, 3, 5, 7, 8, 11, 12, 14, 15, 19, 20],
       color: 0xb53471,
       emissive: 0xff7eb3,
-      delayFeedback: 0.44
+      delayFeedback: 0.42
     },
     // 0.68 - 0.83: Acid Emerald (Dreamy, sci-fi Lydian)
     {
@@ -60,7 +60,7 @@
       intervals: [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19],
       color: 0x00b894,
       emissive: 0x55efc4,
-      delayFeedback: 0.40
+      delayFeedback: 0.38
     },
     // 0.84 - 1.00: Electric Cobalt (Radiant, uplifting Mixolydian)
     {
@@ -69,7 +69,7 @@
       intervals: [0, 2, 4, 5, 7, 9, 10, 12, 14, 16, 17, 19],
       color: 0x0984e3,
       emissive: 0x74b9ff,
-      delayFeedback: 0.48
+      delayFeedback: 0.46
     }
   ];
 
@@ -84,9 +84,9 @@
       this.limiterNode = null;
       this.delayNode = null;
       this.delayFeedback = null;
-      this.filterNode = null;
       this.tapeShaperNode = null;
       this.noiseBuffer = null;
+      this.currentDelayTime = 0.28;
       this.lastAppliedBump = 0.20;
 
       // Clock / Arp state
@@ -109,6 +109,7 @@
       // Animation & mesh update flags
       this.needsMeshUpdate = false;
       this.needsMaterialUpdate = false;
+      this.pulseNeedsClear = false;
 
       // Mouse drag rotation state
       this.isDragging = false;
@@ -181,7 +182,6 @@
       this.scene.add(this.pointLight2);
 
       // Non-indexed Geodesic Icosahedron (1,280 independent flat triangular facets)
-      // Allows individual facets to illuminate crisp and stepped like a kinetic jewel
       const indexedGeo = new THREE.IcosahedronGeometry(2.1, 3);
       this.baseGeometry = indexedGeo.toNonIndexed();
       indexedGeo.dispose();
@@ -209,7 +209,7 @@
       this.mesh = new THREE.Mesh(this.baseGeometry, this.material);
       this.scene.add(this.mesh);
 
-      // Localized point light at the active origin facet
+      // Localized point light at active origin facet
       this.nodeLight = new THREE.PointLight(0x00f2fe, 0.0, 4.5, 2.0);
       this.mesh.add(this.nodeLight);
 
@@ -461,69 +461,69 @@
           this.mesh.rotation.z += tumbleSpeed * 0.30;
         }
 
-        // Advance active facet pulses and calculate stepped brightness
-        // Step brightness falloff curve: root facet is 1.0, adjacent is 0.65, next is 0.35, edge is 0.12
-        const STEP_FALLOFF = [1.0, 0.65, 0.35, 0.12];
+        // Only upload vertex colors when pulses are actively decaying (saves GPU bus overhead)
+        if (this.activePulses.length > 0 || this.pulseNeedsClear) {
+          const STEP_FALLOFF = [1.0, 0.65, 0.35, 0.12];
 
-        if (this.triBrightness) {
-          this.triBrightness.fill(0);
-        }
-
-        const now = performance.now();
-        const dt = Math.min(0.05, (now - this.lastFrameTime) * 0.001);
-        this.lastFrameTime = now;
-
-        for (let pIdx = this.activePulses.length - 1; pIdx >= 0; pIdx--) {
-          const pulse = this.activePulses[pIdx];
-          pulse.life -= pulse.decaySpeed * dt;
-          if (pulse.life <= 0) {
-            this.activePulses.splice(pIdx, 1);
-            continue;
+          if (this.triBrightness) {
+            this.triBrightness.fill(0);
           }
 
-          pulse.facets.forEach((stepDepth, triIdx) => {
-            if (stepDepth < STEP_FALLOFF.length && triIdx < this.triBrightness.length) {
-              const b = pulse.life * STEP_FALLOFF[stepDepth];
-              if (b > this.triBrightness[triIdx]) {
-                this.triBrightness[triIdx] = b;
-              }
+          const now = performance.now();
+          const dt = Math.min(0.05, (now - this.lastFrameTime) * 0.001);
+          this.lastFrameTime = now;
+
+          for (let pIdx = this.activePulses.length - 1; pIdx >= 0; pIdx--) {
+            const pulse = this.activePulses[pIdx];
+            pulse.life -= pulse.decaySpeed * dt;
+            if (pulse.life <= 0) {
+              this.activePulses.splice(pIdx, 1);
+              continue;
             }
-          });
-        }
 
-        // Update vertex colors array for individual facet lighting
-        const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
-        const scaleObj = SCALES[tIdx];
-
-        const baseC = new THREE.Color(scaleObj.color);
-        const lumaC = new THREE.Color(scaleObj.emissive);
-
-        const colorAttr = this.baseGeometry.attributes.color;
-        const colorArr = colorAttr.array;
-        const triCount = this.triBrightness.length;
-
-        for (let t = 0; t < triCount; t++) {
-          const b = this.triBrightness[t];
-          let r, g, bl;
-          if (b > 0.001) {
-            // Facet lights up with neon radiance, scaling by stepped falloff
-            r = Math.min(1.0, baseC.r * 0.3 + lumaC.r * b * 1.7);
-            g = Math.min(1.0, baseC.g * 0.3 + lumaC.g * b * 1.7);
-            bl = Math.min(1.0, baseC.b * 0.3 + lumaC.b * b * 1.7);
-          } else {
-            // Resting metallic facet
-            r = baseC.r;
-            g = baseC.g;
-            bl = baseC.b;
+            pulse.facets.forEach((stepDepth, triIdx) => {
+              if (stepDepth < STEP_FALLOFF.length && triIdx < this.triBrightness.length) {
+                const b = pulse.life * STEP_FALLOFF[stepDepth];
+                if (b > this.triBrightness[triIdx]) {
+                  this.triBrightness[triIdx] = b;
+                }
+              }
+            });
           }
 
-          const vBase = t * 9; // 3 vertices * 3 components
-          colorArr[vBase]     = r;  colorArr[vBase + 1] = g;  colorArr[vBase + 2] = bl;
-          colorArr[vBase + 3] = r;  colorArr[vBase + 4] = g;  colorArr[vBase + 5] = bl;
-          colorArr[vBase + 6] = r;  colorArr[vBase + 7] = g;  colorArr[vBase + 8] = bl;
-        }
+          // Update vertex colors array for individual facet lighting
+          const tIdx = Math.min(SCALES.length - 1, Math.floor(this.params.tint * SCALES.length));
+          const scaleObj = SCALES[tIdx];
 
-        colorAttr.needsUpdate = true;
+          const baseC = new THREE.Color(scaleObj.color);
+          const lumaC = new THREE.Color(scaleObj.emissive);
+
+          const colorAttr = this.baseGeometry.attributes.color;
+          const colorArr = colorAttr.array;
+          const triCount = this.triBrightness.length;
+
+          for (let t = 0; t < triCount; t++) {
+            const b = this.triBrightness[t];
+            let r, g, bl;
+            if (b > 0.001) {
+              r = Math.min(1.0, baseC.r * 0.3 + lumaC.r * b * 1.6);
+              g = Math.min(1.0, baseC.g * 0.3 + lumaC.g * b * 1.6);
+              bl = Math.min(1.0, baseC.b * 0.3 + lumaC.b * b * 1.6);
+            } else {
+              r = baseC.r;
+              g = baseC.g;
+              bl = baseC.b;
+            }
+
+            const vBase = t * 9; // 3 vertices * 3 components
+            colorArr[vBase]     = r;  colorArr[vBase + 1] = g;  colorArr[vBase + 2] = bl;
+            colorArr[vBase + 3] = r;  colorArr[vBase + 4] = g;  colorArr[vBase + 5] = bl;
+            colorArr[vBase + 6] = r;  colorArr[vBase + 7] = g;  colorArr[vBase + 8] = bl;
+          }
+
+          colorAttr.needsUpdate = true;
+          this.pulseNeedsClear = (this.activePulses.length > 0);
+        }
 
         // Localized point light decay
         if (this.nodeLightIntensity > 0.01) {
@@ -583,6 +583,7 @@
         scaleObj: scaleObj,
         isDownbeat: isDownbeat
       });
+      this.pulseNeedsClear = true;
 
       // Position localized point light at origin facet
       if (this.nodeLight && this.baseGeometry) {
@@ -598,7 +599,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // 3. WARM MELODIC WEB AUDIO SYNTHESIZER ENGINE (Click-Free & Master-Limited)
+    // 3. WARM MELODIC WEB AUDIO SYNTHESIZER ENGINE (Click-Free & Gain-Compensated)
     // ------------------------------------------------------------------------
     makeTapeSaturationCurve(amount) {
       const n = 1024;
@@ -610,7 +611,7 @@
         return curve;
       }
       // Warm analog soft-clipping tape saturation (smooth arctan drive)
-      const drive = 1.0 + amount * 3.5;
+      const drive = 1.0 + amount * 3.0;
       const norm = 2.0 / Math.PI;
       for (let i = 0; i < n; i++) {
         const x = (i * 2) / n - 1;
@@ -626,15 +627,15 @@
 
       // Master output bus with calibrated gain headroom
       this.masterGain = this.audioCtx.createGain();
-      this.masterGain.gain.setValueAtTime(0.65, this.audioCtx.currentTime);
+      this.masterGain.gain.setValueAtTime(0.60, this.audioCtx.currentTime);
 
-      // Studio Brickwall Limiter to prevent ANY digital clipping, DAC overflow, or popping
+      // Studio Brickwall Limiter to prevent ANY digital clipping or DAC overflow
       this.limiterNode = this.audioCtx.createDynamicsCompressor();
-      this.limiterNode.threshold.setValueAtTime(-2.5, this.audioCtx.currentTime); // -2.5 dBFS ceiling
-      this.limiterNode.knee.setValueAtTime(6.0, this.audioCtx.currentTime);
-      this.limiterNode.ratio.setValueAtTime(16.0, this.audioCtx.currentTime);    // Hard limiting
-      this.limiterNode.attack.setValueAtTime(0.003, this.audioCtx.currentTime);  // 3ms catch
-      this.limiterNode.release.setValueAtTime(0.12, this.audioCtx.currentTime);  // 120ms transparent release
+      this.limiterNode.threshold.setValueAtTime(-3.0, this.audioCtx.currentTime); // -3 dBFS ceiling
+      this.limiterNode.knee.setValueAtTime(3.0, this.audioCtx.currentTime);
+      this.limiterNode.ratio.setValueAtTime(20.0, this.audioCtx.currentTime);    // True brickwall limiting
+      this.limiterNode.attack.setValueAtTime(0.001, this.audioCtx.currentTime);  // 1ms instantaneous catch
+      this.limiterNode.release.setValueAtTime(0.08, this.audioCtx.currentTime);  // 80ms fast clean recovery
 
       // Warm Tape Saturation Shaper for Bump
       this.tapeShaperNode = this.audioCtx.createWaveShaper();
@@ -644,20 +645,13 @@
       this.delayNode = this.audioCtx.createDelay(1.5);
       this.delayNode.delayTime.value = 0.28;
       this.delayFeedback = this.audioCtx.createGain();
-      this.delayFeedback.gain.value = 0.40;
+      this.delayFeedback.gain.value = 0.38;
 
       this.delayNode.connect(this.delayFeedback);
       this.delayFeedback.connect(this.delayNode);
       this.delayNode.connect(this.masterGain);
 
-      // Resonant Lowpass Filter (Spike gives sweet, musical, juicy sweeps)
-      this.filterNode = this.audioCtx.createBiquadFilter();
-      this.filterNode.type = 'lowpass';
-      this.filterNode.frequency.value = 2400;
-      this.filterNode.Q.value = 2.5;
-
-      // Filter -> Tape Saturation -> Master & Delay -> Limiter -> Destination
-      this.filterNode.connect(this.tapeShaperNode);
+      // Tape Shaper routes into master bus and delay line
       this.tapeShaperNode.connect(this.masterGain);
       this.tapeShaperNode.connect(this.delayNode);
 
@@ -747,19 +741,22 @@
         this.nextNoteTime = now + 0.02;
       }
 
+      // Tempo mapped from Tumble (65 BPM to 185 BPM)
+      const bpm = 65 + this.params.tumble * 120;
+      const stepSec = 60 / (bpm * 2); // 8th note steps
+
+      // Hypnotic dotted-eighth echo sync with gentle, continuous smoothing
+      // (Only smoothly adjusts delayTime if it drifted significantly, avoiding buffer tearing)
+      if (this.delayNode) {
+        const targetDelay = Math.min(1.4, stepSec * 1.5);
+        if (!this.currentDelayTime || Math.abs(this.currentDelayTime - targetDelay) > 0.03) {
+          this.delayNode.delayTime.setTargetAtTime(targetDelay, now, 0.5);
+          this.currentDelayTime = targetDelay;
+        }
+      }
+
       while (this.nextNoteTime < now + 0.12) {
         this.playStep(this.nextNoteTime, this.currentStep);
-
-        // Tempo mapped from Tumble (65 BPM to 185 BPM)
-        const bpm = 65 + this.params.tumble * 120;
-        const stepSec = 60 / (bpm * 2); // 8th note steps
-
-        // Hypnotic dotted-eighth echo sync with gentle, continuous smoothing
-        if (this.delayNode) {
-          const targetDelay = Math.min(1.4, stepSec * 1.5);
-          this.delayNode.delayTime.setTargetAtTime(targetDelay, this.nextNoteTime, 0.25);
-        }
-
         this.nextNoteTime += stepSec;
         const numSteps = Math.round(this.params.sprout);
         this.currentStep = (this.currentStep + 1) % numSteps;
@@ -787,7 +784,25 @@
       const midi = baseMidi + interval + noteOctShift;
       const targetFreq = 440 * Math.pow(2, (midi - 69) / 12);
 
-      // 3. Charming Melodic Voice (Triangle smoothly morphing into Sawtooth via Spike)
+      // 3. Dedicated Per-Voice Resonant Filter with Resonance Gain Compensation
+      // (Prevents filter interruption clicks and prevents high Spike Q from exploding)
+      const voiceFilter = this.audioCtx.createBiquadFilter();
+      voiceFilter.type = 'lowpass';
+
+      const resQ = 1.0 + this.params.spike * 4.5;
+      voiceFilter.Q.setValueAtTime(resQ, time);
+
+      // Cutoff envelope: sweeps from peakCutoff down to baseCutoff
+      const baseCutoff = 350 + Math.pow(this.params.spike, 1.8) * 6500;
+      const peakCutoff = Math.min(12000, baseCutoff + 400 + this.params.spike * 2800);
+
+      voiceFilter.frequency.setValueAtTime(peakCutoff, time);
+      voiceFilter.frequency.exponentialRampToValueAtTime(baseCutoff, time + 0.14);
+
+      // Automatic resonance gain compensation (keeps peak level constant as Q rises!)
+      const qComp = 1.0 / (1.0 + 0.30 * (resQ - 1.0));
+
+      // 4. Charming Melodic Voice (Triangle smoothly morphing into Sawtooth via Spike)
       const oscTri = this.audioCtx.createOscillator();
       const oscSaw = this.audioCtx.createOscillator();
       const subOsc = this.audioCtx.createOscillator();
@@ -803,11 +818,11 @@
 
       // Crossfade smoothly between warm cozy triangle and bright singing sawtooth
       const spikeMix = this.params.spike; // 0..1
-      triGain.gain.setValueAtTime(Math.cos(spikeMix * Math.PI * 0.5), time);
-      sawGain.gain.setValueAtTime(Math.sin(spikeMix * Math.PI * 0.5) * 0.85, time);
+      triGain.gain.setValueAtTime(Math.cos(spikeMix * Math.PI * 0.5) * 0.55, time);
+      sawGain.gain.setValueAtTime(Math.sin(spikeMix * Math.PI * 0.5) * 0.45, time);
 
       // Sub-bass body layer (governed by Bloat)
-      subGain.gain.setValueAtTime(0.12 + this.params.bloat * 0.48, time);
+      subGain.gain.setValueAtTime(0.08 + this.params.bloat * 0.35, time);
 
       // Portamento Pitch Glide (Twist)
       const glideTime = 0.004 + this.params.twist * 0.24;
@@ -827,17 +842,6 @@
 
       this.lastFreq = targetFreq;
 
-      // 4. Resonant Lowpass Filter Envelope Sweep (Click-free continuous ramps)
-      const baseCutoff = 350 + Math.pow(this.params.spike, 1.8) * 8000;
-      const peakCutoff = Math.min(13500, baseCutoff + 500 + this.params.spike * 3200);
-      const resQ = 1.2 + this.params.spike * 5.0;
-
-      this.filterNode.Q.setTargetAtTime(resQ, time, 0.03);
-      this.filterNode.frequency.cancelScheduledValues(time);
-      this.filterNode.frequency.setValueAtTime(Math.max(60, this.filterNode.frequency.value), time);
-      this.filterNode.frequency.linearRampToValueAtTime(peakCutoff, time + 0.008);
-      this.filterNode.frequency.exponentialRampToValueAtTime(baseCutoff, time + 0.14);
-
       // Connect oscillators to voice
       oscTri.connect(triGain);
       oscSaw.connect(sawGain);
@@ -845,7 +849,10 @@
 
       triGain.connect(voiceGain);
       sawGain.connect(voiceGain);
-      subGain.connect(this.filterNode);
+      subGain.connect(voiceGain);
+
+      // Voice routes through per-voice filter
+      voiceGain.connect(voiceFilter);
 
       // 5. Subtle Vintage Vinyl Air & Grit (Bump)
       if (this.params.bump > 0.08 && this.noiseBuffer) {
@@ -857,33 +864,34 @@
         nFilter.Q.value = 1.5;
 
         const nGain = this.audioCtx.createGain();
-        const nLevel = this.params.bump * 0.14;
+        const nLevel = this.params.bump * 0.12;
         nGain.gain.setValueAtTime(nLevel, time);
         nGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.08);
 
         noiseSrc.connect(nFilter);
         nFilter.connect(nGain);
-        nGain.connect(this.filterNode);
+        nGain.connect(voiceFilter);
         noiseSrc.start(time);
         noiseSrc.stop(time + 0.09);
       }
 
-      // 6. Stereo Auto-Pan (Tumble)
+      // 6. Stereo Auto-Pan (Tumble) with continuous pan ramps
       if (this.audioCtx.createStereoPanner) {
         const panner = this.audioCtx.createStereoPanner();
-        const panVal = Math.sin(stepIdx * 1.8 + this.params.tumble * 5.0) * 0.65;
-        panner.pan.setValueAtTime(panVal, time);
-        voiceGain.connect(panner);
-        panner.connect(this.filterNode);
+        const panVal = Math.sin(stepIdx * 1.8 + this.params.tumble * 5.0) * 0.60;
+        panner.pan.setValueAtTime(0, time);
+        panner.pan.linearRampToValueAtTime(panVal, time + 0.02);
+        voiceFilter.connect(panner);
+        panner.connect(this.tapeShaperNode);
       } else {
-        voiceGain.connect(this.filterNode);
+        voiceFilter.connect(this.tapeShaperNode);
       }
 
-      // 7. Amplitude Envelope (Punchy pluck with downbeat accent & click-free ramps)
-      const noteDur = 0.15 + (1.0 - this.params.tumble) * 0.15;
-      const peakVol = isDownbeat ? 0.72 : 0.58;
+      // 7. Amplitude Envelope (incorporates qComp so volume stays perfectly balanced)
+      const noteDur = 0.14 + (1.0 - this.params.tumble) * 0.14;
+      const peakVol = (isDownbeat ? 0.58 : 0.46) * qComp;
       voiceGain.gain.setValueAtTime(0.0001, time);
-      voiceGain.gain.linearRampToValueAtTime(peakVol, time + 0.012);
+      voiceGain.gain.linearRampToValueAtTime(peakVol, time + 0.010);
       voiceGain.gain.exponentialRampToValueAtTime(0.0001, time + noteDur);
 
       oscTri.start(time);
