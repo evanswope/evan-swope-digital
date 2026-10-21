@@ -3648,7 +3648,7 @@
             b.x = 442 - r;
             b.vx = -Math.abs(b.vx) * 0.5;
           }
-          if (b.x - r < 418) {
+          if (b.y >= 75 && b.x - r < 418) {
             b.x = 418 + r;
             b.vx = Math.abs(b.vx) * 0.5;
           }
@@ -3669,13 +3669,12 @@
             }
           }
 
-          // When ball clears the one-way laryngeal flap gate at y <= 75:
-          if (b.y <= 75) {
+          // When ball crests the top arch and enters the playfield (x <= 395 and y <= 40):
+          if (b.x <= 395 && b.y <= 40) {
             b.inPlungerLane = false;
             this.gateFlutter = 1.0;
             if (this.synth) this.synth.playGateClick();
           }
-          return; // Do not apply playfield obstacles while ball is inside the runway
         }
 
         // 2. MAIN PLAYFIELD WALLS & BOUNDARIES
@@ -3685,24 +3684,35 @@
           b.vx = Math.abs(b.vx) * 0.75;
         }
 
-        // Right Plunger Lane Divider Wall (y > 75)
-        if (b.y > 75 && b.x + r > 418) {
+        // Right Plunger Lane Divider Wall (y > 75) when ball is inside the playfield
+        if (!b.inPlungerLane && b.y > 75 && b.x + r > 418) {
           b.x = 418 - r;
           b.vx = -Math.abs(b.vx) * 0.75;
         }
-        // One-way laryngeal flap gate: blocks entry into runway from top playfield
-        if (b.x + r >= 418 && b.y >= 70 && b.y <= 85) {
-          b.y = 70 - r;
+
+        // One-way laryngeal flap gate: blocks playfield balls from draining down the runway
+        if (!b.inPlungerLane && b.x + r >= 418 && b.y >= 75 && b.y <= 90 && b.vy > 0) {
+          b.y = 75 - r;
           b.vy = -Math.abs(b.vy) * 0.5;
         }
 
-        // Top Outer Arch Boundary (smooth circular curve over runway exit and ceiling)
-        this.collideLineSegment(442, 85, 440, 48, 0.88, b);
-        this.collideLineSegment(440, 48, 425, 26, 0.88, b);
-        this.collideLineSegment(425, 26, 395, 18, 0.88, b);
-        this.collideLineSegment(395, 18, 350, 18, 0.88, b);
-        this.collideLineSegment(350, 18, 90, 18, 0.88, b);
-        this.collideLineSegment(90, 18, 20, 95, 0.88, b);
+        // Top Outer Arch Boundary (smooth 8-segment circular curve: radius 60 centered at 382, 78)
+        this.collideLineSegment(442.0, 78.0, 440.8, 66.3, 0.88, b);
+        this.collideLineSegment(440.8, 66.3, 437.4, 55.0, 0.88, b);
+        this.collideLineSegment(437.4, 55.0, 431.9, 44.7, 0.88, b);
+        this.collideLineSegment(431.9, 44.7, 424.4, 35.6, 0.88, b);
+        this.collideLineSegment(424.4, 35.6, 415.3, 28.1, 0.88, b);
+        this.collideLineSegment(415.3, 28.1, 405.0, 22.6, 0.88, b);
+        this.collideLineSegment(405.0, 22.6, 393.7, 19.2, 0.88, b);
+        this.collideLineSegment(393.7, 19.2, 382.0, 18.0, 0.88, b);
+        this.collideLineSegment(382.0, 18.0, 90.0, 18.0, 0.88, b);
+        this.collideLineSegment(90.0, 18.0, 20.0, 95.0, 0.88, b);
+
+        // Top Inner Arch Guide (smooth channel curve turning into the Vocal Grotto first passage)
+        this.collideLineSegment(418.0, 75.0, 417.0, 66.0, 0.8, b);
+        this.collideLineSegment(417.0, 66.0, 413.5, 56.5, 0.8, b);
+        this.collideLineSegment(413.5, 56.5, 407.5, 47.5, 0.8, b);
+        this.collideLineSegment(407.5, 47.5, 399.0, 42.0, 0.8, b);
 
         // Vocal Grotto Wire Dividers & Top Rounded Deflection Caps
         this.collideCircle(315, 62, 3.5, 0.8, b);
@@ -3741,13 +3751,17 @@
         this.collideCircle(105, 380, 3.5, 0.8, b);
         this.collideCircle(322, 368, 3.5, 0.8, b);
 
-        // Anti-stuck watchdog: covers entire playfield down to flippers (y < 640)
+        // Anti-stuck watchdog: covers entire playfield and plunger lane if stationary above cradle
         const speed = Math.hypot(b.vx, b.vy);
-        if (b.inPlay && speed < 0.25 && b.x < 415 && b.y < 640) {
+        if (b.inPlay && speed < 0.2) {
           this.stuckTimer = (this.stuckTimer || 0) + 1;
-          if (this.stuckTimer > 55) { // ~0.9s motionless
+          if (this.stuckTimer > 50) { // ~0.8s motionless
             if (this.scoopHold && this.scoopHold.active) {
               this.scoopHold.timer = 0;
+            } else if (b.inPlungerLane && b.y < 540) {
+              // Motionless in plunger lane above cradle: gravity nudge down to cradle
+              b.vy = 3.5;
+              b.vx = 0;
             } else {
               // Direct directional impulse towards center and upward
               b.vx = (b.x > 215 ? -3.8 : 3.8);
@@ -5354,11 +5368,17 @@
         ctx.beginPath();
         ctx.moveTo(20, 95);
         ctx.lineTo(90, 18);
-        ctx.lineTo(350, 18);
-        ctx.lineTo(395, 18);
-        ctx.lineTo(425, 26);
-        ctx.lineTo(440, 48);
-        ctx.lineTo(442, 85);
+        ctx.lineTo(382, 18);
+        // Smooth 60px circular arc from (382, 18) down to (442, 78)
+        ctx.arc(382, 78, 60, -Math.PI / 2, 0);
+        ctx.stroke();
+
+        // Inner Arch Guide Wire (Smooth channel turning into Vocal Grotto)
+        ctx.beginPath();
+        ctx.moveTo(418, 75);
+        ctx.quadraticCurveTo(417, 56, 399, 42);
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.65)';
+        ctx.lineWidth = 2.0;
         ctx.stroke();
       }
 
