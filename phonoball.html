@@ -1353,6 +1353,33 @@
         }
       }
 
+      // Articulate distinct vowel formant burst (/i/ Palatal, /ɑ/ Pharyngeal, /u/ Velar)
+      triggerVowel(vowel = 'ɑ') {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        let f1 = 780, f2 = 1150, pitch = 135;
+        if (vowel === 'i' || vowel === 'EE') {
+          f1 = 280; f2 = 2450; pitch = 155; // Palatal high front
+        } else if (vowel === 'u' || vowel === 'OO') {
+          f1 = 320; f2 = 850; pitch = 120;  // Velar high back rounded
+        } else if (vowel === 'ɑ' || vowel === 'AA') {
+          f1 = 820; f2 = 1180; pitch = 138; // Pharyngeal low back
+        }
+
+        // Set glottal pitch & formant frequencies
+        this.glottalOsc.frequency.setValueAtTime(pitch, now);
+        this.glottalOsc.frequency.exponentialRampToValueAtTime(pitch * 0.94, now + 0.32);
+
+        this.f1Filter.frequency.setValueAtTime(f1, now);
+        this.f2Filter.frequency.setValueAtTime(f2, now);
+
+        // Vocal pulse envelope: swift articulate attack and resonant swell
+        this.glottalGain.gain.setValueAtTime(0.001, now);
+        this.glottalGain.gain.linearRampToValueAtTime(0.48, now + 0.035);
+        this.glottalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+      }
+
       // Nasal Murmur (M / N): Warm low resonance with oral occlusion
       playNasalMurmur(isM) {
         if (!this.isAudioReady) return;
@@ -2684,17 +2711,19 @@
 
       showCelebrationBanner(word, pts, isBounty, customSub = null) {
         if (this.bannerTimer) clearTimeout(this.bannerTimer);
-        this.bannerWordEl.textContent = word;
-        if (customSub) {
-          this.bannerPtsEl.textContent = customSub;
-        } else {
-          this.bannerPtsEl.textContent = isBounty ? `BOUNTY! +${pts.toLocaleString()} PTS` : `+${pts.toLocaleString()} PTS`;
+        if (this.bannerWordEl) this.bannerWordEl.textContent = word;
+        if (this.bannerPtsEl) {
+          if (customSub) {
+            this.bannerPtsEl.textContent = customSub;
+          } else {
+            this.bannerPtsEl.textContent = isBounty ? `BOUNTY! +${pts.toLocaleString()} PTS` : `+${pts.toLocaleString()} PTS`;
+          }
         }
-        this.bannerEl.classList.add('active');
+        if (this.bannerEl) this.bannerEl.classList.add('active');
 
         // Snappy 1.0s duration so it never lingers or blocks gameplay
         this.bannerTimer = setTimeout(() => {
-          this.bannerEl.classList.remove('active');
+          if (this.bannerEl) this.bannerEl.classList.remove('active');
         }, 1200);
       }
 
@@ -3630,7 +3659,7 @@
           if (Math.abs(dx) < 14 && Math.abs(dy) < 9 && lane.cooldown <= 0) {
             lane.wireAnim = 1.0;
             lane.cooldown = 0.35;
-            this.synth.playRolloverClick();
+            if (this.synth && this.synth.playRolloverClick) this.synth.playRolloverClick();
 
             // Skill Shot Evaluation!
             if (this.skillShotActive) {
@@ -3643,7 +3672,7 @@
 
                 if (isSuper) {
                   if (this.glottalKickback) this.glottalKickback.isLit = true;
-                  this.synth.playSkillShotChime(true, lane.vowel);
+                  if (this.synth && this.synth.playSkillShotChime) this.synth.playSkillShotChime(true, lane.vowel);
                   this.showCelebrationBanner('★ SUPER SKILL SHOT! ★', 3000, true, '+5,000 PTS • GLOTTAL SAVE LIT!');
                   this.floaters.push({
                     text: '★ SUPER SKILL SHOT! +5,000 ★',
@@ -3654,7 +3683,7 @@
                     isImpressive: true
                   });
                 } else {
-                  this.synth.playSkillShotChime(false, lane.vowel);
+                  if (this.synth && this.synth.playSkillShotChime) this.synth.playSkillShotChime(false, lane.vowel);
                   this.showCelebrationBanner('✦ SKILL SHOT! ✦', 2500, true, `+${pts.toLocaleString()} PTS • ${lane.name}`);
                   this.floaters.push({
                     text: `✦ ACOUSTIC SKILL SHOT! +${pts.toLocaleString()} ✦`,
@@ -3688,7 +3717,7 @@
             const tokenMap = { 'i': 'EE', 'ɑ': 'AA', 'u': 'OO' };
             const tok = tokenMap[lane.vowel] || 'AA';
             this.registerPhoneme(tok, true);
-            this.synth.triggerVowel(lane.vowel);
+            if (this.synth && this.synth.triggerVowel) this.synth.triggerVowel(lane.vowel);
 
             // Light this lane
             lane.isLit = true;
@@ -3698,7 +3727,7 @@
               this.bonusMultiplier = Math.min(10, (this.bonusMultiplier || 1) + 1);
               this.score += 3000;
               this.updateHUD();
-              this.synth.playCelestialChime(1980);
+              if (this.synth && this.synth.playCelestialChime) this.synth.playCelestialChime(1980);
               this.floaters.push({
                 text: '✦ CARDINAL VOWELS COMPLETE! ✦',
                 x: 360,
