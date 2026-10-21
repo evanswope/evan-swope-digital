@@ -1846,6 +1846,179 @@
           osc.stop(now + idx * 0.045 + (isSuper ? 0.70 : 0.50));
         });
       }
+
+      // Velar Plosive Stop Acoustic Burst ([K] Unvoiced / [G] Voiced)
+      playVelarBurst(isVoiced = false) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        if (isVoiced) {
+          // Voiced Velar [G]: Low vocal cord voicing + 1800 Hz velar pinch resonance
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(115, now);
+          osc.frequency.linearRampToValueAtTime(95, now + 0.12);
+
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1800, now);
+          filter.Q.setValueAtTime(3.5, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.35, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+
+          osc.start(now);
+          osc.stop(now + 0.15);
+
+          // Transient plosive click
+          this.playNoiseBurst(now, 1600, 0.02, 0.35);
+        } else {
+          // Unvoiced Velar [K]: High-pressure turbulent burst centered at 2800 Hz
+          this.playNoiseBurst(now, 2800, 0.035, 0.45);
+
+          // Sharp mechanical plosive click
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1200, now);
+          osc.frequency.exponentialRampToValueAtTime(180, now + 0.04);
+
+          gain.gain.setValueAtTime(0.40, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        }
+      }
+
+      // Motorized Velar Vault Portcullis Sliding Servo & Hydraulic Steam
+      playVaultGateServo(isOpen = true) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        // 1. Sliding motor whine
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        if (isOpen) {
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.linearRampToValueAtTime(420, now + 0.28);
+        } else {
+          osc.frequency.setValueAtTime(380, now);
+          osc.frequency.linearRampToValueAtTime(140, now + 0.28);
+        }
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.30);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.32);
+
+        // 2. Hydraulic steam release
+        this.playNoiseBurst(now + 0.05, 3200, 0.18, 0.20);
+
+        // 3. Heavy metallic latch slam
+        const latchOsc = this.ctx.createOscillator();
+        const latchGain = this.ctx.createGain();
+        latchOsc.type = 'triangle';
+        latchOsc.frequency.setValueAtTime(isOpen ? 640 : 220, now + 0.25);
+        latchOsc.frequency.exponentialRampToValueAtTime(80, now + 0.32);
+
+        latchGain.gain.setValueAtTime(0.001, now + 0.25);
+        latchGain.gain.linearRampToValueAtTime(0.35, now + 0.26);
+        latchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        latchOsc.connect(latchGain);
+        latchGain.connect(this.masterGain);
+        latchOsc.start(now + 0.25);
+        latchOsc.stop(now + 0.36);
+      }
+
+      // Deep Subterranean Seismic Pulse & Celestial Staging Lock Chime
+      playVaultLockSFX(isG = false) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        // 1. Deep sub-bass pulse
+        const sub = this.ctx.createOscillator();
+        const subGain = this.ctx.createGain();
+        sub.type = 'triangle';
+        sub.frequency.setValueAtTime(65, now);
+        sub.frequency.exponentialRampToValueAtTime(28, now + 0.35);
+
+        subGain.gain.setValueAtTime(0.55, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+        sub.connect(subGain);
+        subGain.connect(this.masterGain);
+        sub.start(now);
+        sub.stop(now + 0.40);
+
+        // 2. Ascending 4-note Vault containment chord
+        const notes = isG
+          ? [329.63, 415.30, 493.88, 659.25] // E4, G#4, B4, E5 (Bright Golden E-Major)
+          : [369.99, 466.16, 554.37, 739.99]; // F#4, A#4, C#5, F#5 (Radiant Emerald F#-Major)
+
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.05);
+          gain.gain.linearRampToValueAtTime(0.24, now + idx * 0.05 + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.55);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.05);
+          osc.stop(now + idx * 0.05 + 0.60);
+        });
+      }
+
+      // Space Cadet-Inspired Subterranean Hyperspace Catacomb Warp
+      playHyperspaceWarp() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(3200, now + 0.22);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.36);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(300, now);
+        filter.frequency.exponentialRampToValueAtTime(3800, now + 0.22);
+        filter.frequency.exponentialRampToValueAtTime(900, now + 0.36);
+        filter.Q.setValueAtTime(5.0, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.30, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.40);
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -2128,6 +2301,65 @@
           phoneme: 'S'
         };
 
+        // -----------------------------------------------------------------
+        // THE VELAR VAULTS (Concept 3: Subterranean Catacombs & Staging Locks)
+        // -----------------------------------------------------------------
+        this.velarVaults = {
+          // Vault K: The Emerald Catacomb (behind Dental Arch at 82, 238)
+          vaultK: {
+            id: 'K',
+            name: 'EMERALD CATACOMB',
+            phoneme: 'K',
+            x: 82,
+            y: 238,
+            r: 17,
+            color: '#10b981',
+            accentColor: '#34d399',
+            isLocked: false,
+            glowAnim: 0,
+            cooldown: 0,
+            kickerAnim: 0
+          },
+          // Vault G: The Golden Sanctuary (behind Spinner at 210, 34)
+          vaultG: {
+            id: 'G',
+            name: 'GOLDEN SANCTUARY',
+            phoneme: 'G',
+            x: 210,
+            y: 34,
+            r: 17,
+            color: '#ffd700',
+            accentColor: '#fbbf24',
+            isLocked: false,
+            glowAnim: 0,
+            cooldown: 0,
+            kickerAnim: 0
+          },
+          // Motorized Sliding Portcullis Gate for Vault G
+          gate: {
+            isOpen: false,
+            anim: 0, // 0 = fully closed, 1 = fully open
+            energy: 0, // 0 to 100%
+            maxEnergy: 100,
+            autoCloseTimer: 0
+          },
+          // Subterranean Warp Transit (Hyperspace Chute during Multiball)
+          warpTransit: {
+            active: false,
+            ball: null,
+            progress: 0,
+            from: null,
+            to: null
+          },
+          // Vault Hold & Solenoid Staging
+          hold: {
+            active: false,
+            ball: null,
+            vault: null,
+            timer: 0
+          }
+        };
+
         // Starfield for BABEL 3000
         this.stars = [];
         for (let i = 0; i < 45; i++) {
@@ -2360,6 +2592,12 @@
         if (this.nasalSanctuary) {
           this.nasalSanctuary.bridgePulse = 0;
         }
+        if (this.velarVaults) {
+          this.velarVaults.hold.active = false;
+          this.velarVaults.hold.ball = null;
+          this.velarVaults.warpTransit.active = false;
+          this.velarVaults.warpTransit.ball = null;
+        }
         this.resetArticulators();
       }
 
@@ -2517,10 +2755,10 @@
         this.showCelebrationBanner('★ POLYGLOT MULTIBALL! ★', 5000, true, '3 SPHERES UNLEASHED • 3X WORDS • 10,000 JACKPOTS!');
         this.synth.playMultiballFanfare();
 
-        // Release 2 additional silver spheres onto playfield from the Lunar & Solar Wells!
+        // Release locked spheres from the Velar Vaults!
         const ball2 = {
-          x: 130, y: 375,
-          vx: 3.8, vy: -10.5,
+          x: 88, y: 228,
+          vx: 5.2, vy: -8.8,
           radius: 9.5,
           mass: 1.0,
           inPlay: true,
@@ -2530,8 +2768,8 @@
           id: 2
         };
         const ball3 = {
-          x: 290, y: 375,
-          vx: -3.8, vy: -10.5,
+          x: 210, y: 52,
+          vx: (Math.random() - 0.5) * 2.0, vy: 11.0,
           radius: 9.5,
           mass: 1.0,
           inPlay: true,
@@ -2541,9 +2779,21 @@
           id: 3
         };
 
+        if (this.velarVaults) {
+          this.velarVaults.vaultK.isLocked = false;
+          this.velarVaults.vaultK.kickerAnim = 1.0;
+          this.velarVaults.vaultG.isLocked = false;
+          this.velarVaults.vaultG.kickerAnim = 1.0;
+          this.velarVaults.gate.isOpen = true;
+          this.velarVaults.gate.autoCloseTimer = 35000; // Open during multiball for Hyperspace warps!
+        }
+
         if (!this.balls || this.balls.length === 0) {
           this.balls = [ this.ball ];
         }
+        // Ensure primary ball is active
+        this.ball.inPlay = true;
+        this.ball.inVault = false;
         this.balls.push(ball2, ball3);
 
         // Golden celestial stardust burst
@@ -2555,7 +2805,7 @@
             vy: (Math.random() - 0.5) * 7 - 2,
             r: 1.5 + Math.random() * 2.5,
             alpha: 1.0,
-            color: Math.random() > 0.5 ? '#ffd700' : '#ff4757'
+            color: Math.random() > 0.5 ? '#ffd700' : '#10b981'
           });
         }
 
@@ -2981,6 +3231,128 @@
           }
         }
 
+        // 3.5 The Velar Vaults Hold, Solenoid Ejection & Subterranean Warp Transit
+        if (this.velarVaults) {
+          const gate = this.velarVaults.gate;
+          // Smoothly animate sliding gate
+          const targetAnim = gate.isOpen ? 1.0 : 0.0;
+          gate.anim += (targetAnim - gate.anim) * 0.12;
+
+          // Gate auto-close timer
+          if (gate.isOpen && gate.autoCloseTimer > 0) {
+            gate.autoCloseTimer -= dt;
+            if (gate.autoCloseTimer <= 0) {
+              gate.isOpen = false;
+              gate.energy = 0;
+              if (this.synth && this.synth.playVaultGateServo) this.synth.playVaultGateServo(false);
+              this.floaters.push({
+                text: 'VAULT GATE CLOSED',
+                x: 210, y: 55,
+                vy: -0.8, alpha: 1.0, isImpressive: false
+              });
+            }
+          }
+
+          // Decay cooldowns & kicker animations
+          [this.velarVaults.vaultK, this.velarVaults.vaultG].forEach(v => {
+            if (v.cooldown > 0) v.cooldown -= dt;
+            if (v.glowAnim > 0) v.glowAnim -= 0.035;
+            if (v.kickerAnim > 0) v.kickerAnim -= 0.05;
+          });
+
+          // Subterranean Warp Transit (Hyperspace Chute during Multiball)
+          if (this.velarVaults.warpTransit.active && this.velarVaults.warpTransit.ball) {
+            const wt = this.velarVaults.warpTransit;
+            wt.progress += dt * 0.003; // ~330ms subterranean travel
+            const p0 = wt.from;
+            const p1 = { x: 140, y: 130 }; // Midpoint subterranean curve
+            const p2 = wt.to;
+            const u = Math.min(1.0, wt.progress);
+            const invU = 1 - u;
+            wt.ball.x = invU * invU * p0.x + 2 * invU * u * p1.x + u * u * p2.x;
+            wt.ball.y = invU * invU * p0.y + 2 * invU * u * p1.y + u * u * p2.y;
+
+            if (wt.progress >= 1.0) {
+              // Eject at destination!
+              wt.active = false;
+              wt.ball.inVault = false;
+              wt.to.kickerAnim = 1.0;
+              if (this.synth && this.synth.playSaucerKickSFX) this.synth.playSaucerKickSFX();
+              if (wt.to.id === 'G') {
+                wt.ball.x = 210;
+                wt.ball.y = 52;
+                wt.ball.vx = (Math.random() - 0.5) * 2;
+                wt.ball.vy = 11.5; // Downward rocket past spinner!
+              } else {
+                wt.ball.x = 96;
+                wt.ball.y = 225;
+                wt.ball.vx = 5.8;
+                wt.ball.vy = -8.2; // Cross-table rocket!
+              }
+              // Warp exit particles
+              for (let p = 0; p < 10; p++) {
+                this.particles.push({
+                  x: wt.ball.x, y: wt.ball.y,
+                  vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                  r: 2.2, alpha: 1.0, color: wt.to.color
+                });
+              }
+              wt.ball = null;
+            }
+          }
+
+          // Vault Hold & Solenoid Staging
+          if (this.velarVaults.hold.active && this.velarVaults.hold.ball) {
+            const vh = this.velarVaults.hold;
+            vh.timer -= dt;
+            vh.ball.x = vh.vault.x;
+            vh.ball.y = vh.vault.y;
+            vh.ball.vx = 0;
+            vh.ball.vy = 0;
+
+            if (vh.timer <= 0) {
+              const vault = vh.vault;
+              vh.active = false;
+              const vb = vh.ball;
+              vh.ball = null;
+              vault.cooldown = 1200;
+              vault.kickerAnim = 1.0;
+
+              if (this.synth && this.synth.playSaucerKickSFX) this.synth.playSaucerKickSFX();
+
+              if (vault.id === 'K') {
+                vb.x = vault.x + 12;
+                vb.y = vault.y - 12;
+                vb.vx = 5.2;
+                vb.vy = -8.5;
+                // Reseal Dental Arch if all down
+                if (this.dropTargets) {
+                  this.dropTargets.forEach(t => {
+                    t.isDown = false;
+                    t.anim = 0;
+                    t.hitFlash = 0;
+                  });
+                  this.dropTargetResetTimer = 0;
+                  if (this.synth && this.synth.playDropTargetBankReset) this.synth.playDropTargetBankReset();
+                }
+              } else {
+                vb.x = vault.x;
+                vb.y = vault.y + 18;
+                vb.vx = (Math.random() - 0.5) * 1.5;
+                vb.vy = 10.5;
+              }
+
+              for (let p = 0; p < 8; p++) {
+                this.particles.push({
+                  x: vb.x, y: vb.y,
+                  vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                  r: 2.0, alpha: 1.0, color: vault.color
+                });
+              }
+            }
+          }
+        }
+
         // 4. Pharyngeal Wireform Sky-Ramp Transit (Elevated Catmull-Rom Habitrail)
         if (this.balls) {
           for (const b of this.balls) {
@@ -3053,7 +3425,8 @@
           for (let bIdx = this.balls.length - 1; bIdx >= 0; bIdx--) {
             const b = this.balls[bIdx];
             const isHeld = this.scoopHold.active && this.scoopHold.ball === b;
-            if (b.inPlay && !isHeld && !b.onRamp) {
+            const isVaultHeld = (this.velarVaults && this.velarVaults.hold && this.velarVaults.hold.active && this.velarVaults.hold.ball === b) || b.inVault;
+            if (b.inPlay && !isHeld && !isVaultHeld && !b.onRamp) {
               b.vy += subGravity;
               b.vx *= friction;
               b.vy *= friction;
@@ -3107,6 +3480,9 @@
               // Top Spinner
               this.handleSpinner(b);
 
+              // The Velar Vaults Collisions & Portcullis Barrier
+              this.handleVaultCollisions(b);
+
               // Immediate Drain Check (Below flippers: y > 645)
               if (b.y > 645 && !b.inPlungerLane) {
                 if (this.balls.length > 1) {
@@ -3147,7 +3523,8 @@
         // Continuous Formant Modulation & Vowel Region Detection for active balls
         for (const b of this.balls) {
           const isHeld = this.scoopHold.active && this.scoopHold.ball === b;
-          if (b.inPlay && !isHeld && !b.onRamp) {
+          const isVaultHeld = (this.velarVaults && this.velarVaults.hold && this.velarVaults.hold.active && this.velarVaults.hold.ball === b) || b.inVault;
+          if (b.inPlay && !isHeld && !isVaultHeld && !b.onRamp) {
             this.evaluateVowelSpace(b);
           }
         }
@@ -3472,6 +3849,13 @@
                 if (this.tierProgress.labialHits >= 3) {
                   this.unlockTier(2); // Tier II: Labial Gateway
                 }
+              }
+            }
+
+            if (bumper.phoneme === 'G') {
+              this.activateArticulator('palate');
+              if (this.velarVaults) {
+                this.chargeVelarGate(35);
               }
             }
           }
@@ -4067,6 +4451,11 @@
         }
         this.activateArticulator('palate');
 
+        // Charge Velar Vault Gate!
+        if (this.velarVaults) {
+          this.chargeVelarGate(50);
+        }
+
         this.floaters.push({
           text: '✦ DENTAL ARCH COMPLETE • +1,500 ✦',
           x: 180,
@@ -4076,7 +4465,7 @@
           isImpressive: true
         });
 
-        this.showCelebrationBanner('DENTAL ARCH!', 1500, true, 'ALL 4 TARGETS DOWN • KICKBACK RELIT!');
+        this.showCelebrationBanner('DENTAL ARCH!', 1500, true, 'ALL 4 TARGETS DOWN • VAULT K EXPOSED!');
 
         // Check if "DENT" is in lexicon and award word if not already discovered!
         const dentWord = LEXICON.find(w => w.word === 'DENT');
@@ -4084,8 +4473,8 @@
           this.awardWord(dentWord);
         }
 
-        // Schedule mechanical reset after 800ms
-        this.dropTargetResetTimer = 800;
+        // Schedule mechanical reset after 6.5s to give player time to shoot exposed Vault K
+        this.dropTargetResetTimer = 6500;
       }
 
       handleSpinner(b = this.ball) {
@@ -4101,6 +4490,11 @@
 
             // Cycle consonants upon Astrolabe spinner spin
             this.cycleConsonants('SPINNER');
+
+            // Charge Velar Vault Gate Dynamo
+            if (this.velarVaults) {
+              this.chargeVelarGate(Math.floor(s.spinSpeed * 14) + 12);
+            }
 
             this.score += 50;
             this.updateHUD();
@@ -4127,6 +4521,208 @@
           s.spinSpeed *= 0.94;
         } else {
           s.spinSpeed = 0;
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // THE VELAR VAULTS (Vault K: Emerald Catacomb & Vault G: Golden Sanctuary)
+      // -----------------------------------------------------------------------
+      chargeVelarGate(amount) {
+        if (!this.velarVaults) return;
+        const gate = this.velarVaults.gate;
+        if (gate.isOpen) return;
+        gate.energy = Math.min(gate.maxEnergy, gate.energy + amount);
+        if (gate.energy >= gate.maxEnergy) {
+          this.openVelarGate();
+        }
+      }
+
+      openVelarGate() {
+        if (!this.velarVaults) return;
+        const gate = this.velarVaults.gate;
+        gate.isOpen = true;
+        gate.autoCloseTimer = 12000; // Open for 12 seconds
+        if (this.synth && this.synth.playVaultGateServo) this.synth.playVaultGateServo(true);
+        this.showCelebrationBanner('VELAR VAULT OPEN!', 1500, false, 'APEX GATE OPEN • SHOOT SPINNER FOR VAULT G!');
+        this.floaters.push({
+          text: '★ VELAR VAULT G OPEN! ★',
+          x: 210,
+          y: 55,
+          vy: -1.0,
+          alpha: 1.0,
+          isImpressive: true
+        });
+      }
+
+      handleVaultCollisions(b = this.ball) {
+        b = b || this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp || b.inVault || !this.velarVaults) return;
+        if (this.velarVaults.hold.active && this.velarVaults.hold.ball === b) return;
+
+        const vK = this.velarVaults.vaultK;
+        const vG = this.velarVaults.vaultG;
+        const gate = this.velarVaults.gate;
+
+        // 1. Vault G Gate Barrier Collision (when closed, blocks entrance at y=38)
+        if (!gate.isOpen && b.x > 188 && b.x < 232 && b.y - b.radius < 42 && b.y > 22) {
+          b.y = 42 + b.radius;
+          b.vy = Math.abs(b.vy) * 0.75;
+          // Spark off heavy brass gate
+          for (let i = 0; i < 4; i++) {
+            this.particles.push({
+              x: b.x,
+              y: 40,
+              vx: (Math.random() - 0.5) * 4,
+              vy: Math.random() * 3,
+              r: 1.5,
+              alpha: 1.0,
+              color: '#dfb15b'
+            });
+          }
+          if (this.synth && this.synth.playRolloverClick) this.synth.playRolloverClick();
+        }
+
+        // 2. Vault G Capture (at 210, 34 when gate is open)
+        if (gate.isOpen && vG.cooldown <= 0) {
+          const distG = Math.hypot(b.x - vG.x, b.y - vG.y);
+          if (distG < vG.r + 6) {
+            this.captureVelarVault(vG, b);
+            return;
+          }
+        }
+
+        // 3. Vault K Capture (at 82, 238 when drop targets are down)
+        if (vK.cooldown <= 0) {
+          const targetsDown = this.dropTargets && this.dropTargets.every(t => t.isDown);
+          if (targetsDown) {
+            const distK = Math.hypot(b.x - vK.x, b.y - vK.y);
+            if (distK < vK.r + 6) {
+              this.captureVelarVault(vK, b);
+              return;
+            }
+          }
+        }
+      }
+
+      captureVelarVault(vault, b) {
+        vault.glowAnim = 1.0;
+        const isG = vault.id === 'G';
+
+        // Articulate phoneme and audio
+        if (this.synth) {
+          if (this.synth.playVelarBurst) this.synth.playVelarBurst(isG);
+          if (this.synth.playVaultLockSFX) this.synth.playVaultLockSFX(isG);
+          if (this.synth.triggerConsonant) this.synth.triggerConsonant(vault.phoneme);
+        }
+        this.registerPhoneme(vault.phoneme, false);
+        this.activateArticulator('palate');
+
+        // MULTIBALL HYPERSPACE WARP TRANSIT (If Multiball is already active)
+        if (this.isMultiballActive) {
+          this.score += 15000;
+          this.updateHUD();
+          if (this.synth && this.synth.playHyperspaceWarp) this.synth.playHyperspaceWarp();
+          if (this.synth && this.synth.playJackpotChime) this.synth.playJackpotChime();
+
+          this.showCelebrationBanner('VELAR SUPER JACKPOT!', 15000, true, 'HYPERSPACE CATALYSIS • +15,000!');
+          this.floaters.push({
+            text: '★ VELAR SUPER JACKPOT! +15,000 ★',
+            x: vault.x,
+            y: vault.y - 20,
+            vy: -1.2,
+            alpha: 1.0,
+            isImpressive: true
+          });
+
+          // Begin subterranean warp transit to opposite vault
+          const destVault = isG ? this.velarVaults.vaultK : this.velarVaults.vaultG;
+          b.inVault = true;
+          this.velarVaults.warpTransit = {
+            active: true,
+            ball: b,
+            progress: 0,
+            from: vault,
+            to: destVault
+          };
+          return;
+        }
+
+        // SINGLE-BALL PLAY: BALL LOCKING OR MOMENTARY HOLD
+        this.score += 1500;
+        this.updateHUD();
+
+        // Unlock Tier V
+        this.unlockTier(5); // Tier V: Palatal Citadel / Velar Vault
+
+        if (!vault.isLocked) {
+          // LOCK THE BALL IN THE VAULT!
+          vault.isLocked = true;
+          this.floaters.push({
+            text: `✦ VELAR VAULT [${vault.id}] LOCKED! ✦ +1,500`,
+            x: vault.x,
+            y: vault.y - 20,
+            vy: -1.2,
+            alpha: 1.0,
+            isImpressive: true
+          });
+
+          // Check if both vaults are now locked -> APEX MULTIBALL!
+          const vK = this.velarVaults.vaultK;
+          const vG = this.velarVaults.vaultG;
+          if (vK.isLocked && vG.isLocked) {
+            this.showCelebrationBanner('★ VAULT BREACH! ★', 5000, true, 'ALL VELAR VAULTS LOCKED • POLYGLOT MULTIBALL!');
+            this.velarVaults.hold = {
+              active: true,
+              ball: b,
+              vault: vault,
+              timer: 700
+            };
+            setTimeout(() => {
+              this.triggerMultiball();
+            }, 700);
+            return;
+          }
+
+          // Single lock achieved: Stage sphere in vault and load next ball into plunger!
+          this.showCelebrationBanner(`VAULT [${vault.id}] LOCKED!`, 1500, true, 'SPHERE SECURED • LAUNCH NEXT SPHERE!');
+
+          // Ball stays locked in the vault
+          b.inPlay = false;
+          b.inVault = true;
+          b.x = vault.x;
+          b.y = vault.y;
+          b.vx = 0;
+          b.vy = 0;
+
+          // Prepare and load next ball in plunger cradle
+          setTimeout(() => {
+            this.resetBall();
+            this.floaters.push({
+              text: 'STAGE SPHERE • SKILL SHOT READY',
+              x: 430,
+              y: 520,
+              vy: -0.8,
+              alpha: 1.0,
+              isImpressive: true
+            });
+          }, 600);
+
+        } else {
+          // Vault already locked on previous ball: Standard momentary hold and directional eject
+          this.floaters.push({
+            text: `✦ VELAR VAULT [${vault.id}] ✦ +1,500`,
+            x: vault.x,
+            y: vault.y - 20,
+            vy: -1.2,
+            alpha: 1.0,
+            isImpressive: true
+          });
+          this.velarVaults.hold = {
+            active: true,
+            ball: b,
+            vault: vault,
+            timer: 750
+          };
         }
       }
 
@@ -4249,6 +4845,25 @@
           this.dropTargetResetTimer = 0;
         }
 
+        if (this.velarVaults) {
+          this.velarVaults.vaultK.isLocked = false;
+          this.velarVaults.vaultK.cooldown = 0;
+          this.velarVaults.vaultK.glowAnim = 0;
+          this.velarVaults.vaultK.kickerAnim = 0;
+          this.velarVaults.vaultG.isLocked = false;
+          this.velarVaults.vaultG.cooldown = 0;
+          this.velarVaults.vaultG.glowAnim = 0;
+          this.velarVaults.vaultG.kickerAnim = 0;
+          this.velarVaults.gate.isOpen = false;
+          this.velarVaults.gate.anim = 0;
+          this.velarVaults.gate.energy = 0;
+          this.velarVaults.gate.autoCloseTimer = 0;
+          this.velarVaults.warpTransit.active = false;
+          this.velarVaults.warpTransit.ball = null;
+          this.velarVaults.hold.active = false;
+          this.velarVaults.hold.ball = null;
+        }
+
         this.resetBall();
         this.showCelebrationBanner('VESSEL READY', 0, false, 'PULL & RELEASE PLUNGER FOR SKILL SHOT!');
       }
@@ -4284,14 +4899,15 @@
         this.renderDropTargets(ctx); // Dental Arch 4-Bank ([D]-[E]-[N]-[T])
         this.renderBumpers(ctx);
         this.renderSpinner(ctx);
+        this.renderVelarVaults(ctx); // Concept 3: The Velar Vaults (Vault K & Vault G)
         this.renderFlippers(ctx); // Left, Right, & Upper Mini-Flipper
         this.renderPlunger(ctx);
         this.renderParticles(ctx);
 
-        // 6. Balls (Rendered at table level when not elevated on ramp)
+        // 6. Balls (Rendered at table level when not elevated on ramp or locked in vault)
         const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
         activeBalls.forEach(b => {
-          if (!b.onRamp) {
+          if (!b.onRamp && !b.inVault) {
             this.renderBall(ctx, b);
           }
         });
@@ -4707,10 +5323,7 @@
         drawCornerBracket(this.width - 24, this.height - 24, -1, -1);
 
         // Upper Arch Deflectors Label
-        ctx.font = '700 0.52rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.45)';
-        ctx.textAlign = 'center';
-        ctx.fillText('• VELUM & SOFT PALATE •', 210, 36);
+        // (The Velar Citadel / Vault G sits at 210, 34 with its own Art Deco inscription)
 
         // Lower Apron Label
         ctx.font = '700 0.48rem "Cinzel", serif';
@@ -5423,6 +6036,478 @@
         ctx.fillText('[S]', 0, 0);
 
         ctx.restore();
+      }
+
+      // THE VELAR VAULTS: VAULT K (Emerald Catacomb) & VAULT G (Golden Sanctuary)
+      renderVelarVaults(ctx) {
+        if (!this.velarVaults) return;
+
+        const time = performance.now();
+        const vK = this.velarVaults.vaultK;
+        const vG = this.velarVaults.vaultG;
+        const gate = this.velarVaults.gate;
+        const wt = this.velarVaults.warpTransit;
+
+        // -----------------------------------------------------------------
+        // 1. SUBTERRANEAN CATACOMB CONDUIT (Hyperspace Chute)
+        // -----------------------------------------------------------------
+        ctx.save();
+        const p0 = { x: vK.x, y: vK.y }; // (82, 238)
+        const p1 = { x: 140, y: 130 };   // Midpoint subterranean waypoint
+        const p2 = { x: vG.x, y: vG.y }; // (210, 34)
+
+        // Subterranean Excavation Trench (Under-table cut)
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+        ctx.strokeStyle = 'rgba(5, 7, 14, 0.9)';
+        ctx.lineWidth = 18;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Dual Fluorescent Conduit Guide Rails
+        ctx.lineWidth = 1.8;
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+        ctx.stroke();
+
+        // Pulsing Golden Arterial Centerline
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+        ctx.setLineDash([4, 6]);
+        ctx.lineDashOffset = -time * 0.015;
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Conduit Label along waypoint
+        ctx.save();
+        ctx.translate(142, 130);
+        ctx.rotate(-0.95);
+        ctx.font = '700 0.34rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.4)';
+        ctx.textAlign = 'center';
+        ctx.fillText('◄ CATACOMB CONDUIT ►', 0, -4);
+        ctx.restore();
+
+        // Subterranean Warp Transit (Ball in Hyperspace Flight)
+        if (wt && wt.active && wt.ball) {
+          const bx = wt.ball.x;
+          const by = wt.ball.y;
+
+          // Radiant Hyperspace Aura
+          const warpGlow = ctx.createRadialGradient(bx, by, 2, bx, by, 16);
+          warpGlow.addColorStop(0, '#ffffff');
+          warpGlow.addColorStop(0.3, '#34d399');
+          warpGlow.addColorStop(0.7, '#ffd700');
+          warpGlow.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+          ctx.beginPath();
+          ctx.arc(bx, by, 16, 0, Math.PI * 2);
+          ctx.fillStyle = warpGlow;
+          ctx.fill();
+
+          // High-Energy Core
+          ctx.beginPath();
+          ctx.arc(bx, by, 6.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 18;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        ctx.restore();
+
+        // -----------------------------------------------------------------
+        // 2. VAULT K: THE EMERALD CATACOMB (x: 82, y: 238, r: 17)
+        // -----------------------------------------------------------------
+        ctx.save();
+        ctx.translate(vK.x, vK.y);
+
+        // A. Stepped Art Deco Outer Hexagonal Bezel
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = (i * Math.PI * 2) / 6 - Math.PI / 6;
+          const hx = Math.cos(a) * (vK.r + 5);
+          const hy = Math.sin(a) * (vK.r + 5);
+          if (i === 0) ctx.moveTo(hx, hy);
+          else ctx.lineTo(hx, hy);
+        }
+        ctx.closePath();
+        ctx.fillStyle = '#06130e';
+        ctx.fill();
+        ctx.strokeStyle = vK.glowAnim > 0 ? '#34d399' : '#dfb15b';
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = vK.glowAnim > 0 ? 22 : 6;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // B. Deep Subterranean Onyx-Emerald Saucer Well
+        const kGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, vK.r);
+        kGrad.addColorStop(0, '#042f2e');
+        kGrad.addColorStop(0.5, '#064e3b');
+        kGrad.addColorStop(0.85, '#021e17');
+        kGrad.addColorStop(1, '#05070e');
+
+        ctx.beginPath();
+        ctx.arc(0, 0, vK.r, 0, Math.PI * 2);
+        ctx.fillStyle = kGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // C. Radial Art Deco Facet Ticks (8 ticks)
+        for (let t = 0; t < 8; t++) {
+          const ta = (t * Math.PI * 2) / 8;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(ta) * (vK.r - 3), Math.sin(ta) * (vK.r - 3));
+          ctx.lineTo(Math.cos(ta) * (vK.r - 0.5), Math.sin(ta) * (vK.r - 0.5));
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.45)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // D. Solenoid Kicker Plate Arm
+        const kKickOffset = (vK.kickerAnim || 0) * 5;
+        ctx.fillStyle = '#dfb15b';
+        ctx.fillRect(-vK.r + 2 + kKickOffset, -3, 5, 6);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(-vK.r + 2 + kKickOffset, -3, 5, 6);
+
+        // E. Phoneme Inscription
+        ctx.font = '900 0.85rem "Cinzel", serif';
+        ctx.fillStyle = vK.isLocked ? '#34d399' : (vK.glowAnim > 0 ? '#ffffff' : '#10b981');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = vK.isLocked || vK.glowAnim > 0 ? 12 : 4;
+        ctx.fillText('[K]', 0, -2);
+        ctx.shadowBlur = 0;
+
+        ctx.font = '700 0.35rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.75)';
+        ctx.fillText('VELAR', 0, 7);
+
+        // F. Staged Locked Sphere (if sphere is locked in Vault K)
+        if (vK.isLocked) {
+          const ballGrad = ctx.createRadialGradient(-2.5, -2.5, 1, 0, 0, 7.5);
+          ballGrad.addColorStop(0, '#ffffff');
+          ballGrad.addColorStop(0.3, '#e2e8f0');
+          ballGrad.addColorStop(0.7, '#64748b');
+          ballGrad.addColorStop(1, '#0f172a');
+
+          ctx.beginPath();
+          ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
+          ctx.fillStyle = ballGrad;
+          ctx.fill();
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 1.4;
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 14;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Stasis containment ring
+          ctx.beginPath();
+          ctx.arc(0, 0, 11 + Math.sin(time * 0.008) * 1.5, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.7)';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+
+        // Vault K Status Indicator Plaque (above/beside vault)
+        const allTargetsDown = this.dropTargets && this.dropTargets.every(t => t.isDown);
+        ctx.save();
+        ctx.font = '700 0.38rem "Space Mono", monospace';
+        ctx.textAlign = 'center';
+
+        if (vK.isLocked) {
+          ctx.fillStyle = '#ffd700';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 8;
+          ctx.fillText('★ SPHERE LOCKED ★', vK.x, vK.y - 25);
+        } else if (allTargetsDown) {
+          const pulse = (Math.sin(time * 0.01) + 1) / 2;
+          ctx.fillStyle = pulse > 0.4 ? '#34d399' : '#ffffff';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 16;
+          ctx.fillText('▶▶ VAULT K OPEN ◀◀', vK.x, vK.y - 25);
+          // Aiming arrow chevron pointing into Vault K
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(vK.x + 24, vK.y);
+          ctx.lineTo(vK.x + 14, vK.y);
+          ctx.lineTo(vK.x + 18, vK.y - 4);
+          ctx.moveTo(vK.x + 14, vK.y);
+          ctx.lineTo(vK.x + 18, vK.y + 4);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = 'rgba(223, 177, 91, 0.55)';
+          ctx.fillText('• SHIELDED •', vK.x, vK.y - 25);
+        }
+        ctx.restore();
+
+        // -----------------------------------------------------------------
+        // 3. VAULT G: THE GOLDEN SANCTUARY (x: 210, y: 34, r: 17)
+        // -----------------------------------------------------------------
+        ctx.save();
+        ctx.translate(vG.x, vG.y);
+
+        // A. Stepped Art Deco Outer Gold Bezel
+        ctx.beginPath();
+        ctx.arc(0, 0, vG.r + 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#181206';
+        ctx.fill();
+        ctx.strokeStyle = vG.glowAnim > 0 ? '#ffffff' : '#dfb15b';
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = vG.glowAnim > 0 ? 24 : 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // B. Deep Sanctuary Cavity
+        const gGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, vG.r);
+        gGrad.addColorStop(0, '#78350f');
+        gGrad.addColorStop(0.5, '#451a03');
+        gGrad.addColorStop(0.85, '#1e0d02');
+        gGrad.addColorStop(1, '#05070e');
+
+        ctx.beginPath();
+        ctx.arc(0, 0, vG.r, 0, Math.PI * 2);
+        ctx.fillStyle = gGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // C. Radial Art Deco Gold Ticks
+        for (let t = 0; t < 8; t++) {
+          const ta = (t * Math.PI * 2) / 8;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(ta) * (vG.r - 3), Math.sin(ta) * (vG.r - 3));
+          ctx.lineTo(Math.cos(ta) * (vG.r - 0.5), Math.sin(ta) * (vG.r - 0.5));
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // D. Solenoid Kicker Arm (Downwards kick past spinner)
+        const gKickOffset = (vG.kickerAnim || 0) * 5;
+        ctx.fillStyle = '#dfb15b';
+        ctx.fillRect(-3, -vG.r + 2 + gKickOffset, 6, 5);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(-3, -vG.r + 2 + gKickOffset, 6, 5);
+
+        // E. Phoneme Inscription
+        ctx.font = '900 0.85rem "Cinzel", serif';
+        ctx.fillStyle = vG.isLocked ? '#ffd700' : (vG.glowAnim > 0 ? '#ffffff' : '#dfb15b');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = vG.isLocked || vG.glowAnim > 0 ? 14 : 4;
+        ctx.fillText('[G]', 0, -2);
+        ctx.shadowBlur = 0;
+
+        ctx.font = '700 0.35rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.75)';
+        ctx.fillText('VELAR', 0, 7);
+
+        // F. Staged Locked Sphere (if sphere is locked in Vault G)
+        if (vG.isLocked) {
+          const ballGrad = ctx.createRadialGradient(-2.5, -2.5, 1, 0, 0, 7.5);
+          ballGrad.addColorStop(0, '#ffffff');
+          ballGrad.addColorStop(0.3, '#fef08a');
+          ballGrad.addColorStop(0.7, '#d97706');
+          ballGrad.addColorStop(1, '#451a03');
+
+          ctx.beginPath();
+          ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
+          ctx.fillStyle = ballGrad;
+          ctx.fill();
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.4;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 14;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Golden stasis containment field
+          ctx.beginPath();
+          ctx.arc(0, 0, 11 + Math.cos(time * 0.008) * 1.5, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.7)';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+
+        // -----------------------------------------------------------------
+        // 4. MOTORIZED SLIDING PORTCULLIS GATES (y: 42, x: 188..232)
+        // -----------------------------------------------------------------
+        ctx.save();
+        const gateY = 42;
+        const gateW = 44;
+        const halfW = gateW / 2; // 22
+        const slideOffset = gate.anim * 18; // Gate slides open by up to 18px on each side
+
+        // Left Leaf: from x=188 to 210, slides left
+        const leftX1 = 210 - halfW - slideOffset;
+        const leftX2 = 210 - slideOffset;
+
+        // Right Leaf: from x=210 to 232, slides right
+        const rightX1 = 210 + slideOffset;
+        const rightX2 = 210 + halfW + slideOffset;
+
+        // Gate Track Channel Housing (Recessed playfield slot)
+        ctx.fillStyle = '#060810';
+        ctx.fillRect(186, gateY - 3, gateW + 8, 6);
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(186, gateY - 3, gateW + 8, 6);
+
+        // Draw Left Sliding Leaf
+        ctx.fillStyle = '#1e1406';
+        ctx.fillRect(leftX1, gateY - 2.5, leftX2 - leftX1, 5);
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.8;
+        ctx.strokeRect(leftX1, gateY - 2.5, leftX2 - leftX1, 5);
+
+        // Left Leaf Vertical Brass Security Bars
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.2;
+        for (let bx = leftX1 + 3; bx < leftX2 - 2; bx += 4.5) {
+          ctx.beginPath();
+          ctx.moveTo(bx, gateY - 2);
+          ctx.lineTo(bx, gateY + 2);
+          ctx.stroke();
+        }
+
+        // Draw Right Sliding Leaf
+        ctx.fillStyle = '#1e1406';
+        ctx.fillRect(rightX1, gateY - 2.5, rightX2 - rightX1, 5);
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.8;
+        ctx.strokeRect(rightX1, gateY - 2.5, rightX2 - rightX1, 5);
+
+        // Right Leaf Vertical Brass Security Bars
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.2;
+        for (let bx = rightX1 + 3; bx < rightX2 - 2; bx += 4.5) {
+          ctx.beginPath();
+          ctx.moveTo(bx, gateY - 2);
+          ctx.lineTo(bx, gateY + 2);
+          ctx.stroke();
+        }
+
+        // Gate Status & Energy Bar Decal
+        if (gate.isOpen) {
+          // Gate Open Indicator
+          const gPulse = (Math.sin(time * 0.012) + 1) / 2;
+          ctx.font = '700 0.38rem "Space Mono", monospace';
+          ctx.fillStyle = gPulse > 0.4 ? '#ffd700' : '#ffffff';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 12;
+          ctx.textAlign = 'center';
+          ctx.fillText('▲ VAULT G OPEN ▲', 210, gateY + 14);
+          ctx.shadowBlur = 0;
+        } else {
+          // Gate Charge Meter (Segmented Jewel Gauge)
+          const meterW = 38;
+          const meterH = 3;
+          const mx = 210 - meterW / 2;
+          const my = gateY + 11;
+
+          ctx.fillStyle = 'rgba(5, 7, 14, 0.8)';
+          ctx.fillRect(mx, my, meterW, meterH);
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.5)';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(mx, my, meterW, meterH);
+
+          // Energy Fill
+          const fillRatio = Math.min(1.0, (gate.energy || 0) / (gate.maxEnergy || 100));
+          if (fillRatio > 0) {
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 6;
+            ctx.fillRect(mx + 0.5, my + 0.5, (meterW - 1) * fillRatio, meterH - 1);
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.font = '700 0.32rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(223, 177, 91, 0.7)';
+          ctx.textAlign = 'center';
+          ctx.fillText(`GATE ${Math.round(fillRatio * 100)}%`, 210, my + 7);
+        }
+        ctx.restore();
+
+        // -----------------------------------------------------------------
+        // 5. UPPER BACKBOARD STAGING PODS (Flanking Lock Indicators)
+        // -----------------------------------------------------------------
+        const pods = [
+          { x: 168, y: 34, isLocked: vK.isLocked, label: 'LOCK 1', color: '#10b981', dark: '#042f2e' },
+          { x: 252, y: 34, isLocked: vG.isLocked, label: 'LOCK 2', color: '#ffd700', dark: '#451a03' }
+        ];
+
+        pods.forEach(pod => {
+          ctx.save();
+          // Brass Bezel
+          ctx.beginPath();
+          ctx.arc(pod.x, pod.y, 6.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#060810';
+          ctx.fill();
+          ctx.strokeStyle = pod.isLocked ? pod.color : '#dfb15b';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // Internal Jewel Lens
+          if (pod.isLocked) {
+            const jGrad = ctx.createRadialGradient(pod.x - 1, pod.y - 1, 0.5, pod.x, pod.y, 5);
+            jGrad.addColorStop(0, '#ffffff');
+            jGrad.addColorStop(0.3, pod.color);
+            jGrad.addColorStop(1, pod.dark);
+
+            ctx.beginPath();
+            ctx.arc(pod.x, pod.y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = jGrad;
+            ctx.shadowColor = pod.color;
+            ctx.shadowBlur = 12;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.beginPath();
+            ctx.arc(pod.x, pod.y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.fill();
+          }
+
+          // Subtitle Label
+          ctx.font = '700 0.32rem "Space Mono", monospace';
+          ctx.fillStyle = pod.isLocked ? pod.color : 'rgba(223, 177, 91, 0.45)';
+          ctx.textAlign = 'center';
+          ctx.fillText(pod.label, pod.x, pod.y - 9);
+          ctx.restore();
+        });
+
+        // Multiball Ready Banner Marquee when both locks are engaged
+        if (vK.isLocked && vG.isLocked) {
+          ctx.save();
+          const flash = Math.floor(time * 0.006) % 2 === 0;
+          ctx.font = '900 0.48rem "Cinzel", serif';
+          ctx.fillStyle = flash ? '#ffd700' : '#ffffff';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 16;
+          ctx.textAlign = 'center';
+          ctx.fillText('★ MULTIBALL READY ★', 210, 18);
+          ctx.restore();
+        }
       }
 
       renderFlippers(ctx) {
