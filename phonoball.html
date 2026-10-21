@@ -219,8 +219,8 @@
     }
     .tower-tiers-ladder {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.35rem;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.20rem;
     }
     .tier-step {
       display: flex;
@@ -230,39 +230,39 @@
       background: rgba(13, 18, 32, 0.85);
       border: 1px solid rgba(223, 177, 91, 0.22);
       border-radius: 5px;
-      padding: 0.25rem 0.15rem;
+      padding: 0.20rem 0.10rem;
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       position: relative;
     }
     .tier-num {
       font-family: var(--font-artdeco);
-      font-size: 0.52rem;
+      font-size: 0.46rem;
       color: #dfb15b;
       opacity: 0.75;
-      margin-bottom: 0.1rem;
+      margin-bottom: 0.08rem;
     }
     .tier-lamp {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #1a2234;
       border: 1px solid #3e4c66;
-      margin-bottom: 0.18rem;
+      margin-bottom: 0.12rem;
       transition: all 0.25s ease;
     }
     .tier-name {
       font-family: var(--font-display);
-      font-size: 0.52rem;
+      font-size: 0.42rem;
       color: #64748b;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.2px;
       font-weight: 700;
       transition: color 0.25s ease;
     }
     .tier-organ {
       font-family: var(--font-mono);
-      font-size: 0.40rem;
+      font-size: 0.34rem;
       color: #475569;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.2px;
     }
     .tier-step.unlocked {
       background: rgba(223, 177, 91, 0.18);
@@ -663,7 +663,7 @@
           <span id="stat-score" class="stat-value">000,000</span>
         </div>
         <div class="target-word-box">
-          <span class="stat-label">✦ TELEGRAPH TARGET ✦</span>
+          <span class="stat-label">✦ CUNEIFORM TABLET ✦</span>
           <div id="stat-target-word" class="target-word-val">CAT</div>
         </div>
         <div class="hud-stat" style="text-align: center;">
@@ -680,44 +680,56 @@
       <div class="tower-ascension-panel" id="tower-ascension-panel">
         <div class="tower-panel-header">
           <span class="tower-deco-gem">✦</span>
-          <span class="tower-panel-title">BABEL TOWER ASCENSION • MODEL 1928</span>
+          <span class="tower-panel-title">BABEL ZIGGURAT ASCENSION • ÉTEMENANKI</span>
           <span class="tower-deco-gem">✦</span>
         </div>
         <div class="tower-tiers-ladder">
-          <div id="tier-1" class="tier-step" title="Level I: The Foundation Kilns of Shinar (Plunger Launch / Kickback)">
+          <div id="tier-1" class="tier-step" title="Tier I: The Foundation Kilns of Shinar (Plunger Launch / Slingshots)">
             <span class="tier-num">I</span>
             <span class="tier-lamp"></span>
             <span class="tier-name">KILNS</span>
             <span class="tier-organ">FOUNDATION</span>
           </div>
-          <div id="tier-2" class="tier-step" title="Level II: The Avenue of Tongues (Flippers / Processional Way)">
+          <div id="tier-2" class="tier-step" title="Tier II: The Avenue of Lions (Processional Lapis Way / Lingual Altar)">
             <span class="tier-num">II</span>
             <span class="tier-lamp"></span>
             <span class="tier-name">AVENUE</span>
-            <span class="tier-organ">TONGUES</span>
+            <span class="tier-organ">LIONS WAY</span>
           </div>
-          <div id="tier-3" class="tier-step" title="Level III: The Resonant Minarets (Lunar [M] & Solar [N])">
+          <div id="tier-3" class="tier-step" title="Tier III: The Twin Minarets (Sanctuaries of Sin [M] & Shamash [N])">
             <span class="tier-num">III</span>
             <span class="tier-lamp"></span>
             <span class="tier-name">MINARETS</span>
             <span class="tier-organ">SUN & MOON</span>
           </div>
-          <div id="tier-4" class="tier-step" title="Level IV: The Palatal Citadel (Astrolabe / Dental Portico)">
+          <div id="tier-4" class="tier-step" title="Tier IV: The Royal Colonnade (Dental Drop Targets [D]-[E]-[N]-[T])">
             <span class="tier-num">IV</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">CITADEL</span>
-            <span class="tier-organ">ASTROLABE</span>
+            <span class="tier-name">PORTICO</span>
+            <span class="tier-organ">COLONNADE</span>
           </div>
-          <div id="tier-5" class="tier-step" title="Level V: Apex of Confounded Tongues (Vocal Grotto / Sky-Ramp)">
+          <div id="tier-5" class="tier-step" title="Tier V: The Cuneiform Archive (Velar Vault [K] Lock)">
             <span class="tier-num">V</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">APEX</span>
-            <span class="tier-organ">CONFOUNDED</span>
+            <span class="tier-name">ARCHIVE</span>
+            <span class="tier-organ">VAULT K</span>
+          </div>
+          <div id="tier-6" class="tier-step" title="Tier VI: The Stairway to Heaven (Wireform Sky-Ramp Aqueduct)">
+            <span class="tier-num">VI</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">SKY-RAMP</span>
+            <span class="tier-organ">AQUEDUCT</span>
+          </div>
+          <div id="tier-7" class="tier-step" title="Tier VII: The High Temple of Marduk (Apex Grotto & Summit Vault [G])">
+            <span class="tier-num">VII</span>
+            <span class="tier-lamp"></span>
+            <span class="tier-name">SUMMIT</span>
+            <span class="tier-organ">MARDUK</span>
           </div>
         </div>
         <div class="tower-apex-badge" id="tower-apex-badge">
           <span class="apex-icon">★</span>
-          <span class="apex-label" id="apex-label">APEX CROWN: 0/5 TIERS CONQUERED</span>
+          <span class="apex-label" id="apex-label">ZIGGURAT ASCENT: 0/7 TIERS BUILT</span>
           <span class="apex-icon">★</span>
         </div>
       </div>
@@ -739,13 +751,13 @@
 
       <!-- Audio Start / Coin Door Overlay -->
       <div class="audio-overlay" id="audio-overlay">
-        <i class="fa-solid fa-gears" style="font-size: 3.0rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));"></i>
-        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: #fff;">CRANK THE SPEECH ENGINE</h2>
+        <i class="fa-solid fa-monument" style="font-size: 3.0rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));"></i>
+        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: #fff;">THE GREAT ZIGGURAT OF BABEL</h2>
         <p class="overlay-intro">
-          Step into the 1928 laboratory of mechanical speech synthesis! Launch the sphere through the Vocal Tract to calibrate the five Anatomical Articulators: Larynx, Tongue, Palate, Lips, and Nasal Cavity. Synthesize real words to solve telegraph dispatches!
+          Ascend the Seven Stepped Tiers of Étemenanki! From the subterranean kiln furnaces of Shinar, build the tower skyward toward the heavens. Pave the Avenue of Lions, awaken the Twin Minarets, breach the Royal Cuneiform Archives, traverse the Sky-Ramp to the High Temple of Marduk, and unleash the legendary Wizard Mode: THE CONFUSION OF TONGUES!
         </p>
         <button class="overlay-coin-btn" id="btn-start-audio">
-          <i class="fa-solid fa-bolt"></i> ENGAGE BELLOWS
+          <i class="fa-solid fa-bolt"></i> ASCEND THE TOWER
         </button>
       </div>
 
@@ -1839,18 +1851,35 @@
         this.speakWord(word, true);
       }
 
-      // Resonant harmonic chime for Tower of Babel Tier Ascension
+      // Ancient Bronze Temple Gong & Resonant Harmonic Chime for Ziggurat Tier Ascension
       playTierUnlockChime(tierNum) {
         if (!this.isAudioReady) return;
         const now = this.ctx.currentTime;
+
+        // 1. Ancient Bronze Temple Gong Fundamental with long resonant decay
+        const gongOsc = this.ctx.createOscillator();
+        const gongGain = this.ctx.createGain();
+        gongOsc.type = 'sine';
+        gongOsc.frequency.setValueAtTime(110 + (tierNum || 1) * 16, now);
+        gongGain.gain.setValueAtTime(0.0001, now);
+        gongGain.gain.linearRampToValueAtTime(0.32, now + 0.015);
+        gongGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+        gongOsc.connect(gongGain);
+        gongGain.connect(this.masterGain);
+        gongOsc.start(now);
+        gongOsc.stop(now + 1.45);
+
+        // 2. Stepped Ascension Pitches across all 7 Tiers
         const pitches = [
-          [261.63, 523.25],          // Tier 1 (Larynx): C4 / C5
-          [329.63, 659.25],          // Tier 2 (Lips): E4 / E5
-          [392.00, 783.99],          // Tier 3 (Tongue): G4 / G5
-          [493.88, 987.77],          // Tier 4 (Nasal): B4 / B5
-          [523.25, 1046.50, 1318.51] // Tier 5 (Palate): C5 / C6 / E6
+          [220.00, 440.00],                   // Tier 1 (Kilns): A3 / A4
+          [261.63, 523.25],                   // Tier 2 (Avenue): C4 / C5
+          [329.63, 659.25],                   // Tier 3 (Minarets): E4 / E5
+          [392.00, 783.99],                   // Tier 4 (Colonnade): G4 / G5
+          [493.88, 987.77],                   // Tier 5 (Archive): B4 / B5
+          [523.25, 1046.50, 1318.51],         // Tier 6 (Sky-Ramp): C5 / C6 / E6
+          [659.25, 1046.50, 1318.51, 1567.98] // Tier 7 (Summit): E5 / C6 / E6 / G6
         ];
-        const notes = pitches[Math.min(4, Math.max(0, (tierNum || 1) - 1))];
+        const notes = pitches[Math.min(6, Math.max(0, (tierNum || 1) - 1))];
         notes.forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -1865,6 +1894,40 @@
           gain.connect(this.masterGain);
           osc.start(now + idx * 0.05);
           osc.stop(now + idx * 0.05 + 0.60);
+        });
+      }
+
+      // Rolling Divine Thunder & Lightning Crackle for Wrath of Marduk
+      playMardukWrathThunder() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        // Deep sub-bass earth rumble
+        const subOsc = this.ctx.createOscillator();
+        const subGain = this.ctx.createGain();
+        subOsc.type = 'sawtooth';
+        subOsc.frequency.setValueAtTime(65, now);
+        subOsc.frequency.exponentialRampToValueAtTime(26, now + 2.2);
+        subGain.gain.setValueAtTime(0.0001, now);
+        subGain.gain.linearRampToValueAtTime(0.45, now + 0.05);
+        subGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
+        subOsc.connect(subGain);
+        subGain.connect(this.masterGain);
+        subOsc.start(now);
+        subOsc.stop(now + 2.45);
+
+        // Thunder crackle noise burst
+        this.playNoiseBurst(now, 1100, 1.8, 0.5, 'lowpass');
+        this.playNoiseBurst(now + 0.12, 3600, 0.45, 0.4, 'bandpass');
+      }
+
+      // Polyglot Temple Chanting for Confusion of Tongues
+      playBabylonChant() {
+        if (!this.isAudioReady) return;
+        const syllables = ['BA', 'BI', 'LI', 'E', 'TE', 'MEN', 'AN', 'KI'];
+        syllables.forEach((s, i) => {
+          setTimeout(() => {
+            if (this.speakWord) this.speakWord(s, false);
+          }, i * 210);
         });
       }
 
@@ -1899,7 +1962,7 @@
         if ('speechSynthesis' in window) {
           try {
             window.speechSynthesis.cancel();
-            const utt = new SpeechSynthesisUtterance('Babel Unleashed. Multiball!');
+            const utt = new SpeechSynthesisUtterance('Babel Awakened. The Wrath of Marduk!');
             utt.rate = 1.0;
             utt.pitch = 1.15;
             window.speechSynthesis.speak(utt);
@@ -2252,13 +2315,15 @@
         };
         this.isHomunculusAwakened = false;
 
-        // The 5-Tier Tower of Babel Ascension System
+        // The 7-Tier Stepped Ziggurat of Babel Ascension System (Étemenanki)
         this.towerTiers = {
-          1: { id: 'larynx', name: 'LARYNGEAL VAULT', organ: 'Larynx / Folds', unl: false, icon: '⚡' },
-          2: { id: 'lips',   name: 'LABIAL GATEWAY',  organ: 'Lips / Labials', unl: false, icon: '👄' },
-          3: { id: 'tongue', name: 'LINGUAL PLAIN',   organ: 'Tongue (Lingua)', unl: false, icon: '👅' },
-          4: { id: 'nasal',  name: 'NASAL SANCTUARY', organ: 'Nasal Chambers', unl: false, icon: '🏛' },
-          5: { id: 'palate', name: 'PALATAL CITADEL', organ: 'Palate / Velum', unl: false, icon: '👑' }
+          1: { id: 'kilns',     name: 'KILNS OF SHINAR',    organ: 'Mud-Brick & Bitumen', unl: false, icon: '🔥' },
+          2: { id: 'avenue',    name: 'AVENUE OF LIONS',    organ: 'Glazed Lapis Way',   unl: false, icon: '🦁' },
+          3: { id: 'minarets',  name: 'TWIN MINARETS',      organ: 'Sun & Moon Spires',  unl: false, icon: '🌙' },
+          4: { id: 'colonnade', name: 'ROYAL COLONNADE',    organ: 'Dental Target Bank', unl: false, icon: '🏛' },
+          5: { id: 'archive',   name: 'CUNEIFORM ARCHIVE',  organ: 'Velar Vault [K]',    unl: false, icon: '📜' },
+          6: { id: 'skyramp',   name: 'STAIRWAY TO HEAVEN', organ: 'Wireform Sky-Ramp',  unl: false, icon: '🪜' },
+          7: { id: 'summit',    name: 'HIGH TEMPLE MARDUK', organ: 'Summit Vault [G]',   unl: false, icon: '👑' }
         };
         this.tierProgress = {
           labialHits: 0,
@@ -2267,9 +2332,16 @@
           scoopN: false,
           vowelsVisited: new Set(),
           dentalArchCleared: false,
-          rampCompleted: false
+          rampCompleted: false,
+          vaultKLocked: false,
+          summitStruck: false
         };
         this.isMultiballActive = false;
+        this.isWizardModeActive = false;
+        this.tierFlashTimer = 0;
+        this.lastUnlockedTier = 0;
+        this.lightningBolts = [];
+        this.stormFlashAlpha = 0;
 
         // Phoneme Buffer State
         this.phonemeStream = [];
@@ -2563,16 +2635,30 @@
           }
         };
 
-        // Starfield for BABEL 3000
-        this.stars = [];
-        for (let i = 0; i < 45; i++) {
-          this.stars.push({
-            x: 24 + Math.random() * (this.width - 50),
-            y: 25 + Math.random() * (this.height - 70),
-            r: 0.6 + Math.random() * 1.5,
-            alpha: 0.2 + Math.random() * 0.7,
-            twinkleSpeed: 0.02 + Math.random() * 0.04,
-            twinklePhase: Math.random() * Math.PI * 2
+        // Foundation Kiln Glowing Furnace Embers (Shinar Kilns, y: 680..815)
+        this.kilnEmbers = [];
+        for (let i = 0; i < 22; i++) {
+          this.kilnEmbers.push({
+            x: 28 + Math.random() * (this.width - 56),
+            y: 690 + Math.random() * 120,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -0.3 - Math.random() * 0.5,
+            r: 0.8 + Math.random() * 1.8,
+            alpha: 0.2 + Math.random() * 0.8,
+            life: Math.random() * 100,
+            maxLife: 80 + Math.random() * 80
+          });
+        }
+
+        // Celestial Tempest Clouds over the Summit of Marduk (y: 18..130)
+        this.tempestClouds = [];
+        for (let i = 0; i < 8; i++) {
+          this.tempestClouds.push({
+            x: 30 + (i * 55) % (this.width - 60),
+            y: 25 + Math.random() * 85,
+            r: 45 + Math.random() * 35,
+            vx: (Math.random() - 0.45) * 0.15,
+            alpha: 0.25 + Math.random() * 0.35
           });
         }
 
@@ -2958,26 +3044,47 @@
         });
       }
 
+      spawnLightningBolt(startX, startY, endX, endY) {
+        if (!this.lightningBolts) this.lightningBolts = [];
+        const segments = 6;
+        const pts = [{ x: startX, y: startY }];
+        for (let i = 1; i < segments; i++) {
+          const t = i / segments;
+          const px = startX + (endX - startX) * t + (Math.random() - 0.5) * 36;
+          const py = startY + (endY - startY) * t + (Math.random() - 0.5) * 18;
+          pts.push({ x: px, y: py });
+        }
+        pts.push({ x: endX, y: endY });
+        this.lightningBolts.push({
+          pts,
+          alpha: 1.0,
+          color: Math.random() > 0.3 ? '#ffd700' : '#60a5fa'
+        });
+        this.stormFlashAlpha = 0.35;
+      }
+
       unlockTier(tierNum) {
         if (!this.towerTiers || !this.towerTiers[tierNum]) return;
         const tier = this.towerTiers[tierNum];
         if (tier.unl) return; // Already unlocked
 
         tier.unl = true;
-        if (this.articulators && tier.id) {
-          this.articulators[tier.id] = true;
-        }
-
-        const pts = 500 * tierNum;
+        const pts = 1000 * tierNum;
         this.score += pts;
         this.updateHUD();
 
         this.synth.playTierUnlockChime(tierNum);
 
+        this.tierFlashTimer = performance.now();
+        this.lastUnlockedTier = tierNum;
+
+        // Visual lightning spark descending to the newly built tier
+        this.spawnLightningBolt(210, 35, 210, 650 - (tierNum * 12));
+
         this.floaters.push({
-          text: `✦ TIER ${tierNum} AWAKENED: ${tier.name} +${pts} ✦`,
+          text: `✦ TIER ${tierNum} BUILT: ${tier.name} +${pts.toLocaleString()} ✦`,
           x: 210,
-          y: 280 - (tierNum * 22),
+          y: 280 - (tierNum * 18),
           vy: -1.1,
           alpha: 1.0,
           isImpressive: true
@@ -2988,23 +3095,35 @@
       }
 
       checkApexAscension() {
-        if (this.isMultiballActive) return;
+        if (this.isMultiballActive || this.isWizardModeActive) return;
         if (!this.towerTiers) return;
         const allUnlocked = Object.values(this.towerTiers).every(t => t.unl === true);
         if (allUnlocked) {
-          this.isHomunculusAwakened = true;
-          this.triggerMultiball();
+          this.triggerWrathOfMarduk();
         }
       }
 
-      triggerMultiball() {
+      triggerWrathOfMarduk() {
         if (this.isMultiballActive) return;
         this.isMultiballActive = true;
-        this.score += 5000;
+        this.isWizardModeActive = true;
+        const bonusPts = 25000;
+        this.score += bonusPts;
         this.updateHUD();
 
-        this.showCelebrationBanner('★ POLYGLOT MULTIBALL! ★', 5000, true, '3 SPHERES UNLEASHED • 3X WORDS • 10,000 JACKPOTS!');
-        this.synth.playMultiballFanfare();
+        this.showCelebrationBanner('★ WRATH OF MARDUK! ★', bonusPts, true, 'CONFUSION OF TONGUES • 3X WORDS • 25,000 SUPER JACKPOTS!');
+        if (this.synth) {
+          if (this.synth.playMardukWrathThunder) this.synth.playMardukWrathThunder();
+          if (this.synth.playMultiballFanfare) this.synth.playMultiballFanfare();
+          if (this.synth.playBabylonChant) this.synth.playBabylonChant();
+        }
+
+        // Multiple lightning strikes across the table
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            this.spawnLightningBolt(210 + (Math.random() - 0.5) * 80, 20, 50 + Math.random() * 360, 200 + Math.random() * 400);
+          }, i * 180);
+        }
 
         // Release locked spheres from the Velar Vaults!
         const ball2 = {
@@ -3038,13 +3157,12 @@
           this.velarVaults.vaultG.isLocked = false;
           this.velarVaults.vaultG.kickerAnim = 1.0;
           this.velarVaults.gate.isOpen = true;
-          this.velarVaults.gate.autoCloseTimer = 35000; // Open during multiball for Hyperspace warps!
+          this.velarVaults.gate.autoCloseTimer = 45000;
         }
 
         if (!this.balls || this.balls.length === 0) {
           this.balls = [ this.ball ];
         }
-        // Ensure primary ball is active
         this.ball.inPlay = true;
         this.ball.inVault = false;
         this.balls = [ this.ball, ball2, ball3 ];
@@ -3054,15 +3172,15 @@
         });
 
         // Golden celestial stardust burst
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 50; i++) {
           this.particles.push({
-            x: 210 + (Math.random() - 0.5) * 80,
-            y: 350 + (Math.random() - 0.5) * 60,
-            vx: (Math.random() - 0.5) * 7,
-            vy: (Math.random() - 0.5) * 7 - 2,
-            r: 1.5 + Math.random() * 2.5,
+            x: 210 + (Math.random() - 0.5) * 120,
+            y: 350 + (Math.random() - 0.5) * 100,
+            vx: (Math.random() - 0.5) * 9,
+            vy: (Math.random() - 0.5) * 9 - 3,
+            r: 1.5 + Math.random() * 3.0,
             alpha: 1.0,
-            color: Math.random() > 0.5 ? '#ffd700' : '#10b981'
+            color: Math.random() > 0.4 ? '#ffd700' : '#38bdf8'
           });
         }
 
@@ -3105,10 +3223,10 @@
       updateArticulatorLamps() {
         // Update Tower Ascension Ziggurat Ladder Steps
         if (this.towerTiers) {
-          for (let i = 1; i <= 5; i++) {
+          for (let i = 1; i <= 7; i++) {
             const stepEl = document.getElementById(`tier-${i}`);
             if (stepEl) {
-              if (this.towerTiers[i].unl) stepEl.classList.add('unlocked');
+              if (this.towerTiers[i] && this.towerTiers[i].unl) stepEl.classList.add('unlocked');
               else stepEl.classList.remove('unlocked');
             }
           }
@@ -3126,13 +3244,13 @@
         const badge = document.getElementById('tower-apex-badge');
         const label = document.getElementById('apex-label');
         if (badge && label) {
-          if (this.isMultiballActive) {
+          if (this.isWizardModeActive || this.isMultiballActive) {
             badge.classList.add('multiball-active');
-            label.textContent = '★ APEX CROWN: MULTIBALL ACTIVE (3X WORDS) ★';
+            label.textContent = '★ WRATH OF MARDUK: 3X WORDS • SUPER JACKPOTS! ★';
           } else {
             badge.classList.remove('multiball-active');
             const unlCount = this.towerTiers ? Object.values(this.towerTiers).filter(t => t.unl).length : 0;
-            label.textContent = unlCount === 5 ? '★ APEX CROWN: READY ★' : `APEX CROWN: ${unlCount}/5 TIERS CONQUERED`;
+            label.textContent = unlCount === 7 ? '★ SUMMIT REACHED: WRATH OF MARDUK READY! ★' : `ZIGGURAT ASCENT: ${unlCount}/7 TIERS BUILT`;
           }
         }
       }
@@ -3146,7 +3264,7 @@
           nasal: false
         };
         if (this.towerTiers) {
-          for (let i = 1; i <= 5; i++) {
+          for (let i = 1; i <= 7; i++) {
             if (this.towerTiers[i]) this.towerTiers[i].unl = false;
           }
         }
@@ -3158,9 +3276,12 @@
           this.tierProgress.vowelsVisited.clear();
           this.tierProgress.dentalArchCleared = false;
           this.tierProgress.rampCompleted = false;
+          this.tierProgress.vaultKLocked = false;
+          this.tierProgress.summitStruck = false;
         }
         this.isHomunculusAwakened = false;
         this.isMultiballActive = false;
+        this.isWizardModeActive = false;
         this.updateArticulatorLamps();
       }
 
@@ -3360,7 +3481,25 @@
       awardWord(match) {
         let pts = match.pts;
         const isBounty = (match.word === BOUNTY_LIST[this.bountyIdx]);
-        const isImpressive = isBounty || (match.word.length >= 5) || (match.pts >= 800) || (match.word === 'HOMUNCULUS');
+        const BABEL_KEYWORDS = ['BABEL', 'BABYLON', 'GOD', 'STONE', 'SPEAK', 'KING', 'NAME', 'TOWER'];
+        const isBabelMasterpiece = BABEL_KEYWORDS.includes(match.word);
+
+        if (this.isWizardModeActive && isBabelMasterpiece) {
+          pts = 100000; // 100,000 Grand Babel Super Jackpot!
+          this.score += pts;
+          this.discoveredWords.add(match.word);
+          if (this.glottalKickback) this.glottalKickback.isLit = true;
+          this.showCelebrationBanner('★ 100,000 GRAND BABEL JACKPOT! ★', pts, true, `SACRED TONGUE: ${match.word} • 100,000 PTS!`);
+          if (this.synth) {
+            if (this.synth.playMardukWrathThunder) this.synth.playMardukWrathThunder();
+            if (this.synth.playWordCelebration) this.synth.playWordCelebration(match.word);
+          }
+          this.spawnLightningBolt(210, 35, this.ball.x, this.ball.y);
+          this.updateHUD();
+          return;
+        }
+
+        const isImpressive = isBounty || (match.word.length >= 5) || (match.pts >= 800) || isBabelMasterpiece || (match.word === 'HOMUNCULUS');
 
         if (isBounty) {
           pts *= 3; // 3x Bounty Bonus!
@@ -3371,8 +3510,8 @@
           pts *= this.bonusMultiplier;
         }
 
-        if (this.isMultiballActive) {
-          pts *= 3; // 3x Polyglot Multiball Multiplier!
+        if (this.isWizardModeActive || this.isMultiballActive) {
+          pts *= 3; // 3x Polyglot Wizard / Multiball Multiplier!
         } else if (this.isHomunculusAwakened) {
           pts *= 2; // 2x Homunculus Speech Organ Multiplier!
         }
@@ -3395,12 +3534,16 @@
         if (isImpressive) {
           // Major impressive word: true popup banner, grand fanfare, and proud voice!
           let subText = null;
-          if (this.isMultiballActive) {
+          if (this.isWizardModeActive) {
+            subText = `★ WRATH OF MARDUK: 3X SCORE! +${pts.toLocaleString()} PTS ★`;
+          } else if (this.isMultiballActive) {
             subText = `★ 3X POLYGLOT MULTIBALL! +${pts.toLocaleString()} PTS ★`;
+          } else if (isBabelMasterpiece) {
+            subText = `TOWER OF BABEL INSCRIPTION! +${pts.toLocaleString()} PTS`;
           } else if (isBounty && this.isHomunculusAwakened) {
-            subText = `6X TELEGRAPH & HOMUNCULUS! +${pts.toLocaleString()} PTS`;
+            subText = `6X CUNEIFORM & HOMUNCULUS! +${pts.toLocaleString()} PTS`;
           } else if (isBounty) {
-            subText = `TELEGRAPH BOUNTY! +${pts.toLocaleString()} PTS`;
+            subText = `CUNEIFORM TABLET BOUNTY! +${pts.toLocaleString()} PTS`;
           } else if (this.isHomunculusAwakened) {
             subText = `2X VOCAL ORGAN BONUS! +${pts.toLocaleString()} PTS`;
           } else if (match.word.length >= 5) {
@@ -3720,7 +3863,7 @@
                 this.registerPhoneme('OO', true);
                 if (this.tierProgress) {
                   this.tierProgress.rampCompleted = true;
-                  this.unlockTier(5); // Tier V: Palatal Citadel
+                  this.unlockTier(6); // Tier VI: The Stairway to Heaven (Wireform Sky-Ramp)
                 }
               } else {
                 const pt = this.getSplinePoint(this.pharynxRamp.points, b.rampProgress);
@@ -3936,10 +4079,43 @@
           });
         }
 
-        // Update Celestial Starfield
-        this.stars.forEach(st => {
-          st.twinklePhase += st.twinkleSpeed;
-        });
+        // Update Kiln Glowing Embers
+        if (this.kilnEmbers) {
+          this.kilnEmbers.forEach(em => {
+            em.x += em.vx;
+            em.y += em.vy;
+            em.life++;
+            if (em.life >= em.maxLife || em.y < 670) {
+              em.x = 28 + Math.random() * (this.width - 56);
+              em.y = 790 + Math.random() * 25;
+              em.vy = -0.3 - Math.random() * 0.5;
+              em.life = 0;
+              em.alpha = 0.3 + Math.random() * 0.7;
+            }
+          });
+        }
+
+        // Update Tempest Clouds
+        if (this.tempestClouds) {
+          this.tempestClouds.forEach(cl => {
+            cl.x += cl.vx;
+            if (cl.x < 10) cl.x = this.width - 20;
+            if (cl.x > this.width - 10) cl.x = 20;
+          });
+        }
+
+        // Update Dynamic Lightning Bolts
+        if (this.lightningBolts && this.lightningBolts.length > 0) {
+          for (let i = this.lightningBolts.length - 1; i >= 0; i--) {
+            this.lightningBolts[i].alpha -= 0.055;
+            if (this.lightningBolts[i].alpha <= 0) {
+              this.lightningBolts.splice(i, 1);
+            }
+          }
+        }
+        if (this.stormFlashAlpha > 0) {
+          this.stormFlashAlpha -= 0.035;
+        }
 
         // Stardust Particle Trail (Emitted by all active spheres)
         const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
@@ -4313,12 +4489,12 @@
               isImpressive: true
             });
 
-            // Tower of Babel Tier IV Ascension
+            // Tower of Babel Tier III: Twin Minarets
             if (this.tierProgress) {
               if (scoop.id === 'M') this.tierProgress.scoopM = true;
               if (scoop.id === 'N') this.tierProgress.scoopN = true;
               if (this.tierProgress.scoopM && this.tierProgress.scoopN) {
-                this.unlockTier(4); // Tier IV: Nasal Sanctuary
+                this.unlockTier(3); // Tier III: Twin Minarets (Sin & Shamash)
               }
             }
 
@@ -4350,11 +4526,11 @@
             this.synth.playCelestialChime(1350);
             this.activateArticulator('tongue');
 
-            // Advance Tier III: Lingual Plain on 2 direct passes
+            // Advance Tier II: Avenue of Lions on 2 direct passes
             if (this.tierProgress) {
               this.tierProgress.linguaHits = (this.tierProgress.linguaHits || 0) + 1;
               if (this.tierProgress.linguaHits >= 2) {
-                this.unlockTier(3); // Tier III: Lingual Plain
+                this.unlockTier(2); // Tier II: Avenue of Lions
               }
             }
 
@@ -4737,7 +4913,7 @@
                 alpha: 1.0,
                 isImpressive: true
               });
-              this.unlockTier(3); // Tier III: Lingual Plain
+              this.unlockTier(7); // Tier VII: High Temple of Marduk (Apex Vocal Grotto)
               setTimeout(() => {
                 if (this.vocalLanes) this.vocalLanes.forEach(l => l.isLit = false);
               }, 450);
@@ -4859,7 +5035,7 @@
         this.glottalKickback.isLit = true;
         if (this.tierProgress) {
           this.tierProgress.dentalArchCleared = true;
-          this.unlockTier(5); // Tier V: Palatal Citadel
+          this.unlockTier(4); // Tier IV: Royal Colonnade (Dental Target Bank)
         }
         this.activateArticulator('palate');
 
@@ -5082,8 +5258,12 @@
         this.score += 1500;
         this.updateHUD();
 
-        // Unlock Tier V
-        this.unlockTier(5); // Tier V: Palatal Citadel / Velar Vault
+        // Unlock Tier V (Vault K) or Tier VII (Vault G)
+        if (isG) {
+          this.unlockTier(7); // Tier VII: High Temple of Marduk (Apex Vault G)
+        } else {
+          this.unlockTier(5); // Tier V: The Cuneiform Archive (Midfield Vault K)
+        }
 
         if (!vault.isLocked) {
           // LOCK THE BALL IN THE VAULT!
@@ -5278,17 +5458,21 @@
       // -----------------------------------------------------------------------
       // 5. CANVAS RENDERING ENGINE
       // -----------------------------------------------------------------------
-      // 5. CANVAS RENDERING ENGINE (BABEL 3000: CELESTIAL TOWER OF TONGUES)
+      // -----------------------------------------------------------------------
+      // 5. CANVAS RENDERING ENGINE (THE GREAT ZIGGURAT OF BABEL • ÉTEMENANKI)
       // -----------------------------------------------------------------------
       render() {
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.width, this.height);
 
-        // 1. Celestial Vowel Nebula Backing & Starfield
-        this.renderVowelPlayfield(ctx);
+        // 1. The Great Ziggurat of Babel Playfield (Mudbrick Kilns, Glazed Lapis Avenue, Terraces & Storm Sky)
+        this.renderZigguratPlayfield(ctx);
 
-        // 1.5 The 5 Space Cadet Architectural Subareas (Zoning Plates, Boundaries, & Signage)
+        // 1.5 Subarea Architecture & Monumental Facades (Arches, Battlements, Minarets & Dedication Plaques)
         this.renderSubareaArchitecture(ctx);
+
+        // 1.7 Central 7-Tier Ziggurat Progress Insert Matrix (Inlaid between Slingshots)
+        this.renderZigguratProgressMatrix(ctx);
 
         // 2. Pharyngeal Wireform Ramp Drop Shadow (Cast below obstacles)
         this.renderWireformRampShadow(ctx);
@@ -5309,10 +5493,13 @@
         this.renderDropTargets(ctx); // Dental Arch 4-Bank ([D]-[E]-[N]-[T])
         this.renderBumpers(ctx);
         this.renderSpinner(ctx);
-        this.renderVelarVaults(ctx); // Concept 3: The Velar Vaults (Vault K & Vault G)
+        this.renderVelarVaults(ctx); // The Velar Vaults (Vault K & Vault G)
         this.renderFlippers(ctx); // Left, Right, & Upper Mini-Flipper
         this.renderPlunger(ctx);
         this.renderParticles(ctx);
+
+        // 5.5 Dynamic Divine Lightning Bolts (Summit & Wizard Mode)
+        this.renderLightningBolts(ctx);
 
         // 6. Balls (Rendered at table level when not elevated on ramp or locked in vault)
         const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
@@ -5336,140 +5523,285 @@
         this.renderFloaters(ctx);
       }
 
-      // BABEL 3000: Celestial Vowel Constellation Chart
-      renderVowelPlayfield(ctx) {
-        // 1. Deep Celestial Nebula Abyss
-        const grad = ctx.createRadialGradient(210, 320, 20, 210, 420, 490);
-        grad.addColorStop(0, '#0f1629');
-        grad.addColorStop(0.55, '#070a16');
-        grad.addColorStop(1, '#04050b');
-        ctx.fillStyle = grad;
+      // THE GREAT ZIGGURAT OF BABEL (ÉTEMENANKI): 7-TIER ARCHITECTURAL PERSPECTIVE
+      renderZigguratPlayfield(ctx) {
+        const time = performance.now();
+
+        // 1. Atmospheric Sky & Base Gradient (Mesopotamian Storm Twilight)
+        const skyGrad = ctx.createLinearGradient(0, 18, 0, this.height);
+        skyGrad.addColorStop(0, '#100a22');    // Deep midnight tempest sky
+        skyGrad.addColorStop(0.18, '#0b1328'); // Sapphire celestial zenith
+        skyGrad.addColorStop(0.45, '#071626'); // Lapis/bronze mezzanine
+        skyGrad.addColorStop(0.70, '#0d1832'); // Cobalt glazed Ishtar Gate avenue
+        skyGrad.addColorStop(0.85, '#1e0d08'); // Warm clay & furnace embers
+        skyGrad.addColorStop(1.0, '#110503');  // Subterranean kiln bitumen
+        ctx.fillStyle = skyGrad;
         ctx.fillRect(18, 18, this.width - 36, this.height - 36);
 
-        // 2. Twinkling Starfield
-        this.stars.forEach(st => {
-          const currentAlpha = st.alpha * (0.55 + 0.45 * Math.sin(st.twinklePhase));
-          ctx.fillStyle = `rgba(255, 235, 160, ${currentAlpha})`;
-          if (st.r > 1.3) {
-            // 4-point diamond star
+        // 1.2 Tempest Clouds over the Summit (y: 18..130)
+        if (this.tempestClouds) {
+          ctx.save();
+          this.tempestClouds.forEach(cl => {
+            const cGrad = ctx.createRadialGradient(cl.x, cl.y, 10, cl.x, cl.y, cl.r);
+            cGrad.addColorStop(0, `rgba(40, 20, 75, ${cl.alpha * 0.7})`);
+            cGrad.addColorStop(0.6, `rgba(20, 25, 55, ${cl.alpha * 0.35})`);
+            cGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = cGrad;
             ctx.beginPath();
-            ctx.moveTo(st.x, st.y - st.r * 1.8);
-            ctx.lineTo(st.x + st.r * 0.6, st.y);
-            ctx.lineTo(st.x, st.y + st.r * 1.8);
-            ctx.lineTo(st.x - st.r * 0.6, st.y);
-            ctx.closePath();
+            ctx.arc(cl.x, cl.y, cl.r, 0, Math.PI * 2);
             ctx.fill();
-          } else {
-            ctx.beginPath();
-            ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-            ctx.fill();
+          });
+          ctx.restore();
+        }
+
+        // 1.3 Sky Lightning Flash Aura
+        if (this.stormFlashAlpha > 0) {
+          ctx.fillStyle = `rgba(147, 197, 253, ${this.stormFlashAlpha * 0.35})`;
+          ctx.fillRect(18, 18, this.width - 36, 140);
+        }
+
+        // 2. TIER I (y: 660..820): The Foundation Kilns of Shinar (Terracotta Mud-Bricks & Bitumen)
+        ctx.save();
+        const brickH = 14;
+        const brickW = 28;
+        const brickRows = [
+          { y: 660, off: 0 }, { y: 674, off: 14 }, { y: 688, off: 0 },
+          { y: 702, off: 14 }, { y: 716, off: 0 }, { y: 730, off: 14 },
+          { y: 744, off: 0 }, { y: 758, off: 14 }, { y: 772, off: 0 },
+          { y: 786, off: 14 }, { y: 800, off: 0 }, { y: 814, off: 14 }
+        ];
+        const brickPalette = ['#78280d', '#8c2f10', '#9e3713', '#661f08', '#a83e16'];
+
+        brickRows.forEach((row, rIdx) => {
+          for (let bx = 18 - 14 + row.off; bx < this.width - 18; bx += brickW) {
+            const bCol = brickPalette[(rIdx * 3 + Math.floor(bx / 28) + 10) % brickPalette.length];
+            ctx.fillStyle = bCol;
+            ctx.fillRect(Math.max(18, bx + 1), row.y + 1, Math.min(brickW - 2, this.width - 18 - bx - 1), brickH - 2);
+
+            // Subtle baked clay top highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.fillRect(Math.max(18, bx + 1), row.y + 1, Math.min(brickW - 2, this.width - 18 - bx - 1), 1.5);
           }
         });
 
-        // 3. Concentric Astrolabe Coordinate Rings
-        const cx = 210, cy = 340;
-        const radii = [80, 160, 250, 340];
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.12)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 7]);
-        radii.forEach(r => {
+        // Dark Bitumen Mortar Bedding Seams
+        ctx.strokeStyle = '#180a14';
+        ctx.lineWidth = 1.5;
+        brickRows.forEach(row => {
           ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.moveTo(18, row.y);
+          ctx.lineTo(this.width - 18, row.y);
           ctx.stroke();
         });
-        ctx.setLineDash([]); // reset
 
-        // Astrolabe Cardinal Radial Ticks
-        for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
-          const x1 = cx + Math.cos(a) * 60;
-          const y1 = cy + Math.sin(a) * 60;
-          const x2 = cx + Math.cos(a) * 340;
-          const y2 = cy + Math.sin(a) * 340;
-          ctx.strokeStyle = 'rgba(223, 177, 91, 0.05)';
+        // Roaring Mud-Brick Kiln Furnace Vents (Behind Left & Right Inlanes)
+        const kilnVents = [
+          { x: 48, y: 745, r: 18 },  // Left furnace arch
+          { x: 372, y: 745, r: 18 }  // Right furnace arch
+        ];
+        kilnVents.forEach(kv => {
+          const kGrad = ctx.createRadialGradient(kv.x, kv.y, 2, kv.x, kv.y, kv.r + 14);
+          const heatPulse = 0.7 + 0.3 * Math.sin(time * 0.006 + kv.x);
+          kGrad.addColorStop(0, `rgba(254, 240, 138, ${0.85 * heatPulse})`);
+          kGrad.addColorStop(0.35, `rgba(249, 115, 22, ${0.65 * heatPulse})`);
+          kGrad.addColorStop(0.7, `rgba(185, 28, 28, ${0.45 * heatPulse})`);
+          kGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = kGrad;
           ctx.beginPath();
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
+          ctx.arc(kv.x, kv.y, kv.r + 14, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Kiln Arch Opening
+          ctx.beginPath();
+          ctx.arc(kv.x, kv.y, kv.r, Math.PI, 0);
+          ctx.lineTo(kv.x + kv.r, kv.y + 14);
+          ctx.lineTo(kv.x - kv.r, kv.y + 14);
+          ctx.closePath();
+          ctx.fillStyle = '#1c0a06';
+          ctx.fill();
+          ctx.strokeStyle = '#d97706';
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+        });
+
+        // Foundation Mudbrick Inscription Cartouche
+        ctx.fillStyle = 'rgba(18, 8, 5, 0.88)';
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(100, 782, 220, 26, 4);
+        else ctx.rect(100, 782, 220, 26);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '900 0.65rem "Cinzel", serif';
+        ctx.fillStyle = '#ffd700';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#dfb15b';
+        ctx.shadowBlur = 6;
+        ctx.fillText('𒂍 𒋼 𒈨 𒀭 𒆠', 210, 796);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 0.34rem "Space Mono", monospace';
+        ctx.fillStyle = '#fef08a';
+        ctx.fillText('É-TEMEN-ANKI • FOUNDATION KILNS OF SHINAR', 210, 804);
+
+        // Floating Kiln Embers
+        if (this.kilnEmbers) {
+          this.kilnEmbers.forEach(em => {
+            ctx.fillStyle = `rgba(251, 191, 36, ${em.alpha})`;
+            ctx.beginPath();
+            ctx.arc(em.x, em.y, em.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+        ctx.restore();
+
+        // 3. TIER II (y: 520..660): The Avenue of Lions & Ishtar Gate (Glazed Cobalt Lapis Lazuli)
+        ctx.save();
+        const lapisGrad = ctx.createLinearGradient(0, 520, 0, 660);
+        lapisGrad.addColorStop(0, '#0a1d48');
+        lapisGrad.addColorStop(0.5, '#0f2b69');
+        lapisGrad.addColorStop(1, '#081738');
+        ctx.fillStyle = lapisGrad;
+        ctx.fillRect(20, 520, this.width - 40, 140);
+
+        // Fine Glazed Ceramic Tile Grid
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.12)';
+        ctx.lineWidth = 1;
+        for (let tx = 20; tx <= this.width - 20; tx += 20) {
+          ctx.beginPath(); ctx.moveTo(tx, 520); ctx.lineTo(tx, 660); ctx.stroke();
+        }
+        for (let ty = 520; ty <= 660; ty += 20) {
+          ctx.beginPath(); ctx.moveTo(20, ty); ctx.lineTo(this.width - 20, ty); ctx.stroke();
+        }
+
+        // Golden Marching Lions of Babylon (Flanking Fairway Walls)
+        // Left Striding Lion (x: 82, y: 550)
+        this.renderBabylonianLion(ctx, 82, 545, 1);
+        // Right Striding Lion (x: 338, y: 545)
+        this.renderBabylonianLion(ctx, 338, 545, -1);
+
+        // Babylonian 8-Petaled Rosette Frieze Borders along Processional Fairways
+        [105, 315].forEach(fx => {
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(fx, 520);
+          ctx.lineTo(fx, 660);
+          ctx.stroke();
+
+          for (let ry = 530; ry <= 650; ry += 24) {
+            this.renderBabylonianRosette(ctx, fx, ry, 5);
+          }
+        });
+
+        // Stepped Crenellated Battlements (Merlons _П_П_П_) along top ledge (y = 520)
+        this.renderCrenellations(ctx, 20, this.width - 20, 520, 8, 10, '#dfb15b');
+        ctx.restore();
+
+        // 4. TIER III (y: 380..520): The Hanging Terraces & Twin Minarets
+        ctx.save();
+        const terrGrad = ctx.createLinearGradient(0, 380, 0, 520);
+        terrGrad.addColorStop(0, '#071628');
+        terrGrad.addColorStop(0.5, '#0a1d35');
+        terrGrad.addColorStop(1, '#051020');
+        ctx.fillStyle = terrGrad;
+        ctx.fillRect(20, 380, this.width - 40, 140);
+
+        // Grand Arched Aqueduct Bridge (Connecting Minaret M and Minaret N)
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(54, 435);
+        ctx.quadraticCurveTo(210, 350, 374, 435);
+        ctx.stroke();
+
+        // Stone Voussoirs along the Arch
+        for (let i = 0; i <= 14; i++) {
+          const t = i / 14;
+          const px = (1 - t) * (1 - t) * 54 + 2 * (1 - t) * t * 210 + t * t * 374;
+          const py = (1 - t) * (1 - t) * 435 + 2 * (1 - t) * t * 350 + t * t * 435;
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px, py + 10);
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.4)';
+          ctx.lineWidth = 1.2;
           ctx.stroke();
         }
 
-        // 4. Sacred Constellation Lines connecting Phoneme Nodes
-        const constellationEdges = [
-          [{ x: 100, y: 120 }, { x: 150, y: 205 }], // EE -> B
-          [{ x: 340, y: 120 }, { x: 270, y: 205 }], // OO -> T
-          [{ x: 210, y: 130 }, { x: 150, y: 205 }], // G -> B
-          [{ x: 210, y: 130 }, { x: 270, y: 205 }], // G -> T
-          [{ x: 150, y: 205 }, { x: 270, y: 205 }], // B -> T
-          [{ x: 150, y: 205 }, { x: 210, y: 280 }], // B -> K
-          [{ x: 270, y: 205 }, { x: 210, y: 280 }], // T -> K
-          [{ x: 210, y: 280 }, { x: 54,  y: 450 }], // K -> M (Left Wing)
-          [{ x: 210, y: 280 }, { x: 374, y: 450 }], // K -> N (Right Wing)
-          [{ x: 210, y: 280 }, { x: 210, y: 500 }], // K -> LINGUA
-          [{ x: 54,  y: 450 }, { x: 210, y: 500 }], // M -> LINGUA
-          [{ x: 374, y: 450 }, { x: 210, y: 500 }], // N -> LINGUA
-          [{ x: 210, y: 500 }, { x: 210, y: 645 }], // LINGUA -> AA
-          [{ x: 54,  y: 450 }, { x: 135, y: 595 }], // M -> Left Slingshot
-          [{ x: 374, y: 450 }, { x: 325, y: 595 }], // N -> Right Slingshot
-          [{ x: 135, y: 595 }, { x: 210, y: 645 }], // P -> AA
-          [{ x: 325, y: 595 }, { x: 210, y: 645 }]  // D -> AA
-        ];
+        // Stepped battlements along top of Tier III (y = 380)
+        this.renderCrenellations(ctx, 20, this.width - 20, 380, 8, 10, '#38bdf8');
+        ctx.restore();
 
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.22)';
-        ctx.lineWidth = 1.2;
-        constellationEdges.forEach(edge => {
+        // 5. TIER IV (y: 220..380): The Royal Colonnade & Cuneiform Archive
+        ctx.save();
+        const colonnadeGrad = ctx.createLinearGradient(0, 220, 0, 380);
+        colonnadeGrad.addColorStop(0, 'rgba(6, 78, 59, 0.25)');
+        colonnadeGrad.addColorStop(1, 'rgba(2, 44, 34, 0.15)');
+        ctx.fillStyle = colonnadeGrad;
+        ctx.fillRect(20, 220, this.width - 40, 160);
+
+        // Fluted Columns behind Dental Arch Drop Targets (x: 95..120, y: 228..290)
+        for (let cy = 230; cy <= 290; cy += 16) {
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.moveTo(edge[0].x, edge[0].y);
-          ctx.lineTo(edge[1].x, edge[1].y);
-          ctx.stroke();
-        });
+          ctx.moveTo(96, cy); ctx.lineTo(120, cy); ctx.stroke();
+        }
 
-        // 5. Vowel Anatomical Resonant Cartouches
-        const regions = [
-          { glyph: '✦', label: '/i/ [EE]', sub: 'PALATAL ARCH',  x: 100, y: 120 },
-          { glyph: '✦', label: '/u/ [OO]', sub: 'VELAR CAVITY',  x: 340, y: 120 },
-          { glyph: '✧', label: '/ɛ/ [EH]', sub: 'LINGUAL CREST', x: 74,  y: 350 },
-          { glyph: '⚝', label: '/oʊ/ [OH]',sub: 'PHARYNX RECESS',x: 350, y: 350 },
-          { glyph: '⚙', label: '/ɑ/ [AA]', sub: 'ORAL APERTURE', x: 210, y: 645 }
-        ];
+        // Stepped battlements along top of Tier IV (y = 220)
+        this.renderCrenellations(ctx, 20, this.width - 20, 220, 8, 10, '#ffd700');
+        ctx.restore();
 
-        ctx.textAlign = 'center';
-        regions.forEach(r => {
-          // Subtle circular cartouche backing
+        // 6. TIER V, VI, VII (y: 18..220): The Summit Sanctuary & Temple of Marduk
+        ctx.save();
+        // Divine Golden Light Shafts radiating downward from Vault [G] at (210, 35)
+        const rayCount = 12;
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < rayCount; i++) {
+          const ang = Math.PI * 0.15 + (i / (rayCount - 1)) * (Math.PI * 0.70);
+          const rayPulse = 0.5 + 0.5 * Math.sin(time * 0.004 + i);
+          ctx.strokeStyle = `rgba(255, 215, 0, ${0.08 * rayPulse})`;
           ctx.beginPath();
-          ctx.arc(r.x, r.y + 4, 34, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(223, 177, 91, 0.04)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(223, 177, 91, 0.18)';
-          ctx.lineWidth = 1;
+          ctx.moveTo(210, 35);
+          ctx.lineTo(210 + Math.cos(ang) * 190, 35 + Math.sin(ang) * 190);
           ctx.stroke();
+        }
 
-          // Astral Glyph Icon
-          ctx.font = '700 1.05rem "Cinzel", serif';
-          ctx.fillStyle = '#ffd700';
-          ctx.shadowColor = '#dfb15b';
-          ctx.shadowBlur = 8;
-          ctx.fillText(r.glyph, r.x, r.y - 10);
-          ctx.shadowBlur = 0;
+        // Golden Horned Crown of Marduk framing Vault [G]
+        ctx.save();
+        ctx.translate(210, 35);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // Left divine horn
+        ctx.moveTo(-16, 12);
+        ctx.quadraticCurveTo(-26, -4, -32, -18);
+        ctx.quadraticCurveTo(-24, -12, -18, -4);
+        // Center crown tiara
+        ctx.lineTo(-12, -12);
+        ctx.lineTo(0, -20);
+        ctx.lineTo(12, -12);
+        // Right divine horn
+        ctx.lineTo(18, -4);
+        ctx.quadraticCurveTo(24, -12, 32, -18);
+        ctx.quadraticCurveTo(26, -4, 16, 12);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        ctx.restore();
 
-          // Vowel Text Label
-          ctx.font = '700 0.82rem "Silkscreen", monospace';
-          ctx.fillStyle = '#fef08a';
-          ctx.fillText(r.label, r.x, r.y + 7);
-
-          // Subtitle
-          ctx.font = '700 0.48rem "Space Mono", monospace';
-          ctx.fillStyle = 'rgba(223, 177, 91, 0.8)';
-          ctx.fillText(r.sub, r.x, r.y + 20);
-        });
-
-        // 6. Radiant Acoustic Wave from All Active Balls
+        // 7. Radiant Acoustic Wave from All Active Spheres
         const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
         activeBalls.forEach(b => {
           if (b.inPlay) {
             const speed = Math.hypot(b.vx, b.vy);
             const rad = Math.min(130, 40 + speed * 7);
             const gradW = ctx.createRadialGradient(b.x, b.y, 4, b.x, b.y, rad);
-            gradW.addColorStop(0, this.isMultiballActive ? 'rgba(255, 71, 87, 0.35)' : 'rgba(255, 215, 0, 0.28)');
-            gradW.addColorStop(0.5, this.isMultiballActive ? 'rgba(255, 107, 129, 0.12)' : 'rgba(223, 177, 91, 0.10)');
+            gradW.addColorStop(0, (this.isWizardModeActive || this.isMultiballActive) ? 'rgba(255, 71, 87, 0.35)' : 'rgba(255, 215, 0, 0.28)');
+            gradW.addColorStop(0.5, (this.isWizardModeActive || this.isMultiballActive) ? 'rgba(255, 107, 129, 0.12)' : 'rgba(223, 177, 91, 0.10)');
             gradW.addColorStop(1, 'transparent');
             ctx.fillStyle = gradW;
             ctx.beginPath();
@@ -5479,15 +5811,251 @@
         });
       }
 
+      // Babylonian Striding Lion (Ishtar Gate Bas-Relief Silhouette)
+      renderBabylonianLion(ctx, x, y, dir = 1) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(dir * 0.85, 0.85);
+
+        ctx.strokeStyle = '#ffd700';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.22)';
+        ctx.lineWidth = 1.6;
+        ctx.shadowColor = '#dfb15b';
+        ctx.shadowBlur = 4;
+
+        ctx.beginPath();
+        // Nose & Snout
+        ctx.moveTo(18, -6);
+        ctx.lineTo(24, -4);
+        ctx.lineTo(24, 0);
+        // Roaring open lower jaw
+        ctx.lineTo(19, 4);
+        ctx.lineTo(14, 2);
+        // Golden Mane Ruff
+        ctx.lineTo(10, 8);
+        ctx.lineTo(5, 4);
+        ctx.lineTo(2, 9);
+        ctx.lineTo(-4, 5);
+        // Arched Muscular Back
+        ctx.quadraticCurveTo(-14, -8, -26, 0);
+        // Raised Curved Tail
+        ctx.quadraticCurveTo(-34, -4, -38, -14);
+        ctx.quadraticCurveTo(-42, -22, -36, -26);
+        ctx.quadraticCurveTo(-32, -22, -34, -14);
+        ctx.quadraticCurveTo(-30, -2, -24, 6);
+        // Rear Hind Leg
+        ctx.lineTo(-26, 18);
+        ctx.lineTo(-20, 20);
+        ctx.lineTo(-18, 12);
+        // Belly Underline
+        ctx.quadraticCurveTo(-8, 14, 0, 10);
+        // Front Foreleg
+        ctx.lineTo(6, 22);
+        ctx.lineTo(12, 22);
+        ctx.lineTo(10, 8);
+        // Chest & Neck
+        ctx.quadraticCurveTo(15, 4, 18, -6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Lion Eye (Radiant gold dot)
+        ctx.beginPath();
+        ctx.arc(17, -3, 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // Babylonian 8-Petaled Sacred Rosette
+      renderBabylonianRosette(ctx, x, y, r = 5) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = '#ffd700';
+        ctx.strokeStyle = '#8c6d2b';
+        ctx.lineWidth = 0.8;
+
+        // 8 Petals
+        for (let i = 0; i < 8; i++) {
+          const ang = (i * Math.PI) / 4;
+          const px = Math.cos(ang) * (r * 0.7);
+          const py = Math.sin(ang) * (r * 0.7);
+          ctx.beginPath();
+          ctx.arc(px, py, r * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        // Center Gold Disc
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = '#fffbeb';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Stepped Crenellated Ziggurat Battlements (Merlons _П_П_П_)
+      renderCrenellations(ctx, x1, x2, y, merlonW = 8, merlonH = 10, strokeColor = '#dfb15b') {
+        ctx.save();
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        let isUp = true;
+        ctx.moveTo(x1, y);
+        for (let cx = x1; cx < x2; cx += merlonW) {
+          const nextX = Math.min(x2, cx + merlonW);
+          if (isUp) {
+            ctx.lineTo(cx, y - merlonH);
+            ctx.lineTo(nextX, y - merlonH);
+            ctx.lineTo(nextX, y);
+          } else {
+            ctx.lineTo(nextX, y);
+          }
+          isUp = !isUp;
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Central 7-Tier Stepped Ziggurat Progress Insert Matrix (Inlaid between Slingshots)
+      renderZigguratProgressMatrix(ctx) {
+        const time = performance.now();
+        const cx = 210;
+        const baseY = 650;
+        const tierH = 10.5;
+
+        // 7 Stepped Tiers Geometry (Base to Apex)
+        const tiers = [
+          { num: 1, label: 'I: KILNS',    w: 118, y: baseY },
+          { num: 2, label: 'II: AVENUE',   w: 102, y: baseY - tierH * 1 },
+          { num: 3, label: 'III: MINARET', w: 86,  y: baseY - tierH * 2 },
+          { num: 4, label: 'IV: PORTICO',  w: 70,  y: baseY - tierH * 3 },
+          { num: 5, label: 'V: ARCHIVE',   w: 54,  y: baseY - tierH * 4 },
+          { num: 6, label: 'VI: SKY-RAMP', w: 40,  y: baseY - tierH * 5 },
+          { num: 7, label: 'VII: SUMMIT',  w: 28,  y: baseY - tierH * 6 }
+        ];
+
+        ctx.save();
+
+        // Subtle decorative background shadow for the pyramid
+        ctx.fillStyle = 'rgba(10, 15, 28, 0.75)';
+        ctx.beginPath();
+        ctx.moveTo(cx - 64, baseY + 6);
+        ctx.lineTo(cx - 16, baseY - tierH * 6.5);
+        ctx.lineTo(cx + 16, baseY - tierH * 6.5);
+        ctx.lineTo(cx + 64, baseY + 6);
+        ctx.closePath();
+        ctx.fill();
+
+        tiers.forEach(t => {
+          const tierData = this.towerTiers ? this.towerTiers[t.num] : null;
+          const isUnlocked = tierData ? tierData.unl : false;
+          const isNext = !isUnlocked && (!this.towerTiers || t.num === 1 || this.towerTiers[t.num - 1].unl);
+
+          const tx = cx - t.w / 2;
+          const ty = t.y - tierH;
+
+          // Tier block fill
+          if (isUnlocked) {
+            const uGrad = ctx.createLinearGradient(tx, ty, tx, ty + tierH);
+            uGrad.addColorStop(0, '#ffd700');
+            uGrad.addColorStop(1, '#b45309');
+            ctx.fillStyle = uGrad;
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 10;
+          } else if (isNext) {
+            const pulse = (Math.sin(time * 0.007) + 1) / 2;
+            ctx.fillStyle = `rgba(245, 158, 11, ${0.35 + pulse * 0.45})`;
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 6 * pulse;
+          } else {
+            ctx.fillStyle = 'rgba(28, 18, 24, 0.85)';
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(tx, ty, t.w, tierH - 1, 2);
+          else ctx.rect(tx, ty, t.w, tierH - 1);
+          ctx.fill();
+
+          // Tier Border Trim
+          ctx.strokeStyle = isUnlocked ? '#ffffff' : (isNext ? '#ffd700' : 'rgba(223, 177, 91, 0.25)');
+          ctx.lineWidth = isUnlocked ? 1.4 : 1.0;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Tier Roman Numeral & Label Text
+          ctx.font = '800 0.38rem "Space Mono", monospace';
+          ctx.fillStyle = isUnlocked ? '#110503' : (isNext ? '#ffffff' : 'rgba(223, 177, 91, 0.55)');
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(t.label, cx, ty + (tierH - 1) / 2);
+        });
+
+        // Golden Capstone Horns of Marduk atop the Pyramid (y: baseY - tierH * 6.5)
+        const apexY = baseY - tierH * 6.5;
+        const allBuilt = this.towerTiers && Object.values(this.towerTiers).every(t => t.unl);
+        const crownPulse = (Math.sin(time * 0.008) + 1) / 2;
+
+        ctx.strokeStyle = allBuilt ? '#ffd700' : 'rgba(223, 177, 91, 0.45)';
+        ctx.fillStyle = allBuilt ? `rgba(255, 215, 0, ${0.45 + crownPulse * 0.55})` : 'rgba(15, 23, 42, 0.6)';
+        ctx.lineWidth = 1.4;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = allBuilt ? 14 : 0;
+
+        ctx.beginPath();
+        ctx.moveTo(cx - 10, apexY);
+        ctx.lineTo(cx - 16, apexY - 8);
+        ctx.lineTo(cx - 8, apexY - 4);
+        ctx.lineTo(cx, apexY - 11);
+        ctx.lineTo(cx + 8, apexY - 4);
+        ctx.lineTo(cx + 16, apexY - 8);
+        ctx.lineTo(cx + 10, apexY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // Dynamic Divine Lightning Bolts (Summit & Wizard Mode)
+      renderLightningBolts(ctx) {
+        if (!this.lightningBolts || this.lightningBolts.length === 0) return;
+        ctx.save();
+        this.lightningBolts.forEach(bolt => {
+          if (bolt.pts && bolt.pts.length > 1) {
+            ctx.strokeStyle = bolt.color || '#ffd700';
+            ctx.shadowColor = bolt.color || '#ffd700';
+            ctx.shadowBlur = 14;
+            ctx.lineWidth = 2.4;
+            ctx.globalAlpha = Math.max(0, Math.min(1, bolt.alpha));
+            ctx.beginPath();
+            ctx.moveTo(bolt.pts[0].x, bolt.pts[0].y);
+            for (let i = 1; i < bolt.pts.length; i++) {
+              ctx.lineTo(bolt.pts[i].x, bolt.pts[i].y);
+            }
+            ctx.stroke();
+
+            // Inner white-hot core
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+          }
+        });
+        ctx.restore();
+      }
+
       // =======================================================================
-      // THE 5 SPACE CADET ANATOMICAL SUBAREAS (ZONING, ARCHITECTURE & SIGNAGE)
+      // MONUMENTAL SUBAREA ARCHITECTURE & DEDICATION PLAQUES
       // =======================================================================
       renderSubareaArchitecture(ctx) {
         const time = performance.now();
 
         // =====================================================================
-        // LEVEL V : THE APEX SHRINE OF CONFOUNDED TONGUES (y: 18..220)
-        // Myth: The summit shrine of Marduk touching the heavens, shattered by divine lightning
+        // TIER VII : THE HIGH TEMPLE OF MARDUK (y: 18..220)
+        // Myth: The summit sanctuary touching heaven, crowned by the Horns of Marduk
         // =====================================================================
         ctx.save();
         // A. Midnight Sapphire Celestial Dome Wash
@@ -5498,57 +6066,7 @@
         ctx.fillStyle = grottoGrad;
         ctx.fillRect(20, 18, this.width - 40, 202);
 
-        // B. Radiant Lightning Rays of Marduk radiating downward from Apex Vault [G] at (210, 35)
-        ctx.strokeStyle = 'rgba(255, 215, 0, 0.10)';
-        ctx.lineWidth = 1;
-        for (let angle = Math.PI * 0.12; angle <= Math.PI * 0.88; angle += 0.12) {
-          ctx.beginPath();
-          ctx.moveTo(210, 35);
-          ctx.lineTo(210 + Math.cos(angle) * 165, 35 + Math.sin(angle) * 165);
-          ctx.stroke();
-        }
-
-        // C. Sacred Cardinal Vowel Constellation Triangle: /i/ (100, 100) -> /ɑ/ (210, 60) -> /u/ (320, 100)
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.28)';
-        ctx.lineWidth = 1.2;
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(100, 100);
-        ctx.lineTo(210, 60);
-        ctx.lineTo(320, 100);
-        ctx.closePath();
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Sacred Vowel Cartouche Glyphs
-        [[100, 100, '/i/'], [210, 60, '/ɑ/'], [320, 100, '/u/']].forEach(([vx, vy, vGlyph]) => {
-          ctx.beginPath();
-          ctx.arc(vx, vy, 13, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(10, 15, 30, 0.65)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        });
-
-        // D. Zodiacal Orbit Rings surrounding the Astrolabe Pop Bumpers
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.15)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(210, 205, 95, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // E. Transverse Boundary Rail (y = 220) with Stepped Ziggurat Crown Brackets
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([8, 6]);
-        ctx.beginPath();
-        ctx.moveTo(24, 220);
-        ctx.lineTo(416, 220);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Stepped Ziggurat Corner Brackets
+        // B. Stepped Ziggurat Corner Brackets
         [[24, 220, 1], [416, 220, -1]].forEach(([bx, by, dir]) => {
           ctx.strokeStyle = 'rgba(255, 215, 0, 0.65)';
           ctx.lineWidth = 1.5;
@@ -5565,29 +6083,29 @@
           ctx.stroke();
         });
 
-        // Level V Header Plaque
+        // Level VII Header Plaque
         ctx.font = '900 0.45rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#ffd700';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ LEVEL V : APEX SHRINE OF CONFOUNDED TONGUES ✦', 210, 78);
+        ctx.fillText('✦ LEVEL VII : THE HIGH TEMPLE OF MARDUK ✦', 210, 78);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.32rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.55)';
-        ctx.fillText('THE SUMMIT OF MARDUK • CARDINAL VOWEL GROTTO', 210, 87);
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.65)';
+        ctx.fillText('SUMMIT OF HEAVEN • CARDINAL VOWEL GROTTO & VAULT [G]', 210, 87);
         ctx.restore();
 
         // =====================================================================
-        // LEVEL IV : THE PALATAL CITADEL & ASTROLABE MEZZANINE (x: 228..416, y: 220..380)
-        // Myth: The royal astrological archive, celestial clocks, and consonant library
+        // TIER IV : THE ROYAL COLONNADE & CUNEIFORM ARCHIVE (x: 228..416, y: 220..380)
+        // Myth: The royal library of Ashurbanipal and portico of the scribes
         // =====================================================================
         ctx.save();
         // A. Polished Emerald Bronze Mezzanine Terrace
         ctx.fillStyle = 'rgba(16, 185, 129, 0.05)';
         ctx.fillRect(228, 220, 188, 160);
 
-        // Stepped Border with Astrolabe Azimuth Coordinates
+        // Stepped Border
         ctx.strokeStyle = 'rgba(52, 211, 153, 0.28)';
         ctx.lineWidth = 1.2;
         ctx.strokeRect(228, 220, 188, 160);
@@ -5600,59 +6118,29 @@
           ctx.fill();
         });
 
-        // Astrolabe Gear Teeth Engravings (Circular arc on the platform)
-        ctx.strokeStyle = 'rgba(52, 211, 153, 0.15)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(360, 310, 48, Math.PI * 0.75, Math.PI * 1.6);
-        ctx.stroke();
-
         // Level IV Plaque
         ctx.font = '900 0.43rem "Cinzel", serif';
         ctx.fillStyle = 'rgba(52, 211, 153, 0.85)';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#10b981';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ LEVEL IV : PALATAL CITADEL & ASTROLABE ✦', 320, 236);
+        ctx.fillText('✦ LEVEL IV : ROYAL COLONNADE & ARCHIVE ✦', 320, 236);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.30rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(52, 211, 153, 0.55)';
-        ctx.fillText('CELESTIAL OBSERVATORY • DENTAL PORTICO & VELAR VAULT', 320, 245);
-
-        // Dental Arch Colonnade Portico (Fluted Pillars behind targets at x: 100..115, y: 226..286)
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.22)';
-        ctx.lineWidth = 1.2;
-        for (let py = 228; py <= 286; py += 18) {
-          ctx.beginPath();
-          ctx.moveTo(98, py);
-          ctx.lineTo(116, py);
-          ctx.stroke();
-        }
-
-        // Cross-table targeting trajectory line (Upper Mini-Flipper -> Vault K)
-        ctx.strokeStyle = 'rgba(52, 211, 153, 0.25)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 6]);
-        ctx.beginPath();
-        ctx.moveTo(350, 310);
-        ctx.lineTo(84, 256);
-        ctx.stroke();
-        ctx.setLineDash([]);
+        ctx.fillText('DENTAL TARGET BANK [D]-[E]-[N]-[T] • VELAR VAULT [K]', 320, 245);
         ctx.restore();
 
         // =====================================================================
-        // LEVEL III : THE RESONANT MINARETS OF SUN & MOON (y: 360..500)
+        // TIER III : THE RESONANT MINARETS OF SUN & MOON (y: 360..500)
         // Myth: The Twin Towers of Sin (Moon) & Shamash (Sun) bridged by the Sacred Aqueduct
         // =====================================================================
         ctx.save();
         // A. West Minaret: Sanctuary of Sin (The Moon God - Scoop [M] at x: 20..100)
         ctx.fillStyle = 'rgba(30, 58, 138, 0.08)';
         ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(22, 395, 76, 115, 8);
-        } else {
-          ctx.rect(22, 395, 76, 115);
-        }
+        if (ctx.roundRect) ctx.roundRect(22, 395, 76, 115, 8);
+        else ctx.rect(22, 395, 76, 115);
         ctx.fill();
         ctx.strokeStyle = 'rgba(147, 197, 253, 0.35)';
         ctx.lineWidth = 1.2;
@@ -5660,7 +6148,7 @@
 
         // Silver Crescent Moon Cartouche above Scoop [M]
         ctx.font = '900 0.65rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(219, 234, 254, 0.75)';
+        ctx.fillStyle = 'rgba(219, 234, 254, 0.85)';
         ctx.textAlign = 'center';
         ctx.fillText('☾', 54, 416);
 
@@ -5674,11 +6162,8 @@
         // B. East Minaret: Sanctuary of Shamash (The Sun God - Scoop [N] at x: 332..412)
         ctx.fillStyle = 'rgba(217, 119, 6, 0.08)';
         ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(332, 395, 80, 115, 8);
-        } else {
-          ctx.rect(332, 395, 80, 115);
-        }
+        if (ctx.roundRect) ctx.roundRect(332, 395, 80, 115, 8);
+        else ctx.rect(332, 395, 80, 115);
         ctx.fill();
         ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
         ctx.lineWidth = 1.2;
@@ -5696,26 +6181,6 @@
         ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
         ctx.fillText('[N] SOLAR NASAL', 372, 434);
 
-        // C. The Grand Velopharyngeal Aqueduct Bridge spanning Midfield
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.32)';
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(54, 435);
-        ctx.quadraticCurveTo(210, 345, 374, 435);
-        ctx.stroke();
-
-        // Stepped Masonry Pier Buttresses along the Arch
-        [100, 155, 265, 320].forEach(px => {
-          const t = (px - 54) / (374 - 54);
-          const py = Math.pow(1 - t, 2) * 435 + 2 * (1 - t) * t * 345 + Math.pow(t, 2) * 435;
-          ctx.beginPath();
-          ctx.moveTo(px, py);
-          ctx.lineTo(px, py + 12);
-          ctx.strokeStyle = 'rgba(223, 177, 91, 0.25)';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        });
-
         // Central Celestial Medallion (Connecting Sun and Moon)
         ctx.fillStyle = '#060810';
         ctx.beginPath();
@@ -5731,30 +6196,20 @@
         ctx.fillText('✦ LEVEL III ✦', 210, 361);
         ctx.font = '700 0.27rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
-        ctx.fillText('VELOPHARYNGEAL', 210, 368);
+        ctx.fillText('TWIN MINARETS', 210, 368);
         ctx.font = '700 0.24rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(223, 177, 91, 0.6)';
         ctx.fillText('AQUEDUCT BRIDGE', 210, 374);
         ctx.restore();
 
         // =====================================================================
-        // LEVEL II : THE AVENUE OF TONGUES & TABLETS (x: 90..335, y: 470..650)
+        // TIER II : THE AVENUE OF LIONS & TABLETS (x: 90..335, y: 470..650)
         // Myth: The monumental processional way of Shinar, carved with cuneiform syllabary
         // =====================================================================
         ctx.save();
-        // A. Royal Babylonian Processional Frieze Borders
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.16)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([6, 6]);
-        ctx.beginPath();
-        ctx.moveTo(105, 470); ctx.lineTo(105, 620);
-        ctx.moveTo(315, 470); ctx.lineTo(315, 620);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // B. Ancient Cuneiform Syllabary Glyphs stamped in the fairways
+        // A. Ancient Cuneiform Syllabary Glyphs stamped in the fairways
         ctx.font = '900 0.52rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.18)';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.22)';
         ctx.textAlign = 'center';
         // Left Processional Corridor: A • BA • BI
         ctx.fillText('𒀀', 118, 500);
@@ -5765,55 +6220,34 @@
         ctx.fillText('𒁺', 302, 530);
         ctx.fillText('𒂗', 302, 560);
 
-        // C. Highway Fairway Directional Speed Chevrons (breathing gold luminosity)
-        const chevronPulse = (Math.sin(time * 0.005) + 1) / 2;
-        ctx.font = '900 0.48rem "Cinzel", serif';
-        ctx.fillStyle = `rgba(255, 215, 0, ${0.16 + chevronPulse * 0.24})`;
-        // Left fairway chevrons
-        ctx.fillText('▲', 150, 480);
-        ctx.fillText('▲', 150, 510);
-        ctx.fillText('▲', 150, 540);
-        // Right fairway chevrons
-        ctx.fillText('▲', 270, 480);
-        ctx.fillText('▲', 270, 510);
-        ctx.fillText('▲', 270, 540);
-
-        // D. Concentric Stepped Ceremonial Altar Framing the LINGUA target at (210, 490)
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.28)';
-        ctx.lineWidth = 1.2;
+        // B. Concentric Stepped Ceremonial Altar Framing the LINGUA target at (210, 490)
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.35)';
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
         ctx.arc(210, 490, 28, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.strokeStyle = 'rgba(255, 215, 0, 0.18)';
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
         ctx.beginPath();
         ctx.arc(210, 490, 36, 0, Math.PI * 2);
         ctx.stroke();
 
         // Level II Plaque (beneath tongue target)
         ctx.font = '900 0.44rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.75)';
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.85)';
         ctx.shadowColor = '#ffd700';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ LEVEL II : THE AVENUE OF TONGUES ✦', 210, 560);
+        ctx.fillText('✦ LEVEL II : THE AVENUE OF LIONS ✦', 210, 560);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.31rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.55)';
-        ctx.fillText('THE PROCESSIONAL WAY • LINGUAL RESONATORS', 210, 570);
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.65)';
+        ctx.fillText('GLAZED LAPIS PROCESSIONAL WAY • LINGUAL ALTAR', 210, 570);
         ctx.restore();
 
         // =====================================================================
-        // LEVEL I : THE FOUNDATION KILNS OF SHINAR (y: 650..820)
+        // TIER I : THE FOUNDATION KILNS OF SHINAR (y: 650..820)
         // Myth: The earth, baked brick and bitumen, roaring furnace kilns, bilabial valves
         // =====================================================================
         ctx.save();
-        // A. Terracotta & Bitumen Foundation Apron Backplate (y: 755..820)
-        const apronGrad = ctx.createLinearGradient(0, 755, 0, 820);
-        apronGrad.addColorStop(0, 'rgba(28, 16, 8, 0.35)');
-        apronGrad.addColorStop(0.5, 'rgba(18, 10, 5, 0.85)');
-        apronGrad.addColorStop(1, 'rgba(8, 4, 2, 0.96)');
-        ctx.fillStyle = apronGrad;
-        ctx.fillRect(20, 765, this.width - 40, 55);
-
         // Stepped Ziggurat Brick Buttress Outlines along the Apron
         ctx.strokeStyle = 'rgba(217, 119, 6, 0.35)';
         ctx.lineWidth = 1.2;
