@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-  <title>BABEL 3000 - Celestial Formant Pinball | Evan Swope</title>
-  <meta name="description" content="BABEL 3000: The Celestial Tower of Tongues. An acoustic physics pinball game synthesizing human vowels, diphthongs, and consonants in real time to spell words through celestial kinematics.">
+  <title>BABEL DECO - Anatomical Speech Synthesizer | Evan Swope</title>
+  <meta name="description" content="BABEL DECO: The 1928 Mechanical Speech Synthesizer. An acoustic physics pinball table synthesizing real-time human vowels, diphthongs, and consonants through anatomical kinematics.">
   <meta name="robots" content="noindex, nofollow">
   
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
@@ -182,6 +182,79 @@
       letter-spacing: 3px;
       text-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
       animation: pulse-glow 2s infinite ease-in-out;
+    }
+
+    /* 5-Articulator Indicator Lamp Matrix */
+    .articulators-panel {
+      margin: 0.45rem 0;
+      padding: 0.35rem 0.5rem;
+      background: rgba(4, 7, 16, 0.7);
+      border: 1px solid rgba(223, 177, 91, 0.3);
+      border-radius: 8px;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+      transition: all 0.3s ease;
+    }
+    .articulators-title {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      color: var(--gold-primary);
+      text-align: center;
+      letter-spacing: 1.8px;
+      margin-bottom: 0.25rem;
+      opacity: 0.85;
+      text-transform: uppercase;
+    }
+    .articulators-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.3rem;
+    }
+    .art-lamp {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 18, 32, 0.85);
+      border: 1px solid rgba(223, 177, 91, 0.2);
+      border-radius: 5px;
+      padding: 0.22rem 0.15rem;
+      transition: all 0.25s ease;
+    }
+    .lamp-bulb {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #232733;
+      border: 1px solid #4a5568;
+      margin-bottom: 0.18rem;
+      transition: all 0.25s ease;
+    }
+    .lamp-name {
+      font-family: var(--font-display);
+      font-size: 0.52rem;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      transition: color 0.25s ease;
+    }
+    .art-lamp.active {
+      border-color: var(--gold-bright);
+      background: rgba(223, 177, 91, 0.18);
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.35);
+    }
+    .art-lamp.active .lamp-bulb {
+      background: #ffd700;
+      border-color: #ffffff;
+      box-shadow: 0 0 10px #ffd700, 0 0 18px #ffb142;
+    }
+    .art-lamp.active .lamp-name {
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+      font-weight: 700;
+    }
+    .articulators-panel.all-active {
+      border-color: #ffd700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.45);
+      animation: pulse-glow 1.5s infinite ease-in-out;
     }
 
     /* Phoneme Stream & Vowel Radar Bar */
@@ -467,9 +540,9 @@
 
   <!-- Game Header -->
   <header class="game-header">
-    <div class="game-badge"><i class="fa-solid fa-compass"></i> CELESTIAL ACOUSTIC OBSERVATORY</div>
-    <h1 class="game-title">BABEL 3000</h1>
-    <p class="game-subtitle">The Celestial Tower of Tongues • Harmonic Formant Pinball</p>
+    <div class="game-badge"><i class="fa-solid fa-gears"></i> ACOUSTIC APPARATUS • MODEL 1928</div>
+    <h1 class="game-title">BABEL DECO</h1>
+    <p class="game-subtitle">The Mechanical Speaking Machine • Acoustic Formant Pinball</p>
   </header>
 
   <!-- Main Arcade Cabinet -->
@@ -483,7 +556,7 @@
           <span id="stat-score" class="stat-value">000,000</span>
         </div>
         <div class="target-word-box">
-          <span class="stat-label">✦ ASTRAL PROPHECY ✦</span>
+          <span class="stat-label">✦ TELEGRAPH TARGET ✦</span>
           <div id="stat-target-word" class="target-word-val">CAT</div>
         </div>
         <div class="hud-stat" style="text-align: right;">
@@ -492,9 +565,36 @@
         </div>
       </div>
 
+      <!-- 5-Articulator Indicator Lamp Matrix -->
+      <div class="articulators-panel" id="articulators-panel">
+        <div class="articulators-title">⚙ ANATOMICAL ARTICULATORS • MODEL 1928 ⚙</div>
+        <div class="articulators-row">
+          <div id="art-larynx" class="art-lamp" title="Larynx / Vocal Folds: Pitch Prosody F0">
+            <span class="lamp-bulb"></span>
+            <span class="lamp-name">LARYNX</span>
+          </div>
+          <div id="art-tongue" class="art-lamp" title="Tongue (Lingua): Vowel Formants F1/F2">
+            <span class="lamp-bulb"></span>
+            <span class="lamp-name">TONGUE</span>
+          </div>
+          <div id="art-palate" class="art-lamp" title="Palate & Dental Arch: Velar & Alveolar Stops">
+            <span class="lamp-bulb"></span>
+            <span class="lamp-name">PALATE</span>
+          </div>
+          <div id="art-lips" class="art-lamp" title="Labial Valves: Bilabial Stops & Flippers">
+            <span class="lamp-bulb"></span>
+            <span class="lamp-name">LIPS</span>
+          </div>
+          <div id="art-nasal" class="art-lamp" title="Nasal Cavity: M & N Resonant Chambers">
+            <span class="lamp-bulb"></span>
+            <span class="lamp-name">NASAL</span>
+          </div>
+        </div>
+      </div>
+
       <div class="phoneme-stream-bar">
         <div class="phoneme-tokens" id="phoneme-stream-container">
-          <span style="color: #64748b; font-size: 0.68rem;">Awaiting celestial contact...</span>
+          <span style="color: #64748b; font-size: 0.68rem;">Awaiting mechanical contact...</span>
         </div>
         <div class="formant-readout">
           <div>F₁: <span id="val-f1">450 Hz</span></div>
@@ -509,30 +609,30 @@
 
       <!-- Audio Start / Coin Door Overlay -->
       <div class="audio-overlay" id="audio-overlay">
-        <i class="fa-solid fa-sun" style="font-size: 3.0rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));"></i>
-        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: #fff;">AWAKEN BABEL</h2>
+        <i class="fa-solid fa-gears" style="font-size: 3.0rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));"></i>
+        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: #fff;">CRANK THE SPEECH ENGINE</h2>
         <p class="overlay-intro">
-          The table is an ancient celestial star chart of human speech. Ball trajectories synthesize continuous vowel harmonies; celestial astrolabes articulate consonants to solve the astral prophecies!
+          Step into the 1928 laboratory of mechanical speech synthesis! Launch the sphere through the Vocal Tract to calibrate the five Anatomical Articulators: Larynx, Tongue, Palate, Lips, and Nasal Cavity. Synthesize real words to solve telegraph dispatches!
         </p>
         <button class="overlay-coin-btn" id="btn-start-audio">
-          <i class="fa-solid fa-bolt"></i> COMMENCE HARMONY
+          <i class="fa-solid fa-bolt"></i> ENGAGE BELLOWS
         </button>
       </div>
 
       <!-- Game Over Overlay -->
       <div class="audio-overlay hidden" id="game-over-overlay">
-        <i class="fa-solid fa-award" style="font-size: 2.8rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(223,177,91,0.8));"></i>
-        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.6rem; color: #fff;">CONSTELLATION DISSOLVED</h2>
+        <i class="fa-solid fa-wind" style="font-size: 2.8rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(223,177,91,0.8));"></i>
+        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.6rem; color: #fff;">BELLOWS EXHAUSTED</h2>
         <div style="font-family: var(--font-mono); font-size: 1.15rem; color: var(--gold-bright); margin: 0.6rem 0;" id="game-over-score">FINAL SCORE: 000,000</div>
-        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">PROPHECIES SOLVED: 0</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">WORDS SYNTHESIZED: 0</div>
         <button class="overlay-coin-btn" id="btn-play-again">
-          <i class="fa-solid fa-rotate-right"></i> REFORGE CONSTELLATION
+          <i class="fa-solid fa-rotate-right"></i> RE-CRANK ENGINE
         </button>
       </div>
 
       <!-- Word Celebration Pop-Up -->
       <div class="word-celebration-banner" id="word-banner">
-        <div class="banner-title">✦ PROPHECY SOLVED ✦</div>
+        <div class="banner-title">✦ TELEGRAPH DISPATCH SOLVED ✦</div>
         <div class="banner-word" id="banner-word-text">CAT</div>
         <div class="banner-points" id="banner-points-text">+1,000 PTS</div>
       </div>
@@ -564,25 +664,25 @@
   <!-- Discovered Words Drawer -->
   <section class="discovered-words-card">
     <div class="drawer-header">
-      <span><i class="fa-solid fa-scroll"></i> Prophecies Inscribed</span>
-      <span id="words-count-badge">0 INSCRIBED</span>
+      <span><i class="fa-solid fa-scroll"></i> Lexicon Inscribed</span>
+      <span id="words-count-badge">0 SYNTHESIZED</span>
     </div>
     <div class="words-tag-container" id="discovered-words-list">
-      <span class="empty-words-msg">Inscribe words by connecting astrolabe impacts with vowel star-glides!</span>
+      <span class="empty-words-msg">Articulate words by chaining consonant impacts with tongue vowel-glides!</span>
     </div>
   </section>
 
   <!-- Acoustic Guide -->
   <section class="acoustic-guide-card">
-    <h3><i class="fa-solid fa-compass"></i> The Celestial Mechanics of Babel 3000</h3>
+    <h3><i class="fa-solid fa-gears"></i> The Anatomical Mechanics of Babel Deco (1928)</h3>
     <p>
-      <strong>1. The Vowel Constellation Plane:</strong> Human speech vowels are acoustic resonances mapped across two coordinate axes: <strong>F₁</strong> (jaw aperture, vertical Y-axis) and <strong>F₂</strong> (lingual front/back orbit, horizontal X-axis). Ball travel between <em>☉ [EE]</em>, <em>☾ [OO]</em>, and <em>✦ [AA]</em> synthesizes continuous vocal diphthongs with dynamic prosody.
+      <strong>1. The Lingual Vowel Plane (The Tongue):</strong> Human vowels are acoustic formant resonances shaped by the tongue cavity. The table's vertical Y-axis controls <strong>F₁</strong> (jaw opening, from high closed <em>[EE] / [OO]</em> to open <em>[AA]</em>). The horizontal X-axis controls <strong>F₂</strong> (tongue front/back placement). Gliding between zones synthesizes continuous diphthongs.
     </p>
     <p>
-      <strong>2. Consonant Astrolabes & Wells:</strong> Collisions with <strong>[B], [T], [K], [G]</strong> celestial astrolabes trigger plosive consonant stops alongside crystalline star chimes. Dropping into the <strong>[M] Lunar Well</strong> or <strong>[N] Solar Well</strong> hums a warm acoustic nasal resonance before the solenoid fires the ball back upward.
+      <strong>2. Consonants (Palate, Lips, Teeth & Nasal Resonators):</strong> Striking <strong>[B] &amp; [P]</strong> triggers bilabial plosives; <strong>[T] &amp; [D]</strong> triggers alveolar stops; <strong>[K] &amp; [G]</strong> triggers velar stops; <strong>[S]</strong> whistles a dental fricative. The <strong>[M] &amp; [N]</strong> scoops capture the sphere in acoustic nasal resonance chambers!
     </p>
     <p>
-      <strong>3. Solving Astral Prophecies:</strong> Chain collisions in sequence to synthesize target words (e.g. <em>Astrolabe [B] &rarr; Center Glide [AA] &rarr; Astrolabe [T] = BAT!</em>).
+      <strong>3. Awakening the Homunculus (2x Multiplier):</strong> Engage all five speech organs (Larynx, Tongue, Palate, Lips, Nasal) on a single ball to unlock the complete speaking apparatus and double all word values!
     </p>
   </section>
 
@@ -601,112 +701,214 @@
     //   Consonants: B, T, K, P, D, G, S, M, N, L, R
     //   Vowels: EE (/i/), OO (/u/), AA (/ɑ/), EH (/ɛ/), OH (/oʊ/), IH (/ɪ/)
     const LEXICON = [
-      { word: 'BAT',  seq: ['B', 'AA', 'T'], pts: 500 },
-      { word: 'BIT',  seq: ['B', 'IH', 'T'], pts: 500 },
-      { word: 'BET',  seq: ['B', 'EH', 'T'], pts: 500 },
-      { word: 'BOOT', seq: ['B', 'OO', 'T'], pts: 600 },
-      { word: 'BOAT', seq: ['B', 'OH', 'T'], pts: 600 },
-      { word: 'BEAT', seq: ['B', 'EE', 'T'], pts: 600 },
-      { word: 'BAD',  seq: ['B', 'AA', 'D'], pts: 500 },
-      { word: 'BED',  seq: ['B', 'EH', 'D'], pts: 500 },
-      { word: 'BID',  seq: ['B', 'IH', 'D'], pts: 500 },
-      { word: 'BUG',  seq: ['B', 'AA', 'G'], pts: 500 },
-      { word: 'BIG',  seq: ['B', 'IH', 'G'], pts: 500 },
-      { word: 'BEG',  seq: ['B', 'EH', 'G'], pts: 500 },
-      { word: 'BOG',  seq: ['B', 'OH', 'G'], pts: 500 },
-      { word: 'CAT',  seq: ['K', 'AA', 'T'], pts: 500 },
-      { word: 'KIT',  seq: ['K', 'IH', 'T'], pts: 500 },
-      { word: 'COT',  seq: ['K', 'OH', 'T'], pts: 500 },
-      { word: 'CAP',  seq: ['K', 'AA', 'P'], pts: 500 },
-      { word: 'COP',  seq: ['K', 'OH', 'P'], pts: 500 },
-      { word: 'CUP',  seq: ['K', 'AA', 'P'], pts: 500 },
-      { word: 'KEEP', seq: ['K', 'EE', 'P'], pts: 600 },
-      { word: 'KID',  seq: ['K', 'IH', 'D'], pts: 500 },
-      { word: 'KEG',  seq: ['K', 'EH', 'G'], pts: 500 },
-      { word: 'PAT',  seq: ['P', 'AA', 'T'], pts: 500 },
-      { word: 'PET',  seq: ['P', 'EH', 'T'], pts: 500 },
-      { word: 'PIT',  seq: ['P', 'IH', 'T'], pts: 500 },
-      { word: 'POT',  seq: ['P', 'OH', 'T'], pts: 500 },
-      { word: 'POP',  seq: ['P', 'OH', 'P'], pts: 600 },
-      { word: 'PIP',  seq: ['P', 'IH', 'P'], pts: 600 },
-      { word: 'PUP',  seq: ['P', 'AA', 'P'], pts: 600 },
-      { word: 'PEEP', seq: ['P', 'EE', 'P'], pts: 700 },
-      { word: 'PAD',  seq: ['P', 'AA', 'D'], pts: 500 },
-      { word: 'POD',  seq: ['P', 'OH', 'D'], pts: 500 },
-      { word: 'PIG',  seq: ['P', 'IH', 'G'], pts: 500 },
-      { word: 'PEG',  seq: ['P', 'EH', 'G'], pts: 500 },
-      { word: 'PUG',  seq: ['P', 'AA', 'G'], pts: 500 },
-      { word: 'TOP',  seq: ['T', 'OH', 'P'], pts: 500 },
-      { word: 'TIP',  seq: ['T', 'IH', 'P'], pts: 500 },
-      { word: 'TAP',  seq: ['T', 'AA', 'P'], pts: 500 },
-      { word: 'TUB',  seq: ['T', 'AA', 'B'], pts: 500 },
-      { word: 'TAB',  seq: ['T', 'AA', 'B'], pts: 500 },
-      { word: 'TAG',  seq: ['T', 'AA', 'G'], pts: 500 },
-      { word: 'TUG',  seq: ['T', 'AA', 'G'], pts: 500 },
-      { word: 'TOOT', seq: ['T', 'OO', 'T'], pts: 600 },
-      { word: 'DIP',  seq: ['D', 'IH', 'P'], pts: 500 },
-      { word: 'DOT',  seq: ['D', 'OH', 'T'], pts: 500 },
-      { word: 'DOG',  seq: ['D', 'OH', 'G'], pts: 500 },
-      { word: 'DIG',  seq: ['D', 'IH', 'G'], pts: 500 },
-      { word: 'DUG',  seq: ['D', 'AA', 'G'], pts: 500 },
-      { word: 'DEEP', seq: ['D', 'EE', 'P'], pts: 600 },
-      { word: 'GAP',  seq: ['G', 'AA', 'P'], pts: 500 },
-      { word: 'GOT',  seq: ['G', 'OH', 'T'], pts: 500 },
-      { word: 'GET',  seq: ['G', 'EH', 'T'], pts: 500 },
-      { word: 'GUT',  seq: ['G', 'AA', 'T'], pts: 500 },
-      { word: 'SAT',  seq: ['S', 'AA', 'T'], pts: 500 },
-      { word: 'SET',  seq: ['S', 'EH', 'T'], pts: 500 },
-      { word: 'SIT',  seq: ['S', 'IH', 'T'], pts: 500 },
-      { word: 'SIP',  seq: ['S', 'IH', 'P'], pts: 500 },
-      { word: 'SAP',  seq: ['S', 'AA', 'P'], pts: 500 },
-      { word: 'SOAP', seq: ['S', 'OH', 'P'], pts: 600 },
-      { word: 'SOUP', seq: ['S', 'OO', 'P'], pts: 600 },
-      { word: 'SEEP', seq: ['S', 'EE', 'P'], pts: 600 },
-      { word: 'SAG',  seq: ['S', 'AA', 'G'], pts: 500 },
-      { word: 'SUB',  seq: ['S', 'AA', 'B'], pts: 500 },
-      { word: 'SOB',  seq: ['S', 'OH', 'B'], pts: 500 },
-      { word: 'SPIT', seq: ['S', 'P', 'IH', 'T'], pts: 900 },
-      { word: 'SPOT', seq: ['S', 'P', 'OH', 'T'], pts: 900 },
-      { word: 'STOP', seq: ['S', 'T', 'OH', 'P'], pts: 900 },
-      { word: 'STEP', seq: ['S', 'T', 'EH', 'P'], pts: 900 },
-      { word: 'BOOTS', seq: ['B', 'OO', 'T', 'S'], pts: 1000 },
-      { word: 'CATS',  seq: ['K', 'AA', 'T', 'S'], pts: 1000 },
-      { word: 'POTS',  seq: ['P', 'OH', 'T', 'S'], pts: 1000 },
-      { word: 'TAPS',  seq: ['T', 'AA', 'P', 'S'], pts: 1000 },
-      { word: 'TIPS',  seq: ['T', 'IH', 'P', 'S'], pts: 1000 },
-      { word: 'DIPS',  seq: ['D', 'IH', 'P', 'S'], pts: 1000 },
-      { word: 'DOGS',  seq: ['D', 'OH', 'G', 'S'], pts: 1000 },
-      // Nasal Scoop M & N Words
-      { word: 'MAN',   seq: ['M', 'AA', 'N'], pts: 700 },
-      { word: 'MEN',   seq: ['M', 'EH', 'N'], pts: 700 },
-      { word: 'MAP',   seq: ['M', 'AA', 'P'], pts: 600 },
-      { word: 'MOP',   seq: ['M', 'OH', 'P'], pts: 600 },
-      { word: 'MUD',   seq: ['M', 'AA', 'D'], pts: 600 },
-      { word: 'MAT',   seq: ['M', 'AA', 'T'], pts: 600 },
-      { word: 'MET',   seq: ['M', 'EH', 'T'], pts: 600 },
-      { word: 'MUG',   seq: ['M', 'AA', 'G'], pts: 600 },
-      { word: 'NET',   seq: ['N', 'EH', 'T'], pts: 600 },
-      { word: 'NUT',   seq: ['N', 'AA', 'T'], pts: 600 },
-      { word: 'NOT',   seq: ['N', 'OH', 'T'], pts: 600 },
-      { word: 'NIP',   seq: ['N', 'IH', 'P'], pts: 600 },
-      { word: 'NAP',   seq: ['N', 'AA', 'P'], pts: 600 },
-      { word: 'NOD',   seq: ['N', 'OH', 'D'], pts: 600 },
-      { word: 'PIN',   seq: ['P', 'IH', 'N'], pts: 600 },
-      { word: 'PAN',   seq: ['P', 'AA', 'N'], pts: 600 },
-      { word: 'PEN',   seq: ['P', 'EH', 'N'], pts: 600 },
-      { word: 'SUN',   seq: ['S', 'AA', 'N'], pts: 600 },
-      { word: 'SIN',   seq: ['S', 'IH', 'N'], pts: 600 },
-      { word: 'TEN',   seq: ['T', 'EH', 'N'], pts: 600 },
-      { word: 'TIN',   seq: ['T', 'IH', 'N'], pts: 600 },
-      { word: 'BIN',   seq: ['B', 'IH', 'N'], pts: 600 },
-      { word: 'BUN',   seq: ['B', 'AA', 'N'], pts: 600 },
-      { word: 'SPIN',  seq: ['S', 'P', 'IH', 'N'], pts: 1000 },
-      { word: 'SPAN',  seq: ['S', 'P', 'AA', 'N'], pts: 1000 },
-      { word: 'SNAP',  seq: ['S', 'N', 'AA', 'P'], pts: 1000 }
+      // Direct user target words with full phonetic allophones & dialect variants
+      { word: 'DODO', seqs: [['D', 'OH', 'D', 'OH'], ['D', 'OO', 'D', 'OO'], ['D', 'OH', 'D', 'OO'], ['D', 'OO', 'D', 'OH']], pts: 1200 },
+      { word: 'COOT', seqs: [['K', 'OO', 'T'], ['K', 'OH', 'T']], pts: 700 },
+      { word: 'CUTE', seqs: [['K', 'EE', 'OO', 'T'], ['K', 'OO', 'T'], ['K', 'EE', 'T']], pts: 900 },
+      { word: 'COP',  seqs: [['K', 'OH', 'P'], ['K', 'AA', 'P']], pts: 500 },
+      { word: 'CAP',  seqs: [['K', 'AA', 'P']], pts: 500 },
+      { word: 'CUP',  seqs: [['K', 'AA', 'P']], pts: 500 },
+      { word: 'CAT',  seqs: [['K', 'AA', 'T']], pts: 500 },
+      { word: 'COT',  seqs: [['K', 'OH', 'T'], ['K', 'AA', 'T']], pts: 500 },
+      { word: 'COOK', seqs: [['K', 'OO', 'K']], pts: 700 },
+      { word: 'COKE', seqs: [['K', 'OH', 'K']], pts: 700 },
+      { word: 'CAKE', seqs: [['K', 'EH', 'K']], pts: 700 },
+      { word: 'KICK', seqs: [['K', 'IH', 'K']], pts: 600 },
+      { word: 'KEEP', seqs: [['K', 'EE', 'P']], pts: 600 },
+      { word: 'KID',  seqs: [['K', 'IH', 'D']], pts: 500 },
+      { word: 'KEG',  seqs: [['K', 'EH', 'G']], pts: 500 },
+      { word: 'KEY',  seqs: [['K', 'EE']], pts: 300 },
+
+      // Dental / Alveolar D Words
+      { word: 'DAD',  seqs: [['D', 'AA', 'D']], pts: 600 },
+      { word: 'DUDE', seqs: [['D', 'OO', 'D']], pts: 800 },
+      { word: 'DEAD', seqs: [['D', 'EH', 'D']], pts: 600 },
+      { word: 'DEED', seqs: [['D', 'EE', 'D']], pts: 800 },
+      { word: 'DOT',  seqs: [['D', 'OH', 'T'], ['D', 'AA', 'T']], pts: 500 },
+      { word: 'DOG',  seqs: [['D', 'OH', 'G'], ['D', 'AA', 'G']], pts: 500 },
+      { word: 'DIG',  seqs: [['D', 'IH', 'G']], pts: 500 },
+      { word: 'DUG',  seqs: [['D', 'AA', 'G']], pts: 500 },
+      { word: 'DIP',  seqs: [['D', 'IH', 'P']], pts: 500 },
+      { word: 'DEEP', seqs: [['D', 'EE', 'P']], pts: 600 },
+      { word: 'DOCK', seqs: [['D', 'AA', 'K'], ['D', 'OH', 'K']], pts: 600 },
+      { word: 'DUCK', seqs: [['D', 'AA', 'K']], pts: 600 },
+      { word: 'DECK', seqs: [['D', 'EH', 'K']], pts: 600 },
+      { word: 'DAMP', seqs: [['D', 'AA', 'M', 'P']], pts: 900 },
+      { word: 'DUMP', seqs: [['D', 'AA', 'M', 'P']], pts: 900 },
+      { word: 'DENT', seqs: [['D', 'EH', 'N', 'T']], pts: 900 },
+      { word: 'DO',   seqs: [['D', 'OO']], pts: 250 },
+      { word: 'DAY',  seqs: [['D', 'EH']], pts: 250 },
+
+      // Bilabial B Words
+      { word: 'BAT',  seqs: [['B', 'AA', 'T']], pts: 500 },
+      { word: 'BIT',  seqs: [['B', 'IH', 'T']], pts: 500 },
+      { word: 'BET',  seqs: [['B', 'EH', 'T']], pts: 500 },
+      { word: 'BOOT', seqs: [['B', 'OO', 'T']], pts: 600 },
+      { word: 'BOAT', seqs: [['B', 'OH', 'T']], pts: 600 },
+      { word: 'BEAT', seqs: [['B', 'EE', 'T']], pts: 600 },
+      { word: 'BAD',  seqs: [['B', 'AA', 'D']], pts: 500 },
+      { word: 'BED',  seqs: [['B', 'EH', 'D']], pts: 500 },
+      { word: 'BID',  seqs: [['B', 'IH', 'D']], pts: 500 },
+      { word: 'BUD',  seqs: [['B', 'AA', 'D']], pts: 500 },
+      { word: 'BUG',  seqs: [['B', 'AA', 'G']], pts: 500 },
+      { word: 'BIG',  seqs: [['B', 'IH', 'G']], pts: 500 },
+      { word: 'BEG',  seqs: [['B', 'EH', 'G']], pts: 500 },
+      { word: 'BOG',  seqs: [['B', 'OH', 'G'], ['B', 'AA', 'G']], pts: 500 },
+      { word: 'BAG',  seqs: [['B', 'AA', 'G']], pts: 500 },
+      { word: 'BOOK', seqs: [['B', 'OO', 'K']], pts: 600 },
+      { word: 'BACK', seqs: [['B', 'AA', 'K']], pts: 600 },
+      { word: 'BAKE', seqs: [['B', 'EH', 'K']], pts: 600 },
+      { word: 'BEAK', seqs: [['B', 'EE', 'K']], pts: 600 },
+      { word: 'BEAM', seqs: [['B', 'EE', 'M']], pts: 700 },
+      { word: 'BOOM', seqs: [['B', 'OO', 'M']], pts: 700 },
+      { word: 'BOMB', seqs: [['B', 'AA', 'M'], ['B', 'OH', 'M']], pts: 700 },
+      { word: 'BUMP', seqs: [['B', 'AA', 'M', 'P']], pts: 900 },
+      { word: 'BAND', seqs: [['B', 'AA', 'N', 'D']], pts: 900 },
+      { word: 'BOND', seqs: [['B', 'OH', 'N', 'D'], ['B', 'AA', 'N', 'D']], pts: 900 },
+      { word: 'BENT', seqs: [['B', 'EH', 'N', 'T']], pts: 900 },
+      { word: 'BE',   seqs: [['B', 'EE']], pts: 250 },
+      { word: 'BEE',  seqs: [['B', 'EE']], pts: 250 },
+      { word: 'BOO',  seqs: [['B', 'OO']], pts: 250 },
+
+      // Labial P Words
+      { word: 'PAT',  seqs: [['P', 'AA', 'T']], pts: 500 },
+      { word: 'PET',  seqs: [['P', 'EH', 'T']], pts: 500 },
+      { word: 'PIT',  seqs: [['P', 'IH', 'T']], pts: 500 },
+      { word: 'POT',  seqs: [['P', 'OH', 'T'], ['P', 'AA', 'T']], pts: 500 },
+      { word: 'POP',  seqs: [['P', 'OH', 'P'], ['P', 'AA', 'P']], pts: 600 },
+      { word: 'PIP',  seqs: [['P', 'IH', 'P']], pts: 600 },
+      { word: 'PUP',  seqs: [['P', 'AA', 'P']], pts: 600 },
+      { word: 'PEEP', seqs: [['P', 'EE', 'P']], pts: 700 },
+      { word: 'PAD',  seqs: [['P', 'AA', 'D']], pts: 500 },
+      { word: 'POD',  seqs: [['P', 'OH', 'D'], ['P', 'AA', 'D']], pts: 500 },
+      { word: 'PIG',  seqs: [['P', 'IH', 'G']], pts: 500 },
+      { word: 'PEG',  seqs: [['P', 'EH', 'G']], pts: 500 },
+      { word: 'PUG',  seqs: [['P', 'AA', 'G']], pts: 500 },
+      { word: 'PACK', seqs: [['P', 'AA', 'K']], pts: 600 },
+      { word: 'PICK', seqs: [['P', 'IH', 'K']], pts: 600 },
+      { word: 'PEEK', seqs: [['P', 'EE', 'K']], pts: 600 },
+      { word: 'POKE', seqs: [['P', 'OH', 'K']], pts: 600 },
+      { word: 'PUMP', seqs: [['P', 'AA', 'M', 'P']], pts: 900 },
+      { word: 'POND', seqs: [['P', 'OH', 'N', 'D'], ['P', 'AA', 'N', 'D']], pts: 900 },
+      { word: 'PANT', seqs: [['P', 'AA', 'N', 'T']], pts: 900 },
+      { word: 'PIN',  seqs: [['P', 'IH', 'N']], pts: 600 },
+      { word: 'PAN',  seqs: [['P', 'AA', 'N']], pts: 600 },
+      { word: 'PEN',  seqs: [['P', 'EH', 'N']], pts: 600 },
+      { word: 'PUN',  seqs: [['P', 'AA', 'N']], pts: 600 },
+      { word: 'PEA',  seqs: [['P', 'EE']], pts: 250 },
+
+      // Dental / Alveolar T Words
+      { word: 'TOP',  seqs: [['T', 'OH', 'P'], ['T', 'AA', 'P']], pts: 500 },
+      { word: 'TIP',  seqs: [['T', 'IH', 'P']], pts: 500 },
+      { word: 'TAP',  seqs: [['T', 'AA', 'P']], pts: 500 },
+      { word: 'TUB',  seqs: [['T', 'AA', 'B']], pts: 500 },
+      { word: 'TAB',  seqs: [['T', 'AA', 'B']], pts: 500 },
+      { word: 'TAG',  seqs: [['T', 'AA', 'G']], pts: 500 },
+      { word: 'TUG',  seqs: [['T', 'AA', 'G']], pts: 500 },
+      { word: 'TOOT', seqs: [['T', 'OO', 'T']], pts: 600 },
+      { word: 'TENT', seqs: [['T', 'EH', 'N', 'T']], pts: 900 },
+      { word: 'TINT', seqs: [['T', 'IH', 'N', 'T']], pts: 900 },
+      { word: 'TANK', seqs: [['T', 'AA', 'N', 'K']], pts: 900 },
+      { word: 'TEN',  seqs: [['T', 'EH', 'N']], pts: 600 },
+      { word: 'TIN',  seqs: [['T', 'IH', 'N']], pts: 600 },
+      { word: 'TON',  seqs: [['T', 'AA', 'N']], pts: 600 },
+      { word: 'TO',   seqs: [['T', 'OO']], pts: 250 },
+      { word: 'TOO',  seqs: [['T', 'OO']], pts: 250 },
+      { word: 'TWO',  seqs: [['T', 'OO']], pts: 250 },
+      { word: 'TEA',  seqs: [['T', 'EE']], pts: 250 },
+      { word: 'TOE',  seqs: [['T', 'OH']], pts: 250 },
+
+      // Velar G Words
+      { word: 'GAP',  seqs: [['G', 'AA', 'P']], pts: 500 },
+      { word: 'GOT',  seqs: [['G', 'OH', 'T'], ['G', 'AA', 'T']], pts: 500 },
+      { word: 'GET',  seqs: [['G', 'EH', 'T']], pts: 500 },
+      { word: 'GUT',  seqs: [['G', 'AA', 'T']], pts: 500 },
+      { word: 'GAG',  seqs: [['G', 'AA', 'G']], pts: 500 },
+      { word: 'GIG',  seqs: [['G', 'IH', 'G']], pts: 500 },
+      { word: 'GOON', seqs: [['G', 'OO', 'N']], pts: 700 },
+      { word: 'GOOD', seqs: [['G', 'OO', 'D']], pts: 700 },
+      { word: 'GO',   seqs: [['G', 'OH']], pts: 250 },
+      { word: 'GOO',  seqs: [['G', 'OO']], pts: 250 },
+
+      // Dental Fricative S Words
+      { word: 'SAT',  seqs: [['S', 'AA', 'T']], pts: 500 },
+      { word: 'SET',  seqs: [['S', 'EH', 'T']], pts: 500 },
+      { word: 'SIT',  seqs: [['S', 'IH', 'T']], pts: 500 },
+      { word: 'SIP',  seqs: [['S', 'IH', 'P']], pts: 500 },
+      { word: 'SAP',  seqs: [['S', 'AA', 'P']], pts: 500 },
+      { word: 'SOAP', seqs: [['S', 'OH', 'P']], pts: 600 },
+      { word: 'SOUP', seqs: [['S', 'OO', 'P']], pts: 600 },
+      { word: 'SEEP', seqs: [['S', 'EE', 'P']], pts: 600 },
+      { word: 'SAG',  seqs: [['S', 'AA', 'G']], pts: 500 },
+      { word: 'SUB',  seqs: [['S', 'AA', 'B']], pts: 500 },
+      { word: 'SOB',  seqs: [['S', 'OH', 'B'], ['S', 'AA', 'B']], pts: 500 },
+      { word: 'SPIT', seqs: [['S', 'P', 'IH', 'T']], pts: 900 },
+      { word: 'SPOT', seqs: [['S', 'P', 'OH', 'T'], ['S', 'P', 'AA', 'T']], pts: 900 },
+      { word: 'STOP', seqs: [['S', 'T', 'OH', 'P'], ['S', 'T', 'AA', 'P']], pts: 900 },
+      { word: 'STEP', seqs: [['S', 'T', 'EH', 'P']], pts: 900 },
+      { word: 'SOON', seqs: [['S', 'OO', 'N']], pts: 700 },
+      { word: 'SUN',  seqs: [['S', 'AA', 'N']], pts: 600 },
+      { word: 'SIN',  seqs: [['S', 'IH', 'N']], pts: 600 },
+      { word: 'SON',  seqs: [['S', 'AA', 'N']], pts: 600 },
+      { word: 'SPIN', seqs: [['S', 'P', 'IH', 'N']], pts: 1000 },
+      { word: 'SPAN', seqs: [['S', 'P', 'AA', 'N']], pts: 1000 },
+      { word: 'SNAP', seqs: [['S', 'N', 'AA', 'P']], pts: 1000 },
+      { word: 'SNIP', seqs: [['S', 'N', 'IH', 'P']], pts: 1000 },
+      { word: 'SO',   seqs: [['S', 'OH']], pts: 250 },
+      { word: 'SEE',  seqs: [['S', 'EE']], pts: 250 },
+      { word: 'SEA',  seqs: [['S', 'EE']], pts: 250 },
+      { word: 'SUE',  seqs: [['S', 'OO']], pts: 250 },
+
+      // Nasal Resonator M & N Words
+      { word: 'MAN',  seqs: [['M', 'AA', 'N']], pts: 700 },
+      { word: 'MEN',  seqs: [['M', 'EH', 'N']], pts: 700 },
+      { word: 'MAP',  seqs: [['M', 'AA', 'P']], pts: 600 },
+      { word: 'MOP',  seqs: [['M', 'OH', 'P'], ['M', 'AA', 'P']], pts: 600 },
+      { word: 'MUD',  seqs: [['M', 'AA', 'D']], pts: 600 },
+      { word: 'MAT',  seqs: [['M', 'AA', 'T']], pts: 600 },
+      { word: 'MET',  seqs: [['M', 'EH', 'T']], pts: 600 },
+      { word: 'MUG',  seqs: [['M', 'AA', 'G']], pts: 600 },
+      { word: 'MOOD', seqs: [['M', 'OO', 'D']], pts: 800 },
+      { word: 'MOON', seqs: [['M', 'OO', 'N']], pts: 800 },
+      { word: 'MOOT', seqs: [['M', 'OO', 'T']], pts: 800 },
+      { word: 'MOM',  seqs: [['M', 'AA', 'M'], ['M', 'OH', 'M']], pts: 700 },
+      { word: 'MINT', seqs: [['M', 'IH', 'N', 'T']], pts: 900 },
+      { word: 'MEND', seqs: [['M', 'EH', 'N', 'D']], pts: 900 },
+      { word: 'MAST', seqs: [['M', 'AA', 'S', 'T']], pts: 1000 },
+      { word: 'ME',   seqs: [['M', 'EE']], pts: 250 },
+      { word: 'MOO',  seqs: [['M', 'OO']], pts: 250 },
+      { word: 'NET',  seqs: [['N', 'EH', 'T']], pts: 600 },
+      { word: 'NUT',  seqs: [['N', 'AA', 'T']], pts: 600 },
+      { word: 'NOT',  seqs: [['N', 'OH', 'T'], ['N', 'AA', 'T']], pts: 600 },
+      { word: 'NIP',  seqs: [['N', 'IH', 'P']], pts: 600 },
+      { word: 'NAP',  seqs: [['N', 'AA', 'P']], pts: 600 },
+      { word: 'NOD',  seqs: [['N', 'OH', 'D'], ['N', 'AA', 'D']], pts: 600 },
+      { word: 'NOON', seqs: [['N', 'OO', 'N']], pts: 800 },
+      { word: 'NEAT', seqs: [['N', 'EE', 'T']], pts: 700 },
+      { word: 'NOTE', seqs: [['N', 'OH', 'T']], pts: 700 },
+      { word: 'NO',   seqs: [['N', 'OH']], pts: 250 },
+
+      // Plural & Inflectional Suffixes
+      { word: 'BOOTS',seqs: [['B', 'OO', 'T', 'S']], pts: 1000 },
+      { word: 'CATS', seqs: [['K', 'AA', 'T', 'S']], pts: 1000 },
+      { word: 'COPS', seqs: [['K', 'OH', 'P', 'S'], ['K', 'AA', 'P', 'S']], pts: 1000 },
+      { word: 'POTS', seqs: [['P', 'OH', 'T', 'S'], ['P', 'AA', 'T', 'S']], pts: 1000 },
+      { word: 'TAPS', seqs: [['T', 'AA', 'P', 'S']], pts: 1000 },
+      { word: 'TIPS', seqs: [['T', 'IH', 'P', 'S']], pts: 1000 },
+      { word: 'DIPS', seqs: [['D', 'IH', 'P', 'S']], pts: 1000 },
+      { word: 'DOGS', seqs: [['D', 'OH', 'G', 'S'], ['D', 'AA', 'G', 'S']], pts: 1000 },
+      { word: 'KIDS', seqs: [['K', 'IH', 'D', 'S']], pts: 1000 },
+      { word: 'BEDS', seqs: [['B', 'EH', 'D', 'S']], pts: 1000 },
+      { word: 'CUPS', seqs: [['K', 'AA', 'P', 'S']], pts: 1000 },
+      { word: 'MAPS', seqs: [['M', 'AA', 'P', 'S']], pts: 1000 },
+      { word: 'PINS', seqs: [['P', 'IH', 'N', 'S']], pts: 1000 },
+      { word: 'PENS', seqs: [['P', 'EH', 'N', 'S']], pts: 1000 },
+      { word: 'NUTS', seqs: [['N', 'AA', 'T', 'S']], pts: 1000 },
+      { word: 'NETS', seqs: [['N', 'EH', 'T', 'S']], pts: 1000 }
     ];
 
-    // Bounty Targets to assign in order
-    const BOUNTY_LIST = ['CAT', 'BAT', 'MAN', 'PIN', 'TOP', 'DOG', 'NET', 'MAP', 'SUN', 'STOP', 'BOOT', 'MUD', 'BED', 'CUP'];
+    // Telegraph Target Dispatch List (Includes User's Favorite Words Early!)
+    const BOUNTY_LIST = ['CAT', 'COP', 'DODO', 'COOT', 'CUTE', 'BAT', 'MAN', 'PIN', 'TOP', 'DOG', 'NET', 'MAP', 'SUN', 'STOP', 'BOOT', 'MUD', 'BED', 'CUP', 'TOOT', 'DUCK', 'GOON', 'SPIN'];
 
     // -------------------------------------------------------------------------
     // 2. WEB AUDIO ACOUSTIC FORMANT SYNTHESIZER
@@ -1131,11 +1333,22 @@
         this.discoveredWords = new Set();
         this.bountyIdx = 0;
 
+        // 5 Anatomical Articulators state (per ball)
+        this.articulators = {
+          larynx: false,
+          tongue: false,
+          palate: false,
+          lips: false,
+          nasal: false
+        };
+        this.isHomunculusAwakened = false;
+
         // Phoneme Buffer State
         this.phonemeStream = [];
         this.lastPhonemeTime = 0;
         this.currentVowelRegion = null;
         this.lastVowelToken = null;
+        this.lastConsonantTime = 0;
 
         // Ball Physics
         this.ball = {
@@ -1386,6 +1599,7 @@
         if (this.scoops) {
           this.scoops.forEach(s => s.cooldown = 0);
         }
+        this.resetArticulators();
       }
 
       launchBall() {
@@ -1396,6 +1610,7 @@
         this.ball.inPlay = true;
         this.ball.inPlungerLane = true;
         this.synth.triggerConsonant('P'); // Plunger launch pop
+        this.activateArticulator('larynx');
       }
 
       firePlunger() {
@@ -1405,8 +1620,61 @@
           this.ball.vy = -power;
           this.ball.inPlay = true;
           this.synth.triggerConsonant('P');
+          this.activateArticulator('larynx');
         }
         this.plungerEnergy = 0;
+      }
+
+      // -----------------------------------------------------------------------
+      // 5-ARTICULATOR SPEECH APPARATUS (ANATOMICAL MATRIX)
+      // -----------------------------------------------------------------------
+      activateArticulator(name) {
+        if (!this.articulators || this.articulators[name]) return;
+        this.articulators[name] = true;
+        this.updateArticulatorLamps();
+        this.checkHomunculusAwakening();
+      }
+
+      checkHomunculusAwakening() {
+        if (this.isHomunculusAwakened) return;
+        const allActive = Object.values(this.articulators).every(v => v === true);
+        if (allActive) {
+          this.isHomunculusAwakened = true;
+          this.score += 2500;
+          this.updateHUD();
+          this.showCelebrationBanner('HOMUNCULUS AWAKENED!', 2500, true, 'ALL 5 ARTICULATORS ACTIVE • 2X MULTIPLIER!');
+          this.synth.playWordCelebration('HOMUNCULUS');
+          const panel = document.getElementById('articulators-panel');
+          if (panel) panel.classList.add('all-active');
+        }
+      }
+
+      updateArticulatorLamps() {
+        if (!this.articulators) return;
+        for (const [key, val] of Object.entries(this.articulators)) {
+          const el = document.getElementById(`art-${key}`);
+          if (el) {
+            if (val) el.classList.add('active');
+            else el.classList.remove('active');
+          }
+        }
+        const panel = document.getElementById('articulators-panel');
+        if (panel) {
+          if (this.isHomunculusAwakened) panel.classList.add('all-active');
+          else panel.classList.remove('all-active');
+        }
+      }
+
+      resetArticulators() {
+        this.articulators = {
+          larynx: false,
+          tongue: false,
+          palate: false,
+          lips: false,
+          nasal: false
+        };
+        this.isHomunculusAwakened = false;
+        this.updateArticulatorLamps();
       }
 
       // -----------------------------------------------------------------------
@@ -1415,8 +1683,8 @@
       registerPhoneme(phoneme, isVowel = false) {
         const now = performance.now();
 
-        // Clear stream if inactive for more than 2.8 seconds
-        if (this.phonemeStream.length > 0 && now - this.lastPhonemeTime > 2800) {
+        // Clear stream if inactive for more than 3.8 seconds
+        if (this.phonemeStream.length > 0 && now - this.lastPhonemeTime > 3800) {
           this.phonemeStream = [];
         }
 
@@ -1425,8 +1693,23 @@
           return;
         }
 
+        // Debounce identical duplicate consonants within 250ms (rattling bounce)
+        if (!isVowel && this.phonemeStream.length > 0 &&
+            this.phonemeStream[this.phonemeStream.length - 1].token === phoneme &&
+            (now - this.lastPhonemeTime < 250)) {
+          return;
+        }
+
+        // CRITICAL FIX: When ANY consonant arrives, reset lastVowelToken so that 
+        // departing the consonant will immediately register the surrounding vowel field!
+        if (!isVowel) {
+          this.lastVowelToken = null;
+          this.lastConsonantTime = now;
+        }
+
         this.phonemeStream.push({ token: phoneme, isVowel, time: now });
-        if (this.phonemeStream.length > 5) {
+        // Expand buffer capacity up to 8 tokens for multi-syllable & CVC chains
+        if (this.phonemeStream.length > 8) {
           this.phonemeStream.shift();
         }
         this.lastPhonemeTime = now;
@@ -1437,7 +1720,7 @@
 
       renderPhonemeStream() {
         if (this.phonemeStream.length === 0) {
-          this.phonemeStreamEl.innerHTML = '<span style="color: #475569; font-size: 0.68rem;">Awaiting ball impact...</span>';
+          this.phonemeStreamEl.innerHTML = '<span style="color: #475569; font-size: 0.68rem;">Awaiting mechanical impact...</span>';
           return;
         }
 
@@ -1447,23 +1730,44 @@
       }
 
       checkWordMatches() {
-        if (this.phonemeStream.length < 3) return;
+        if (this.phonemeStream.length < 2) return;
 
-        const currentSeq = this.phonemeStream.map(p => p.token);
+        const rawTokens = this.phonemeStream.map(p => p.token);
 
-        // Check if any suffix of currentSeq matches a word in LEXICON
-        for (let len = Math.min(currentSeq.length, 4); len >= 3; len--) {
-          const sub = currentSeq.slice(-len);
-          const match = LEXICON.find(item => {
-            if (item.seq.length !== sub.length) return false;
-            return item.seq.every((val, idx) => val === sub[idx]);
-          });
+        // Generate candidate sequences: raw and collapsed-vowel variant
+        const candidateSeqs = [rawTokens];
+        const VOWELS = ['EE', 'OO', 'AA', 'EH', 'OH', 'IH'];
+        const collapsed = [];
+        for (let i = 0; i < rawTokens.length; i++) {
+          const isV = VOWELS.includes(rawTokens[i]);
+          const nextIsV = (i + 1 < rawTokens.length) && VOWELS.includes(rawTokens[i + 1]);
+          // Preserve intentional diphthongs: [EE, OO] (/ju/ as in CUTE), [AA, EE] (/aɪ/ as in BITE)
+          const isDiphthong = (rawTokens[i] === 'EE' && rawTokens[i + 1] === 'OO') || 
+                              (rawTokens[i] === 'AA' && rawTokens[i + 1] === 'EE');
+          if (isV && nextIsV && !isDiphthong) {
+            continue; // collapse earlier intermediate vowel to favor destination vowel
+          }
+          collapsed.push(rawTokens[i]);
+        }
+        if (collapsed.length !== rawTokens.length && collapsed.length >= 2) {
+          candidateSeqs.push(collapsed);
+        }
 
-          if (match) {
-            this.awardWord(match);
-            this.phonemeStream = []; // Reset after a successful word
-            setTimeout(() => this.renderPhonemeStream(), 400);
-            break;
+        // Search each candidate sequence for the longest matching word suffix (from 6 down to 2)
+        for (const seqList of candidateSeqs) {
+          for (let len = Math.min(seqList.length, 6); len >= 2; len--) {
+            const sub = seqList.slice(-len);
+            const match = LEXICON.find(item => {
+              const seqs = item.seqs || [item.seq];
+              return seqs.some(seq => seq.length === sub.length && seq.every((val, idx) => val === sub[idx]));
+            });
+
+            if (match) {
+              this.awardWord(match);
+              this.phonemeStream = []; // Reset after a successful word
+              setTimeout(() => this.renderPhonemeStream(), 400);
+              return;
+            }
           }
         }
       }
@@ -1477,11 +1781,24 @@
           this.bountyIdx = (this.bountyIdx + 1) % BOUNTY_LIST.length;
         }
 
+        if (this.isHomunculusAwakened) {
+          pts *= 2; // 2x Homunculus Speech Organ Multiplier!
+        }
+
         this.score += pts;
         this.discoveredWords.add(match.word);
 
         // Flash HUD and Banner
-        this.showCelebrationBanner(match.word, pts, isBounty);
+        let subText = null;
+        if (isBounty && this.isHomunculusAwakened) {
+          subText = `6X TELEGRAPH & HOMUNCULUS! +${pts.toLocaleString()} PTS`;
+        } else if (isBounty) {
+          subText = `TELEGRAPH BOUNTY! +${pts.toLocaleString()} PTS`;
+        } else if (this.isHomunculusAwakened) {
+          subText = `2X VOCAL ORGAN BONUS! +${pts.toLocaleString()} PTS`;
+        }
+
+        this.showCelebrationBanner(match.word, pts, isBounty, subText);
         this.synth.playWordCelebration(match.word);
         this.updateHUD();
       }
@@ -1508,10 +1825,10 @@
 
         // Update Discovered Words Tag Card
         if (this.discoveredWords.size === 0) {
-          this.discoveredListEl.innerHTML = '<span class="empty-words-msg">Spell words by chaining bumper impacts with vowel glides!</span>';
-          this.wordsCountBadge.textContent = '0 DISCOVERED';
+          this.discoveredListEl.innerHTML = '<span class="empty-words-msg">Articulate words by chaining consonant impacts with tongue vowel-glides!</span>';
+          this.wordsCountBadge.textContent = '0 SYNTHESIZED';
         } else {
-          this.wordsCountBadge.textContent = `${this.discoveredWords.size} DISCOVERED`;
+          this.wordsCountBadge.textContent = `${this.discoveredWords.size} SYNTHESIZED`;
           this.discoveredListEl.innerHTML = Array.from(this.discoveredWords).map(w => 
             `<span class="word-badge">${w}</span>`
           ).join('');
@@ -1801,6 +2118,9 @@
             this.synth.triggerConsonant(bumper.phoneme);
             this.synth.playCelestialChime(1420 + Math.random() * 280);
             this.registerPhoneme(bumper.phoneme, false);
+
+            this.activateArticulator('palate');
+            if (bumper.phoneme === 'B') this.activateArticulator('lips');
           }
         });
       }
@@ -1828,6 +2148,7 @@
             scoop.cooldown = 1400; // Set cooldown immediately
             this.synth.triggerConsonant(scoop.phoneme);
             this.registerPhoneme(scoop.phoneme, false);
+            this.activateArticulator('nasal');
             this.score += 250;
             this.updateHUD();
             break;
@@ -1873,6 +2194,9 @@
             sl.anim = 1.0;
             this.synth.triggerConsonant(sl.phoneme);
             this.registerPhoneme(sl.phoneme, false);
+            if (sl.phoneme === 'P') this.activateArticulator('lips');
+            if (sl.phoneme === 'D') this.activateArticulator('palate');
+
             this.score += 150;
             this.updateHUD();
             continue;
@@ -1933,6 +2257,8 @@
             b.vx += nx * paddleSpeed * 0.9;
             b.vy += ny * paddleSpeed * 1.3 - 4.2; // Clean upward pop!
             this.synth.triggerConsonant('B'); // Bouncy flipper hit
+            this.activateArticulator('lips');
+            this.activateArticulator('larynx');
           }
         }
       }
@@ -1946,6 +2272,7 @@
             s.spinSpeed = Math.abs(b.vy) * 0.35 + 0.5;
             this.synth.triggerConsonant('S'); // Fricative hiss
             this.registerPhoneme('S', false);
+            this.activateArticulator('palate');
             this.score += 50;
             this.updateHUD();
           }
@@ -1973,12 +2300,17 @@
           this.valF2El.textContent = `${formants.f2} Hz`;
         }
 
+        // High vertical velocity triggers vocal fold / larynx prosody
+        if (Math.abs(b.vy) > 3.8) {
+          this.activateArticulator('larynx');
+        }
+
         // Determine which vowel region the ball is currently occupying
         let currentVowel = null;
-        if (normY < 0.40) {
+        if (normY < 0.38) {
           // High Vowel Zone (EE or OO)
           currentVowel = normX < 0.50 ? 'EE' : 'OO';
-        } else if (normY < 0.70) {
+        } else if (normY < 0.68) {
           // Mid Vowel Zone (EH or OH)
           currentVowel = normX < 0.50 ? 'EH' : 'OH';
         } else {
@@ -1986,10 +2318,13 @@
           currentVowel = 'AA';
         }
 
-        // Register vowel when ball is moving with sufficient momentum across zones
-        if (currentVowel && speed > 2.0 && currentVowel !== this.lastVowelToken) {
+        // Register vowel when ball is moving across zones (speed > 1.2)
+        // Because lastVowelToken is reset to null whenever ANY consonant is hit,
+        // departing any consonant will immediately register the current vowel field!
+        if (currentVowel && speed > 1.2 && currentVowel !== this.lastVowelToken) {
           this.lastVowelToken = currentVowel;
           this.registerPhoneme(currentVowel, true);
+          this.activateArticulator('tongue');
         }
       }
 
@@ -2153,13 +2488,13 @@
           ctx.stroke();
         });
 
-        // 5. Vowel Astral Cartouches
+        // 5. Vowel Anatomical Resonant Cartouches
         const regions = [
-          { glyph: '☉', label: '/i/ [EE]', sub: 'APEX VOWEL', x: 100, y: 120 },
-          { glyph: '☾', label: '/u/ [OO]', sub: 'LUNAR VOID', x: 340, y: 120 },
-          { glyph: '✧', label: '/ɛ/ [EH]', sub: 'EQUINOX',    x: 105, y: 300 },
-          { glyph: '⚝', label: '/oʊ/ [OH]',sub: 'ZENITH',     x: 335, y: 300 },
-          { glyph: '✦', label: '/ɑ/ [AA]', sub: 'SOLAR BASIN',x: 210, y: 525 }
+          { glyph: '✦', label: '/i/ [EE]', sub: 'PALATAL ARCH',  x: 100, y: 120 },
+          { glyph: '✦', label: '/u/ [OO]', sub: 'VELAR CAVITY',  x: 340, y: 120 },
+          { glyph: '✧', label: '/ɛ/ [EH]', sub: 'LINGUAL CREST', x: 105, y: 300 },
+          { glyph: '⚝', label: '/oʊ/ [OH]',sub: 'PHARYNX RECESS',x: 335, y: 300 },
+          { glyph: '⚙', label: '/ɑ/ [AA]', sub: 'ORAL APERTURE', x: 210, y: 525 }
         ];
 
         ctx.textAlign = 'center';
@@ -2187,8 +2522,8 @@
           ctx.fillText(r.label, r.x, r.y + 7);
 
           // Subtitle
-          ctx.font = '0.50rem "Space Mono", monospace';
-          ctx.fillStyle = 'rgba(223, 177, 91, 0.7)';
+          ctx.font = '700 0.48rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(223, 177, 91, 0.8)';
           ctx.fillText(r.sub, r.x, r.y + 20);
         });
 
@@ -2239,6 +2574,17 @@
         drawCornerBracket(24, this.height - 24, 1, -1);
         drawCornerBracket(this.width - 24, this.height - 24, -1, -1);
 
+        // Upper Arch Deflectors Label
+        ctx.font = '700 0.52rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.45)';
+        ctx.textAlign = 'center';
+        ctx.fillText('• VELUM & SOFT PALATE •', 210, 36);
+
+        // Lower Apron Label
+        ctx.font = '700 0.48rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.4)';
+        ctx.fillText('LABIAL VALVES (THE LIPS)', 210, 630);
+
         // Plunger Runway Divider (Brushed Brass with Ascension Arrows)
         ctx.beginPath();
         ctx.moveTo(418, 75);
@@ -2246,6 +2592,16 @@
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 3.5;
         ctx.stroke();
+
+        // Plunger Runway Label
+        ctx.save();
+        ctx.translate(432, 360);
+        ctx.rotate(Math.PI / 2);
+        ctx.font = '700 0.45rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.45)';
+        ctx.textAlign = 'center';
+        ctx.fillText('TRACHEAL AIRWAY • PNEUMATIC BELLOWS ▲', 0, 0);
+        ctx.restore();
 
         // Angled Slingshot Guides (Polished Brass Rails)
         ctx.strokeStyle = '#dfb15b';
@@ -2415,9 +2771,9 @@
           ctx.textBaseline = 'middle';
           ctx.fillText(`[${sc.label}]`, sc.x, sc.y);
 
-          ctx.font = '700 0.45rem "Space Mono", monospace';
-          ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
-          ctx.fillText(sc.id === 'M' ? '☾ LUNAR' : '☉ SOLAR', sc.x, sc.y + 14);
+          ctx.font = '700 0.44rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(255, 215, 0, 0.75)';
+          ctx.fillText(sc.id === 'M' ? 'NASAL RES.' : 'NASAL RES.', sc.x, sc.y + 14);
         });
       }
 
@@ -2472,12 +2828,16 @@
             ctx.stroke();
           });
 
-          // 4. Phoneme Label Badge
+          // 4. Phoneme Label Badge & Speech Organ Tag
           ctx.font = '900 1.05rem "Cinzel", serif';
           ctx.fillStyle = '#ffd700';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(`[${sl.label}]`, midX3, midY3);
+          ctx.fillText(`[${sl.label}]`, midX3, midY3 - 5);
+
+          ctx.font = '700 0.44rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(223, 177, 91, 0.85)';
+          ctx.fillText(sl.id === 'P' ? 'LABIAL' : 'ALVEOLAR', midX3, midY3 + 10);
         });
       }
 
