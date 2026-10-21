@@ -3,26 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-  <title>PhonoBall - Physical Formant Pinball | Evan Swope</title>
-  <meta name="description" content="PhonoBall: An acoustic physics game synthesizing human vowels, diphthongs, and consonants in real time to spell words through pinball kinematics.">
+  <title>BABEL 3000 - Celestial Formant Pinball | Evan Swope</title>
+  <meta name="description" content="BABEL 3000: The Celestial Tower of Tongues. An acoustic physics pinball game synthesizing human vowels, diphthongs, and consonants in real time to spell words through celestial kinematics.">
   <meta name="robots" content="noindex, nofollow">
   
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Space+Grotesk:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     :root {
-      --bg-deep: #080b12;
-      --bg-panel: #0e1424;
+      --bg-deep: #05070e;
+      --bg-panel: #0a0e1c;
+      --gold-primary: #dfb15b;
+      --gold-bright: #ffd700;
+      --gold-light: #fef08a;
+      --gold-dark: #8c6d2b;
+      --gold-glow: rgba(223, 177, 91, 0.45);
+      --astral-cyan: #38ef7d;
+      --astral-azure: #4facfe;
+      --nebula-rose: #f093fb;
+      --nebula-purple: #9b59b6;
       --neon-cyan: #00f2fe;
       --neon-pink: #ff7eb3;
       --neon-amber: #ffb142;
       --neon-green: #2ed573;
-      --neon-purple: #9b59b6;
       --text-muted: #94a3b8;
+      --font-artdeco: 'Cinzel', serif;
       --font-display: 'Silkscreen', monospace;
       --font-mono: 'Space Mono', monospace;
       --font-sans: 'Space Grotesk', sans-serif;
@@ -49,11 +58,11 @@
       overflow-x: hidden;
       padding: 1rem 0.5rem;
       background-image: 
-        radial-gradient(circle at 50% 20%, rgba(0, 242, 254, 0.08) 0%, transparent 60%),
-        radial-gradient(circle at 80% 80%, rgba(255, 126, 179, 0.06) 0%, transparent 50%),
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        radial-gradient(circle at 50% 15%, rgba(223, 177, 91, 0.09) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(79, 172, 254, 0.06) 0%, transparent 50%),
+        linear-gradient(rgba(223, 177, 91, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(223, 177, 91, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 45px 45px, 45px 45px;
     }
 
     /* Top Branding Bar */
@@ -66,30 +75,34 @@
     .game-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       font-family: var(--font-mono);
       font-size: 0.65rem;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--neon-cyan);
-      background: rgba(0, 242, 254, 0.08);
-      border: 1px solid rgba(0, 242, 254, 0.3);
-      padding: 0.25rem 0.65rem;
+      letter-spacing: 2.5px;
+      color: var(--gold-bright);
+      background: rgba(223, 177, 91, 0.1);
+      border: 1px solid rgba(223, 177, 91, 0.4);
+      padding: 0.28rem 0.85rem;
       border-radius: 50px;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.45rem;
+      box-shadow: 0 0 15px rgba(223, 177, 91, 0.25);
     }
     .game-title {
-      font-family: var(--font-display);
-      font-size: clamp(1.6rem, 5vw, 2.4rem);
-      letter-spacing: 3px;
+      font-family: var(--font-artdeco);
+      font-weight: 900;
+      font-size: clamp(2.0rem, 6vw, 2.9rem);
+      letter-spacing: 6px;
       color: #ffffff;
-      text-shadow: 0 0 16px rgba(0, 242, 254, 0.6), 0 0 30px rgba(255, 126, 179, 0.4);
+      text-shadow: 0 0 18px rgba(223, 177, 91, 0.75), 0 0 40px rgba(79, 172, 254, 0.4);
     }
     .game-subtitle {
       font-family: var(--font-mono);
       font-size: 0.72rem;
-      color: var(--text-muted);
-      letter-spacing: 1px;
+      color: var(--gold-primary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.88;
     }
 
     /* Main Arcade Cabinet Container */
@@ -97,14 +110,14 @@
       position: relative;
       width: 100%;
       max-width: 480px;
-      background: #0b101c;
-      border: 2px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
+      background: radial-gradient(circle at 50% 10%, #0d1222 0%, #060810 100%);
+      border: 2px solid rgba(223, 177, 91, 0.45);
+      border-radius: 20px;
       padding: 0.85rem;
       box-shadow: 
-        0 20px 50px rgba(0, 0, 0, 0.7),
-        0 0 35px rgba(0, 242, 254, 0.15),
-        inset 0 0 25px rgba(0, 0, 0, 0.8);
+        0 25px 65px rgba(0, 0, 0, 0.9),
+        0 0 45px rgba(223, 177, 91, 0.22),
+        inset 0 0 30px rgba(0, 0, 0, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -113,12 +126,12 @@
     /* Dot Matrix / DMD Backglass Display */
     .backglass-hud {
       width: 100%;
-      background: #04060a;
-      border: 1px solid rgba(0, 242, 254, 0.3);
-      border-radius: 10px;
-      padding: 0.7rem 0.9rem;
+      background: linear-gradient(180deg, #04060d 0%, #0a0f20 100%);
+      border: 1px solid rgba(223, 177, 91, 0.5);
+      border-radius: 12px;
+      padding: 0.75rem 0.95rem;
       margin-bottom: 0.8rem;
-      box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.15);
+      box-shadow: inset 0 0 20px rgba(223, 177, 91, 0.15), 0 4px 15px rgba(0,0,0,0.6);
       position: relative;
       overflow: hidden;
     }
@@ -145,26 +158,29 @@
     }
     .stat-label {
       font-size: 0.55rem;
-      color: var(--text-muted);
-      letter-spacing: 1px;
+      color: var(--gold-primary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.85;
     }
     .stat-value {
-      font-size: 1.1rem;
-      color: var(--neon-cyan);
-      text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+      font-size: 1.15rem;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(223, 177, 91, 0.7);
     }
     .target-word-box {
-      background: rgba(255, 126, 179, 0.15);
-      border: 1px solid rgba(255, 126, 179, 0.4);
-      padding: 0.25rem 0.65rem;
+      background: rgba(223, 177, 91, 0.14);
+      border: 1px solid rgba(223, 177, 91, 0.5);
+      padding: 0.25rem 0.75rem;
       border-radius: 6px;
       text-align: center;
+      box-shadow: 0 0 12px rgba(223, 177, 91, 0.2);
     }
     .target-word-val {
-      color: var(--neon-pink);
-      font-size: 1.05rem;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(255, 126, 179, 0.8);
+      color: var(--gold-bright);
+      font-size: 1.15rem;
+      letter-spacing: 3px;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
       animation: pulse-glow 2s infinite ease-in-out;
     }
 
@@ -236,8 +252,8 @@
     .audio-overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(4, 7, 14, 0.92);
-      backdrop-filter: blur(8px);
+      background: rgba(5, 7, 14, 0.94);
+      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -253,26 +269,26 @@
       pointer-events: none;
     }
     .overlay-coin-btn {
-      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-      color: #040814;
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      padding: 0.9rem 1.8rem;
-      border: none;
+      background: linear-gradient(135deg, #dfb15b 0%, #ffd700 50%, #f6e58d 100%);
+      color: #05070e;
+      font-family: var(--font-artdeco);
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      padding: 0.95rem 2.0rem;
+      border: 1px solid #ffffff;
       border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 0 25px rgba(0, 242, 254, 0.7);
+      box-shadow: 0 0 30px rgba(223, 177, 91, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.6);
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.65rem;
       margin-top: 1.2rem;
     }
     .overlay-coin-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 35px rgba(0, 242, 254, 1.0);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 1.0);
     }
     .overlay-intro {
       font-size: 0.85rem;
@@ -288,12 +304,12 @@
       top: 25%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0);
-      background: rgba(14, 20, 36, 0.95);
-      border: 2px solid var(--neon-pink);
+      background: rgba(10, 14, 28, 0.96);
+      border: 2px solid var(--gold-bright);
       border-radius: 12px;
-      padding: 0.8rem 1.6rem;
+      padding: 0.8rem 1.8rem;
       text-align: center;
-      box-shadow: 0 0 40px rgba(255, 126, 179, 0.8);
+      box-shadow: 0 0 45px rgba(223, 177, 91, 0.85);
       z-index: 15;
       pointer-events: none;
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
@@ -304,23 +320,25 @@
       opacity: 1;
     }
     .banner-title {
-      font-family: var(--font-display);
-      font-size: 0.65rem;
-      letter-spacing: 2px;
-      color: var(--neon-cyan);
+      font-family: var(--font-artdeco);
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      color: var(--gold-bright);
+      font-weight: 700;
     }
     .banner-word {
-      font-family: var(--font-display);
-      font-size: 2.2rem;
-      color: #fff;
-      text-shadow: 0 0 15px var(--neon-pink);
-      letter-spacing: 4px;
+      font-family: var(--font-artdeco);
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(223, 177, 91, 0.9);
+      letter-spacing: 5px;
       margin: 0.2rem 0;
     }
     .banner-points {
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: var(--neon-green);
+      color: var(--astral-cyan);
       font-weight: 700;
     }
 
@@ -333,8 +351,8 @@
       margin-top: 0.8rem;
     }
     .arcade-btn {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(13, 18, 32, 0.9);
+      border: 1px solid rgba(223, 177, 91, 0.35);
       border-radius: 10px;
       padding: 0.75rem 0.5rem;
       color: #e2e8f0;
@@ -350,17 +368,17 @@
       touch-action: manipulation;
     }
     .arcade-btn:active, .arcade-btn.pressed {
-      background: rgba(0, 242, 254, 0.25);
-      border-color: var(--neon-cyan);
-      color: var(--neon-cyan);
+      background: rgba(223, 177, 91, 0.25);
+      border-color: var(--gold-bright);
+      color: var(--gold-bright);
       transform: translateY(2px);
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+      box-shadow: 0 0 16px rgba(223, 177, 91, 0.5);
     }
     .arcade-btn.launch-btn:active, .arcade-btn.launch-btn.pressed {
-      background: rgba(255, 126, 179, 0.3);
-      border-color: var(--neon-pink);
-      color: var(--neon-pink);
-      box-shadow: 0 0 15px rgba(255, 126, 179, 0.5);
+      background: rgba(246, 229, 141, 0.3);
+      border-color: var(--gold-light);
+      color: var(--gold-light);
+      box-shadow: 0 0 20px rgba(246, 229, 141, 0.6);
     }
     .key-hint {
       font-family: var(--font-mono);
@@ -449,9 +467,9 @@
 
   <!-- Game Header -->
   <header class="game-header">
-    <div class="game-badge"><i class="fa-solid fa-atom"></i> Acoustic Speech Kinematics</div>
-    <h1 class="game-title">PHONOBALL</h1>
-    <p class="game-subtitle">Physical Formant Pinball Synthesizer</p>
+    <div class="game-badge"><i class="fa-solid fa-compass"></i> CELESTIAL ACOUSTIC OBSERVATORY</div>
+    <h1 class="game-title">BABEL 3000</h1>
+    <p class="game-subtitle">The Celestial Tower of Tongues • Harmonic Formant Pinball</p>
   </header>
 
   <!-- Main Arcade Cabinet -->
@@ -465,22 +483,22 @@
           <span id="stat-score" class="stat-value">000,000</span>
         </div>
         <div class="target-word-box">
-          <span class="stat-label">BOUNTY WORD</span>
+          <span class="stat-label">✦ ASTRAL PROPHECY ✦</span>
           <div id="stat-target-word" class="target-word-val">CAT</div>
         </div>
         <div class="hud-stat" style="text-align: right;">
-          <span class="stat-label">BALL</span>
+          <span class="stat-label">VESSEL</span>
           <span id="stat-ball" class="stat-value">1 / 3</span>
         </div>
       </div>
 
       <div class="phoneme-stream-bar">
         <div class="phoneme-tokens" id="phoneme-stream-container">
-          <span style="color: #475569; font-size: 0.68rem;">Awaiting ball impact...</span>
+          <span style="color: #64748b; font-size: 0.68rem;">Awaiting celestial contact...</span>
         </div>
         <div class="formant-readout">
-          <div>F1: <span id="val-f1">450 Hz</span></div>
-          <div>F2: <span id="val-f2">1400 Hz</span></div>
+          <div>F₁: <span id="val-f1">450 Hz</span></div>
+          <div>F₂: <span id="val-f2">1400 Hz</span></div>
         </div>
       </div>
     </div>
@@ -491,30 +509,30 @@
 
       <!-- Audio Start / Coin Door Overlay -->
       <div class="audio-overlay" id="audio-overlay">
-        <i class="fa-solid fa-microphone-lines" style="font-size: 2.8rem; color: var(--neon-cyan); margin-bottom: 0.8rem; filter: drop-shadow(0 0 15px rgba(0,242,254,0.6));"></i>
-        <h2 style="font-family: var(--font-display); letter-spacing: 2px; font-size: 1.4rem; color: #fff;">INSERT COIN</h2>
+        <i class="fa-solid fa-sun" style="font-size: 3.0rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));"></i>
+        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: #fff;">AWAKEN BABEL</h2>
         <p class="overlay-intro">
-          The playfield is a 2D <strong>Vowel Formant Plane</strong>. Ball trajectories synthesize continuous diphthongs; bumper collisions articulate consonants to spell real words!
+          The table is an ancient celestial star chart of human speech. Ball trajectories synthesize continuous vowel harmonies; celestial astrolabes articulate consonants to solve the astral prophecies!
         </p>
         <button class="overlay-coin-btn" id="btn-start-audio">
-          <i class="fa-solid fa-play"></i> START ENGINE
+          <i class="fa-solid fa-bolt"></i> COMMENCE HARMONY
         </button>
       </div>
 
       <!-- Game Over Overlay -->
       <div class="audio-overlay hidden" id="game-over-overlay">
-        <i class="fa-solid fa-trophy" style="font-size: 2.6rem; color: var(--neon-amber); margin-bottom: 0.8rem; filter: drop-shadow(0 0 15px rgba(255,177,66,0.6));"></i>
-        <h2 style="font-family: var(--font-display); letter-spacing: 2px; font-size: 1.5rem; color: #fff;">GAME OVER</h2>
-        <div style="font-family: var(--font-mono); font-size: 1.15rem; color: var(--neon-cyan); margin: 0.6rem 0;" id="game-over-score">FINAL SCORE: 000,000</div>
-        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">WORDS SYNTHESIZED: 0</div>
+        <i class="fa-solid fa-award" style="font-size: 2.8rem; color: var(--gold-bright); margin-bottom: 0.8rem; filter: drop-shadow(0 0 20px rgba(223,177,91,0.8));"></i>
+        <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.6rem; color: #fff;">CONSTELLATION DISSOLVED</h2>
+        <div style="font-family: var(--font-mono); font-size: 1.15rem; color: var(--gold-bright); margin: 0.6rem 0;" id="game-over-score">FINAL SCORE: 000,000</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">PROPHECIES SOLVED: 0</div>
         <button class="overlay-coin-btn" id="btn-play-again">
-          <i class="fa-solid fa-rotate-right"></i> PLAY AGAIN
+          <i class="fa-solid fa-rotate-right"></i> REFORGE CONSTELLATION
         </button>
       </div>
 
       <!-- Word Celebration Pop-Up -->
       <div class="word-celebration-banner" id="word-banner">
-        <div class="banner-title">WORD SYNTHESIZED!</div>
+        <div class="banner-title">✦ PROPHECY SOLVED ✦</div>
         <div class="banner-word" id="banner-word-text">CAT</div>
         <div class="banner-points" id="banner-points-text">+1,000 PTS</div>
       </div>
@@ -546,25 +564,25 @@
   <!-- Discovered Words Drawer -->
   <section class="discovered-words-card">
     <div class="drawer-header">
-      <span><i class="fa-solid fa-book-bookmark"></i> Words Synthesized</span>
-      <span id="words-count-badge">0 DISCOVERED</span>
+      <span><i class="fa-solid fa-scroll"></i> Prophecies Inscribed</span>
+      <span id="words-count-badge">0 INSCRIBED</span>
     </div>
     <div class="words-tag-container" id="discovered-words-list">
-      <span class="empty-words-msg">Spell words by chaining bumper impacts with vowel glides!</span>
+      <span class="empty-words-msg">Inscribe words by connecting astrolabe impacts with vowel star-glides!</span>
     </div>
   </section>
 
   <!-- Acoustic Guide -->
   <section class="acoustic-guide-card">
-    <h3><i class="fa-solid fa-circle-info"></i> How Physical Formant Pinball Works</h3>
+    <h3><i class="fa-solid fa-compass"></i> The Celestial Mechanics of Babel 3000</h3>
     <p>
-      <strong>1. The Vowel Floor:</strong> Human vowels are defined by two resonant frequencies: <strong>F1</strong> (jaw openness, vertical Y-axis) and <strong>F2</strong> (tongue position, horizontal X-axis). Moving between <em>[EE]</em>, <em>[OO]</em>, and <em>[AH]</em> synthesizes continuous vocal diphthongs.
+      <strong>1. The Vowel Constellation Plane:</strong> Human speech vowels are acoustic resonances mapped across two coordinate axes: <strong>F₁</strong> (jaw aperture, vertical Y-axis) and <strong>F₂</strong> (lingual front/back orbit, horizontal X-axis). Ball travel between <em>☉ [EE]</em>, <em>☾ [OO]</em>, and <em>✦ [AA]</em> synthesizes continuous vocal diphthongs with dynamic prosody.
     </p>
     <p>
-      <strong>2. Consonant Bumpers:</strong> Collisions with <strong>[B], [T], [K], [P], [D], [G]</strong> pop-bumpers trigger rapid acoustic transient stops. The top <strong>[S]</strong> spinner unleashes high-frequency fricative hiss.
+      <strong>2. Consonant Astrolabes & Wells:</strong> Collisions with <strong>[B], [T], [K], [G]</strong> celestial astrolabes trigger plosive consonant stops alongside crystalline star chimes. Dropping into the <strong>[M] Lunar Well</strong> or <strong>[N] Solar Well</strong> hums a warm acoustic nasal resonance before the solenoid fires the ball back upward.
     </p>
     <p>
-      <strong>3. Word Bounty:</strong> Hit targets in sequence to spell target words (e.g. <em>Bumper [B] &rarr; Center Glide [AH] &rarr; Post [T] = BAT!</em>).
+      <strong>3. Solving Astral Prophecies:</strong> Chain collisions in sequence to synthesize target words (e.g. <em>Astrolabe [B] &rarr; Center Glide [AA] &rarr; Astrolabe [T] = BAT!</em>).
     </p>
   </section>
 
@@ -762,6 +780,15 @@
         this.glottalOsc.connect(this.glottalGain);
         this.glottalSub.connect(this.glottalGain);
 
+        // Celestial Astral Shimmer (High choral harmonic overtone for Babel 3000)
+        this.shimmerOsc = this.ctx.createOscillator();
+        this.shimmerOsc.type = 'sine';
+        this.shimmerOsc.frequency.setValueAtTime(250.0, this.ctx.currentTime);
+        this.shimmerGain = this.ctx.createGain();
+        this.shimmerGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+        this.shimmerOsc.connect(this.shimmerGain);
+        this.shimmerGain.connect(this.masterGain);
+
         // 2. Formant Filter Bank (Three Parallel Resonators)
         this.f1Filter = this.ctx.createBiquadFilter();
         this.f1Filter.type = 'bandpass';
@@ -795,6 +822,7 @@
         this.glottalOsc.start();
         this.glottalSub.start();
         this.vibratoOsc.start();
+        this.shimmerOsc.start();
 
         // 3. Noise Buffer for Fricatives / Plosive Bursts
         const bufLen = this.ctx.sampleRate * 2;
@@ -833,6 +861,7 @@
         const targetPitch = Math.min(195, Math.max(112, 120 + pitchRise));
         this.glottalOsc.frequency.setTargetAtTime(targetPitch, now, 0.04);
         this.glottalSub.frequency.setTargetAtTime(targetPitch * 0.5, now, 0.04);
+        this.shimmerOsc.frequency.setTargetAtTime(targetPitch * 2.01, now, 0.04);
 
         // Smooth glide with 25ms constant for organic vowel transitions & diphthongs
         this.f1Filter.frequency.setTargetAtTime(targetF1, now, 0.025);
@@ -841,8 +870,37 @@
         // Vocal presence tied to ball speed: fast = louder vocalization, at rest = subtle breath
         const targetGain = Math.min(0.48, Math.max(0.0001, (speed - 0.4) * 0.055));
         this.glottalGain.gain.setTargetAtTime(targetGain, now, 0.03);
+        const shimmerTargetGain = Math.min(0.065, targetGain * 0.22);
+        this.shimmerGain.gain.setTargetAtTime(shimmerTargetGain, now, 0.03);
 
         return { f1: Math.round(targetF1), f2: Math.round(targetF2), pitch: Math.round(targetPitch) };
+      }
+
+      // Crystalline Astrolabe Star Chime on bumper contact
+      playCelestialChime(freq = 1480) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(freq * 2.76, now); // Bell harmonic overtone
+
+        gain.gain.setValueAtTime(0.16, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+
+        osc.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc2.start(now);
+        osc.stop(now + 0.45);
+        osc2.stop(now + 0.45);
       }
 
       // Trigger Consonant Articulation (Plosives, Fricatives, Nasals, Pops)
@@ -1002,22 +1060,22 @@
         if (!this.isAudioReady) return;
         const now = this.ctx.currentTime;
 
-        // Arpeggiated chord fanfare
-        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        // Celestial EbMaj9 arpeggiated chord fanfare
+        const notes = [311.13, 392.00, 466.16, 587.33, 783.99, 1174.66]; // Eb4, G4, Bb4, D5, G5, D6
         notes.forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          osc.frequency.setValueAtTime(freq, now + idx * 0.07);
 
-          gain.gain.setValueAtTime(0.0001, now + idx * 0.08);
-          gain.gain.linearRampToValueAtTime(0.25, now + idx * 0.08 + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.5);
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.07);
+          gain.gain.linearRampToValueAtTime(0.24, now + idx * 0.07 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.07 + 0.65);
 
           osc.connect(gain);
           gain.connect(this.masterGain);
-          osc.start(now + idx * 0.08);
-          osc.stop(now + idx * 0.08 + 0.55);
+          osc.start(now + idx * 0.07);
+          osc.stop(now + idx * 0.07 + 0.70);
         });
 
         // Use Browser Speech Synthesis for robotic voice confirmation if available
@@ -1122,37 +1180,37 @@
           angularSpeed: 0.38
         };
 
-        // Playfield Pop Bumpers ([B], [T], [K], [G])
+        // Playfield Pop Bumpers ([B], [T], [K], [G] - Astrolabe Planetary Dials)
         this.bumpers = [
-          // Upper Triangle
-          { id: 'B',  x: 150, y: 190, r: 26, color: '#00f2fe', label: 'B',  phoneme: 'B', hitAnim: 0 },
-          { id: 'T',  x: 270, y: 190, r: 26, color: '#ff7eb3', label: 'T',  phoneme: 'T', hitAnim: 0 },
-          { id: 'K',  x: 210, y: 280, r: 26, color: '#2ed573', label: 'K',  phoneme: 'K', hitAnim: 0 },
-          { id: 'G',  x: 210, y: 110, r: 22, color: '#a55eea', label: 'G',  phoneme: 'G', hitAnim: 0 }
+          // Upper Celestial Triangle
+          { id: 'B',  x: 150, y: 190, r: 26, color: '#4facfe', label: 'B',  phoneme: 'B', hitAnim: 0, ringRotation: 0 },
+          { id: 'T',  x: 270, y: 190, r: 26, color: '#f093fb', label: 'T',  phoneme: 'T', hitAnim: 0, ringRotation: 0 },
+          { id: 'K',  x: 210, y: 280, r: 26, color: '#38ef7d', label: 'K',  phoneme: 'K', hitAnim: 0, ringRotation: 0 },
+          { id: 'G',  x: 210, y: 110, r: 22, color: '#ffd700', label: 'G',  phoneme: 'G', hitAnim: 0, ringRotation: 0 }
         ];
 
-        // Nasal Cavity Saucer Scoops ([M] and [N])
+        // Nasal Cavity Saucer Wells ([M] = Lunar Well, [N] = Solar Well)
         this.scoops = [
-          { id: 'M', label: 'M', phoneme: 'M', x: 130, y: 375, r: 18, color: '#ffb142', glowAnim: 0 },
-          { id: 'N', label: 'N', phoneme: 'N', x: 290, y: 375, r: 18, color: '#ff5252', glowAnim: 0 }
+          { id: 'M', label: 'M', phoneme: 'M', name: 'LUNAR WELL', x: 130, y: 375, r: 18, color: '#f6e58d', glowAnim: 0, cooldown: 0 },
+          { id: 'N', label: 'N', phoneme: 'N', name: 'SOLAR WELL', x: 290, y: 375, r: 18, color: '#ffd700', glowAnim: 0, cooldown: 0 }
         ];
         this.scoopHold = { active: false, scoop: null, timer: 0 };
 
-        // Active Triangular Slingshots ([P] on left, [D] on right)
+        // Active Triangular Slingshots ([P] on left, [D] on right - Art Deco Sunbursts)
         this.slingshots = [
           {
-            id: 'P', label: 'P', phoneme: 'P', color: '#ffd32a',
+            id: 'P', label: 'P', phoneme: 'P', color: '#ffd700',
             p1: { x: 75, y: 475 }, p2: { x: 125, y: 585 }, p3: { x: 35, y: 550 },
             anim: 0
           },
           {
-            id: 'D', label: 'D', phoneme: 'D', color: '#ff9f43',
+            id: 'D', label: 'D', phoneme: 'D', color: '#dfb15b',
             p1: { x: 345, y: 475 }, p2: { x: 295, y: 585 }, p3: { x: 385, y: 550 },
             anim: 0
           }
         ];
 
-        // Top Spinner (Fricative S)
+        // Top Spinner (Fricative S - Astrological Gyroscope)
         this.spinner = {
           x: 210,
           y: 50,
@@ -1162,6 +1220,22 @@
           spinSpeed: 0,
           phoneme: 'S'
         };
+
+        // Starfield for BABEL 3000
+        this.stars = [];
+        for (let i = 0; i < 45; i++) {
+          this.stars.push({
+            x: 24 + Math.random() * (this.width - 50),
+            y: 25 + Math.random() * (this.height - 70),
+            r: 0.6 + Math.random() * 1.5,
+            alpha: 0.2 + Math.random() * 0.7,
+            twinkleSpeed: 0.02 + Math.random() * 0.04,
+            twinklePhase: Math.random() * Math.PI * 2
+          });
+        }
+
+        // Particle Stardust System
+        this.particles = [];
 
         // Word Celebration Animation State
         this.bannerEl = document.getElementById('word-banner');
@@ -1309,6 +1383,9 @@
         this.ball.inPlay = false;
         this.ball.inPlungerLane = true;
         this.scoopHold.active = false;
+        if (this.scoops) {
+          this.scoops.forEach(s => s.cooldown = 0);
+        }
       }
 
       launchBall() {
@@ -1475,8 +1552,11 @@
           if (this.scoopHold.timer <= 0) {
             const sc = this.scoopHold.scoop;
             this.scoopHold.active = false;
-            // Solenoid pop upward back into upper vowel playfield
-            this.ball.vy = -14.2;
+            sc.cooldown = 1400; // 1.4s cooldown to prevent re-capture
+            // Project ball cleanly above the scoop rim
+            this.ball.y = sc.y - (sc.r + this.ball.radius + 6);
+            this.ball.x = sc.x + (sc.id === 'M' ? 3 : -3);
+            this.ball.vy = -15.8;
             this.ball.vx = (sc.id === 'M') ? 4.2 : -4.2;
             this.synth.triggerConsonant('T'); // Solenoid metallic thwack
           }
@@ -1528,13 +1608,15 @@
           this.evaluateVowelSpace();
         }
 
-        // Decay Bumper Visual Hit Rings
+        // Decay Bumper Visual Hit Rings & Astrolabe Planetary Rotation
         this.bumpers.forEach(b => {
-          if (b.hitAnim > 0) b.hitAnim -= 0.05;
+          if (b.hitAnim > 0) b.hitAnim -= 0.04;
+          b.ringRotation = (b.ringRotation || 0) + 0.008;
         });
 
-        // Decay Scoop Glow Animation
+        // Decay Scoop Cooldown and Glow Animation
         this.scoops.forEach(sc => {
+          if (sc.cooldown > 0) sc.cooldown -= dt;
           if (sc.glowAnim > 0) sc.glowAnim -= 0.04;
         });
 
@@ -1542,6 +1624,38 @@
         this.slingshots.forEach(sl => {
           if (sl.anim > 0) sl.anim -= 0.06;
         });
+
+        // Update Celestial Starfield
+        this.stars.forEach(st => {
+          st.twinklePhase += st.twinkleSpeed;
+        });
+
+        // Stardust Particle Trail
+        if (this.ball.inPlay && !this.scoopHold.active) {
+          const speed = Math.hypot(this.ball.vx, this.ball.vy);
+          if (speed > 1.8 && Math.random() < 0.55) {
+            this.particles.push({
+              x: this.ball.x + (Math.random() - 0.5) * 6,
+              y: this.ball.y + (Math.random() - 0.5) * 6,
+              vx: (Math.random() - 0.5) * 0.8,
+              vy: (Math.random() - 0.5) * 0.8,
+              r: 0.9 + Math.random() * 1.5,
+              alpha: 0.85,
+              color: '#ffd700'
+            });
+          }
+        }
+
+        // Update Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= 0.035;
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
       }
 
       updateFlipper(flipper, isLeft) {
@@ -1614,9 +1728,13 @@
         const speed = Math.hypot(b.vx, b.vy);
         if (b.inPlay && speed < 0.25 && b.x < 415 && b.y < this.height - 100) {
           this.stuckTimer = (this.stuckTimer || 0) + 1;
-          if (this.stuckTimer > 90) { // ~1.5s stuck
-            b.vx = (Math.random() - 0.5) * 3.5;
-            b.vy = -3.5;
+          if (this.stuckTimer > 75) { // ~1.2s stuck
+            if (this.scoopHold.active) {
+              this.scoopHold.timer = 0;
+            } else {
+              b.vx = (Math.random() - 0.5) * 4.5;
+              b.vy = -7.5;
+            }
             this.stuckTimer = 0;
           }
         } else {
@@ -1679,8 +1797,9 @@
             this.score += 100;
             this.updateHUD();
 
-            // Trigger Consonant Speech Articulation
+            // Trigger Consonant Speech Articulation & Celestial Astrolabe Chime
             this.synth.triggerConsonant(bumper.phoneme);
+            this.synth.playCelestialChime(1420 + Math.random() * 280);
             this.registerPhoneme(bumper.phoneme, false);
           }
         });
@@ -1691,6 +1810,7 @@
         const b = this.ball;
 
         for (const scoop of this.scoops) {
+          if (scoop.cooldown > 0) continue; // Respect cooldown to prevent re-capture
           const dx = b.x - scoop.x;
           const dy = b.y - scoop.y;
           const dist = Math.hypot(dx, dy);
@@ -1705,6 +1825,7 @@
             b.vy = 0;
 
             scoop.glowAnim = 1.0;
+            scoop.cooldown = 1400; // Set cooldown immediately
             this.synth.triggerConsonant(scoop.phoneme);
             this.registerPhoneme(scoop.phoneme, false);
             this.score += 250;
@@ -1932,6 +2053,8 @@
       // -----------------------------------------------------------------------
       // 5. CANVAS RENDERING ENGINE
       // -----------------------------------------------------------------------
+      // 5. CANVAS RENDERING ENGINE (BABEL 3000: CELESTIAL TOWER OF TONGUES)
+      // -----------------------------------------------------------------------
       render() {
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.width, this.height);
@@ -1944,71 +2067,188 @@
         this.renderSpinner(ctx);
         this.renderFlippers(ctx);
         this.renderPlunger(ctx);
+        this.renderParticles(ctx);
         this.renderBall(ctx);
       }
 
-      // Glowing Acoustic 2D Vowel Map on the Floor
+      // BABEL 3000: Celestial Vowel Constellation Chart
       renderVowelPlayfield(ctx) {
-        // Subtle grid
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        // 1. Deep Celestial Nebula Abyss
+        const grad = ctx.createRadialGradient(210, 240, 20, 210, 340, 390);
+        grad.addColorStop(0, '#0f1629');
+        grad.addColorStop(0.55, '#070a16');
+        grad.addColorStop(1, '#04050b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(18, 18, this.width - 36, this.height - 36);
+
+        // 2. Twinkling Starfield
+        this.stars.forEach(st => {
+          const currentAlpha = st.alpha * (0.55 + 0.45 * Math.sin(st.twinklePhase));
+          ctx.fillStyle = `rgba(255, 235, 160, ${currentAlpha})`;
+          if (st.r > 1.3) {
+            // 4-point diamond star
+            ctx.beginPath();
+            ctx.moveTo(st.x, st.y - st.r * 1.8);
+            ctx.lineTo(st.x + st.r * 0.6, st.y);
+            ctx.lineTo(st.x, st.y + st.r * 1.8);
+            ctx.lineTo(st.x - st.r * 0.6, st.y);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        // 3. Concentric Astrolabe Coordinate Rings
+        const cx = 210, cy = 250;
+        const radii = [70, 140, 210, 280];
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.12)';
         ctx.lineWidth = 1;
-        for (let x = 40; x < this.width - 50; x += 40) {
+        ctx.setLineDash([3, 7]);
+        radii.forEach(r => {
           ctx.beginPath();
-          ctx.moveTo(x, 40);
-          ctx.lineTo(x, this.height - 80);
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+        ctx.setLineDash([]); // reset
+
+        // Astrolabe Cardinal Radial Ticks
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
+          const x1 = cx + Math.cos(a) * 60;
+          const y1 = cy + Math.sin(a) * 60;
+          const x2 = cx + Math.cos(a) * 280;
+          const y2 = cy + Math.sin(a) * 280;
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.05)';
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
           ctx.stroke();
         }
 
-        // Vowel Region Label Glyphs on the floor
+        // 4. Sacred Constellation Lines connecting Phoneme Nodes
+        const constellationEdges = [
+          [{ x: 100, y: 120 }, { x: 150, y: 190 }], // EE -> B
+          [{ x: 340, y: 120 }, { x: 270, y: 190 }], // OO -> T
+          [{ x: 210, y: 110 }, { x: 150, y: 190 }], // G -> B
+          [{ x: 210, y: 110 }, { x: 270, y: 190 }], // G -> T
+          [{ x: 150, y: 190 }, { x: 270, y: 190 }], // B -> T
+          [{ x: 150, y: 190 }, { x: 210, y: 280 }], // B -> K
+          [{ x: 270, y: 190 }, { x: 210, y: 280 }], // T -> K
+          [{ x: 210, y: 280 }, { x: 130, y: 375 }], // K -> M
+          [{ x: 210, y: 280 }, { x: 290, y: 375 }], // K -> N
+          [{ x: 130, y: 375 }, { x: 75,  y: 475 }], // M -> P
+          [{ x: 290, y: 375 }, { x: 345, y: 475 }], // N -> D
+          [{ x: 75,  y: 475 }, { x: 210, y: 520 }], // P -> AA
+          [{ x: 345, y: 475 }, { x: 210, y: 520 }]  // D -> AA
+        ];
+
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.22)';
+        ctx.lineWidth = 1.2;
+        constellationEdges.forEach(edge => {
+          ctx.beginPath();
+          ctx.moveTo(edge[0].x, edge[0].y);
+          ctx.lineTo(edge[1].x, edge[1].y);
+          ctx.stroke();
+        });
+
+        // 5. Vowel Astral Cartouches
         const regions = [
-          { label: '/i/ [EE]', x: 100, y: 120, desc: 'High Front' },
-          { label: '/u/ [OO]', x: 340, y: 120, desc: 'High Back' },
-          { label: '/ɛ/ [EH]', x: 110, y: 310, desc: 'Mid Front' },
-          { label: '/oʊ/ [OH]',x: 330, y: 310, desc: 'Mid Back' },
-          { label: '/ɑ/ [AA]', x: 210, y: 520, desc: 'Low Open' }
+          { glyph: '☉', label: '/i/ [EE]', sub: 'APEX VOWEL', x: 100, y: 120 },
+          { glyph: '☾', label: '/u/ [OO]', sub: 'LUNAR VOID', x: 340, y: 120 },
+          { glyph: '✧', label: '/ɛ/ [EH]', sub: 'EQUINOX',    x: 105, y: 300 },
+          { glyph: '⚝', label: '/oʊ/ [OH]',sub: 'ZENITH',     x: 335, y: 300 },
+          { glyph: '✦', label: '/ɑ/ [AA]', sub: 'SOLAR BASIN',x: 210, y: 525 }
         ];
 
         ctx.textAlign = 'center';
         regions.forEach(r => {
-          ctx.font = '700 0.85rem "Silkscreen", monospace';
-          ctx.fillStyle = 'rgba(0, 242, 254, 0.18)';
-          ctx.fillText(r.label, r.x, r.y);
-          ctx.font = '0.55rem "Space Mono", monospace';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.fillText(r.desc, r.x, r.y + 14);
+          // Subtle circular cartouche backing
+          ctx.beginPath();
+          ctx.arc(r.x, r.y + 4, 34, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(223, 177, 91, 0.04)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.18)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Astral Glyph Icon
+          ctx.font = '700 1.05rem "Cinzel", serif';
+          ctx.fillStyle = '#ffd700';
+          ctx.shadowColor = '#dfb15b';
+          ctx.shadowBlur = 8;
+          ctx.fillText(r.glyph, r.x, r.y - 10);
+          ctx.shadowBlur = 0;
+
+          // Vowel Text Label
+          ctx.font = '700 0.82rem "Silkscreen", monospace';
+          ctx.fillStyle = '#fef08a';
+          ctx.fillText(r.label, r.x, r.y + 7);
+
+          // Subtitle
+          ctx.font = '0.50rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(223, 177, 91, 0.7)';
+          ctx.fillText(r.sub, r.x, r.y + 20);
         });
 
-        // Acoustic Formant Wave Overlay from ball position
+        // 6. Radiant Acoustic Wave from Ball
         if (this.ball.inPlay) {
-          const grad = ctx.createRadialGradient(this.ball.x, this.ball.y, 4, this.ball.x, this.ball.y, 110);
-          grad.addColorStop(0, 'rgba(0, 242, 254, 0.18)');
-          grad.addColorStop(0.5, 'rgba(255, 126, 179, 0.08)');
-          grad.addColorStop(1, 'transparent');
-          ctx.fillStyle = grad;
+          const speed = Math.hypot(this.ball.vx, this.ball.vy);
+          const rad = Math.min(130, 40 + speed * 7);
+          const gradW = ctx.createRadialGradient(this.ball.x, this.ball.y, 4, this.ball.x, this.ball.y, rad);
+          gradW.addColorStop(0, 'rgba(255, 215, 0, 0.28)');
+          gradW.addColorStop(0.5, 'rgba(223, 177, 91, 0.10)');
+          gradW.addColorStop(1, 'transparent');
+          ctx.fillStyle = gradW;
           ctx.beginPath();
-          ctx.arc(this.ball.x, this.ball.y, 110, 0, Math.PI * 2);
+          ctx.arc(this.ball.x, this.ball.y, rad, 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
       renderWalls(ctx) {
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 6;
+        // Polished Burnished Brass Playfield Frame
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 5;
         ctx.lineCap = 'round';
-
-        // Outer Frame
+        ctx.shadowColor = 'rgba(223, 177, 91, 0.4)';
+        ctx.shadowBlur = 8;
         ctx.strokeRect(18, 18, this.width - 36, this.height - 36);
+        ctx.shadowBlur = 0;
 
-        // Plunger Lane Divider
+        // Inner Fine Gold Accent Trim
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(22, 22, this.width - 44, this.height - 44);
+
+        // Art Deco Stepped Brass Corner Accents
+        const drawCornerBracket = (x, y, dx, dy) => {
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x, y + dy * 22);
+          ctx.lineTo(x + dx * 10, y + dy * 22);
+          ctx.lineTo(x + dx * 10, y + dy * 10);
+          ctx.lineTo(x + dx * 22, y + dy * 10);
+          ctx.lineTo(x + dx * 22, y);
+          ctx.stroke();
+        };
+        drawCornerBracket(24, 24, 1, 1);
+        drawCornerBracket(this.width - 24, 24, -1, 1);
+        drawCornerBracket(24, this.height - 24, 1, -1);
+        drawCornerBracket(this.width - 24, this.height - 24, -1, -1);
+
+        // Plunger Runway Divider (Brushed Brass with Ascension Arrows)
         ctx.beginPath();
         ctx.moveTo(418, 75);
         ctx.lineTo(418, this.height - 30);
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 3.5;
         ctx.stroke();
 
-        // Angled Slingshot Guides
-        ctx.strokeStyle = '#334155';
+        // Angled Slingshot Guides (Polished Brass Rails)
+        ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(20, 500);
@@ -2034,35 +2274,79 @@
 
       renderBumpers(ctx) {
         this.bumpers.forEach(b => {
-          // Bumper Ring Shockwave on hit
+          // 1. Astrolabe Radiating Solar Shockwave on Hit
           if (b.hitAnim > 0) {
             ctx.beginPath();
-            ctx.arc(b.x, b.y, b.r + b.hitAnim * 16, 0, Math.PI * 2);
-            ctx.strokeStyle = b.color;
+            ctx.arc(b.x, b.y, b.r + b.hitAnim * 22, 0, Math.PI * 2);
+            ctx.strokeStyle = '#ffd700';
             ctx.lineWidth = 3 * b.hitAnim;
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 20 * b.hitAnim;
             ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // 6 Rotating Starlight Rays on impact
+            const rays = 6;
+            ctx.save();
+            ctx.translate(b.x, b.y);
+            ctx.rotate(b.ringRotation * 3);
+            ctx.strokeStyle = 'rgba(255, 215, 0, ' + (b.hitAnim * 0.7) + ')';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < rays; i++) {
+              const a = (i * Math.PI * 2) / rays;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(a) * (b.r + 4), Math.sin(a) * (b.r + 4));
+              ctx.lineTo(Math.cos(a) * (b.r + 26 * b.hitAnim), Math.sin(a) * (b.r + 26 * b.hitAnim));
+              ctx.stroke();
+            }
+            ctx.restore();
           }
 
-          // Outer Bumper Body
+          // 2. Outer Astrolabe Brass Gear Rim with 12 Teeth
+          ctx.save();
+          ctx.translate(b.x, b.y);
+          ctx.rotate(b.ringRotation);
+
+          const teeth = 12;
+          ctx.fillStyle = '#8c6d2b';
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2;
+          for (let i = 0; i < teeth; i++) {
+            const a = (i * Math.PI * 2) / teeth;
+            const tx = Math.cos(a) * (b.r + 1.5);
+            const ty = Math.sin(a) * (b.r + 1.5);
+            ctx.fillRect(tx - 2, ty - 2, 4, 4);
+          }
+          ctx.restore();
+
+          // 3. Astrolabe Ring Body
           ctx.beginPath();
           ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-          ctx.fillStyle = '#0f172a';
+          ctx.fillStyle = '#080d1a';
           ctx.fill();
-          ctx.strokeStyle = b.color;
+          ctx.strokeStyle = '#dfb15b';
           ctx.lineWidth = 3;
-          ctx.shadowColor = b.color;
+          ctx.shadowColor = '#ffd700';
           ctx.shadowBlur = b.hitAnim > 0 ? 25 : 8;
           ctx.stroke();
-          ctx.shadowBlur = 0; // reset
+          ctx.shadowBlur = 0;
 
-          // Inner Core
+          // 4. Planetary Gemstone Core
+          const gemGrad = ctx.createRadialGradient(b.x - 3, b.y - 3, 2, b.x, b.y, b.r * 0.55);
+          gemGrad.addColorStop(0, '#ffffff');
+          gemGrad.addColorStop(0.4, b.color);
+          gemGrad.addColorStop(1, '#060a12');
+
           ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r * 0.45, 0, Math.PI * 2);
-          ctx.fillStyle = b.hitAnim > 0 ? '#ffffff' : b.color;
+          ctx.arc(b.x, b.y, b.r * 0.52, 0, Math.PI * 2);
+          ctx.fillStyle = b.hitAnim > 0 ? '#ffffff' : gemGrad;
           ctx.fill();
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
 
-          // Phoneme Letter Label
-          ctx.font = '700 1.05rem "Silkscreen", monospace';
+          // 5. Astrological Phoneme Letter
+          ctx.font = '900 1.15rem "Cinzel", serif';
           ctx.fillStyle = b.hitAnim > 0 ? '#000000' : '#ffffff';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -2072,95 +2356,128 @@
 
       renderScoops(ctx) {
         this.scoops.forEach(sc => {
-          // Solenoid Shockwave / Glow on capture
+          // 1. Solenoid Pulse Flare on capture
           if (sc.glowAnim > 0) {
             ctx.beginPath();
-            ctx.arc(sc.x, sc.y, sc.r + sc.glowAnim * 18, 0, Math.PI * 2);
+            ctx.arc(sc.x, sc.y, sc.r + sc.glowAnim * 24, 0, Math.PI * 2);
             ctx.strokeStyle = sc.color;
-            ctx.lineWidth = 3 * sc.glowAnim;
+            ctx.lineWidth = 3.5 * sc.glowAnim;
+            ctx.shadowColor = sc.color;
+            ctx.shadowBlur = 25 * sc.glowAnim;
             ctx.stroke();
+            ctx.shadowBlur = 0;
           }
 
-          // Outer Metal Bezel
+          // 2. Astral Wells: Lunar Well (M) vs Solar Well (N)
+          if (sc.id === 'M') {
+            // LUNAR WELL: Concentric silver-gold orbital rings
+            ctx.strokeStyle = 'rgba(246, 229, 141, 0.45)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(sc.x, sc.y, sc.r + 5, 0, Math.PI * 2);
+            ctx.stroke();
+          } else {
+            // SOLAR WELL: Radiant corona spikes
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)';
+            ctx.lineWidth = 1.5;
+            for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+              ctx.beginPath();
+              ctx.moveTo(sc.x + Math.cos(a) * (sc.r + 2), sc.y + Math.sin(a) * (sc.r + 2));
+              ctx.lineTo(sc.x + Math.cos(a) * (sc.r + 6), sc.y + Math.sin(a) * (sc.r + 6));
+              ctx.stroke();
+            }
+          }
+
+          // 3. Polished Brass Outer Bezel
           ctx.beginPath();
-          ctx.arc(sc.x, sc.y, sc.r + 3, 0, Math.PI * 2);
-          ctx.strokeStyle = sc.color;
+          ctx.arc(sc.x, sc.y, sc.r + 2.5, 0, Math.PI * 2);
+          ctx.strokeStyle = '#dfb15b';
           ctx.lineWidth = 2.5;
           ctx.shadowColor = sc.color;
-          ctx.shadowBlur = sc.glowAnim > 0 ? 22 : 6;
+          ctx.shadowBlur = sc.glowAnim > 0 ? 25 : 8;
           ctx.stroke();
           ctx.shadowBlur = 0;
 
-          // Inner Dark Pit (Nasal Cavity Saucer)
+          // 4. Abyss Well Pit
           const grad = ctx.createRadialGradient(sc.x, sc.y, 2, sc.x, sc.y, sc.r);
           grad.addColorStop(0, '#000000');
-          grad.addColorStop(0.7, '#070b14');
-          grad.addColorStop(1, '#1e293b');
+          grad.addColorStop(0.7, '#05070e');
+          grad.addColorStop(1, '#1b233a');
           ctx.beginPath();
           ctx.arc(sc.x, sc.y, sc.r, 0, Math.PI * 2);
           ctx.fillStyle = grad;
           ctx.fill();
 
-          // Phoneme Letter Label
-          ctx.font = '700 0.85rem "Silkscreen", monospace';
+          // 5. Letter Label & Well Name
+          ctx.font = '900 0.95rem "Cinzel", serif';
           ctx.fillStyle = sc.color;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(`[${sc.label}]`, sc.x, sc.y);
 
-          // Nasal Cavity Descriptor Subtitle
-          ctx.font = '0.45rem "Space Mono", monospace';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-          ctx.fillText('NASAL', sc.x, sc.y + 13);
+          ctx.font = '700 0.45rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+          ctx.fillText(sc.id === 'M' ? '☾ LUNAR' : '☉ SOLAR', sc.x, sc.y + 14);
         });
       }
 
       renderSlingshots(ctx) {
         this.slingshots.forEach(sl => {
-          // 1. Triangular Body Fill
+          // 1. Art Deco Stepped Sunburst Chevron Body
           ctx.beginPath();
           ctx.moveTo(sl.p1.x, sl.p1.y);
           ctx.lineTo(sl.p2.x, sl.p2.y);
           ctx.lineTo(sl.p3.x, sl.p3.y);
           ctx.closePath();
 
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+          ctx.fillStyle = 'rgba(11, 16, 32, 0.85)';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#dfb15b';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Inner gold leaf chevron stepped line
+          const midX3 = (sl.p1.x + sl.p2.x + sl.p3.x) / 3;
+          const midY3 = (sl.p1.y + sl.p2.y + sl.p3.y) / 3;
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(sl.p1.x * 0.75 + midX3 * 0.25, sl.p1.y * 0.75 + midY3 * 0.25);
+          ctx.lineTo(sl.p2.x * 0.75 + midX3 * 0.25, sl.p2.y * 0.75 + midY3 * 0.25);
           ctx.stroke();
 
           // 2. Active Kicking Face Rubber Band (p1 to p2)
-          const kickDisplace = sl.anim * (sl.id === 'P' ? 7 : -7);
+          const kickDisplace = sl.anim * (sl.id === 'P' ? 8 : -8);
           const midX = (sl.p1.x + sl.p2.x) / 2 + kickDisplace;
           const midY = (sl.p1.y + sl.p2.y) / 2;
 
           ctx.beginPath();
           ctx.moveTo(sl.p1.x, sl.p1.y);
           ctx.quadraticCurveTo(midX, midY, sl.p2.x, sl.p2.y);
-          ctx.strokeStyle = sl.color;
-          ctx.lineWidth = sl.anim > 0 ? 5 : 3;
-          ctx.shadowColor = sl.color;
-          ctx.shadowBlur = sl.anim > 0 ? 24 : 8;
+          ctx.strokeStyle = sl.anim > 0 ? '#ffffff' : '#ffd700';
+          ctx.lineWidth = sl.anim > 0 ? 5 : 3.5;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = sl.anim > 0 ? 28 : 10;
           ctx.stroke();
           ctx.shadowBlur = 0;
 
-          // 3. Post vertices
+          // 3. Polished Brass Posts at vertices
           [sl.p1, sl.p2, sl.p3].forEach(p => {
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
+            ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffd700';
             ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1;
+            ctx.stroke();
           });
 
-          // 4. Phoneme Label Badge inside triangle
-          const centerX = (sl.p1.x + sl.p2.x + sl.p3.x) / 3;
-          const centerY = (sl.p1.y + sl.p2.y + sl.p3.y) / 3;
-          ctx.font = '700 0.95rem "Silkscreen", monospace';
-          ctx.fillStyle = sl.color;
+          // 4. Phoneme Label Badge
+          ctx.font = '900 1.05rem "Cinzel", serif';
+          ctx.fillStyle = '#ffd700';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(`[${sl.label}]`, centerX, centerY);
+          ctx.fillText(`[${sl.label}]`, midX3, midY3);
         });
       }
 
@@ -2170,14 +2487,36 @@
         ctx.translate(s.x, s.y);
         ctx.rotate(s.angle);
 
-        ctx.fillStyle = '#ff7eb3';
-        ctx.shadowColor = '#ff7eb3';
-        ctx.shadowBlur = 10;
-        ctx.fillRect(-s.width / 2, -s.height / 2, s.width, s.height);
+        // 4-Point Golden Astrolabe Needle
+        ctx.fillStyle = '#ffd700';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 12;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -s.height * 1.5);
+        ctx.lineTo(s.width / 2, 0);
+        ctx.lineTo(0, s.height * 1.5);
+        ctx.lineTo(-s.width / 2, 0);
+        ctx.closePath();
+        ctx.fill();
         ctx.shadowBlur = 0;
 
-        ctx.font = '700 0.65rem "Silkscreen", monospace';
-        ctx.fillStyle = '#000';
+        ctx.strokeStyle = '#8c6d2b';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Jeweled Center Bearing
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#4facfe';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // [S] Label
+        ctx.font = '900 0.65rem "Cinzel", serif';
+        ctx.fillStyle = '#05070e';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('[S]', 0, 0);
@@ -2186,15 +2525,15 @@
       }
 
       renderFlippers(ctx) {
-        const drawFlipper = (flipper, color) => {
+        const drawFlipper = (flipper, isLeft) => {
           const tipX = flipper.pivotX + Math.cos(flipper.currentAngle) * flipper.length;
           const tipY = flipper.pivotY + Math.sin(flipper.currentAngle) * flipper.length;
 
           ctx.lineCap = 'round';
-          ctx.lineWidth = 14;
-          ctx.strokeStyle = color;
-          ctx.shadowColor = color;
-          ctx.shadowBlur = flipper.isPressed ? 18 : 6;
+          ctx.lineWidth = 15;
+          ctx.strokeStyle = '#dfb15b'; // Polished Brass Body
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = flipper.isPressed ? 22 : 8;
 
           ctx.beginPath();
           ctx.moveTo(flipper.pivotX, flipper.pivotY);
@@ -2202,15 +2541,26 @@
           ctx.stroke();
           ctx.shadowBlur = 0;
 
-          // Pivot cap
+          // Ivory Inlay Stripe along paddle
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(flipper.pivotX, flipper.pivotY, 6, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
+          ctx.moveTo(flipper.pivotX + Math.cos(flipper.currentAngle) * 12, flipper.pivotY + Math.sin(flipper.currentAngle) * 12);
+          ctx.lineTo(flipper.pivotX + Math.cos(flipper.currentAngle) * (flipper.length - 8), flipper.pivotY + Math.sin(flipper.currentAngle) * (flipper.length - 8));
+          ctx.stroke();
+
+          // Brass Pivot Cap with golden stud
+          ctx.beginPath();
+          ctx.arc(flipper.pivotX, flipper.pivotY, 6.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd700';
           ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
         };
 
-        drawFlipper(this.leftFlipper, '#00f2fe');
-        drawFlipper(this.rightFlipper, '#ff7eb3');
+        drawFlipper(this.leftFlipper, true);
+        drawFlipper(this.rightFlipper, false);
       }
 
       renderPlunger(ctx) {
@@ -2218,42 +2568,67 @@
         const py = this.height - 40;
         const compression = (this.plungerEnergy / 24) * 22;
 
-        ctx.strokeStyle = '#ffd32a';
+        ctx.strokeStyle = '#ffd700';
         ctx.lineWidth = 5;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.moveTo(px, py + compression);
         ctx.lineTo(px, py - 18 + compression);
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
         ctx.beginPath();
-        ctx.arc(px, py - 20 + compression, 8, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffd32a';
+        ctx.arc(px, py - 20 + compression, 8.5, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(px - 2, py - 22 + compression, 1, px, py - 20 + compression, 8.5);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.5, '#ffd700');
+        grad.addColorStop(1, '#8c6d2b');
+        ctx.fillStyle = grad;
         ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      renderParticles(ctx) {
+        this.particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 215, 0, ${p.alpha})`;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 6;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
       }
 
       renderBall(ctx) {
         const b = this.ball;
-        // Motion trail / glow
+        // Golden Astral Halo
         ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius + 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+        ctx.arc(b.x, b.y, b.radius + 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.35)';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 12;
         ctx.fill();
+        ctx.shadowBlur = 0;
 
-        // Metallic chrome ball body
+        // Metallic Chrome Ball with Starlight Specular Glint
         const grad = ctx.createRadialGradient(
           b.x - 3, b.y - 3, 1,
           b.x, b.y, b.radius
         );
         grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.3, '#cbd5e1');
-        grad.addColorStop(0.8, '#475569');
-        grad.addColorStop(1, '#0f172a');
+        grad.addColorStop(0.35, '#e2e8f0');
+        grad.addColorStop(0.75, '#64748b');
+        grad.addColorStop(1, '#090d16');
 
         ctx.beginPath();
         ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.lineWidth = 1;
         ctx.stroke();
       }
