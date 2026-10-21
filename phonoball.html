@@ -988,12 +988,13 @@
         // Ball Physics
         this.ball = {
           x: 430,
-          y: 580,
+          y: 560,
           vx: 0,
           vy: 0,
           radius: 9.5,
           mass: 1.0,
-          inPlay: false
+          inPlay: false,
+          inPlungerLane: true
         };
 
         this.gravity = 0.26;
@@ -1180,26 +1181,28 @@
       }
 
       resetBall() {
-        this.ball.x = 432;
-        this.ball.y = 540;
+        this.ball.x = 430;
+        this.ball.y = 560;
         this.ball.vx = 0;
         this.ball.vy = 0;
         this.ball.inPlay = false;
+        this.ball.inPlungerLane = true;
       }
 
       launchBall() {
-        if (this.ball.inPlay) return;
-        this.ball.x = 432;
-        this.ball.y = 530;
+        this.ball.x = 430;
+        this.ball.y = 560;
         this.ball.vx = 0;
-        this.ball.vy = -16.5;
+        this.ball.vy = -18.5;
         this.ball.inPlay = true;
+        this.ball.inPlungerLane = true;
         this.synth.triggerConsonant('P'); // Plunger launch pop
       }
 
       firePlunger() {
-        if (!this.ball.inPlay && this.ball.x > 410) {
-          const power = Math.max(10, Math.min(22, this.plungerEnergy));
+        if (this.ball.inPlungerLane) {
+          const power = Math.max(13, Math.min(22, this.plungerEnergy));
+          this.ball.vx = 0;
           this.ball.vy = -power;
           this.ball.inPlay = true;
           this.synth.triggerConsonant('P');
@@ -1383,34 +1386,60 @@
         const b = this.ball;
         const r = b.radius;
 
+        // 1. DEDICATED PLUNGER RUNWAY PHYSICS
+        if (b.inPlungerLane) {
+          // Ball travels straight up between divider (418) and outer wall (442)
+          if (b.x + r > 442) {
+            b.x = 442 - r;
+            b.vx = -Math.abs(b.vx) * 0.5;
+          }
+          if (b.x - r < 418) {
+            b.x = 418 + r;
+            b.vx = Math.abs(b.vx) * 0.5;
+          }
+          if (b.y + r > 630) {
+            b.y = 630 - r;
+            b.vy = 0;
+          }
+
+          // When ball reaches the top of the runway (y <= 75), smoothly inject into playfield!
+          if (b.y <= 75) {
+            b.inPlungerLane = false;
+            b.x = 410;
+            b.vx = -12.5;
+            b.vy = 1.5;
+          }
+          return; // Do not apply playfield obstacles while ball is inside the runway
+        }
+
+        // 2. MAIN PLAYFIELD WALLS & BOUNDARIES
         // Left Boundary Wall
         if (b.x - r < 20) {
           b.x = 20 + r;
-          b.vx = -b.vx * 0.75;
+          b.vx = Math.abs(b.vx) * 0.75;
         }
 
-        // Right Plunger Lane Wall
-        const rightWall = b.inPlay && b.y > 140 ? 418 : 442;
-        if (b.x + r > rightWall) {
-          b.x = rightWall - r;
-          b.vx = -b.vx * 0.75;
+        // Right Plunger Lane Divider Wall (One-way gate: cannot re-enter runway)
+        if (b.y > 75 && b.x + r > 418) {
+          b.x = 418 - r;
+          b.vx = -Math.abs(b.vx) * 0.75;
         }
 
         // Curved Top Arch
         if (b.y - r < 25) {
           b.y = 25 + r;
-          b.vy = -b.vy * 0.72;
+          b.vy = Math.abs(b.vy) * 0.72;
         }
 
         // Angled Slingshot Walls leading to flippers
-        // Left lower guide: from (20, 500) to (115, 595)
-        this.collideLineSegment(20, 500, 115, 595, 0.78);
-        // Right lower guide: from (418, 500) to (305, 595)
-        this.collideLineSegment(418, 500, 305, 595, 0.78);
+        // Left lower guide: from (20, 500) to (125, 595)
+        this.collideLineSegment(20, 500, 125, 595, 0.78);
+        // Right lower guide: from (418, 500) to (295, 595)
+        this.collideLineSegment(418, 500, 295, 595, 0.78);
 
         // Upper Arch Deflectors
         this.collideLineSegment(20, 95, 90, 24, 0.85);
-        this.collideLineSegment(360, 24, 442, 85, 0.85);
+        this.collideLineSegment(360, 24, 418, 75, 0.85);
 
         // Anti-stuck watchdog: if ball is in play but almost motionless for too long, micro-nudge
         const speed = Math.hypot(b.vx, b.vy);
@@ -1674,9 +1703,9 @@
 
         // Plunger Lane Divider
         ctx.beginPath();
-        ctx.moveTo(418, 140);
+        ctx.moveTo(418, 75);
         ctx.lineTo(418, this.height - 30);
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.35)';
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
         ctx.lineWidth = 3;
         ctx.stroke();
 
@@ -1685,12 +1714,12 @@
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(20, 500);
-        ctx.lineTo(115, 595);
+        ctx.lineTo(125, 595);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(418, 500);
-        ctx.lineTo(305, 595);
+        ctx.lineTo(295, 595);
         ctx.stroke();
 
         // Upper Arch Deflectors
@@ -1701,7 +1730,7 @@
 
         ctx.beginPath();
         ctx.moveTo(360, 24);
-        ctx.lineTo(442, 85);
+        ctx.lineTo(418, 75);
         ctx.stroke();
       }
 
