@@ -684,35 +684,35 @@
           <span class="tower-deco-gem">✦</span>
         </div>
         <div class="tower-tiers-ladder">
-          <div id="tier-1" class="tier-step" title="Tier I: Laryngeal Vault (Plunger Launch / Kickback)">
+          <div id="tier-1" class="tier-step" title="Level I: The Foundation Kilns of Shinar (Plunger Launch / Kickback)">
             <span class="tier-num">I</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">LARYNX</span>
-            <span class="tier-organ">FOLDS</span>
+            <span class="tier-name">KILNS</span>
+            <span class="tier-organ">FOUNDATION</span>
           </div>
-          <div id="tier-2" class="tier-step" title="Tier II: Labial Gateway (Flippers / [P] Slingshot)">
+          <div id="tier-2" class="tier-step" title="Level II: The Avenue of Tongues (Flippers / Processional Way)">
             <span class="tier-num">II</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">LIPS</span>
-            <span class="tier-organ">LABIAL</span>
+            <span class="tier-name">AVENUE</span>
+            <span class="tier-organ">TONGUES</span>
           </div>
-          <div id="tier-3" class="tier-step" title="Tier III: Lingual Plain (Tongue Post / Vowels)">
+          <div id="tier-3" class="tier-step" title="Level III: The Resonant Minarets (Lunar [M] & Solar [N])">
             <span class="tier-num">III</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">TONGUE</span>
-            <span class="tier-organ">LINGUA</span>
+            <span class="tier-name">MINARETS</span>
+            <span class="tier-organ">SUN & MOON</span>
           </div>
-          <div id="tier-4" class="tier-step" title="Tier IV: Nasal Sanctuary (Lunar [M] & Solar [N])">
+          <div id="tier-4" class="tier-step" title="Level IV: The Palatal Citadel (Astrolabe / Dental Portico)">
             <span class="tier-num">IV</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">NASAL</span>
-            <span class="tier-organ">CHAMBERS</span>
+            <span class="tier-name">CITADEL</span>
+            <span class="tier-organ">ASTROLABE</span>
           </div>
-          <div id="tier-5" class="tier-step" title="Tier V: Palatal Citadel (Sky-Ramp / Dental Arch)">
+          <div id="tier-5" class="tier-step" title="Level V: Apex of Confounded Tongues (Vocal Grotto / Sky-Ramp)">
             <span class="tier-num">V</span>
             <span class="tier-lamp"></span>
-            <span class="tier-name">PALATE</span>
-            <span class="tier-organ">VELUM</span>
+            <span class="tier-name">APEX</span>
+            <span class="tier-organ">CONFOUNDED</span>
           </div>
         </div>
         <div class="tower-apex-badge" id="tower-apex-badge">
@@ -3983,9 +3983,10 @@
         this.collideLineSegment(348, 370, 348, 540, 0.8, b);
 
         // 2.5 THE LEFT ORBIT CHANNEL RAIL (Dedicated Outer Loop up the left flank)
-        this.collideLineSegment(58, 370, 58, 160, 0.85, b);
-        this.collideLineSegment(58, 160, 85, 90, 0.85, b);
-        this.collideCircle(58, 370, 4.0, 0.8, b);
+        // Continuous outer corridor from x=20 to x=54 (width 34px, ball diameter 15.6px)
+        this.collideLineSegment(54, 430, 54, 160, 0.85, b);
+        this.collideLineSegment(54, 160, 85, 90, 0.85, b);
+        this.collideCircle(54, 430, 4.0, 0.8, b);
 
         // 2.6 MIDFIELD VELOPHARYNGEAL DEFLECTOR ARCHES (Intercepts direct falls from bumpers)
         // Left Midfield Deflector (sloping down-left into Scoop [M] / Left Fairway):
@@ -4015,19 +4016,18 @@
         this.collideLineSegment(20, 650, 20, 785, 0.75, b);
         this.collideLineSegment(418, 650, 418, 785, 0.75, b);
 
-        // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 78, 410):
-        this.collideLineSegment(20, 430, 65, 410, 0.75, b);
-        this.collideLineSegment(93, 410, 105, 440, 0.75, b);
-
-        // Nasal Sanctuary Flank Deflector Pins (protecting outer minaret flanks)
-        this.collideCircle(44, 420, 3.5, 0.8, b);
-        this.collideCircle(384, 420, 3.5, 0.8, b);
+        // Pharyngeal Ramp Parallel Entrance Guides (open vertical channel, width 28px: x: 64..92):
+        // NO transverse barrier across x=20..65! Balls in Left Orbit flow unobstructed along the wall.
+        this.collideLineSegment(64, 435, 64, 380, 0.78, b);
+        this.collideLineSegment(92, 435, 92, 380, 0.78, b);
+        this.collideCircle(64, 435, 3.5, 0.8, b);
+        this.collideCircle(92, 435, 3.5, 0.8, b);
 
         // Anti-stuck watchdog: covers entire playfield and plunger lane if stationary above cradle
         const speed = Math.hypot(b.vx, b.vy);
         if (b.inPlay && speed < 0.2) {
           this.stuckTimer = (this.stuckTimer || 0) + 1;
-          if (this.stuckTimer > 50) { // ~0.8s motionless
+          if (this.stuckTimer > 45) { // ~0.75s motionless
             if (this.scoopHold && this.scoopHold.active) {
               this.scoopHold.timer = 0;
             } else if (b.inPlungerLane && b.y < 680) {
@@ -4035,9 +4035,9 @@
               b.vy = 3.5;
               b.vx = 0;
             } else {
-              // Direct directional impulse towards center and upward
-              b.vx = (b.x > 215 ? -3.8 : 3.8);
-              b.vy = -7.5;
+              // Direct directional impulse toward playfield center and downwards with gravity
+              b.vx = (b.x > 215 ? -4.5 : 4.5);
+              b.vy = 4.8;
             }
             this.stuckTimer = 0;
           }
@@ -4628,8 +4628,8 @@
         const ent = this.pharynxRamp.entrance;
         const dist = Math.hypot(b.x - ent.x, b.y - ent.y);
 
-        // Must enter moving upward with speed (vy < -2.8)
-        if (dist < ent.r && b.vy < -2.8) {
+        // Must enter moving upward with speed (vy < -2.0)
+        if (dist < ent.r && b.vy < -2.0) {
           b.onRamp = true;
           b.rampProgress = 0;
           b.vx = 0;
@@ -5368,84 +5368,152 @@
       renderSubareaArchitecture(ctx) {
         const time = performance.now();
 
-        // ---------------------------------------------------------------------
-        // SUBAREA 1: APEX & UPPER VOCAL GROTTO (y: 18..220)
-        // ---------------------------------------------------------------------
+        // =====================================================================
+        // LEVEL V : THE APEX SHRINE OF CONFOUNDED TONGUES (y: 18..220)
+        // Myth: The summit shrine of Marduk touching the heavens, shattered by divine lightning
+        // =====================================================================
         ctx.save();
-        // A. Subtle Astral Radial Dome Wash
-        const grottoGrad = ctx.createRadialGradient(210, 80, 10, 210, 80, 160);
-        grottoGrad.addColorStop(0, 'rgba(79, 172, 254, 0.08)');
-        grottoGrad.addColorStop(0.7, 'rgba(223, 177, 91, 0.03)');
+        // A. Midnight Sapphire Celestial Dome Wash
+        const grottoGrad = ctx.createRadialGradient(210, 80, 10, 210, 80, 175);
+        grottoGrad.addColorStop(0, 'rgba(30, 58, 138, 0.16)');
+        grottoGrad.addColorStop(0.55, 'rgba(15, 23, 42, 0.10)');
         grottoGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = grottoGrad;
         ctx.fillRect(20, 18, this.width - 40, 202);
 
-        // B. Lower Grotto Boundary Transverse Rail (y = 220)
+        // B. Radiant Lightning Rays of Marduk radiating downward from Apex Vault [G] at (210, 35)
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.10)';
+        ctx.lineWidth = 1;
+        for (let angle = Math.PI * 0.12; angle <= Math.PI * 0.88; angle += 0.12) {
+          ctx.beginPath();
+          ctx.moveTo(210, 35);
+          ctx.lineTo(210 + Math.cos(angle) * 165, 35 + Math.sin(angle) * 165);
+          ctx.stroke();
+        }
+
+        // C. Sacred Cardinal Vowel Constellation Triangle: /i/ (100, 100) -> /ɑ/ (210, 60) -> /u/ (320, 100)
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.28)';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(100, 100);
+        ctx.lineTo(210, 60);
+        ctx.lineTo(320, 100);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Sacred Vowel Cartouche Glyphs
+        [[100, 100, '/i/'], [210, 60, '/ɑ/'], [320, 100, '/u/']].forEach(([vx, vy, vGlyph]) => {
+          ctx.beginPath();
+          ctx.arc(vx, vy, 13, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(10, 15, 30, 0.65)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+
+        // D. Zodiacal Orbit Rings surrounding the Astrolabe Pop Bumpers
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(210, 205, 95, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // E. Transverse Boundary Rail (y = 220) with Stepped Ziggurat Crown Brackets
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
         ctx.lineWidth = 1.5;
-        ctx.setLineDash([6, 6]);
+        ctx.setLineDash([8, 6]);
         ctx.beginPath();
         ctx.moveTo(24, 220);
         ctx.lineTo(416, 220);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Deco Corner Bracket Motifs at (24, 220) and (416, 220)
-        ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(24, 210); ctx.lineTo(24, 220); ctx.lineTo(34, 220);
-        ctx.moveTo(416, 210); ctx.lineTo(416, 220); ctx.lineTo(406, 220);
-        ctx.stroke();
+        // Stepped Ziggurat Corner Brackets
+        [[24, 220, 1], [416, 220, -1]].forEach(([bx, by, dir]) => {
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.65)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(bx, by - 14);
+          ctx.lineTo(bx, by);
+          ctx.lineTo(bx + dir * 14, by);
+          ctx.stroke();
+          // Stepped inner rung
+          ctx.beginPath();
+          ctx.moveTo(bx, by - 7);
+          ctx.lineTo(bx + dir * 7, by - 7);
+          ctx.lineTo(bx + dir * 7, by);
+          ctx.stroke();
+        });
 
-        // Subarea 1 Banner Plaque
-        ctx.font = '900 0.44rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.65)';
+        // Level V Header Plaque
+        ctx.font = '900 0.45rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#ffd700';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ SUBAREA I : VOCAL GROTTO & ASTROLABE ✦', 210, 78);
+        ctx.fillText('✦ LEVEL V : APEX SHRINE OF CONFOUNDED TONGUES ✦', 210, 78);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.32rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.45)';
-        ctx.fillText('CARDINAL RESONANCE APEX • BUMPER SANCTUARY', 210, 87);
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.55)';
+        ctx.fillText('THE SUMMIT OF MARDUK • CARDINAL VOWEL GROTTO', 210, 87);
         ctx.restore();
 
-        // ---------------------------------------------------------------------
-        // SUBAREA 4: PALATAL VALVE DECK (x: 228..416, y: 220..380)
-        // ---------------------------------------------------------------------
+        // =====================================================================
+        // LEVEL IV : THE PALATAL CITADEL & ASTROLABE MEZZANINE (x: 228..416, y: 220..380)
+        // Myth: The royal astrological archive, celestial clocks, and consonant library
+        // =====================================================================
         ctx.save();
-        // A. Distinct Emerald Brushed Mezzanine Plate
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.04)';
+        // A. Polished Emerald Bronze Mezzanine Terrace
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.05)';
         ctx.fillRect(228, 220, 188, 160);
 
-        // Deck Perimeter Hairline & Corner Studs
-        ctx.strokeStyle = 'rgba(52, 211, 153, 0.22)';
+        // Stepped Border with Astrolabe Azimuth Coordinates
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.28)';
         ctx.lineWidth = 1.2;
         ctx.strokeRect(228, 220, 188, 160);
 
         // Brass Corner Rivets
         [[234, 226], [410, 226], [234, 374], [410, 374]].forEach(([rx, ry]) => {
           ctx.beginPath();
-          ctx.arc(rx, ry, 2.0, 0, Math.PI * 2);
+          ctx.arc(rx, ry, 2.2, 0, Math.PI * 2);
           ctx.fillStyle = '#dfb15b';
           ctx.fill();
         });
 
-        // Subarea 4 Deck Badge
-        ctx.font = '900 0.42rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(52, 211, 153, 0.75)';
+        // Astrolabe Gear Teeth Engravings (Circular arc on the platform)
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(360, 310, 48, Math.PI * 0.75, Math.PI * 1.6);
+        ctx.stroke();
+
+        // Level IV Plaque
+        ctx.font = '900 0.43rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.85)';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#10b981';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ SUBAREA IV : PALATAL VALVE DECK ✦', 320, 236);
+        ctx.fillText('✦ LEVEL IV : PALATAL CITADEL & ASTROLABE ✦', 320, 236);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.30rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(52, 211, 153, 0.5)';
-        ctx.fillText('MINI-FLIPPER CROSS-SHOT TO VELAR VAULT [K]', 320, 245);
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.55)';
+        ctx.fillText('CELESTIAL OBSERVATORY • DENTAL PORTICO & VELAR VAULT', 320, 245);
+
+        // Dental Arch Colonnade Portico (Fluted Pillars behind targets at x: 100..115, y: 226..286)
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.22)';
+        ctx.lineWidth = 1.2;
+        for (let py = 228; py <= 286; py += 18) {
+          ctx.beginPath();
+          ctx.moveTo(98, py);
+          ctx.lineTo(116, py);
+          ctx.stroke();
+        }
 
         // Cross-table targeting trajectory line (Upper Mini-Flipper -> Vault K)
-        ctx.strokeStyle = 'rgba(52, 211, 153, 0.22)';
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.25)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 6]);
         ctx.beginPath();
@@ -5455,78 +5523,135 @@
         ctx.setLineDash([]);
         ctx.restore();
 
-        // ---------------------------------------------------------------------
-        // SUBAREA 2: LATERAL NASAL SANCTUARIES (y: 390..520)
-        // ---------------------------------------------------------------------
+        // =====================================================================
+        // LEVEL III : THE RESONANT MINARETS OF SUN & MOON (y: 360..500)
+        // Myth: The Twin Towers of Sin (Moon) & Shamash (Sun) bridged by the Sacred Aqueduct
+        // =====================================================================
         ctx.save();
-        // A. Left Wing Plate (Sinus Sinister [M] at x: 22..100)
-        ctx.fillStyle = 'rgba(217, 119, 6, 0.05)';
+        // A. West Minaret: Sanctuary of Sin (The Moon God - Scoop [M] at x: 20..100)
+        ctx.fillStyle = 'rgba(30, 58, 138, 0.08)';
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(22, 400, 76, 110, 8);
+          ctx.roundRect(22, 395, 76, 115, 8);
         } else {
-          ctx.rect(22, 400, 76, 110);
+          ctx.rect(22, 395, 76, 115);
         }
         ctx.fill();
-        ctx.strokeStyle = 'rgba(217, 119, 6, 0.25)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.35)';
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        ctx.font = '700 0.34rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.7)';
+        // Silver Crescent Moon Cartouche above Scoop [M]
+        ctx.font = '900 0.65rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(219, 234, 254, 0.75)';
         ctx.textAlign = 'center';
-        ctx.fillText('SUBAREA II : NASAL [M]', 60, 412);
+        ctx.fillText('☾', 54, 416);
 
-        // B. Right Wing Plate (Sinus Dexter [N] at x: 332..412)
-        ctx.fillStyle = 'rgba(217, 119, 6, 0.05)';
+        ctx.font = '700 0.32rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(191, 219, 254, 0.85)';
+        ctx.fillText('MINARET OF SIN', 54, 426);
+        ctx.font = '700 0.28rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(147, 197, 253, 0.6)';
+        ctx.fillText('[M] LUNAR NASAL', 54, 434);
+
+        // B. East Minaret: Sanctuary of Shamash (The Sun God - Scoop [N] at x: 332..412)
+        ctx.fillStyle = 'rgba(217, 119, 6, 0.08)';
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(332, 400, 80, 110, 8);
+          ctx.roundRect(332, 395, 80, 115, 8);
         } else {
-          ctx.rect(332, 400, 80, 110);
+          ctx.rect(332, 395, 80, 115);
         }
         ctx.fill();
-        ctx.strokeStyle = 'rgba(217, 119, 6, 0.25)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        ctx.fillText('SUBAREA II : NASAL [N]', 372, 412);
+        // Radiant Sun Disc Cartouche above Scoop [N]
+        ctx.font = '900 0.65rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
+        ctx.fillText('☼', 372, 416);
 
-        // C. Arching Velopharyngeal Conduit Bridge Graphic over Midfield
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.28)';
-        ctx.lineWidth = 1.6;
+        ctx.font = '700 0.32rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(253, 230, 138, 0.85)';
+        ctx.fillText('MINARET OF SHAMASH', 372, 426);
+        ctx.font = '700 0.28rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
+        ctx.fillText('[N] SOLAR NASAL', 372, 434);
+
+        // C. The Grand Velopharyngeal Aqueduct Bridge spanning Midfield
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.32)';
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
         ctx.moveTo(54, 435);
         ctx.quadraticCurveTo(210, 345, 374, 435);
         ctx.stroke();
 
-        // Bridge Spine Medallion at Center
+        // Stepped Masonry Pier Buttresses along the Arch
+        [100, 155, 265, 320].forEach(px => {
+          const t = (px - 54) / (374 - 54);
+          const py = Math.pow(1 - t, 2) * 435 + 2 * (1 - t) * t * 345 + Math.pow(t, 2) * 435;
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px, py + 12);
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+
+        // Central Celestial Medallion (Connecting Sun and Moon)
         ctx.fillStyle = '#060810';
         ctx.beginPath();
-        ctx.arc(210, 365, 14, 0, Math.PI * 2);
+        ctx.arc(210, 365, 16, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#dfb15b';
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.4;
         ctx.stroke();
 
-        ctx.font = '900 0.36rem "Cinzel", serif';
+        ctx.font = '900 0.35rem "Cinzel", serif';
         ctx.fillStyle = '#ffd700';
         ctx.textAlign = 'center';
-        ctx.fillText('VELOPHARYNGEAL', 210, 363);
-        ctx.font = '700 0.28rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.7)';
-        ctx.fillText('BRIDGE', 210, 370);
+        ctx.fillText('✦ LEVEL III ✦', 210, 361);
+        ctx.font = '700 0.27rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
+        ctx.fillText('VELOPHARYNGEAL', 210, 368);
+        ctx.font = '700 0.24rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.6)';
+        ctx.fillText('AQUEDUCT BRIDGE', 210, 374);
         ctx.restore();
 
-        // ---------------------------------------------------------------------
-        // SUBAREA 3: LINGUAL HIGHWAY & CENTRAL FAIRWAYS (x: 90..335, y: 380..580)
-        // ---------------------------------------------------------------------
+        // =====================================================================
+        // LEVEL II : THE AVENUE OF TONGUES & TABLETS (x: 90..335, y: 470..650)
+        // Myth: The monumental processional way of Shinar, carved with cuneiform syllabary
+        // =====================================================================
         ctx.save();
-        // Highway Fairway Directional Speed Chevrons (Left and Right of Tongue)
+        // A. Royal Babylonian Processional Frieze Borders
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.16)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(105, 470); ctx.lineTo(105, 620);
+        ctx.moveTo(315, 470); ctx.lineTo(315, 620);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // B. Ancient Cuneiform Syllabary Glyphs stamped in the fairways
+        ctx.font = '900 0.52rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.18)';
+        ctx.textAlign = 'center';
+        // Left Processional Corridor: A • BA • BI
+        ctx.fillText('𒀀', 118, 500);
+        ctx.fillText('𒁀', 118, 530);
+        ctx.fillText('𒁉', 118, 560);
+        // Right Processional Corridor: GA • DU • EN
+        ctx.fillText('𒂵', 302, 500);
+        ctx.fillText('𒁺', 302, 530);
+        ctx.fillText('𒂗', 302, 560);
+
+        // C. Highway Fairway Directional Speed Chevrons (breathing gold luminosity)
         const chevronPulse = (Math.sin(time * 0.005) + 1) / 2;
         ctx.font = '900 0.48rem "Cinzel", serif';
-        ctx.fillStyle = `rgba(255, 215, 0, ${0.15 + chevronPulse * 0.2})`;
-        ctx.textAlign = 'center';
+        ctx.fillStyle = `rgba(255, 215, 0, ${0.16 + chevronPulse * 0.24})`;
         // Left fairway chevrons
         ctx.fillText('▲', 150, 480);
         ctx.fillText('▲', 150, 510);
@@ -5536,31 +5661,58 @@
         ctx.fillText('▲', 270, 510);
         ctx.fillText('▲', 270, 540);
 
-        // Highway Title Decal (beneath tongue target)
+        // D. Concentric Stepped Ceremonial Altar Framing the LINGUA target at (210, 490)
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.28)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(210, 490, 28, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.18)';
+        ctx.beginPath();
+        ctx.arc(210, 490, 36, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Level II Plaque (beneath tongue target)
         ctx.font = '900 0.44rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.65)';
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.75)';
         ctx.shadowColor = '#ffd700';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ SUBAREA III : LINGUAL HIGHWAY ✦', 210, 560);
+        ctx.fillText('✦ LEVEL II : THE AVENUE OF TONGUES ✦', 210, 560);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.31rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
-        ctx.fillText('OPEN HIGH-SPEED PHONETIC CORRIDORS', 210, 570);
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.55)';
+        ctx.fillText('THE PROCESSIONAL WAY • LINGUAL RESONATORS', 210, 570);
         ctx.restore();
 
-        // ---------------------------------------------------------------------
-        // SUBAREA 5: LABIAL CHAMBER & FLIPPER FAN (y: 580..820)
-        // ---------------------------------------------------------------------
+        // =====================================================================
+        // LEVEL I : THE FOUNDATION KILNS OF SHINAR (y: 650..820)
+        // Myth: The earth, baked brick and bitumen, roaring furnace kilns, bilabial valves
+        // =====================================================================
         ctx.save();
-        // A. Classic Lower Apron Framing Plate (Below flippers: y: 755..820)
+        // A. Terracotta & Bitumen Foundation Apron Backplate (y: 755..820)
         const apronGrad = ctx.createLinearGradient(0, 755, 0, 820);
-        apronGrad.addColorStop(0, 'rgba(10, 14, 28, 0.2)');
-        apronGrad.addColorStop(1, 'rgba(4, 5, 11, 0.90)');
+        apronGrad.addColorStop(0, 'rgba(28, 16, 8, 0.35)');
+        apronGrad.addColorStop(0.5, 'rgba(18, 10, 5, 0.85)');
+        apronGrad.addColorStop(1, 'rgba(8, 4, 2, 0.96)');
         ctx.fillStyle = apronGrad;
         ctx.fillRect(20, 765, this.width - 40, 55);
 
-        // Art Deco Sunburst Rays radiating outward from drain (x: 210, y: 795)
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.12)';
+        // Stepped Ziggurat Brick Buttress Outlines along the Apron
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(20, 765);
+        ctx.lineTo(80, 765);
+        ctx.lineTo(80, 775);
+        ctx.lineTo(135, 775);
+        ctx.moveTo(this.width - 20, 765);
+        ctx.lineTo(this.width - 80, 765);
+        ctx.lineTo(this.width - 80, 775);
+        ctx.lineTo(this.width - 135, 775);
+        ctx.stroke();
+
+        // Art Deco Sunburst Rays radiating outward from drain (x: 210, y: 795) like furnace embers
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.16)';
         ctx.lineWidth = 1;
         for (let angle = Math.PI * 0.15; angle <= Math.PI * 0.85; angle += 0.12) {
           ctx.beginPath();
@@ -5569,17 +5721,17 @@
           ctx.stroke();
         }
 
-        // Subarea 5 Title Badge
+        // Level I Foundation Title Badge
         ctx.font = '900 0.44rem "Cinzel", serif';
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#ffd700';
         ctx.shadowBlur = 6;
-        ctx.fillText('✦ SUBAREA V : LABIAL CHAMBER ✦', 210, 798);
+        ctx.fillText('✦ LEVEL I : THE FOUNDATION KILNS OF SHINAR ✦', 210, 798);
         ctx.shadowBlur = 0;
         ctx.font = '700 0.30rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
-        ctx.fillText('BILABIAL SOLENOIDS • GLOTTAL RECOVERY', 210, 807);
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.65)';
+        ctx.fillText('BAKED BRICK & BITUMEN • BILABIAL VALVE SOLENOIDS', 210, 807);
         ctx.restore();
       }
 
@@ -5883,26 +6035,43 @@
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 3.0;
         ctx.beginPath();
-        ctx.moveTo(58, 370);
-        ctx.lineTo(58, 160);
-        ctx.quadraticCurveTo(58, 115, 85, 90);
+        ctx.moveTo(54, 430);
+        ctx.lineTo(54, 160);
+        ctx.quadraticCurveTo(54, 115, 85, 90);
         ctx.stroke();
 
         // Left Orbit Entrance Anchor Stud
         ctx.beginPath();
-        ctx.arc(58, 370, 4.0, 0, Math.PI * 2);
+        ctx.arc(54, 430, 4.0, 0, Math.PI * 2);
         ctx.fillStyle = '#ffd700';
         ctx.fill();
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1;
         ctx.stroke();
 
+        // Pharyngeal Ramp Parallel Entrance Guide Rails (x: 64 and x: 92)
+        ctx.beginPath();
+        ctx.moveTo(64, 435);
+        ctx.lineTo(64, 380);
+        ctx.moveTo(92, 435);
+        ctx.lineTo(92, 380);
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        [[64, 435], [92, 435]].forEach(([rx, ry]) => {
+          ctx.beginPath();
+          ctx.arc(rx, ry, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd700';
+          ctx.fill();
+        });
+
         // Orbit Route Label
         ctx.save();
-        ctx.translate(50, 260);
+        ctx.translate(46, 260);
         ctx.rotate(-Math.PI / 2);
         ctx.font = '700 0.38rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.55)';
         ctx.textAlign = 'center';
         ctx.fillText('◀ VOCAL ORBIT LOOP ◀', 0, 0);
         ctx.restore();
@@ -7589,35 +7758,48 @@
         ctx.lineWidth = 0.8;
         ctx.stroke();
 
-        // 4. Stepped Art Deco Entrance Portal Arch at (80, 350)
+        // 4. Stepped Art Deco Overhead Entrance Arch at (78, 410)
         const ent = this.pharynxRamp.entrance;
         const glow = this.pharynxRamp.glowAnim || 0;
 
         ctx.save();
         ctx.translate(ent.x, ent.y);
 
-        // Entrance Portal Bezel
+        // Overhead Arched Brass Pylon Truss (spans OVER the ramp bed without blocking ground clearance)
         ctx.strokeStyle = glow > 0 ? '#55efc4' : '#dfb15b';
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2.0;
         ctx.shadowColor = glow > 0 ? '#00cec9' : '#ffd700';
-        ctx.shadowBlur = glow > 0 ? 20 : 6;
-        ctx.strokeRect(-16, -10, 32, 20);
+        ctx.shadowBlur = glow > 0 ? 16 : 4;
+
+        // Upright Pylon Stanchions & Overhead Arch
+        ctx.beginPath();
+        ctx.moveTo(-14, 8);
+        ctx.lineTo(-14, -6);
+        ctx.quadraticCurveTo(0, -14, 14, -6);
+        ctx.lineTo(14, 8);
+        ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Stepped Chevron Decals
-        ctx.fillStyle = glow > 0 ? 'rgba(85, 239, 196, 0.25)' : 'rgba(223, 177, 91, 0.12)';
-        ctx.fillRect(-14, -8, 28, 16);
+        // Illuminated Overhead Arch Banner
+        ctx.fillStyle = glow > 0 ? 'rgba(85, 239, 196, 0.35)' : 'rgba(223, 177, 91, 0.18)';
+        ctx.beginPath();
+        ctx.moveTo(-13, -4);
+        ctx.lineTo(13, -4);
+        ctx.lineTo(11, -12);
+        ctx.lineTo(-11, -12);
+        ctx.closePath();
+        ctx.fill();
 
         // Portal Sign
-        ctx.font = '800 0.44rem "Cinzel", serif';
+        ctx.font = '800 0.40rem "Cinzel", serif';
         ctx.fillStyle = glow > 0 ? '#ffffff' : '#ffd700';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('▲ RAMP ▲', 0, -1);
+        ctx.fillText('▲ SKY-RAMP ▲', 0, -8);
 
-        ctx.font = '700 0.35rem "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
-        ctx.fillText('PHARYNX', 0, 15);
+        ctx.font = '700 0.30rem "Space Mono", monospace';
+        ctx.fillStyle = glow > 0 ? '#a7f3d0' : 'rgba(254, 240, 138, 0.75)';
+        ctx.fillText('HABITRAIL', 0, 4);
         ctx.restore();
 
         // 5. Exit Chute Mouth at (350, 545)
