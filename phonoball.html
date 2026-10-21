@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-  <title>BABEL DECO - Anatomical Speech Synthesizer | Evan Swope</title>
-  <meta name="description" content="BABEL DECO: The 1928 Mechanical Speech Synthesizer. An acoustic physics pinball table synthesizing real-time human vowels, diphthongs, and consonants through anatomical kinematics.">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>BABEL DECO - Anatomical Speech Synthesizer (Space Cadet Edition) | Evan Swope</title>
+  <meta name="description" content="BABEL DECO: The 1928 Mechanical Speech Synthesizer. An acoustic physics pinball table featuring 5 Space Cadet anatomical subareas synthesizing real-time human speech.">
   <meta name="robots" content="noindex, nofollow">
   
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
@@ -644,9 +647,9 @@
 
   <!-- Game Header -->
   <header class="game-header">
-    <div class="game-badge"><i class="fa-solid fa-gears"></i> ACOUSTIC APPARATUS • MODEL 1928</div>
+    <div class="game-badge"><i class="fa-solid fa-gears"></i> ACOUSTIC APPARATUS • 5 SUBAREAS • SPACE CADET EDITION</div>
     <h1 class="game-title">BABEL DECO</h1>
-    <p class="game-subtitle">The Mechanical Speaking Machine • Acoustic Formant Pinball</p>
+    <p class="game-subtitle">The Mechanical Speaking Machine • 5 Anatomical Subareas & Continuous Velar Flow</p>
   </header>
 
   <!-- Main Arcade Cabinet -->
@@ -2521,7 +2524,7 @@
           this.synth.resume();
           overlay.classList.add('hidden');
           this.resetBall();
-          this.showCelebrationBanner('VESSEL READY', 0, false, 'PULL & RELEASE PLUNGER FOR SKILL SHOT!');
+          this.showCelebrationBanner('5 SUBAREAS ACTIVE', 2500, false, 'SPACE CADET ARCHITECTURE • PULL & RELEASE PLUNGER');
         });
 
         // Touch / Click arcade buttons
@@ -2675,6 +2678,7 @@
         this.ball.inPlay = false;
         this.ball.inPlungerLane = true;
         this.ball.onRamp = false;
+        this.ball.inVault = false;
         this.ball.rampProgress = 0;
         this.balls = [ this.ball ];
         this.isMultiballActive = false;
@@ -2911,22 +2915,24 @@
         const ball2 = {
           x: 88, y: 228,
           vx: 5.2, vy: -8.8,
-          radius: 9.5,
+          radius: 7.8,
           mass: 1.0,
           inPlay: true,
           inPlungerLane: false,
           onRamp: false,
+          inVault: false,
           rampProgress: 0,
           id: 2
         };
         const ball3 = {
           x: 210, y: 52,
           vx: (Math.random() - 0.5) * 2.0, vy: 11.0,
-          radius: 9.5,
+          radius: 7.8,
           mass: 1.0,
           inPlay: true,
           inPlungerLane: false,
           onRamp: false,
+          inVault: false,
           rampProgress: 0,
           id: 3
         };
@@ -2946,7 +2952,11 @@
         // Ensure primary ball is active
         this.ball.inPlay = true;
         this.ball.inVault = false;
-        this.balls.push(ball2, ball3);
+        this.balls = [ this.ball, ball2, ball3 ];
+        this.balls.forEach(b => {
+          b.inPlay = true;
+          b.inVault = false;
+        });
 
         // Golden celestial stardust burst
         for (let i = 0; i < 40; i++) {
@@ -3562,6 +3572,8 @@
                 vb.y = vault.y - 12;
                 vb.vx = 5.2;
                 vb.vy = -8.5;
+                vb.inVault = false;
+                vb.inPlay = true;
                 // Reseal Dental Arch if all down
                 if (this.dropTargets) {
                   this.dropTargets.forEach(t => {
@@ -3577,6 +3589,8 @@
                 vb.y = vault.y + 18;
                 vb.vx = (Math.random() - 0.5) * 1.5;
                 vb.vy = 10.5;
+                vb.inVault = false;
+                vb.inPlay = true;
               }
 
               for (let p = 0; p < 8; p++) {
@@ -4953,29 +4967,14 @@
             return;
           }
 
-          // Single lock achieved: Stage sphere in vault and load next ball into plunger!
-          this.showCelebrationBanner(`VAULT [${vault.id}] LOCKED!`, 1500, true, 'SPHERE SECURED • LAUNCH NEXT SPHERE!');
-
-          // Ball stays locked in the vault
-          b.inPlay = false;
-          b.inVault = true;
-          b.x = vault.x;
-          b.y = vault.y;
-          b.vx = 0;
-          b.vy = 0;
-
-          // Prepare and load next ball in plunger cradle
-          setTimeout(() => {
-            this.resetBall();
-            this.floaters.push({
-              text: 'STAGE SPHERE • SKILL SHOT READY',
-              x: 430,
-              y: 520,
-              vy: -0.8,
-              alpha: 1.0,
-              isImpressive: true
-            });
-          }, 600);
+          // Single lock achieved: Show celebration, hold ball for 750ms with audio buildup, then kick out into active play!
+          this.showCelebrationBanner(`VAULT [${vault.id}] LOCKED!`, 1800, true, `LOCK ${vault.id === 'K' ? '1' : '2'} ENGAGED • EJECTING!`);
+          this.velarVaults.hold = {
+            active: true,
+            ball: b,
+            vault: vault,
+            timer: 750
+          };
 
         } else {
           // Vault already locked on previous ball: Standard momentary hold and directional eject
@@ -5135,7 +5134,7 @@
         }
 
         this.resetBall();
-        this.showCelebrationBanner('VESSEL READY', 0, false, 'PULL & RELEASE PLUNGER FOR SKILL SHOT!');
+        this.showCelebrationBanner('5 SUBAREAS ACTIVE', 0, false, 'SPACE CADET ARCHITECTURE • PULL & RELEASE PLUNGER');
       }
 
       // -----------------------------------------------------------------------
@@ -5149,6 +5148,9 @@
 
         // 1. Celestial Vowel Nebula Backing & Starfield
         this.renderVowelPlayfield(ctx);
+
+        // 1.5 The 5 Space Cadet Architectural Subareas (Zoning Plates, Boundaries, & Signage)
+        this.renderSubareaArchitecture(ctx);
 
         // 2. Pharyngeal Wireform Ramp Drop Shadow (Cast below obstacles)
         this.renderWireformRampShadow(ctx);
@@ -5337,6 +5339,227 @@
             ctx.fill();
           }
         });
+      }
+
+      // =======================================================================
+      // THE 5 SPACE CADET ANATOMICAL SUBAREAS (ZONING, ARCHITECTURE & SIGNAGE)
+      // =======================================================================
+      renderSubareaArchitecture(ctx) {
+        const time = performance.now();
+
+        // ---------------------------------------------------------------------
+        // SUBAREA 1: APEX & UPPER VOCAL GROTTO (y: 18..220)
+        // ---------------------------------------------------------------------
+        ctx.save();
+        // A. Subtle Astral Radial Dome Wash
+        const grottoGrad = ctx.createRadialGradient(210, 80, 10, 210, 80, 160);
+        grottoGrad.addColorStop(0, 'rgba(79, 172, 254, 0.08)');
+        grottoGrad.addColorStop(0.7, 'rgba(223, 177, 91, 0.03)');
+        grottoGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = grottoGrad;
+        ctx.fillRect(20, 18, this.width - 40, 202);
+
+        // B. Lower Grotto Boundary Transverse Rail (y = 220)
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.28)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(24, 220);
+        ctx.lineTo(416, 220);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Deco Corner Bracket Motifs at (24, 220) and (416, 220)
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(24, 210); ctx.lineTo(24, 220); ctx.lineTo(34, 220);
+        ctx.moveTo(416, 210); ctx.lineTo(416, 220); ctx.lineTo(406, 220);
+        ctx.stroke();
+
+        // Subarea 1 Banner Plaque
+        ctx.font = '900 0.44rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.65)';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 6;
+        ctx.fillText('✦ SUBAREA I : VOCAL GROTTO & ASTROLABE ✦', 210, 78);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 0.32rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.45)';
+        ctx.fillText('CARDINAL RESONANCE APEX • BUMPER SANCTUARY', 210, 87);
+        ctx.restore();
+
+        // ---------------------------------------------------------------------
+        // SUBAREA 4: PALATAL VALVE DECK (x: 228..416, y: 220..380)
+        // ---------------------------------------------------------------------
+        ctx.save();
+        // A. Distinct Emerald Brushed Mezzanine Plate
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.04)';
+        ctx.fillRect(228, 220, 188, 160);
+
+        // Deck Perimeter Hairline & Corner Studs
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.22)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(228, 220, 188, 160);
+
+        // Brass Corner Rivets
+        [[234, 226], [410, 226], [234, 374], [410, 374]].forEach(([rx, ry]) => {
+          ctx.beginPath();
+          ctx.arc(rx, ry, 2.0, 0, Math.PI * 2);
+          ctx.fillStyle = '#dfb15b';
+          ctx.fill();
+        });
+
+        // Subarea 4 Deck Badge
+        ctx.font = '900 0.42rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.75)';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 6;
+        ctx.fillText('✦ SUBAREA IV : PALATAL VALVE DECK ✦', 320, 236);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 0.30rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.5)';
+        ctx.fillText('MINI-FLIPPER CROSS-SHOT TO VELAR VAULT [K]', 320, 245);
+
+        // Cross-table targeting trajectory line (Upper Mini-Flipper -> Vault K)
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.22)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        ctx.moveTo(350, 310);
+        ctx.lineTo(84, 256);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // ---------------------------------------------------------------------
+        // SUBAREA 2: LATERAL NASAL SANCTUARIES (y: 390..520)
+        // ---------------------------------------------------------------------
+        ctx.save();
+        // A. Left Wing Plate (Sinus Sinister [M] at x: 22..100)
+        ctx.fillStyle = 'rgba(217, 119, 6, 0.05)';
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(22, 400, 76, 110, 8);
+        } else {
+          ctx.rect(22, 400, 76, 110);
+        }
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.font = '700 0.34rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.7)';
+        ctx.textAlign = 'center';
+        ctx.fillText('SUBAREA II : NASAL [M]', 60, 412);
+
+        // B. Right Wing Plate (Sinus Dexter [N] at x: 332..412)
+        ctx.fillStyle = 'rgba(217, 119, 6, 0.05)';
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(332, 400, 80, 110, 8);
+        } else {
+          ctx.rect(332, 400, 80, 110);
+        }
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillText('SUBAREA II : NASAL [N]', 372, 412);
+
+        // C. Arching Velopharyngeal Conduit Bridge Graphic over Midfield
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.28)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(54, 435);
+        ctx.quadraticCurveTo(210, 345, 374, 435);
+        ctx.stroke();
+
+        // Bridge Spine Medallion at Center
+        ctx.fillStyle = '#060810';
+        ctx.beginPath();
+        ctx.arc(210, 365, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.font = '900 0.36rem "Cinzel", serif';
+        ctx.fillStyle = '#ffd700';
+        ctx.textAlign = 'center';
+        ctx.fillText('VELOPHARYNGEAL', 210, 363);
+        ctx.font = '700 0.28rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.7)';
+        ctx.fillText('BRIDGE', 210, 370);
+        ctx.restore();
+
+        // ---------------------------------------------------------------------
+        // SUBAREA 3: LINGUAL HIGHWAY & CENTRAL FAIRWAYS (x: 90..335, y: 380..580)
+        // ---------------------------------------------------------------------
+        ctx.save();
+        // Highway Fairway Directional Speed Chevrons (Left and Right of Tongue)
+        const chevronPulse = (Math.sin(time * 0.005) + 1) / 2;
+        ctx.font = '900 0.48rem "Cinzel", serif';
+        ctx.fillStyle = `rgba(255, 215, 0, ${0.15 + chevronPulse * 0.2})`;
+        ctx.textAlign = 'center';
+        // Left fairway chevrons
+        ctx.fillText('▲', 150, 480);
+        ctx.fillText('▲', 150, 510);
+        ctx.fillText('▲', 150, 540);
+        // Right fairway chevrons
+        ctx.fillText('▲', 270, 480);
+        ctx.fillText('▲', 270, 510);
+        ctx.fillText('▲', 270, 540);
+
+        // Highway Title Decal (beneath tongue target)
+        ctx.font = '900 0.44rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.65)';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 6;
+        ctx.fillText('✦ SUBAREA III : LINGUAL HIGHWAY ✦', 210, 560);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 0.31rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
+        ctx.fillText('OPEN HIGH-SPEED PHONETIC CORRIDORS', 210, 570);
+        ctx.restore();
+
+        // ---------------------------------------------------------------------
+        // SUBAREA 5: LABIAL CHAMBER & FLIPPER FAN (y: 580..820)
+        // ---------------------------------------------------------------------
+        ctx.save();
+        // A. Classic Lower Apron Framing Plate
+        const apronGrad = ctx.createLinearGradient(0, 715, 0, 820);
+        apronGrad.addColorStop(0, 'rgba(10, 14, 28, 0.2)');
+        apronGrad.addColorStop(1, 'rgba(4, 5, 11, 0.85)');
+        ctx.fillStyle = apronGrad;
+        ctx.fillRect(20, 735, this.width - 40, 85);
+
+        // Art Deco Sunburst Rays radiating outward from drain (x: 210, y: 775)
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.12)';
+        ctx.lineWidth = 1;
+        for (let angle = Math.PI * 0.15; angle <= Math.PI * 0.85; angle += 0.12) {
+          ctx.beginPath();
+          ctx.moveTo(210 + Math.cos(angle) * 35, 775 - Math.sin(angle) * 35);
+          ctx.lineTo(210 + Math.cos(angle) * 110, 775 - Math.sin(angle) * 110);
+          ctx.stroke();
+        }
+
+        // Subarea 5 Title Badge
+        ctx.font = '900 0.46rem "Cinzel", serif';
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 6;
+        ctx.fillText('✦ SUBAREA V : LABIAL CHAMBER ✦', 210, 792);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 0.31rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(223, 177, 91, 0.5)';
+        ctx.fillText('BILABIAL SOLENOIDS • GLOTTAL RECOVERY', 210, 802);
+        ctx.restore();
       }
 
       // Pharyngeal Wireform Ramp Drop Shadow (Cast underneath all obstacles)
@@ -6465,31 +6688,17 @@
         ctx.fillStyle = 'rgba(52, 211, 153, 0.75)';
         ctx.fillText('VELAR', 0, 7);
 
-        // F. Staged Locked Sphere (if sphere is locked in Vault K)
+        // F. Lock Status Indicator (when Lock 1 is active on backboard)
         if (vK.isLocked) {
-          const ballGrad = ctx.createRadialGradient(-2.5, -2.5, 1, 0, 0, 7.5);
-          ballGrad.addColorStop(0, '#ffffff');
-          ballGrad.addColorStop(0.3, '#e2e8f0');
-          ballGrad.addColorStop(0.7, '#64748b');
-          ballGrad.addColorStop(1, '#0f172a');
-
-          ctx.beginPath();
-          ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
-          ctx.fillStyle = ballGrad;
-          ctx.fill();
-          ctx.strokeStyle = '#34d399';
-          ctx.lineWidth = 1.4;
-          ctx.shadowColor = '#10b981';
-          ctx.shadowBlur = 14;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-
-          // Stasis containment ring
+          // Stasis containment beacon ring
           ctx.beginPath();
           ctx.arc(0, 0, 11 + Math.sin(time * 0.008) * 1.5, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(52, 211, 153, 0.7)';
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.85)';
+          ctx.lineWidth = 1.6;
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 12;
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
 
         ctx.restore();
@@ -6593,31 +6802,17 @@
         ctx.fillStyle = 'rgba(255, 215, 0, 0.75)';
         ctx.fillText('VELAR', 0, 7);
 
-        // F. Staged Locked Sphere (if sphere is locked in Vault G)
+        // F. Lock Status Indicator (when Lock 2 is active on backboard)
         if (vG.isLocked) {
-          const ballGrad = ctx.createRadialGradient(-2.5, -2.5, 1, 0, 0, 7.5);
-          ballGrad.addColorStop(0, '#ffffff');
-          ballGrad.addColorStop(0.3, '#fef08a');
-          ballGrad.addColorStop(0.7, '#d97706');
-          ballGrad.addColorStop(1, '#451a03');
-
-          ctx.beginPath();
-          ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
-          ctx.fillStyle = ballGrad;
-          ctx.fill();
-          ctx.strokeStyle = '#ffd700';
-          ctx.lineWidth = 1.4;
-          ctx.shadowColor = '#ffd700';
-          ctx.shadowBlur = 14;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-
-          // Golden stasis containment field
+          // Radiant golden lock beacon ring
           ctx.beginPath();
           ctx.arc(0, 0, 11 + Math.cos(time * 0.008) * 1.5, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(255, 215, 0, 0.7)';
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.85)';
+          ctx.lineWidth = 1.6;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 12;
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
 
         ctx.restore();
@@ -7382,6 +7577,7 @@
 
     // Auto-instantiate game when DOM is loaded
     window.addEventListener('DOMContentLoaded', () => {
+      console.log('%c BABEL DECO: 5 SPACE CADET SUBAREAS ONLINE %c Continuous Velar Flow & Multiball Staging Loaded', 'background: #ffd700; color: #000; font-weight: bold; padding: 4px 8px; border-radius: 4px;', 'color: #38ef7d; font-weight: bold;');
       window.phonoBallInstance = new PinballGame();
     });
   })();
