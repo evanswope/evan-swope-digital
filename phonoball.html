@@ -380,7 +380,8 @@
       display: block;
       width: 100%;
       height: auto;
-      aspect-ratio: 460 / 680;
+      aspect-ratio: 460 / 820;
+      max-height: 86vh;
       cursor: crosshair;
     }
 
@@ -731,7 +732,7 @@
 
     <!-- Canvas Viewport -->
     <div class="canvas-container" id="canvas-container">
-      <canvas id="pinball-canvas" width="460" height="680"></canvas>
+      <canvas id="pinball-canvas" width="460" height="820"></canvas>
 
       <!-- Audio Start / Coin Door Overlay -->
       <div class="audio-overlay" id="audio-overlay">
@@ -2133,9 +2134,9 @@
         this.ctx = this.canvas.getContext('2d');
         this.synth = new FormantSynth();
 
-        // Virtual Playfield Dimension (460 x 680)
+        // Virtual Playfield Dimension (460 x 820 - Classic Pinball 1:1.78 Proportions)
         this.width = 460;
-        this.height = 680;
+        this.height = 820;
 
         // Game State
         this.score = 0;
@@ -2181,13 +2182,13 @@
         this.lastVowelToken = null;
         this.lastConsonantTime = 0;
 
-        // Ball Physics & Multi-Sphere Pool
+        // Ball Physics & Multi-Sphere Pool (Sleek 7.8px Chrome Sphere)
         this.ball = {
           x: 430,
-          y: 560,
+          y: 700,
           vx: 0,
           vy: 0,
-          radius: 9.5,
+          radius: 7.8,
           mass: 1.0,
           inPlay: false,
           inPlungerLane: true,
@@ -2210,18 +2211,18 @@
         this.skillShotTimer = 0;
         this.autoPlungeTimeout = null;
 
-        // The Upper Vocal Grotto (3 Cardinal Vowel Rollover Arch Lanes)
+        // Subarea 1: The Upper Vocal Grotto (3 Cardinal Vowel Rollover Arch Lanes)
         this.vocalLanes = [
-          { id: 'i', vowel: 'i', label: '/i/', name: 'PALATAL ARCH', x: 330, y: 92, r: 13, isLit: false, wireAnim: 0, cooldown: 0 },
-          { id: 'a', vowel: 'ɑ', label: '/ɑ/', name: 'PHARYNGEAL VAULT', x: 360, y: 100, r: 13, isLit: false, wireAnim: 0, isSuper: true, cooldown: 0 },
-          { id: 'u', vowel: 'u', label: '/u/', name: 'VELAR DOME', x: 390, y: 110, r: 13, isLit: false, wireAnim: 0, cooldown: 0 }
+          { id: 'i', vowel: 'i', label: '/i/', name: 'PALATAL ARCH', x: 330, y: 95, r: 13, isLit: false, wireAnim: 0, cooldown: 0 },
+          { id: 'a', vowel: 'ɑ', label: '/ɑ/', name: 'PHARYNGEAL VAULT', x: 360, y: 105, r: 13, isLit: false, wireAnim: 0, isSuper: true, cooldown: 0 },
+          { id: 'u', vowel: 'u', label: '/u/', name: 'VELAR DOME', x: 390, y: 115, r: 13, isLit: false, wireAnim: 0, cooldown: 0 }
         ];
 
-        // Flippers
-        // Main Left Flipper (Recentered with authentic 50px center drain gap)
+        // Subarea 5: Flippers & Labial Chamber (y = 580..820)
+        // Main Left Flipper
         this.leftFlipper = {
           pivotX: 130,
-          pivotY: 605,
+          pivotY: 725,
           length: 62,
           baseAngle: 0.50,   // Rest angle (pointing down-inward)
           upAngle: -0.52,    // Flipped up angle
@@ -2234,7 +2235,7 @@
         // Main Right Flipper
         this.rightFlipper = {
           pivotX: 290,
-          pivotY: 605,
+          pivotY: 725,
           length: 62,
           baseAngle: Math.PI - 0.50,
           upAngle: Math.PI + 0.52,
@@ -2244,10 +2245,10 @@
           angularSpeed: 0.40
         };
 
-        // Upper Right Mini-Flipper ("The Palatal Valve" - Cross-table Skill Shot)
+        // Subarea 4: Upper Right Mini-Flipper ("The Palatal Valve" - Cross-table Skill Shot)
         this.upperFlipper = {
-          pivotX: 362,
-          pivotY: 265,
+          pivotX: 360,
+          pivotY: 310,
           length: 46,
           baseAngle: Math.PI - 0.70, // Rest angle pointing down-left
           upAngle: Math.PI + 0.40,   // Active flipped angle
@@ -2257,10 +2258,10 @@
           angularSpeed: 0.42
         };
 
-        // Glottal Kickback Solenoid (Inside the Open Left Outlane Corridor at 42, 595)
+        // Glottal Kickback Solenoid (Inside the Open Left Outlane Corridor at 42, 720)
         this.glottalKickback = {
           x: 42,
-          y: 595,
+          y: 720,
           r: 16,
           isLit: true,
           cooldown: 0,
@@ -2269,39 +2270,38 @@
 
         // Inlane Rollover Wire Switches (Awards +150 & Relights Glottal Kickback)
         this.inlaneRollovers = [
-          { id: 'left',  x: 86,  y: 520, r: 14, lastHit: -9999, anim: 0 },
-          { id: 'right', x: 354, y: 520, r: 14, lastHit: -9999, anim: 0 }
+          { id: 'left',  x: 86,  y: 645, r: 14, lastHit: -9999, anim: 0 },
+          { id: 'right', x: 354, y: 645, r: 14, lastHit: -9999, anim: 0 }
         ];
 
-        // The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
+        // Subarea 3: The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
         this.pharynxRamp = {
-          entrance: { x: 80, y: 350, r: 18 },
-          exit: { x: 368, y: 535 },
+          entrance: { x: 78, y: 410, r: 18 },
+          exit: { x: 368, y: 660 },
           points: [
-            { x: 80, y: 350 },   // 0: Entrance Funnel
-            { x: 55, y: 250 },   // 1: Left Wall Ascent
-            { x: 58, y: 130 },   // 2: Upper Left Crest
-            { x: 130, y: 65 },   // 3: Top Ziggurat Overpass
-            { x: 230, y: 55 },   // 4: Spire Cross
-            { x: 350, y: 90 },   // 5: Upper Right Terrace
-            { x: 382, y: 200 },  // 6: Right Habitrail Drop
-            { x: 375, y: 350 },  // 7: Mid Drop Track
-            { x: 360, y: 470 },  // 8: Lower Habitrail
-            { x: 368, y: 535 }   // 9: Exit onto Right Inlane Center
+            { x: 78, y: 410 },   // 0: Entrance Funnel
+            { x: 52, y: 310 },   // 1: Left Wall Ascent
+            { x: 54, y: 160 },   // 2: Upper Left Crest
+            { x: 125, y: 70 },   // 3: Top Ziggurat Overpass
+            { x: 230, y: 58 },   // 4: Spire Cross
+            { x: 350, y: 95 },   // 5: Upper Right Terrace
+            { x: 385, y: 220 },  // 6: Right Habitrail Drop
+            { x: 382, y: 400 },  // 7: Mid Drop Track
+            { x: 368, y: 580 },  // 8: Lower Habitrail
+            { x: 368, y: 660 }   // 9: Exit onto Right Inlane Center
           ],
           glowAnim: 0
         };
 
-        // Playfield Pop Bumpers ([B], [T], [K], [G] - Astrolabe Planetary Dials)
+        // Subarea 1: Playfield Pop Bumpers ([B], [T], [K], [G] - Tucked Upper Astrolabe Sanctuary)
         this.bumpers = [
-          // Upper Celestial Triangle
-          { id: 'B',  x: 150, y: 190, r: 26, color: '#4facfe', label: 'B',  phoneme: 'B', hitAnim: 0, ringRotation: 0 },
-          { id: 'T',  x: 270, y: 190, r: 26, color: '#f093fb', label: 'T',  phoneme: 'T', hitAnim: 0, ringRotation: 0 },
+          { id: 'B',  x: 150, y: 205, r: 26, color: '#4facfe', label: 'B',  phoneme: 'B', hitAnim: 0, ringRotation: 0 },
+          { id: 'T',  x: 270, y: 205, r: 26, color: '#f093fb', label: 'T',  phoneme: 'T', hitAnim: 0, ringRotation: 0 },
           { id: 'K',  x: 210, y: 280, r: 26, color: '#38ef7d', label: 'K',  phoneme: 'K', hitAnim: 0, ringRotation: 0 },
-          { id: 'G',  x: 210, y: 110, r: 22, color: '#ffd700', label: 'G',  phoneme: 'G', hitAnim: 0, ringRotation: 0 }
+          { id: 'G',  x: 210, y: 130, r: 22, color: '#ffd700', label: 'G',  phoneme: 'G', hitAnim: 0, ringRotation: 0 }
         ];
 
-        // The Twin Minarets: Nasal Sanctuaries ([M] Lunar Sanctuary & [N] Solar Sanctuary)
+        // Subarea 2: The Twin Minarets: Lateral Nasal Sanctuaries ([M] Left Wing & [N] Right Wing)
         this.scoops = [
           {
             id: 'M',
@@ -2310,8 +2310,8 @@
             name: 'LUNAR MINARET',
             title: 'LUNAR SANCTUARY',
             organ: 'BILABIAL CAVITY',
-            x: 125,
-            y: 368,
+            x: 54,
+            y: 450,
             r: 18,
             color: '#70a1ff',
             accentColor: '#dfe4ea',
@@ -2328,8 +2328,8 @@
             name: 'SOLAR MINARET',
             title: 'SOLAR SANCTUARY',
             organ: 'ALVEOLAR CAVITY',
-            x: 295,
-            y: 368,
+            x: 374,
+            y: 450,
             r: 18,
             color: '#ffd700',
             accentColor: '#ff9f43',
@@ -2346,10 +2346,10 @@
           bridgeWave: 0
         };
 
-        // Center-field Tongue Ridge ("Lingua Deflector Post")
+        // Subarea 3: Center-field Tongue Ridge ("Lingua Deflector Post" - Wide Flank Corridors)
         this.lingualDeflector = {
           x: 210,
-          y: 395,
+          y: 500,
           r: 17,
           hitAnim: 0,
           label: 'LINGUA'
@@ -2376,29 +2376,29 @@
         this.slingshots = [
           {
             id: 'P', label: 'P', phoneme: 'P', family: 'LABIAL', color: '#ffd700',
-            p1: { x: 135, y: 475 }, p2: { x: 185, y: 575 }, p3: { x: 105, y: 535 },
+            p1: { x: 135, y: 595 }, p2: { x: 185, y: 695 }, p3: { x: 105, y: 655 },
             anim: 0
           },
           {
             id: 'D', label: 'D', phoneme: 'D', family: 'DENTAL', color: '#dfb15b',
-            p1: { x: 325, y: 475 }, p2: { x: 275, y: 575 }, p3: { x: 355, y: 535 },
+            p1: { x: 325, y: 595 }, p2: { x: 275, y: 695 }, p3: { x: 355, y: 655 },
             anim: 0
           }
         ];
 
-        // Dental Arch Drop Target Bank (4-Bank: [D]-[E]-[N]-[T] Alveolar & Dental Ridge)
+        // Subarea 4: Dental Arch Drop Target Bank (4-Bank: [D]-[E]-[N]-[T])
         this.dropTargets = [
-          { id: 'D', label: 'D', phoneme: 'D',  x: 92,  y: 215, isDown: false, anim: 0, hitFlash: 0 },
-          { id: 'E', label: 'E', phoneme: 'EH', x: 98,  y: 232, isDown: false, anim: 0, hitFlash: 0 },
-          { id: 'N', label: 'N', phoneme: 'N',  x: 104, y: 249, isDown: false, anim: 0, hitFlash: 0 },
-          { id: 'T', label: 'T', phoneme: 'T',  x: 110, y: 266, isDown: false, anim: 0, hitFlash: 0 }
+          { id: 'D', label: 'D', phoneme: 'D',  x: 82,  y: 230, isDown: false, anim: 0, hitFlash: 0 },
+          { id: 'E', label: 'E', phoneme: 'EH', x: 88,  y: 247, isDown: false, anim: 0, hitFlash: 0 },
+          { id: 'N', label: 'N', phoneme: 'N',  x: 94,  y: 264, isDown: false, anim: 0, hitFlash: 0 },
+          { id: 'T', label: 'T', phoneme: 'T',  x: 100, y: 281, isDown: false, anim: 0, hitFlash: 0 }
         ];
         this.dropTargetResetTimer = 0;
 
-        // Top Spinner (Fricative S - Astrological Gyroscope)
+        // Subarea 1: Top Spinner (Fricative S - Astrological Gyroscope)
         this.spinner = {
           x: 210,
-          y: 50,
+          y: 62,
           width: 38,
           height: 12,
           angle: 0,
@@ -2407,16 +2407,16 @@
         };
 
         // -----------------------------------------------------------------
-        // THE VELAR VAULTS (Concept 3: Subterranean Catacombs & Staging Locks)
+        // THE VELAR VAULTS (Subterranean Catacombs & Staging Locks)
         // -----------------------------------------------------------------
         this.velarVaults = {
-          // Vault K: The Emerald Catacomb (behind Dental Arch at 82, 238)
+          // Vault K: The Emerald Catacomb (behind Dental Arch at 74, 256)
           vaultK: {
             id: 'K',
             name: 'EMERALD CATACOMB',
             phoneme: 'K',
-            x: 82,
-            y: 238,
+            x: 74,
+            y: 256,
             r: 17,
             color: '#10b981',
             accentColor: '#34d399',
@@ -2616,7 +2616,7 @@
           const cy = (e.clientY - rect.top) * scaleY;
 
           // Dragging plunger / gauge
-          if (cx >= 415 && cy >= 460) {
+          if (cx >= 415 && cy >= 580) {
             this.isPlungerDragging = true;
             this.plungerDragStartY = e.clientY;
             this.plungerEnergy = 0;
@@ -2669,7 +2669,7 @@
 
       resetBall() {
         this.ball.x = 430;
-        this.ball.y = 560;
+        this.ball.y = 700;
         this.ball.vx = 0;
         this.ball.vy = 0;
         this.ball.inPlay = false;
@@ -2708,9 +2708,9 @@
 
       launchBall() {
         this.ball.x = 430;
-        this.ball.y = 560;
+        this.ball.y = 700;
         this.ball.vx = 0;
-        this.ball.vy = -18.0;
+        this.ball.vy = -21.0;
         this.ball.inPlay = true;
         this.ball.inPlungerLane = true;
         this.balls = [ this.ball ];
@@ -2727,7 +2727,7 @@
           this.autoPlungeTimeout = null;
         }
         if (this.ball.inPlungerLane) {
-          const power = 7.5 + (this.plungerEnergy / 100) * 15.5; // Range: 7.5 (weak) to 23.0 (full blast)
+          const power = 8.5 + (this.plungerEnergy / 100) * 16.5; // Range: 8.5 (weak) to 25.0 (full blast)
           this.ball.vx = 0;
           this.ball.vy = -power;
           this.ball.inPlay = true;
@@ -2745,7 +2745,7 @@
 
       onFlipperStroke(isLeft = true) {
         this.cycleSkillShotLane(isLeft ? -1 : 1);
-        if (this.slingshotBanks && this.slingshots && this.ball && this.ball.y > 480) {
+        if (this.slingshotBanks && this.slingshots && this.ball && this.ball.y > 580) {
           if (isLeft) {
             this.slingshotBankIdx.left = (this.slingshotBankIdx.left + 1) % this.slingshotBanks.left.length;
             const entry = this.slingshotBanks.left[this.slingshotBankIdx.left];
@@ -3438,17 +3438,17 @@
 
             // Precision cross-table directional eject
             if (sc.id === 'M') {
-              // Lunar Well [M]: Kicks diagonally up-right toward Palatal Valve (Upper Mini-Flipper)
-              hb.x = sc.x + 4;
+              // Lunar Well [M] at (54, 450): Kicks diagonally up-right across table toward Palatal Valve (Upper Mini-Flipper at 360, 310)
+              hb.x = sc.x + 8;
               hb.y = sc.y - (sc.r + hb.radius + 4);
-              hb.vx = 7.6;
-              hb.vy = -5.2;
+              hb.vx = 8.5;
+              hb.vy = -7.5;
             } else {
-              // Solar Well [N]: Kicks diagonally up-left toward Dental Arch Drop Target Bank
-              hb.x = sc.x - 4;
+              // Solar Well [N] at (374, 450): Kicks diagonally up-left across table toward Dental Arch & Vault K (at 74, 256)
+              hb.x = sc.x - 8;
               hb.y = sc.y - (sc.r + hb.radius + 4);
-              hb.vx = -6.4;
-              hb.vy = -7.2;
+              hb.vx = -7.8;
+              hb.vy = -8.2;
             }
 
             // Directional sparks at eject mouth
@@ -3652,7 +3652,7 @@
         const subSteps = 4;
         const subDt = timeScale / subSteps;
         const subGravity = this.gravity * subDt;
-        const friction = Math.pow(0.992, subDt);
+        const friction = Math.pow(0.9955, subDt);
 
         if (!this.balls || this.balls.length === 0) {
           this.balls = [ this.ball ];
@@ -3668,9 +3668,9 @@
               b.vx *= friction;
               b.vy *= friction;
 
-              // Speed cap to keep the game pleasantly trackable (allows full plunge power up to 24.0)
+              // Speed cap to keep the game pleasantly trackable (allows full plunge power up to 26.0)
               const currentSpeed = Math.hypot(b.vx, b.vy);
-              const maxAllowedSpeed = b.inPlungerLane ? 24.0 : 15.0;
+              const maxAllowedSpeed = b.inPlungerLane ? 26.0 : 20.5;
               if (currentSpeed > maxAllowedSpeed) {
                 b.vx = (b.vx / currentSpeed) * maxAllowedSpeed;
                 b.vy = (b.vy / currentSpeed) * maxAllowedSpeed;
@@ -3720,8 +3720,8 @@
               // The Velar Vaults Collisions & Portcullis Barrier
               this.handleVaultCollisions(b);
 
-              // Immediate Drain Check (Below flippers: y > 645)
-              if (b.y > 645 && !b.inPlungerLane) {
+              // Immediate Drain Check (Below flippers: y > 765)
+              if (b.y > 765 && !b.inPlungerLane) {
                 if (this.balls.length > 1) {
                   // Multiball sphere drain: remove this ball from play
                   this.balls.splice(bIdx, 1);
@@ -3889,8 +3889,8 @@
             b.x = 418 + r;
             b.vx = Math.abs(b.vx) * 0.5;
           }
-          if (b.y + r > 572) {
-            b.y = 572 - r;
+          if (b.y + r > 712) {
+            b.y = 712 - r;
             b.vy = -b.vy * 0.25;
             if (b.inPlay && Math.abs(b.vy) < 0.3) {
               // Ball returned to cradle after weak launch!
@@ -3899,7 +3899,7 @@
               this.floaters.push({
                 text: 'WEAK PLUNGE • RETRY',
                 x: 430,
-                y: 520,
+                y: 660,
                 vy: -0.7,
                 alpha: 1.0
               });
@@ -3963,30 +3963,30 @@
         this.collideLineSegment(405, 90, 405, 138, 0.8, b);
 
         // Vocal Grotto Exit Guide Wire (channeling balls smoothly to Upper Mini-Flipper / Bumpers)
-        this.collideLineSegment(405, 138, 385, 185, 0.8, b);
-        this.collideLineSegment(385, 185, 365, 235, 0.8, b);
+        this.collideLineSegment(405, 138, 385, 200, 0.8, b);
+        this.collideLineSegment(385, 200, 365, 280, 0.8, b);
 
-        // 3. INLANE & OUTLANE BALL RETURN CORRIDORS
+        // 3. INLANE & OUTLANE BALL RETURN CORRIDORS (Subarea 5: Labial Chamber)
         // Left Divider Blade: separates outlane (x: 20..66) from inlane (x: 66..105)
-        this.collideLineSegment(66, 465, 66, 555, 0.75, b);
+        this.collideLineSegment(66, 585, 66, 680, 0.75, b);
         // Right Divider Blade: separates inlane (x: 335..374) from outlane (x: 374..418)
-        this.collideLineSegment(374, 465, 374, 555, 0.75, b);
+        this.collideLineSegment(374, 585, 374, 680, 0.75, b);
 
         // Lower Inlane Return Wire Guides feeding balls smoothly onto main flipper heels:
-        this.collideLineSegment(66, 555, 125, 598, 0.78, b);
-        this.collideLineSegment(374, 555, 295, 598, 0.78, b);
+        this.collideLineSegment(66, 680, 125, 718, 0.78, b);
+        this.collideLineSegment(374, 680, 295, 718, 0.78, b);
 
         // Lower Outer Outlane Boundaries (guiding balls down past flippers into drain):
-        this.collideLineSegment(20, 540, 20, 645, 0.75, b);
-        this.collideLineSegment(418, 540, 418, 645, 0.75, b);
+        this.collideLineSegment(20, 660, 20, 770, 0.75, b);
+        this.collideLineSegment(418, 660, 418, 770, 0.75, b);
 
-        // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 80, 350):
-        this.collideLineSegment(20, 370, 65, 350, 0.75, b);
-        this.collideLineSegment(95, 350, 105, 380, 0.75, b);
+        // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 78, 410):
+        this.collideLineSegment(20, 430, 65, 410, 0.75, b);
+        this.collideLineSegment(93, 410, 105, 440, 0.75, b);
 
         // Nasal Sanctuary Flank Deflector Pins (protecting outer minaret flanks)
-        this.collideCircle(105, 380, 3.5, 0.8, b);
-        this.collideCircle(322, 368, 3.5, 0.8, b);
+        this.collideCircle(44, 420, 3.5, 0.8, b);
+        this.collideCircle(384, 420, 3.5, 0.8, b);
 
         // Anti-stuck watchdog: covers entire playfield and plunger lane if stationary above cradle
         const speed = Math.hypot(b.vx, b.vy);
@@ -3995,7 +3995,7 @@
           if (this.stuckTimer > 50) { // ~0.8s motionless
             if (this.scoopHold && this.scoopHold.active) {
               this.scoopHold.timer = 0;
-            } else if (b.inPlungerLane && b.y < 540) {
+            } else if (b.inPlungerLane && b.y < 680) {
               // Motionless in plunger lane above cradle: gravity nudge down to cradle
               b.vy = 3.5;
               b.vx = 0;
@@ -4274,7 +4274,7 @@
             b.x = closestX + nx * (b.radius + 4);
             b.y = closestY + ny * (b.radius + 4);
 
-            const kickSpeed = 12.8;
+            const kickSpeed = 14.8;
             b.vx = nx * kickSpeed;
             b.vy = ny * kickSpeed;
 
@@ -4353,17 +4353,17 @@
           if (flipper.isPressed) {
             const tipRatio = 0.5 + t * 0.85;
             if (isUpper) {
-              const flipPower = 14.0 * tipRatio;
+              const flipPower = 16.5 * tipRatio;
               b.vx = nx * flipPower * 0.85;
-              b.vy = ny * flipPower - 2.8; // Rockets ball across table into left targets
+              b.vy = ny * flipPower - 4.5; // Rockets ball across table into left targets
               this.synth.triggerConsonant('K');
               this.activateArticulator('palate');
               this.score += 50;
               this.updateHUD();
             } else {
-              const flipPower = 14.5 * tipRatio;
+              const flipPower = 17.5 * tipRatio;
               b.vx = nx * flipPower * 0.7;
-              b.vy = ny * flipPower - 3.8; // Guaranteed upward flight!
+              b.vy = ny * flipPower - 5.5; // Guaranteed upward flight through all 5 subareas!
               this.synth.triggerConsonant('B'); // Bouncy flipper hit
               this.activateArticulator('lips');
               this.activateArticulator('larynx');
@@ -4406,8 +4406,8 @@
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
         const gk = this.glottalKickback;
 
-        // In left outlane corridor (x: 20..66, y: 575..630)
-        if (b.x >= 20 && b.x <= 66 && b.y >= 575 && b.y <= 630) {
+        // In left outlane corridor (x: 20..66, y: 700..755)
+        if (b.x >= 20 && b.x <= 66 && b.y >= 700 && b.y <= 755) {
           if (gk.isLit && gk.cooldown <= 0) {
             gk.isLit = false;
             gk.anim = 1.0;
@@ -4415,7 +4415,7 @@
 
             // Explosive solenoid burst up the open left outlane corridor
             b.vx = 2.8;
-            b.vy = -18.5;
+            b.vy = -20.5;
 
             this.synth.playGlottalKickback();
             this.unlockTier(1); // Tier I: Laryngeal Vault
@@ -4426,7 +4426,7 @@
             this.floaters.push({
               text: '✦ GLOTTAL KICKBACK! +500 ✦',
               x: 100,
-              y: 590,
+              y: 710,
               vy: -1.2,
               alpha: 1.0,
               isImpressive: true
@@ -5199,7 +5199,7 @@
       // BABEL 3000: Celestial Vowel Constellation Chart
       renderVowelPlayfield(ctx) {
         // 1. Deep Celestial Nebula Abyss
-        const grad = ctx.createRadialGradient(210, 240, 20, 210, 340, 390);
+        const grad = ctx.createRadialGradient(210, 320, 20, 210, 420, 490);
         grad.addColorStop(0, '#0f1629');
         grad.addColorStop(0.55, '#070a16');
         grad.addColorStop(1, '#04050b');
@@ -5227,8 +5227,8 @@
         });
 
         // 3. Concentric Astrolabe Coordinate Rings
-        const cx = 210, cy = 250;
-        const radii = [70, 140, 210, 280];
+        const cx = 210, cy = 340;
+        const radii = [80, 160, 250, 340];
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.12)';
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 7]);
@@ -5243,8 +5243,8 @@
         for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
           const x1 = cx + Math.cos(a) * 60;
           const y1 = cy + Math.sin(a) * 60;
-          const x2 = cx + Math.cos(a) * 280;
-          const y2 = cy + Math.sin(a) * 280;
+          const x2 = cx + Math.cos(a) * 340;
+          const y2 = cy + Math.sin(a) * 340;
           ctx.strokeStyle = 'rgba(223, 177, 91, 0.05)';
           ctx.beginPath();
           ctx.moveTo(x1, y1);
@@ -5254,23 +5254,23 @@
 
         // 4. Sacred Constellation Lines connecting Phoneme Nodes
         const constellationEdges = [
-          [{ x: 100, y: 120 }, { x: 150, y: 190 }], // EE -> B
-          [{ x: 340, y: 120 }, { x: 270, y: 190 }], // OO -> T
-          [{ x: 210, y: 110 }, { x: 150, y: 190 }], // G -> B
-          [{ x: 210, y: 110 }, { x: 270, y: 190 }], // G -> T
-          [{ x: 150, y: 190 }, { x: 270, y: 190 }], // B -> T
-          [{ x: 150, y: 190 }, { x: 210, y: 280 }], // B -> K
-          [{ x: 270, y: 190 }, { x: 210, y: 280 }], // T -> K
-          [{ x: 210, y: 280 }, { x: 130, y: 375 }], // K -> M
-          [{ x: 210, y: 280 }, { x: 290, y: 375 }], // K -> N
-          [{ x: 210, y: 280 }, { x: 210, y: 395 }], // K -> LINGUA
-          [{ x: 130, y: 375 }, { x: 210, y: 395 }], // M -> LINGUA
-          [{ x: 290, y: 375 }, { x: 210, y: 395 }], // N -> LINGUA
-          [{ x: 210, y: 395 }, { x: 210, y: 520 }], // LINGUA -> AA
-          [{ x: 130, y: 375 }, { x: 75,  y: 475 }], // M -> P
-          [{ x: 290, y: 375 }, { x: 345, y: 475 }], // N -> D
-          [{ x: 75,  y: 475 }, { x: 210, y: 520 }], // P -> AA
-          [{ x: 345, y: 475 }, { x: 210, y: 520 }]  // D -> AA
+          [{ x: 100, y: 120 }, { x: 150, y: 205 }], // EE -> B
+          [{ x: 340, y: 120 }, { x: 270, y: 205 }], // OO -> T
+          [{ x: 210, y: 130 }, { x: 150, y: 205 }], // G -> B
+          [{ x: 210, y: 130 }, { x: 270, y: 205 }], // G -> T
+          [{ x: 150, y: 205 }, { x: 270, y: 205 }], // B -> T
+          [{ x: 150, y: 205 }, { x: 210, y: 280 }], // B -> K
+          [{ x: 270, y: 205 }, { x: 210, y: 280 }], // T -> K
+          [{ x: 210, y: 280 }, { x: 54,  y: 450 }], // K -> M (Left Wing)
+          [{ x: 210, y: 280 }, { x: 374, y: 450 }], // K -> N (Right Wing)
+          [{ x: 210, y: 280 }, { x: 210, y: 500 }], // K -> LINGUA
+          [{ x: 54,  y: 450 }, { x: 210, y: 500 }], // M -> LINGUA
+          [{ x: 374, y: 450 }, { x: 210, y: 500 }], // N -> LINGUA
+          [{ x: 210, y: 500 }, { x: 210, y: 645 }], // LINGUA -> AA
+          [{ x: 54,  y: 450 }, { x: 135, y: 595 }], // M -> Left Slingshot
+          [{ x: 374, y: 450 }, { x: 325, y: 595 }], // N -> Right Slingshot
+          [{ x: 135, y: 595 }, { x: 210, y: 645 }], // P -> AA
+          [{ x: 325, y: 595 }, { x: 210, y: 645 }]  // D -> AA
         ];
 
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.22)';
@@ -5286,9 +5286,9 @@
         const regions = [
           { glyph: '✦', label: '/i/ [EE]', sub: 'PALATAL ARCH',  x: 100, y: 120 },
           { glyph: '✦', label: '/u/ [OO]', sub: 'VELAR CAVITY',  x: 340, y: 120 },
-          { glyph: '✧', label: '/ɛ/ [EH]', sub: 'LINGUAL CREST', x: 105, y: 300 },
-          { glyph: '⚝', label: '/oʊ/ [OH]',sub: 'PHARYNX RECESS',x: 335, y: 300 },
-          { glyph: '⚙', label: '/ɑ/ [AA]', sub: 'ORAL APERTURE', x: 210, y: 525 }
+          { glyph: '✧', label: '/ɛ/ [EH]', sub: 'LINGUAL CREST', x: 74,  y: 350 },
+          { glyph: '⚝', label: '/oʊ/ [OH]',sub: 'PHARYNX RECESS',x: 350, y: 350 },
+          { glyph: '⚙', label: '/ɑ/ [AA]', sub: 'ORAL APERTURE', x: 210, y: 645 }
         ];
 
         ctx.textAlign = 'center';
@@ -5367,11 +5367,11 @@
         ctx.save();
 
         // 1. Divider Blades (Polished Brass Blades separating Outlane & Inlane)
-        // Left divider: (66, 465) to (66, 555)
-        // Right divider: (374, 465) to (374, 555)
+        // Left divider: (66, 585) to (66, 680)
+        // Right divider: (374, 585) to (374, 680)
         const dividers = [
-          { topX: 66, topY: 465, botX: 66, botY: 555 },
-          { topX: 374, topY: 465, botX: 374, botY: 555 }
+          { topX: 66, topY: 585, botX: 66, botY: 680 },
+          { topX: 374, topY: 585, botX: 374, botY: 680 }
         ];
 
         dividers.forEach(d => {
@@ -5411,22 +5411,22 @@
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        // Left inlane exit onto left flipper: (66, 555) -> (125, 598)
-        ctx.moveTo(66, 555);
-        ctx.lineTo(125, 598);
-        // Right inlane exit onto right flipper: (374, 555) -> (295, 598)
-        ctx.moveTo(374, 555);
-        ctx.lineTo(295, 598);
+        // Left inlane exit onto left flipper: (66, 680) -> (125, 718)
+        ctx.moveTo(66, 680);
+        ctx.lineTo(125, 718);
+        // Right inlane exit onto right flipper: (374, 680) -> (295, 718)
+        ctx.moveTo(374, 680);
+        ctx.lineTo(295, 718);
         ctx.stroke();
 
-        // 3. Outlane Outer Wall Trim Guides (Open entrances above 465)
+        // 3. Outlane Outer Wall Trim Guides
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(20, 540);
-        ctx.lineTo(20, 645);
-        ctx.moveTo(418, 540);
-        ctx.lineTo(418, 645);
+        ctx.moveTo(20, 660);
+        ctx.lineTo(20, 770);
+        ctx.moveTo(418, 660);
+        ctx.lineTo(418, 770);
         ctx.stroke();
 
         // 3. Inlane Rollover Wire Switches (Left: 88, 525 / Right: 372, 525)
@@ -5550,7 +5550,7 @@
 
         // 5. Right Outlane Gutter Drain Warning
         ctx.save();
-        ctx.translate(396, 600);
+        ctx.translate(396, 725);
         ctx.font = '700 0.42rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(239, 68, 68, 0.55)';
         ctx.textAlign = 'center';
@@ -5592,13 +5592,10 @@
         drawCornerBracket(24, this.height - 24, 1, -1);
         drawCornerBracket(this.width - 24, this.height - 24, -1, -1);
 
-        // Upper Arch Deflectors Label
-        // (The Velar Citadel / Vault G sits at 210, 34 with its own Art Deco inscription)
-
         // Lower Apron Label
         ctx.font = '700 0.48rem "Cinzel", serif';
         ctx.fillStyle = 'rgba(223, 177, 91, 0.4)';
-        ctx.fillText('LABIAL VALVES (THE LIPS)', 210, 630);
+        ctx.fillText('LABIAL VALVES (THE LIPS)', 210, 755);
 
         // Plunger Runway Divider (Brushed Brass with Ascension Arrows)
         ctx.beginPath();
@@ -5610,7 +5607,7 @@
 
         // Plunger Runway Label
         ctx.save();
-        ctx.translate(432, 360);
+        ctx.translate(432, 420);
         ctx.rotate(Math.PI / 2);
         ctx.font = '700 0.45rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(223, 177, 91, 0.45)';
@@ -5736,8 +5733,8 @@
         // 1. FLANK DEFLECTOR POSTS & BRASS CAPS
         // -----------------------------------------------------------------
         const deflectorPosts = [
-          { x: 105, y: 380 },
-          { x: 322, y: 368 }
+          { x: 44, y: 420 },
+          { x: 384, y: 420 }
         ];
         deflectorPosts.forEach(post => {
           // Rubber grommet bumper base
@@ -5774,25 +5771,25 @@
         ctx.strokeStyle = 'rgba(112, 161, 255, 0.32)';
         ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.moveTo(125, 348);
-        ctx.quadraticCurveTo(230, 290, 362, 265);
+        ctx.moveTo(54, 430);
+        ctx.quadraticCurveTo(200, 360, 360, 310);
         ctx.stroke();
 
         ctx.font = '700 0.36rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(112, 161, 255, 0.65)';
         ctx.textAlign = 'center';
-        ctx.fillText('▶ TO PALATAL VALVE', 242, 296);
+        ctx.fillText('▶ TO PALATAL VALVE', 210, 375);
 
         // Solar [N] -> Dental Arch Drop Target Bank Aim Guide
         ctx.strokeStyle = 'rgba(255, 215, 0, 0.32)';
         ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.moveTo(295, 348);
-        ctx.quadraticCurveTo(190, 280, 105, 240);
+        ctx.moveTo(374, 430);
+        ctx.quadraticCurveTo(220, 340, 82, 250);
         ctx.stroke();
 
         ctx.fillStyle = 'rgba(255, 215, 0, 0.65)';
-        ctx.fillText('◀ TO DENTAL ARCH', 178, 286);
+        ctx.fillText('◀ TO DENTAL ARCH', 210, 335);
         ctx.setLineDash([]);
         ctx.restore();
 
@@ -5800,9 +5797,9 @@
         // 3. VELOPHARYNGEAL ACOUSTIC CONDUIT BRIDGE (Acoustic Sinus Port)
         // -----------------------------------------------------------------
         ctx.save();
-        const p0 = { x: 125, y: 335 };
-        const p1 = { x: 210, y: 280 };
-        const p2 = { x: 295, y: 335 };
+        const p0 = { x: 54, y: 420 };
+        const p1 = { x: 210, y: 350 };
+        const p2 = { x: 374, y: 420 };
 
         // Bridge Under-Drop Shadow on playfield floor
         ctx.beginPath();
@@ -6195,13 +6192,13 @@
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 2.0;
         ctx.beginPath();
-        ctx.moveTo(82, 202);
-        ctx.lineTo(120, 278);
+        ctx.moveTo(74, 218);
+        ctx.lineTo(108, 292);
         ctx.stroke();
 
         // Label above bank
         ctx.save();
-        ctx.translate(88, 198);
+        ctx.translate(76, 214);
         ctx.rotate(Math.atan2(51, 18));
         ctx.font = '700 0.38rem "Space Mono", monospace';
         ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
@@ -7035,10 +7032,10 @@
         ctx.stroke();
 
         // ---------------------------------------------------------------------
-        // 3. ART DECO VERTICAL CALIBRATED TENSION GAUGE (x: 447..455, y: 490..625)
+        // 3. ART DECO VERTICAL CALIBRATED TENSION GAUGE (x: 447..455, y: 630..765)
         // ---------------------------------------------------------------------
         const gx = 447;
-        const gy = 490;
+        const gy = 630;
         const gw = 8;
         const gh = 135;
 
