@@ -6247,56 +6247,257 @@
           ctx.stroke();
         });
 
-        // Roaring Mud-Brick Kiln Furnace Vents (Behind Left & Right Inlanes)
+        // -------------------------------------------------------------
+        // TIER I: KILN FURNACES & CAST-IRON APRON GRATES (SHINAR FOUNDATION)
+        // -------------------------------------------------------------
+        // A. Left & Right Inlane Subterranean Furnace Grates
         const kilnVents = [
           { x: 48, y: 745, r: 18 },  // Left furnace arch
           { x: 372, y: 745, r: 18 }  // Right furnace arch
         ];
         kilnVents.forEach(kv => {
-          const kGrad = ctx.createRadialGradient(kv.x, kv.y, 2, kv.x, kv.y, kv.r + 14);
-          const heatPulse = 0.7 + 0.3 * Math.sin(time * 0.006 + kv.x);
-          kGrad.addColorStop(0, `rgba(254, 240, 138, ${0.85 * heatPulse})`);
-          kGrad.addColorStop(0.35, `rgba(249, 115, 22, ${0.65 * heatPulse})`);
+          // Heat wash aura
+          const heatPulse = 0.75 + 0.25 * Math.sin(time * 0.007 + kv.x);
+          const kGrad = ctx.createRadialGradient(kv.x, kv.y, 2, kv.x, kv.y, kv.r + 16);
+          kGrad.addColorStop(0, `rgba(254, 240, 138, ${0.9 * heatPulse})`);
+          kGrad.addColorStop(0.35, `rgba(249, 115, 22, ${0.7 * heatPulse})`);
           kGrad.addColorStop(0.7, `rgba(185, 28, 28, ${0.45 * heatPulse})`);
           kGrad.addColorStop(1, 'transparent');
           ctx.fillStyle = kGrad;
           ctx.beginPath();
-          ctx.arc(kv.x, kv.y, kv.r + 14, 0, Math.PI * 2);
+          ctx.arc(kv.x, kv.y, kv.r + 16, 0, Math.PI * 2);
           ctx.fill();
 
-          // Kiln Arch Opening
+          // Recessed Arch Firebox Chamber
           ctx.beginPath();
           ctx.arc(kv.x, kv.y, kv.r, Math.PI, 0);
-          ctx.lineTo(kv.x + kv.r, kv.y + 14);
-          ctx.lineTo(kv.x - kv.r, kv.y + 14);
+          ctx.lineTo(kv.x + kv.r, kv.y + 16);
+          ctx.lineTo(kv.x - kv.r, kv.y + 16);
           ctx.closePath();
-          ctx.fillStyle = '#1c0a06';
+          ctx.fillStyle = '#140604';
           ctx.fill();
-          ctx.strokeStyle = '#d97706';
-          ctx.lineWidth = 1.8;
+
+          // Burning Coal Bed Embers
+          const coalGrad = ctx.createLinearGradient(kv.x, kv.y + 16, kv.x, kv.y);
+          coalGrad.addColorStop(0, `rgba(254, 240, 138, ${0.85 * heatPulse})`);
+          coalGrad.addColorStop(0.5, `rgba(234, 88, 12, ${0.75 * heatPulse})`);
+          coalGrad.addColorStop(1, 'rgba(153, 27, 27, 0.4)');
+          ctx.fillStyle = coalGrad;
+          ctx.fill();
+
+          // Heavy Cast-Iron Arch Frame
+          ctx.strokeStyle = '#23211f';
+          ctx.lineWidth = 3.5;
           ctx.stroke();
+          // Beveled Iron Highlight
+          ctx.strokeStyle = '#6b7280';
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+
+          // Heavy Cast-Iron Grate Vertical Bars (4 bars)
+          const barXs = [-10, -3.5, 3.5, 10];
+          barXs.forEach(bx => {
+            const barTop = kv.y - Math.sqrt(Math.max(0, kv.r * kv.r - bx * bx)) + 1;
+            const barBottom = kv.y + 15;
+            // Drop shadow
+            ctx.strokeStyle = '#0a0505';
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            ctx.moveTo(kv.x + bx + 0.8, barTop);
+            ctx.lineTo(kv.x + bx + 0.8, barBottom);
+            ctx.stroke();
+
+            // Cast Iron Bar
+            ctx.strokeStyle = '#2d2a27';
+            ctx.lineWidth = 2.0;
+            ctx.beginPath();
+            ctx.moveTo(kv.x + bx, barTop);
+            ctx.lineTo(kv.x + bx, barBottom);
+            ctx.stroke();
+
+            // Specular Iron Edge Highlight
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(kv.x + bx - 0.5, barTop + 1);
+            ctx.lineTo(kv.x + bx - 0.5, barBottom - 1);
+            ctx.stroke();
+
+            // Incandescent back-glow highlight on bar bottom
+            ctx.strokeStyle = `rgba(254, 215, 170, ${0.7 * heatPulse})`;
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(kv.x + bx, kv.y + 8);
+            ctx.lineTo(kv.x + bx, barBottom);
+            ctx.stroke();
+          });
+
+          // Horizontal Iron Cross-Brace Bar
+          ctx.fillStyle = '#2d2a27';
+          ctx.fillRect(kv.x - kv.r + 2, kv.y + 4, (kv.r - 2) * 2, 2.5);
+          ctx.strokeStyle = '#4b5563';
+          ctx.lineWidth = 0.6;
+          ctx.strokeRect(kv.x - kv.r + 2, kv.y + 4, (kv.r - 2) * 2, 2.5);
+          // Rivets on cross-brace
+          [-8, 0, 8].forEach(rx => {
+            ctx.fillStyle = '#dfb15b';
+            ctx.beginPath();
+            ctx.arc(kv.x + rx, kv.y + 5.2, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+          });
         });
 
-        // Foundation Mudbrick Inscription Cartouche
-        ctx.fillStyle = 'rgba(18, 8, 5, 0.88)';
-        ctx.strokeStyle = '#dfb15b';
-        ctx.lineWidth = 1.4;
+        // B. Central Cast-Iron Radial Hearth Grate (Under Flipper Drain & Above Cartouche)
+        const hearthX = 210;
+        const hearthY = 754;
+        const hearthR = 34;
+        const hearthPulse = 0.7 + 0.3 * Math.sin(time * 0.005);
+
+        // Blazing Firebox Underglow
+        const hGlow = ctx.createRadialGradient(hearthX, hearthY, 2, hearthX, hearthY, hearthR + 12);
+        hGlow.addColorStop(0, `rgba(254, 240, 138, ${0.92 * hearthPulse})`);
+        hGlow.addColorStop(0.3, `rgba(249, 115, 22, ${0.72 * hearthPulse})`);
+        hGlow.addColorStop(0.65, `rgba(185, 28, 28, ${0.45 * hearthPulse})`);
+        hGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = hGlow;
         ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(100, 782, 220, 26, 4);
-        else ctx.rect(100, 782, 220, 26);
+        ctx.arc(hearthX, hearthY, hearthR + 12, Math.PI, 0);
         ctx.fill();
+
+        // Arched Firebox Cavity
+        ctx.beginPath();
+        ctx.arc(hearthX, hearthY, hearthR, Math.PI, 0);
+        ctx.closePath();
+        ctx.fillStyle = '#150604';
+        ctx.fill();
+
+        // Incandescent Burning Coal Embers Bed
+        const hCoalGrad = ctx.createLinearGradient(hearthX, hearthY, hearthX, hearthY - hearthR);
+        hCoalGrad.addColorStop(0, `rgba(254, 240, 138, ${0.85 * hearthPulse})`);
+        hCoalGrad.addColorStop(0.4, `rgba(249, 115, 22, ${0.70 * hearthPulse})`);
+        hCoalGrad.addColorStop(0.85, 'rgba(153, 27, 27, 0.45)');
+        hCoalGrad.addColorStop(1, '#150604');
+        ctx.fillStyle = hCoalGrad;
+        ctx.beginPath();
+        ctx.arc(hearthX, hearthY, hearthR - 2, Math.PI, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        // Cast-Iron Radial Fan Spoke Grate Bars (7 radial bars)
+        ctx.save();
+        const spokeCount = 7;
+        for (let i = 0; i < spokeCount; i++) {
+          const sa = Math.PI + ((i + 0.5) / spokeCount) * Math.PI;
+          const sx = hearthX + Math.cos(sa) * (hearthR - 2);
+          const sy = hearthY + Math.sin(sa) * (hearthR - 2);
+
+          // Shadow
+          ctx.strokeStyle = '#050303';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.moveTo(hearthX + 1, hearthY);
+          ctx.lineTo(sx + 1, sy + 1);
+          ctx.stroke();
+
+          // Iron spoke
+          ctx.strokeStyle = '#2d2a27';
+          ctx.lineWidth = 2.0;
+          ctx.beginPath();
+          ctx.moveTo(hearthX, hearthY);
+          ctx.lineTo(sx, sy);
+          ctx.stroke();
+
+          // Metallic highlight
+          ctx.strokeStyle = '#9ca3af';
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(hearthX - 0.4, hearthY);
+          ctx.lineTo(sx - 0.4, sy);
+          ctx.stroke();
+        }
+
+        // Concentric Semi-Circular Iron Grate Ring
+        ctx.beginPath();
+        ctx.arc(hearthX, hearthY, hearthR * 0.55, Math.PI, 0);
+        ctx.strokeStyle = '#2d2a27';
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+        ctx.strokeStyle = '#6b7280';
+        ctx.lineWidth = 0.6;
         ctx.stroke();
 
-        ctx.font = '900 0.65rem "Cinzel", serif';
+        // Heavy Cast-Iron Arch Rim with Bronze Rivets
+        ctx.beginPath();
+        ctx.arc(hearthX, hearthY, hearthR, Math.PI, 0);
+        ctx.strokeStyle = '#1e1b18';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.strokeStyle = '#9ca3af';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 6 Heavy Bronze Rivets along Rim
+        for (let r = 0; r <= 5; r++) {
+          const ra = Math.PI + (r / 5) * Math.PI;
+          const rx = hearthX + Math.cos(ra) * hearthR;
+          const ry = hearthY + Math.sin(ra) * hearthR;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath();
+          ctx.arc(rx, ry, 1.6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#78350f';
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // C. Foundation Mudbrick Inscription Cartouche (Deep Relief Carved Plaque)
+        ctx.save();
+        // Drop shadow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = '#140804';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(96, 782, 228, 28, 4);
+        else ctx.rect(96, 782, 228, 28);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Multi-Beveled Bronze Border
+        const cartGrad = ctx.createLinearGradient(96, 782, 324, 810);
+        cartGrad.addColorStop(0, '#fff4b8');
+        cartGrad.addColorStop(0.3, '#ffd700');
+        cartGrad.addColorStop(0.7, '#b45309');
+        cartGrad.addColorStop(1, '#451a03');
+        ctx.strokeStyle = cartGrad;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+
+        // Inner Inset Inscription Panel
+        ctx.fillStyle = '#1a0b06';
+        ctx.fillRect(99, 785, 222, 22);
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
+        ctx.lineWidth = 1.0;
+        ctx.strokeRect(99, 785, 222, 22);
+
+        // 4 Ornamental Golden Corner Rosette Studs
+        [[102, 788], [318, 788], [102, 804], [318, 804]].forEach(([rx, ry]) => {
+          this.renderBabylonianRosette(ctx, rx, ry, 3.2);
+        });
+
+        // Embossed Cuneiform Inscription
+        ctx.font = '900 0.72rem "Cinzel", serif';
         ctx.fillStyle = '#ffd700';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#dfb15b';
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 8;
         ctx.fillText('𒂍 𒋼 𒈨 𒀭 𒆠', 210, 796);
         ctx.shadowBlur = 0;
-        ctx.font = '700 0.34rem "Space Mono", monospace';
+        ctx.font = '700 0.35rem "Space Mono", monospace';
         ctx.fillStyle = '#fef08a';
         ctx.fillText('É-TEMEN-ANKI • FOUNDATION KILNS OF SHINAR', 210, 804);
+        ctx.restore();
 
         // Floating Kiln Embers
         if (this.kilnEmbers) {
@@ -6328,24 +6529,57 @@
           ctx.beginPath(); ctx.moveTo(20, ty); ctx.lineTo(this.width - 20, ty); ctx.stroke();
         }
 
-        // Golden Marching Lions of Babylon (Flanking Fairway Walls)
-        // Left Striding Lion (x: 82, y: 550)
-        this.renderBabylonianLion(ctx, 82, 545, 1);
-        // Right Striding Lion (x: 338, y: 545)
-        this.renderBabylonianLion(ctx, 338, 545, -1);
+        // Glazed Ceramic High-Gloss Diagonal Sheen
+        const sheenGrad = ctx.createLinearGradient(20, 520, this.width - 20, 660);
+        sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
+        sheenGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0.09)');
+        sheenGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.02)');
+        sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+        ctx.fillStyle = sheenGrad;
+        ctx.fillRect(20, 520, this.width - 40, 140);
 
-        // Babylonian 8-Petaled Rosette Frieze Borders along Processional Fairways
-        [105, 315].forEach(fx => {
-          ctx.strokeStyle = 'rgba(223, 177, 91, 0.35)';
-          ctx.lineWidth = 1.5;
+        // Golden Marching Lions of Babylon (3 Pairs Flanking the Processional Avenue)
+        // Pair 1 (Upper Terrace, y = 538)
+        this.renderBabylonianLion(ctx, 80, 538, 1, 0.92);
+        this.renderBabylonianLion(ctx, 340, 538, -1, 0.92);
+
+        // Pair 2 (Mid Terrace, y = 582)
+        this.renderBabylonianLion(ctx, 80, 582, 1, 0.95);
+        this.renderBabylonianLion(ctx, 340, 582, -1, 0.95);
+
+        // Pair 3 (Lower Terrace, y = 626)
+        this.renderBabylonianLion(ctx, 80, 626, 1, 0.95);
+        this.renderBabylonianLion(ctx, 340, 626, -1, 0.95);
+
+        // Lateral Rosette Frieze Borders along Fairway Gutters (x: 108 and x: 312)
+        [108, 312].forEach(fx => {
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.45)';
+          ctx.lineWidth = 1.6;
           ctx.beginPath();
           ctx.moveTo(fx, 520);
           ctx.lineTo(fx, 660);
           ctx.stroke();
 
           for (let ry = 530; ry <= 650; ry += 24) {
-            this.renderBabylonianRosette(ctx, fx, ry, 5);
+            this.renderBabylonianRosette(ctx, fx, ry, 5.2);
           }
+        });
+
+        // Sacred Processional Central Spine (Pavement Rosettes & Golden Ascent Chevrons)
+        [540, 580, 620].forEach(cy => {
+          // Central Rosette Medallion
+          this.renderBabylonianRosette(ctx, 210, cy, 6.0);
+
+          // Golden Road Ascent Chevron Arrow (pointing upward toward the Summit)
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.35)';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(200, cy + 18);
+          ctx.lineTo(210, cy + 12);
+          ctx.lineTo(220, cy + 18);
+          ctx.stroke();
+          ctx.restore();
         });
 
         // Stepped Crenellated Battlements (Merlons _П_П_П_) along top ledge (y = 520)
@@ -6408,43 +6642,142 @@
 
         // 6. TIER V, VI, VII (y: 18..220): The Summit Sanctuary & Temple of Marduk
         ctx.save();
-        // Divine Golden Light Shafts radiating downward from Vault [G] at (210, 35)
-        const rayCount = 12;
-        ctx.lineWidth = 1.5;
+
+        // A. Dynamic Volumetric God Rays Piercing Downward from Marduk's Throne
+        const rayCount = 14;
+        ctx.save();
         for (let i = 0; i < rayCount; i++) {
-          const ang = Math.PI * 0.15 + (i / (rayCount - 1)) * (Math.PI * 0.70);
-          const rayPulse = 0.5 + 0.5 * Math.sin(time * 0.004 + i);
-          ctx.strokeStyle = `rgba(255, 215, 0, ${0.08 * rayPulse})`;
+          const ang = Math.PI * 0.12 + (i / (rayCount - 1)) * (Math.PI * 0.76);
+          const rayPulse = 0.5 + 0.5 * Math.sin(time * 0.0035 + i * 0.7);
+          const rayLength = 220 + 30 * Math.sin(time * 0.002 + i);
+          const rayGrad = ctx.createLinearGradient(210, 20, 210 + Math.cos(ang) * rayLength, 20 + Math.sin(ang) * rayLength);
+          rayGrad.addColorStop(0, `rgba(255, 235, 120, ${0.22 * rayPulse})`);
+          rayGrad.addColorStop(0.4, `rgba(255, 215, 0, ${0.10 * rayPulse})`);
+          rayGrad.addColorStop(1, 'transparent');
+
+          ctx.strokeStyle = rayGrad;
+          ctx.lineWidth = 2.5 + Math.sin(i);
           ctx.beginPath();
-          ctx.moveTo(210, 35);
-          ctx.lineTo(210 + Math.cos(ang) * 190, 35 + Math.sin(ang) * 190);
+          ctx.moveTo(210, 20);
+          ctx.lineTo(210 + Math.cos(ang) * rayLength, 20 + Math.sin(ang) * rayLength);
           ctx.stroke();
         }
+        ctx.restore();
 
-        // Golden Horned Crown of Marduk framing Vault [G]
+        // B. Stepped Ashlar Stone Ziggurat Pediment Supporting the Summit Sanctuary
+        // Tier 3 Pediment Base (y: 52..72, x: 130..290)
         ctx.save();
-        ctx.translate(210, 35);
+        const pedGrad3 = ctx.createLinearGradient(0, 52, 0, 72);
+        pedGrad3.addColorStop(0, '#1c2238');
+        pedGrad3.addColorStop(1, '#0e111d');
+        ctx.fillStyle = pedGrad3;
+        ctx.fillRect(130, 52, 160, 20);
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.4;
+        ctx.strokeRect(130, 52, 160, 20);
+        this.renderCrenellations(ctx, 130, 290, 52, 6, 6, '#dfb15b');
+
+        // Tier 2 Pediment Mid (y: 34..52, x: 152..268)
+        const pedGrad2 = ctx.createLinearGradient(0, 34, 0, 52);
+        pedGrad2.addColorStop(0, '#232b47');
+        pedGrad2.addColorStop(1, '#131828');
+        ctx.fillStyle = pedGrad2;
+        ctx.fillRect(152, 34, 116, 18);
         ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(152, 34, 116, 18);
+        this.renderCrenellations(ctx, 152, 268, 34, 5, 5, '#ffd700');
+
+        // Tier 1 High Shrine Pediment (y: 18..34, x: 172..248)
+        const pedGrad1 = ctx.createLinearGradient(0, 18, 0, 34);
+        pedGrad1.addColorStop(0, '#313e66');
+        pedGrad1.addColorStop(1, '#1b2238');
+        ctx.fillStyle = pedGrad1;
+        ctx.fillRect(172, 18, 76, 16);
+        ctx.strokeStyle = '#fff4b8';
+        ctx.lineWidth = 1.6;
+        ctx.strokeRect(172, 18, 76, 16);
+
+        // Flanking High Temple Ashlar Pillars
+        [[142, 36, 10, 34], [268, 36, 10, 34]].forEach(([px, py, pw, ph]) => {
+          const pilGrad = ctx.createLinearGradient(px, 0, px + pw, 0);
+          pilGrad.addColorStop(0, '#dfb15b');
+          pilGrad.addColorStop(0.5, '#fff4b8');
+          pilGrad.addColorStop(1, '#8c5e12');
+          ctx.fillStyle = pilGrad;
+          ctx.fillRect(px, py, pw, ph);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px, py, pw, ph);
+        });
+
+        // C. Monumental Sculpted 3D Golden Bull Horns of Marduk
+        ctx.save();
+        ctx.translate(210, 34);
+
+        // Horn Drop Shadow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = '#050810';
         ctx.beginPath();
-        // Left divine horn
-        ctx.moveTo(-16, 12);
-        ctx.quadraticCurveTo(-26, -4, -32, -18);
-        ctx.quadraticCurveTo(-24, -12, -18, -4);
-        // Center crown tiara
-        ctx.lineTo(-12, -12);
-        ctx.lineTo(0, -20);
-        ctx.lineTo(12, -12);
-        // Right divine horn
-        ctx.lineTo(18, -4);
-        ctx.quadraticCurveTo(24, -12, 32, -18);
-        ctx.quadraticCurveTo(26, -4, 16, 12);
+        // Left horn shadow
+        ctx.moveTo(-18, 14);
+        ctx.quadraticCurveTo(-34, -4, -48, -26);
+        ctx.quadraticCurveTo(-36, -14, -22, -4);
+        // Center apex
+        ctx.lineTo(0, -28);
+        // Right horn shadow
+        ctx.lineTo(22, -4);
+        ctx.quadraticCurveTo(36, -14, 48, -26);
+        ctx.quadraticCurveTo(34, -4, 18, 14);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Rich 3D Beveled Gold Gradient
+        const hornGrad = ctx.createLinearGradient(-45, -25, 45, 15);
+        hornGrad.addColorStop(0, '#fffbe6'); // Brilliant specular tip
+        hornGrad.addColorStop(0.2, '#ffd700'); // Pure Babylonian gold
+        hornGrad.addColorStop(0.6, '#b45309'); // Warm bronze mid
+        hornGrad.addColorStop(1, '#451a03'); // Deep shaded horn base
+
+        ctx.fillStyle = hornGrad;
+        ctx.strokeStyle = '#fff4b8';
+        ctx.lineWidth = 1.8;
+
+        ctx.beginPath();
+        // Left Horn: sweeps outward and upward to sharp curved tip
+        ctx.moveTo(-18, 14);
+        ctx.quadraticCurveTo(-34, -4, -48, -26);
+        ctx.quadraticCurveTo(-36, -14, -22, -4);
+        // Center Shrine Tiara & Sun Apex
+        ctx.lineTo(-12, -14);
+        ctx.lineTo(0, -28);
+        ctx.lineTo(12, -14);
+        // Right Horn: sweeps outward and upward to sharp curved tip
+        ctx.lineTo(22, -4);
+        ctx.quadraticCurveTo(36, -14, 48, -26);
+        ctx.quadraticCurveTo(34, -4, 18, 14);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.restore();
-        ctx.restore();
+
+        // 3D Horn Rib Ridge Lines (Ancient Ceremonial Horn Segments)
+        ctx.strokeStyle = 'rgba(69, 26, 3, 0.75)';
+        ctx.lineWidth = 1.0;
+        [-40, -32, -24, 24, 32, 40].forEach(hx => {
+          ctx.beginPath();
+          ctx.arc(hx, -10, 5, 0, Math.PI * 0.8);
+          ctx.stroke();
+        });
+
+        // Center Tiara Gemstone / Sacred Rosette
+        this.renderBabylonianRosette(ctx, 0, -18, 4.5);
+
+        ctx.restore(); // end horn translate
+        ctx.restore(); // end pediment save
+        ctx.restore(); // end Tier V save
 
         // 7. Radiant Acoustic Wave from All Active Spheres
         const activeBalls = this.balls && this.balls.length > 0 ? this.balls : [this.ball];
@@ -6464,88 +6797,152 @@
         });
       }
 
-      // Babylonian Striding Lion (Ishtar Gate Bas-Relief Silhouette)
-      renderBabylonianLion(ctx, x, y, dir = 1) {
+      // Babylonian Striding Lion (Ishtar Gate 3D Embossed Bas-Relief Sculpture)
+      renderBabylonianLion(ctx, x, y, dir = 1, scale = 0.88) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.scale(dir * 0.85, 0.85);
+        ctx.scale(dir * scale, scale);
 
-        ctx.strokeStyle = '#ffd700';
-        ctx.fillStyle = 'rgba(223, 177, 91, 0.22)';
-        ctx.lineWidth = 1.6;
-        ctx.shadowColor = '#dfb15b';
-        ctx.shadowBlur = 4;
+        // 1. Cast Drop-Shadow onto Cobalt Glazed Tiles
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 3 * dir;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = '#050b18';
 
         ctx.beginPath();
-        // Nose & Snout
         ctx.moveTo(18, -6);
-        ctx.lineTo(24, -4);
-        ctx.lineTo(24, 0);
-        // Roaring open lower jaw
-        ctx.lineTo(19, 4);
-        ctx.lineTo(14, 2);
-        // Golden Mane Ruff
-        ctx.lineTo(10, 8);
-        ctx.lineTo(5, 4);
-        ctx.lineTo(2, 9);
-        ctx.lineTo(-4, 5);
-        // Arched Muscular Back
+        ctx.lineTo(24, -4); ctx.lineTo(24, 0);
+        ctx.lineTo(19, 4);  ctx.lineTo(14, 2);
+        ctx.lineTo(10, 8);  ctx.lineTo(5, 4);
+        ctx.lineTo(2, 9);   ctx.lineTo(-4, 5);
         ctx.quadraticCurveTo(-14, -8, -26, 0);
-        // Raised Curved Tail
         ctx.quadraticCurveTo(-34, -4, -38, -14);
         ctx.quadraticCurveTo(-42, -22, -36, -26);
         ctx.quadraticCurveTo(-32, -22, -34, -14);
         ctx.quadraticCurveTo(-30, -2, -24, 6);
-        // Rear Hind Leg
-        ctx.lineTo(-26, 18);
-        ctx.lineTo(-20, 20);
-        ctx.lineTo(-18, 12);
-        // Belly Underline
+        ctx.lineTo(-26, 18); ctx.lineTo(-20, 20); ctx.lineTo(-18, 12);
         ctx.quadraticCurveTo(-8, 14, 0, 10);
-        // Front Foreleg
-        ctx.lineTo(6, 22);
-        ctx.lineTo(12, 22);
-        ctx.lineTo(10, 8);
-        // Chest & Neck
+        ctx.lineTo(6, 22); ctx.lineTo(12, 22); ctx.lineTo(10, 8);
+        ctx.quadraticCurveTo(15, 4, 18, -6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // 2. Embossed Golden Bas-Relief Body Gradient
+        const lionGrad = ctx.createLinearGradient(-30, -20, 20, 20);
+        lionGrad.addColorStop(0, '#fff4b8'); // Specular rim
+        lionGrad.addColorStop(0.3, '#ffd700'); // Radiant Babylonian gold
+        lionGrad.addColorStop(0.7, '#d4af37'); // Warm antique gold
+        lionGrad.addColorStop(1, '#8c5e12'); // Deep shadow bronze
+
+        ctx.fillStyle = lionGrad;
+        ctx.strokeStyle = '#ffe57f';
+        ctx.lineWidth = 1.4;
+
+        ctx.beginPath();
+        ctx.moveTo(18, -6);
+        ctx.lineTo(24, -4); ctx.lineTo(24, 0);
+        ctx.lineTo(19, 4);  ctx.lineTo(14, 2);
+        ctx.lineTo(10, 8);  ctx.lineTo(5, 4);
+        ctx.lineTo(2, 9);   ctx.lineTo(-4, 5);
+        ctx.quadraticCurveTo(-14, -8, -26, 0);
+        ctx.quadraticCurveTo(-34, -4, -38, -14);
+        ctx.quadraticCurveTo(-42, -22, -36, -26);
+        ctx.quadraticCurveTo(-32, -22, -34, -14);
+        ctx.quadraticCurveTo(-30, -2, -24, 6);
+        ctx.lineTo(-26, 18); ctx.lineTo(-20, 20); ctx.lineTo(-18, 12);
+        ctx.quadraticCurveTo(-8, 14, 0, 10);
+        ctx.lineTo(6, 22); ctx.lineTo(12, 22); ctx.lineTo(10, 8);
         ctx.quadraticCurveTo(15, 4, 18, -6);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // Lion Eye (Radiant gold dot)
+        // 3. Bas-Relief Muscle Modeling Strokes
+        ctx.strokeStyle = 'rgba(255, 255, 240, 0.65)';
+        ctx.lineWidth = 1.0;
+        // Shoulder blade highlight
         ctx.beginPath();
-        ctx.arc(17, -3, 1.2, 0, Math.PI * 2);
+        ctx.arc(8, 6, 6, Math.PI * 0.9, Math.PI * 1.6);
+        ctx.stroke();
+        // Flank rib arch
+        ctx.beginPath();
+        ctx.arc(-8, 5, 8, Math.PI * 1.1, Math.PI * 1.7);
+        ctx.stroke();
+        // Powerful haunch muscle
+        ctx.beginPath();
+        ctx.arc(-18, 7, 7, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+
+        // Mane Lock Friezes
+        ctx.strokeStyle = 'rgba(140, 94, 18, 0.8)';
+        ctx.lineWidth = 0.9;
+        [[-2, 6], [2, 5], [6, 4], [10, 3]].forEach(([mx, my]) => {
+          ctx.beginPath();
+          ctx.moveTo(mx, my);
+          ctx.lineTo(mx - 4, my + 5);
+          ctx.stroke();
+        });
+
+        // Glowing Sacred Eye
+        ctx.beginPath();
+        ctx.arc(17, -2.5, 1.4, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 4;
         ctx.fill();
+        ctx.shadowBlur = 0;
 
         ctx.restore();
       }
 
-      // Babylonian 8-Petaled Sacred Rosette
+      // Babylonian 8-Petaled Sacred Rosette (Embossed Ceramic Medallion)
       renderBabylonianRosette(ctx, x, y, r = 5) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.fillStyle = '#ffd700';
-        ctx.strokeStyle = '#8c6d2b';
-        ctx.lineWidth = 0.8;
 
-        // 8 Petals
+        // Drop shadow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 1.5;
+
+        // 8 Petals with Beveled Metallic Shading
         for (let i = 0; i < 8; i++) {
           const ang = (i * Math.PI) / 4;
-          const px = Math.cos(ang) * (r * 0.7);
-          const py = Math.sin(ang) * (r * 0.7);
+          const px = Math.cos(ang) * (r * 0.72);
+          const py = Math.sin(ang) * (r * 0.72);
+
+          const petalGrad = ctx.createRadialGradient(px, py, 0.5, px, py, r * 0.45);
+          petalGrad.addColorStop(0, '#fff4b8');
+          petalGrad.addColorStop(0.5, '#ffd700');
+          petalGrad.addColorStop(1, '#9a6b10');
+
           ctx.beginPath();
-          ctx.arc(px, py, r * 0.42, 0, Math.PI * 2);
+          ctx.arc(px, py, r * 0.44, 0, Math.PI * 2);
+          ctx.fillStyle = petalGrad;
           ctx.fill();
+          ctx.strokeStyle = '#ffe57f';
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
+        ctx.shadowBlur = 0;
 
-        // Center Gold Disc
+        // Center Golden Cabochon
+        const coreGrad = ctx.createRadialGradient(-0.8, -0.8, 0.5, 0, 0, r * 0.48);
+        coreGrad.addColorStop(0, '#ffffff');
+        coreGrad.addColorStop(0.4, '#fef08a');
+        coreGrad.addColorStop(1, '#ca8a04');
+
         ctx.beginPath();
-        ctx.arc(0, 0, r * 0.45, 0, Math.PI * 2);
-        ctx.fillStyle = '#fffbeb';
+        ctx.arc(0, 0, r * 0.46, 0, Math.PI * 2);
+        ctx.fillStyle = coreGrad;
         ctx.fill();
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 0.8;
         ctx.stroke();
+
         ctx.restore();
       }
 
@@ -7341,85 +7738,161 @@
         ctx.restore();
       }
 
+      // Gilded Babylonian 8-Pointed Star/Sun Pop Bumper Medallions (Étemenanki Celestial Stars)
       renderBumpers(ctx) {
         this.bumpers.forEach(b => {
-          // 1. Astrolabe Radiating Solar Shockwave on Hit
+          // 1. Divine Starlight Shockwave on Hit
           if (b.hitAnim > 0) {
             ctx.beginPath();
-            ctx.arc(b.x, b.y, b.r + b.hitAnim * 22, 0, Math.PI * 2);
+            ctx.arc(b.x, b.y, b.r + b.hitAnim * 24, 0, Math.PI * 2);
             ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 3 * b.hitAnim;
+            ctx.lineWidth = 3.5 * b.hitAnim;
             ctx.shadowColor = '#ffd700';
-            ctx.shadowBlur = 20 * b.hitAnim;
+            ctx.shadowBlur = 24 * b.hitAnim;
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // 6 Rotating Starlight Rays on impact
-            const rays = 6;
+            // 8 Radiant Starlight Beams expanding outward
+            const rays = 8;
             ctx.save();
             ctx.translate(b.x, b.y);
-            ctx.rotate(b.ringRotation * 3);
-            ctx.strokeStyle = 'rgba(255, 215, 0, ' + (b.hitAnim * 0.7) + ')';
-            ctx.lineWidth = 2;
+            ctx.rotate(b.ringRotation * 2.5);
+            ctx.strokeStyle = `rgba(255, 235, 150, ${b.hitAnim * 0.85})`;
+            ctx.lineWidth = 2.4;
             for (let i = 0; i < rays; i++) {
               const a = (i * Math.PI * 2) / rays;
               ctx.beginPath();
               ctx.moveTo(Math.cos(a) * (b.r + 4), Math.sin(a) * (b.r + 4));
-              ctx.lineTo(Math.cos(a) * (b.r + 26 * b.hitAnim), Math.sin(a) * (b.r + 26 * b.hitAnim));
+              ctx.lineTo(Math.cos(a) * (b.r + 30 * b.hitAnim), Math.sin(a) * (b.r + 30 * b.hitAnim));
               ctx.stroke();
             }
             ctx.restore();
           }
 
-          // 2. Outer Astrolabe Brass Gear Rim with 12 Teeth
+          // 2. Base Stepped Bronze Bumper Ring & Cast Shadow
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+          ctx.shadowBlur = 12;
+          ctx.shadowOffsetY = 5;
+
+          const baseRingGrad = ctx.createRadialGradient(b.x - 2, b.y - 2, b.r * 0.4, b.x, b.y, b.r + 5);
+          baseRingGrad.addColorStop(0, '#8c5e12');
+          baseRingGrad.addColorStop(0.7, '#451a03');
+          baseRingGrad.addColorStop(1, '#1c0a02');
+
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r + 4, 0, Math.PI * 2);
+          ctx.fillStyle = baseRingGrad;
+          ctx.fill();
+          ctx.strokeStyle = '#dfb15b';
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+          ctx.restore();
+
+          // 3. Gilded 8-Pointed Babylonian Star Medallion (Beveled 3D Ray Facets)
           ctx.save();
           ctx.translate(b.x, b.y);
-          ctx.rotate(b.ringRotation);
+          ctx.rotate(b.ringRotation || 0);
 
-          const teeth = 12;
-          ctx.fillStyle = '#8c6d2b';
+          const numPoints = 8;
+          const outerR1 = b.r + 2.5;  // 4 Primary Cardinal Points
+          const outerR2 = b.r - 2.5;  // 4 Secondary Ordinal Points
+          const innerR = b.r * 0.58;  // Base of Star Points
+
+          for (let i = 0; i < numPoints; i++) {
+            const tipAngle = (i * Math.PI) / 4;
+            const leftValley = tipAngle - (Math.PI / 8);
+            const rightValley = tipAngle + (Math.PI / 8);
+            const tipR = (i % 2 === 0) ? outerR1 : outerR2;
+
+            const tipX = Math.cos(tipAngle) * tipR;
+            const tipY = Math.sin(tipAngle) * tipR;
+            const leftX = Math.cos(leftValley) * innerR;
+            const leftY = Math.sin(leftValley) * innerR;
+            const rightX = Math.cos(rightValley) * innerR;
+            const rightY = Math.sin(rightValley) * innerR;
+
+            // Light Facet (Clockwise half of point)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(leftX, leftY);
+            ctx.lineTo(tipX, tipY);
+            ctx.closePath();
+            ctx.fillStyle = '#ffea85';
+            ctx.fill();
+
+            // Shadow Facet (Counter-clockwise half of point)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(tipX, tipY);
+            ctx.lineTo(rightX, rightY);
+            ctx.closePath();
+            ctx.fillStyle = '#b47e16';
+            ctx.fill();
+
+            // Point Outline
+            ctx.strokeStyle = '#ffe57f';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(leftX, leftY);
+            ctx.lineTo(tipX, tipY);
+            ctx.lineTo(rightX, rightY);
+            ctx.stroke();
+          }
+
+          // 4. Inner Concentric Beaded Pearl Ring
+          ctx.beginPath();
+          ctx.arc(0, 0, innerR, 0, Math.PI * 2);
           ctx.strokeStyle = '#ffd700';
-          ctx.lineWidth = 2;
-          for (let i = 0; i < teeth; i++) {
-            const a = (i * Math.PI * 2) / teeth;
-            const tx = Math.cos(a) * (b.r + 1.5);
-            const ty = Math.sin(a) * (b.r + 1.5);
-            ctx.fillRect(tx - 2, ty - 2, 4, 4);
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // Gold Beads along the ring
+          const beadCount = 16;
+          for (let bi = 0; bi < beadCount; bi++) {
+            const ba = (bi * Math.PI * 2) / beadCount;
+            const bx = Math.cos(ba) * innerR;
+            const by = Math.sin(ba) * innerR;
+            ctx.beginPath();
+            ctx.arc(bx, by, 1.4, 0, Math.PI * 2);
+            ctx.fillStyle = '#fffbeb';
+            ctx.fill();
           }
           ctx.restore();
 
-          // 3. Astrolabe Ring Body
+          // 5. Planetary Gemstone Core (Illuminated Phoneme Crystal)
+          const gemGrad = ctx.createRadialGradient(b.x - 2, b.y - 2, 1, b.x, b.y, b.r * 0.52);
+          if (b.hitAnim > 0) {
+            gemGrad.addColorStop(0, '#ffffff');
+            gemGrad.addColorStop(0.5, '#fffbeb');
+            gemGrad.addColorStop(1, '#f59e0b');
+          } else {
+            gemGrad.addColorStop(0, '#ffffff');
+            gemGrad.addColorStop(0.35, b.color);
+            gemGrad.addColorStop(0.85, '#0a0d18');
+            gemGrad.addColorStop(1, '#020408');
+          }
+
           ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-          ctx.fillStyle = '#080d1a';
+          ctx.arc(b.x, b.y, b.r * 0.48, 0, Math.PI * 2);
+          ctx.fillStyle = gemGrad;
+          ctx.shadowColor = b.color;
+          ctx.shadowBlur = b.hitAnim > 0 ? 28 : 10;
           ctx.fill();
-          ctx.strokeStyle = '#dfb15b';
-          ctx.lineWidth = 3;
-          ctx.shadowColor = '#ffd700';
-          ctx.shadowBlur = b.hitAnim > 0 ? 25 : 8;
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.6;
           ctx.stroke();
           ctx.shadowBlur = 0;
 
-          // 4. Planetary Gemstone Core
-          const gemGrad = ctx.createRadialGradient(b.x - 3, b.y - 3, 2, b.x, b.y, b.r * 0.55);
-          gemGrad.addColorStop(0, '#ffffff');
-          gemGrad.addColorStop(0.4, b.color);
-          gemGrad.addColorStop(1, '#060a12');
-
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r * 0.52, 0, Math.PI * 2);
-          ctx.fillStyle = b.hitAnim > 0 ? '#ffffff' : gemGrad;
-          ctx.fill();
-          ctx.strokeStyle = '#ffd700';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-
-          // 5. Astrological Phoneme Letter
-          ctx.font = '900 1.15rem "Cinzel", serif';
+          // 6. Astrological Phoneme Inscription
+          ctx.font = '900 1.10rem "Cinzel", serif';
           ctx.fillStyle = b.hitAnim > 0 ? '#000000' : '#ffffff';
+          ctx.shadowColor = b.hitAnim > 0 ? '#ffd700' : 'rgba(0, 0, 0, 0.9)';
+          ctx.shadowBlur = 4;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(b.label, b.x, b.y + 1);
+          ctx.shadowBlur = 0;
         });
       }
 
