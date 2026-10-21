@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>PhonoBall - Physical Formant Pinball | Evan Swope</title>
+  <meta name="description" content="PhonoBall: An acoustic physics game synthesizing human vowels, diphthongs, and consonants in real time to spell words through pinball kinematics.">
+  <meta name="robots" content="noindex, nofollow">
+  
+  <link rel="icon" type="image/png" href="assets/images/favicon2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-deep: #080b12;
+      --bg-panel: #0e1424;
+      --neon-cyan: #00f2fe;
+      --neon-pink: #ff7eb3;
+      --neon-amber: #ffb142;
+      --neon-green: #2ed573;
+      --neon-purple: #9b59b6;
+      --text-muted: #94a3b8;
+      --font-display: 'Silkscreen', monospace;
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-deep);
+      color: #e2e8f0;
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      padding: 1rem 0.5rem;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(0, 242, 254, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(255, 126, 179, 0.06) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* Top Branding Bar */
+    .game-header {
+      text-align: center;
+      margin-bottom: 0.8rem;
+      position: relative;
+      z-index: 5;
+    }
+    .game-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 0.25rem 0.65rem;
+      border-radius: 50px;
+      margin-bottom: 0.4rem;
+    }
+    .game-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      letter-spacing: 3px;
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(0, 242, 254, 0.6), 0 0 30px rgba(255, 126, 179, 0.4);
+    }
+    .game-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    /* Main Arcade Cabinet Container */
+    .cabinet-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      background: #0b101c;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 0.85rem;
+      box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.7),
+        0 0 35px rgba(0, 242, 254, 0.15),
+        inset 0 0 25px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Dot Matrix / DMD Backglass Display */
+    .backglass-hud {
+      width: 100%;
+      background: #04060a;
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 0.8rem;
+      box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .backglass-hud::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .hud-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-display);
+    }
+    .hud-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-label {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+    .stat-value {
+      font-size: 1.1rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+    }
+    .target-word-box {
+      background: rgba(255, 126, 179, 0.15);
+      border: 1px solid rgba(255, 126, 179, 0.4);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .target-word-val {
+      color: var(--neon-pink);
+      font-size: 1.05rem;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255, 126, 179, 0.8);
+      animation: pulse-glow 2s infinite ease-in-out;
+    }
+
+    /* Phoneme Stream & Vowel Radar Bar */
+    .phoneme-stream-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .phoneme-tokens {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      min-height: 24px;
+    }
+    .phoneme-chip {
+      background: rgba(0, 242, 254, 0.18);
+      border: 1px solid var(--neon-cyan);
+      color: #fff;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+      animation: pop-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .phoneme-chip.vowel {
+      background: rgba(255, 177, 66, 0.2);
+      border-color: var(--neon-amber);
+      color: #ffd32a;
+      box-shadow: 0 0 8px rgba(255, 177, 66, 0.4);
+    }
+    .formant-readout {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+    .formant-readout span {
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    /* Canvas Viewport */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+      background: #020408;
+      touch-action: none;
+    }
+    canvas#pinball-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 460 / 680;
+      cursor: crosshair;
+    }
+
+    /* Start / Audio Unlock Overlay */
+    .audio-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(4, 7, 14, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 1.5rem;
+      text-align: center;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+    .audio-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .overlay-coin-btn {
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      color: #040814;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 0.9rem 1.8rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.7);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 1.2rem;
+    }
+    .overlay-coin-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 35px rgba(0, 242, 254, 1.0);
+    }
+    .overlay-intro {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      max-width: 320px;
+      line-height: 1.5;
+      margin-top: 0.6rem;
+    }
+
+    /* Word Banner Pop-Up Event */
+    .word-celebration-banner {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(14, 20, 36, 0.95);
+      border: 2px solid var(--neon-pink);
+      border-radius: 12px;
+      padding: 0.8rem 1.6rem;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 126, 179, 0.8);
+      z-index: 15;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+      opacity: 0;
+    }
+    .word-celebration-banner.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    .banner-title {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+    }
+    .banner-word {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: #fff;
+      text-shadow: 0 0 15px var(--neon-pink);
+      letter-spacing: 4px;
+      margin: 0.2rem 0;
+    }
+    .banner-points {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--neon-green);
+      font-weight: 700;
+    }
+
+    /* Bottom Control Bar & Touch Controls */
+    .cabinet-bottom-bar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+    .arcade-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 0.75rem 0.5rem;
+      color: #e2e8f0;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .arcade-btn:active, .arcade-btn.pressed {
+      background: rgba(0, 242, 254, 0.25);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      transform: translateY(2px);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+    .arcade-btn.launch-btn:active, .arcade-btn.launch-btn.pressed {
+      background: rgba(255, 126, 179, 0.3);
+      border-color: var(--neon-pink);
+      color: var(--neon-pink);
+      box-shadow: 0 0 15px rgba(255, 126, 179, 0.5);
+    }
+    .key-hint {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--text-muted);
+    }
+
+    /* Word Discovery Drawer / History */
+    .discovered-words-card {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 1rem;
+      background: rgba(13, 17, 28, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-mono);
+    }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+    .words-tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      min-height: 28px;
+    }
+    .word-badge {
+      background: rgba(46, 213, 115, 0.15);
+      border: 1px solid rgba(46, 213, 115, 0.4);
+      color: #2ed573;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .empty-words-msg {
+      color: #475569;
+      font-size: 0.7rem;
+      font-style: italic;
+    }
+
+    /* Explanation & Acoustic Guide */
+    .acoustic-guide-card {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 0.8rem;
+      background: rgba(13, 17, 28, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .acoustic-guide-card h3 {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      color: var(--neon-cyan);
+      margin-bottom: 0.4rem;
+      letter-spacing: 1.2px;
+    }
+    .acoustic-guide-card p {
+      margin-bottom: 0.5rem;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
+    }
+    @keyframes pop-in {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Game Header -->
+  <header class="game-header">
+    <div class="game-badge"><i class="fa-solid fa-atom"></i> Acoustic Speech Kinematics</div>
+    <h1 class="game-title">PHONOBALL</h1>
+    <p class="game-subtitle">Physical Formant Pinball Synthesizer</p>
+  </header>
+
+  <!-- Main Arcade Cabinet -->
+  <main class="cabinet-wrapper">
+
+    <!-- DMD Backglass HUD -->
+    <div class="backglass-hud">
+      <div class="hud-top-row">
+        <div class="hud-stat">
+          <span class="stat-label">SCORE</span>
+          <span id="stat-score" class="stat-value">000,000</span>
+        </div>
+        <div class="target-word-box">
+          <span class="stat-label">BOUNTY WORD</span>
+          <div id="stat-target-word" class="target-word-val">CAT</div>
+        </div>
+        <div class="hud-stat" style="text-align: right;">
+          <span class="stat-label">BALL</span>
+          <span id="stat-ball" class="stat-value">1 / 3</span>
+        </div>
+      </div>
+
+      <div class="phoneme-stream-bar">
+        <div class="phoneme-tokens" id="phoneme-stream-container">
+          <span style="color: #475569; font-size: 0.68rem;">Awaiting ball impact...</span>
+        </div>
+        <div class="formant-readout">
+          <div>F1: <span id="val-f1">450 Hz</span></div>
+          <div>F2: <span id="val-f2">1400 Hz</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Viewport -->
+    <div class="canvas-container" id="canvas-container">
+      <canvas id="pinball-canvas" width="460" height="680"></canvas>
+
+      <!-- Audio Start / Coin Door Overlay -->
+      <div class="audio-overlay" id="audio-overlay">
+        <i class="fa-solid fa-microphone-lines" style="font-size: 2.8rem; color: var(--neon-cyan); margin-bottom: 0.8rem; filter: drop-shadow(0 0 15px rgba(0,242,254,0.6));"></i>
+        <h2 style="font-family: var(--font-display); letter-spacing: 2px; font-size: 1.4rem; color: #fff;">INSERT COIN</h2>
+        <p class="overlay-intro">
+          The playfield is a 2D <strong>Vowel Formant Plane</strong>. Ball trajectories synthesize continuous diphthongs; bumper collisions articulate consonants to spell real words!
+        </p>
+        <button class="overlay-coin-btn" id="btn-start-audio">
+          <i class="fa-solid fa-play"></i> START ENGINE
+        </button>
+      </div>
+
+      <!-- Word Celebration Pop-Up -->
+      <div class="word-celebration-banner" id="word-banner">
+        <div class="banner-title">WORD SYNTHESIZED!</div>
+        <div class="banner-word" id="banner-word-text">CAT</div>
+        <div class="banner-points" id="banner-points-text">+1,000 PTS</div>
+      </div>
+    </div>
+
+    <!-- Bottom Arcade Action Controls -->
+    <div class="cabinet-bottom-bar">
+      <button class="arcade-btn" id="btn-left-flipper">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>LEFT FLIP</span>
+        <span class="key-hint">[A] or [LEFT]</span>
+      </button>
+
+      <button class="arcade-btn launch-btn" id="btn-plunger">
+        <i class="fa-solid fa-rocket"></i>
+        <span>LAUNCH</span>
+        <span class="key-hint">[SPACE]</span>
+      </button>
+
+      <button class="arcade-btn" id="btn-right-flipper">
+        <i class="fa-solid fa-arrow-right"></i>
+        <span>RIGHT FLIP</span>
+        <span class="key-hint">[D] or [RIGHT]</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Discovered Words Drawer -->
+  <section class="discovered-words-card">
+    <div class="drawer-header">
+      <span><i class="fa-solid fa-book-bookmark"></i> Words Synthesized</span>
+      <span id="words-count-badge">0 DISCOVERED</span>
+    </div>
+    <div class="words-tag-container" id="discovered-words-list">
+      <span class="empty-words-msg">Spell words by chaining bumper impacts with vowel glides!</span>
+    </div>
+  </section>
+
+  <!-- Acoustic Guide -->
+  <section class="acoustic-guide-card">
+    <h3><i class="fa-solid fa-circle-info"></i> How Physical Formant Pinball Works</h3>
+    <p>
+      <strong>1. The Vowel Floor:</strong> Human vowels are defined by two resonant frequencies: <strong>F1</strong> (jaw openness, vertical Y-axis) and <strong>F2</strong> (tongue position, horizontal X-axis). Moving between <em>[EE]</em>, <em>[OO]</em>, and <em>[AH]</em> synthesizes continuous vocal diphthongs.
+    </p>
+    <p>
+      <strong>2. Consonant Bumpers:</strong> Collisions with <strong>[B], [T], [K], [P], [D], [G]</strong> pop-bumpers trigger rapid acoustic transient stops. The top <strong>[S]</strong> spinner unleashes high-frequency fricative hiss.
+    </p>
+    <p>
+      <strong>3. Word Bounty:</strong> Hit targets in sequence to spell target words (e.g. <em>Bumper [B] &rarr; Center Glide [AH] &rarr; Post [T] = BAT!</em>).
+    </p>
+  </section>
+
+  <!-- =========================================================================
+       PHONOBALL JAVASCRIPT ENGINE: PHYSICS, FORMANT SYNTHESIS & LEXICON
+       ========================================================================= -->
+  <script>
+  (function () {
+    'use strict';
+
+    // -------------------------------------------------------------------------
+    // 1. PHONETIC DICTIONARY (CVC & COMMON SHORT WORDS)
+    // -------------------------------------------------------------------------
+    // Format: Phoneme key array -> Display word string
+    // Phonemes:
+    //   Consonants: B, T, K, P, D, G, S, M, N, L, R
+    //   Vowels: EE (/i/), OO (/u/), AA (/ɑ/), EH (/ɛ/), OH (/oʊ/), IH (/ɪ/)
+    const LEXICON = [
+      { word: 'BAT',  seq: ['B', 'AA', 'T'], pts: 500 },
+      { word: 'BIT',  seq: ['B', 'IH', 'T'], pts: 500 },
+      { word: 'BET',  seq: ['B', 'EH', 'T'], pts: 500 },
+      { word: 'BOOT', seq: ['B', 'OO', 'T'], pts: 600 },
+      { word: 'BOAT', seq: ['B', 'OH', 'T'], pts: 600 },
+      { word: 'BEAT', seq: ['B', 'EE', 'T'], pts: 600 },
+      { word: 'BAD',  seq: ['B', 'AA', 'D'], pts: 500 },
+      { word: 'BED',  seq: ['B', 'EH', 'D'], pts: 500 },
+      { word: 'BID',  seq: ['B', 'IH', 'D'], pts: 500 },
+      { word: 'BUG',  seq: ['B', 'AA', 'G'], pts: 500 },
+      { word: 'BIG',  seq: ['B', 'IH', 'G'], pts: 500 },
+      { word: 'BEG',  seq: ['B', 'EH', 'G'], pts: 500 },
+      { word: 'BOG',  seq: ['B', 'OH', 'G'], pts: 500 },
+      { word: 'CAT',  seq: ['K', 'AA', 'T'], pts: 500 },
+      { word: 'KIT',  seq: ['K', 'IH', 'T'], pts: 500 },
+      { word: 'COT',  seq: ['K', 'OH', 'T'], pts: 500 },
+      { word: 'CAP',  seq: ['K', 'AA', 'P'], pts: 500 },
+      { word: 'COP',  seq: ['K', 'OH', 'P'], pts: 500 },
+      { word: 'CUP',  seq: ['K', 'AA', 'P'], pts: 500 },
+      { word: 'KEEP', seq: ['K', 'EE', 'P'], pts: 600 },
+      { word: 'KID',  seq: ['K', 'IH', 'D'], pts: 500 },
+      { word: 'KEG',  seq: ['K', 'EH', 'G'], pts: 500 },
+      { word: 'PAT',  seq: ['P', 'AA', 'T'], pts: 500 },
+      { word: 'PET',  seq: ['P', 'EH', 'T'], pts: 500 },
+      { word: 'PIT',  seq: ['P', 'IH', 'T'], pts: 500 },
+      { word: 'POT',  seq: ['P', 'OH', 'T'], pts: 500 },
+      { word: 'POP',  seq: ['P', 'OH', 'P'], pts: 600 },
+      { word: 'PIP',  seq: ['P', 'IH', 'P'], pts: 600 },
+      { word: 'PUP',  seq: ['P', 'AA', 'P'], pts: 600 },
+      { word: 'PEEP', seq: ['P', 'EE', 'P'], pts: 700 },
+      { word: 'PAD',  seq: ['P', 'AA', 'D'], pts: 500 },
+      { word: 'POD',  seq: ['P', 'OH', 'D'], pts: 500 },
+      { word: 'PIG',  seq: ['P', 'IH', 'G'], pts: 500 },
+      { word: 'PEG',  seq: ['P', 'EH', 'G'], pts: 500 },
+      { word: 'PUG',  seq: ['P', 'AA', 'G'], pts: 500 },
+      { word: 'TOP',  seq: ['T', 'OH', 'P'], pts: 500 },
+      { word: 'TIP',  seq: ['T', 'IH', 'P'], pts: 500 },
+      { word: 'TAP',  seq: ['T', 'AA', 'P'], pts: 500 },
+      { word: 'TUB',  seq: ['T', 'AA', 'B'], pts: 500 },
+      { word: 'TAB',  seq: ['T', 'AA', 'B'], pts: 500 },
+      { word: 'TAG',  seq: ['T', 'AA', 'G'], pts: 500 },
+      { word: 'TUG',  seq: ['T', 'AA', 'G'], pts: 500 },
+      { word: 'TOOT', seq: ['T', 'OO', 'T'], pts: 600 },
+      { word: 'DIP',  seq: ['D', 'IH', 'P'], pts: 500 },
+      { word: 'DOT',  seq: ['D', 'OH', 'T'], pts: 500 },
+      { word: 'DOG',  seq: ['D', 'OH', 'G'], pts: 500 },
+      { word: 'DIG',  seq: ['D', 'IH', 'G'], pts: 500 },
+      { word: 'DUG',  seq: ['D', 'AA', 'G'], pts: 500 },
+      { word: 'DEEP', seq: ['D', 'EE', 'P'], pts: 600 },
+      { word: 'GAP',  seq: ['G', 'AA', 'P'], pts: 500 },
+      { word: 'GOT',  seq: ['G', 'OH', 'T'], pts: 500 },
+      { word: 'GET',  seq: ['G', 'EH', 'T'], pts: 500 },
+      { word: 'GUT',  seq: ['G', 'AA', 'T'], pts: 500 },
+      { word: 'SAT',  seq: ['S', 'AA', 'T'], pts: 500 },
+      { word: 'SET',  seq: ['S', 'EH', 'T'], pts: 500 },
+      { word: 'SIT',  seq: ['S', 'IH', 'T'], pts: 500 },
+      { word: 'SIP',  seq: ['S', 'IH', 'P'], pts: 500 },
+      { word: 'SAP',  seq: ['S', 'AA', 'P'], pts: 500 },
+      { word: 'SOAP', seq: ['S', 'OH', 'P'], pts: 600 },
+      { word: 'SOUP', seq: ['S', 'OO', 'P'], pts: 600 },
+      { word: 'SEEP', seq: ['S', 'EE', 'P'], pts: 600 },
+      { word: 'SAG',  seq: ['S', 'AA', 'G'], pts: 500 },
+      { word: 'SUB',  seq: ['S', 'AA', 'B'], pts: 500 },
+      { word: 'SOB',  seq: ['S', 'OH', 'B'], pts: 500 },
+      { word: 'SPIT', seq: ['S', 'P', 'IH', 'T'], pts: 900 },
+      { word: 'SPOT', seq: ['S', 'P', 'OH', 'T'], pts: 900 },
+      { word: 'STOP', seq: ['S', 'T', 'OH', 'P'], pts: 900 },
+      { word: 'STEP', seq: ['S', 'T', 'EH', 'P'], pts: 900 },
+      { word: 'BOOTS', seq: ['B', 'OO', 'T', 'S'], pts: 1000 },
+      { word: 'CATS',  seq: ['K', 'AA', 'T', 'S'], pts: 1000 },
+      { word: 'POTS',  seq: ['P', 'OH', 'T', 'S'], pts: 1000 },
+      { word: 'TAPS',  seq: ['T', 'AA', 'P', 'S'], pts: 1000 },
+      { word: 'TIPS',  seq: ['T', 'IH', 'P', 'S'], pts: 1000 },
+      { word: 'DIPS',  seq: ['D', 'IH', 'P', 'S'], pts: 1000 },
+      { word: 'DOGS',  seq: ['D', 'OH', 'G', 'S'], pts: 1000 }
+    ];
+
+    // Bounty Targets to assign in order
+    const BOUNTY_LIST = ['CAT', 'BAT', 'TOP', 'DOG', 'PIG', 'STOP', 'BOOT', 'SIP', 'BED', 'CUP'];
+
+    // -------------------------------------------------------------------------
+    // 2. WEB AUDIO ACOUSTIC FORMANT SYNTHESIZER
+    // -------------------------------------------------------------------------
+    class FormantSynth {
+      constructor() {
+        this.ctx = null;
+        this.isAudioReady = false;
+
+        // Glottal source (vocal folds)
+        this.glottalOsc = null;
+        this.glottalSub = null;
+        this.vibratoOsc = null;
+        this.vibratoGain = null;
+        this.glottalGain = null;
+
+        // Formant filters (F1, F2, F3)
+        this.f1Filter = null;
+        this.f2Filter = null;
+        this.f3Filter = null;
+        this.formantBus = null;
+
+        // Master output & Limiter
+        this.masterGain = null;
+        this.limiter = null;
+
+        // Noise buffer for fricatives / plosives
+        this.noiseBuffer = null;
+      }
+
+      init() {
+        if (this.isAudioReady) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+
+        // Master Limiter to prevent clipping
+        this.limiter = this.ctx.createDynamicsCompressor();
+        this.limiter.threshold.setValueAtTime(-2.0, this.ctx.currentTime);
+        this.limiter.knee.setValueAtTime(2.0, this.ctx.currentTime);
+        this.limiter.ratio.setValueAtTime(16.0, this.ctx.currentTime);
+        this.limiter.attack.setValueAtTime(0.002, this.ctx.currentTime);
+        this.limiter.release.setValueAtTime(0.05, this.ctx.currentTime);
+        this.limiter.connect(this.ctx.destination);
+
+        // Master Voice Gain
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        this.masterGain.connect(this.limiter);
+
+        // 1. Glottal Excitation Source (Sawtooth rich in harmonics)
+        this.glottalOsc = this.ctx.createOscillator();
+        this.glottalOsc.type = 'sawtooth';
+        this.glottalOsc.frequency.setValueAtTime(125.0, this.ctx.currentTime); // C3 human voice fundamental
+
+        // Warm sub-oscillator for vocal chest resonance
+        this.glottalSub = this.ctx.createOscillator();
+        this.glottalSub.type = 'triangle';
+        this.glottalSub.frequency.setValueAtTime(62.5, this.ctx.currentTime);
+
+        // Subtle 5.2 Hz vocal fold vibrato
+        this.vibratoOsc = this.ctx.createOscillator();
+        this.vibratoOsc.frequency.setValueAtTime(5.2, this.ctx.currentTime);
+        this.vibratoGain = this.ctx.createGain();
+        this.vibratoGain.gain.setValueAtTime(2.8, this.ctx.currentTime); // ~2.8 Hz subtle pitch drift
+        this.vibratoOsc.connect(this.vibratoGain);
+        this.vibratoGain.connect(this.glottalOsc.frequency);
+
+        this.glottalGain = this.ctx.createGain();
+        this.glottalGain.gain.setValueAtTime(0.0001, this.ctx.currentTime); // Initially silent until ball rolls
+
+        this.glottalOsc.connect(this.glottalGain);
+        this.glottalSub.connect(this.glottalGain);
+
+        // 2. Formant Filter Bank (Three Parallel Resonators)
+        this.f1Filter = this.ctx.createBiquadFilter();
+        this.f1Filter.type = 'bandpass';
+        this.f1Filter.Q.setValueAtTime(7.0, this.ctx.currentTime);
+        this.f1Filter.frequency.setValueAtTime(500, this.ctx.currentTime);
+
+        this.f2Filter = this.ctx.createBiquadFilter();
+        this.f2Filter.type = 'bandpass';
+        this.f2Filter.Q.setValueAtTime(8.5, this.ctx.currentTime);
+        this.f2Filter.frequency.setValueAtTime(1500, this.ctx.currentTime);
+
+        this.f3Filter = this.ctx.createBiquadFilter();
+        this.f3Filter.type = 'bandpass';
+        this.f3Filter.Q.setValueAtTime(6.0, this.ctx.currentTime);
+        this.f3Filter.frequency.setValueAtTime(2800, this.ctx.currentTime); // Anchor formant
+
+        this.formantBus = this.ctx.createGain();
+        this.formantBus.gain.setValueAtTime(1.0, this.ctx.currentTime);
+
+        this.glottalGain.connect(this.f1Filter);
+        this.glottalGain.connect(this.f2Filter);
+        this.glottalGain.connect(this.f3Filter);
+
+        this.f1Filter.connect(this.formantBus);
+        this.f2Filter.connect(this.formantBus);
+        this.f3Filter.connect(this.formantBus);
+
+        this.formantBus.connect(this.masterGain);
+
+        // Start Oscillators
+        this.glottalOsc.start();
+        this.glottalSub.start();
+        this.vibratoOsc.start();
+
+        // 3. Noise Buffer for Fricatives / Plosive Bursts
+        const bufLen = this.ctx.sampleRate * 2;
+        this.noiseBuffer = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+        const data = this.noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufLen; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        this.isAudioReady = true;
+      }
+
+      resume() {
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      // Update Formant Resonances based on normalized ball coords:
+      // normX: 0 (left = front vowels high F2) to 1 (right = back vowels low F2)
+      // normY: 0 (top = high closed vowels low F1) to 1 (bottom = low open vowels high F1)
+      updateFormants(normX, normY, speed) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        // F1 (Height / Jaw Openness): 280 Hz (closed EE/OO) to 850 Hz (open AH)
+        const targetF1 = 280 + normY * 570;
+
+        // F2 (Front / Back Tongue): 800 Hz (back OO) to 2500 Hz (front EE)
+        // High front is top-left, back is top-right
+        const targetF2 = 2500 - normX * 1650;
+
+        // Smooth glide with 25ms constant for organic vowel transitions & diphthongs
+        this.f1Filter.frequency.setTargetAtTime(targetF1, now, 0.025);
+        this.f2Filter.frequency.setTargetAtTime(targetF2, now, 0.025);
+
+        // Vocal presence tied to ball speed: fast = louder vocalization, at rest = subtle breath
+        const targetGain = Math.min(0.48, Math.max(0.0001, (speed - 0.4) * 0.055));
+        this.glottalGain.gain.setTargetAtTime(targetGain, now, 0.03);
+
+        return { f1: Math.round(targetF1), f2: Math.round(targetF2) };
+      }
+
+      // Trigger Consonant Articulation (Plosives, Fricatives, Pops)
+      triggerConsonant(phoneme) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        // Duck the vocal drone slightly for articulatory occlusion
+        this.glottalGain.gain.setValueAtTime(0.001, now);
+        this.glottalGain.gain.exponentialRampToValueAtTime(0.35, now + 0.08);
+
+        switch (phoneme) {
+          case 'B':
+          case 'P':
+            this.playPlosive(now, phoneme === 'B' ? 140 : 200, 0.04, phoneme === 'B');
+            break;
+          case 'T':
+          case 'D':
+            this.playDentalStop(now, phoneme === 'D');
+            break;
+          case 'K':
+          case 'G':
+            this.playVelarStop(now, phoneme === 'G');
+            break;
+          case 'S':
+            this.playFricative(now, 5800, 0.12);
+            break;
+          default:
+            this.playPlosive(now, 180, 0.03, true);
+        }
+      }
+
+      // Bilabial Plosive Burst (B / P): Low punchy transient pop
+      playPlosive(now, baseFreq, duration, isVoiced) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = isVoiced ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(baseFreq * 2.2, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.6, now + duration);
+
+        gain.gain.setValueAtTime(0.7, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+
+        // Add subtle unvoiced noise pop for 'P'
+        if (!isVoiced) {
+          this.playNoiseBurst(now, 1200, 0.025, 0.45);
+        }
+      }
+
+      // Alveolar / Dental Stop (T / D): Crisp high transient click
+      playDentalStop(now, isVoiced) {
+        const dur = isVoiced ? 0.035 : 0.025;
+        this.playNoiseBurst(now, isVoiced ? 3200 : 4500, dur, 0.55);
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + dur);
+
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.01);
+      }
+
+      // Velar Stop (K / G): Mid-frequency burst
+      playVelarStop(now, isVoiced) {
+        const dur = 0.045;
+        this.playNoiseBurst(now, 1800, dur, 0.5);
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(90, now + dur);
+
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.01);
+      }
+
+      // Fricative Hiss (S / SH)
+      playFricative(now, centerFreq, duration) {
+        this.playNoiseBurst(now, centerFreq, duration, 0.4, 'highpass');
+      }
+
+      playNoiseBurst(now, freq, duration, gainVal, filterType = 'bandpass') {
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = filterType;
+        filter.frequency.setValueAtTime(freq, now);
+        filter.Q.setValueAtTime(4.0, now);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
+        noise.stop(now + duration + 0.02);
+      }
+
+      // Celebratory word chime & synthesized voice flourish
+      playWordCelebration(word) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        // Arpeggiated chord fanfare
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.08);
+          gain.gain.linearRampToValueAtTime(0.25, now + idx * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.5);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.55);
+        });
+
+        // Use Browser Speech Synthesis for robotic voice confirmation if available
+        if ('speechSynthesis' in window) {
+          try {
+            const utter = new SpeechSynthesisUtterance(word.toLowerCase());
+            utter.pitch = 1.3;
+            utter.rate = 1.0;
+            utter.volume = 0.8;
+            window.speechSynthesis.speak(utter);
+          } catch (e) {
+            // Fallback gracefully
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. 2D PINBALL PHYSICS ENGINE
+    // -------------------------------------------------------------------------
+    class PinballGame {
+      constructor() {
+        this.canvas = document.getElementById('pinball-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.synth = new FormantSynth();
+
+        // Virtual Playfield Dimension (460 x 680)
+        this.width = 460;
+        this.height = 680;
+
+        // Game State
+        this.score = 0;
+        this.ballCount = 1;
+        this.maxBalls = 3;
+        this.isGameOver = false;
+        this.discoveredWords = new Set();
+        this.bountyIdx = 0;
+
+        // Phoneme Buffer State
+        this.phonemeStream = [];
+        this.lastPhonemeTime = 0;
+        this.currentVowelRegion = null;
+        this.lastVowelToken = null;
+
+        // Ball Physics
+        this.ball = {
+          x: 430,
+          y: 580,
+          vx: 0,
+          vy: 0,
+          radius: 9.5,
+          mass: 1.0,
+          inPlay: false
+        };
+
+        this.gravity = 0.26;
+        this.plungerEnergy = 0;
+        this.isPlungerCharging = false;
+
+        // Flippers
+        // Left Flipper
+        this.leftFlipper = {
+          pivotX: 135,
+          pivotY: 605,
+          length: 68,
+          baseAngle: 0.55,   // Rest angle (pointing down-inward)
+          upAngle: -0.55,    // Flipped up angle
+          currentAngle: 0.55,
+          isPressed: false,
+          angularVelocity: 0,
+          angularSpeed: 0.38
+        };
+
+        // Right Flipper
+        this.rightFlipper = {
+          pivotX: 285,
+          pivotY: 605,
+          length: 68,
+          baseAngle: Math.PI - 0.55,
+          upAngle: Math.PI + 0.55,
+          currentAngle: Math.PI - 0.55,
+          isPressed: false,
+          angularVelocity: 0,
+          angularSpeed: 0.38
+        };
+
+        // Playfield Consonant Bumpers (Pop Bumpers)
+        this.bumpers = [
+          // Upper Triangle
+          { id: 'B',  x: 150, y: 190, r: 26, color: '#00f2fe', label: 'B',  phoneme: 'B', hitAnim: 0 },
+          { id: 'T',  x: 270, y: 190, r: 26, color: '#ff7eb3', label: 'T',  phoneme: 'T', hitAnim: 0 },
+          { id: 'K',  x: 210, y: 280, r: 26, color: '#2ed573', label: 'K',  phoneme: 'K', hitAnim: 0 },
+          
+          // Mid Posts / Slingshots
+          { id: 'P',  x: 90,  y: 380, r: 22, color: '#ffd32a', label: 'P',  phoneme: 'P', hitAnim: 0 },
+          { id: 'D',  x: 330, y: 380, r: 22, color: '#ff9f43', label: 'D',  phoneme: 'D', hitAnim: 0 },
+          { id: 'G',  x: 210, y: 110, r: 22, color: '#a55eea', label: 'G',  phoneme: 'G', hitAnim: 0 }
+        ];
+
+        // Top Spinner (Fricative S)
+        this.spinner = {
+          x: 210,
+          y: 50,
+          width: 38,
+          height: 12,
+          angle: 0,
+          spinSpeed: 0,
+          phoneme: 'S'
+        };
+
+        // Word Celebration Animation State
+        this.bannerEl = document.getElementById('word-banner');
+        this.bannerWordEl = document.getElementById('banner-word-text');
+        this.bannerPtsEl = document.getElementById('banner-points-text');
+        this.bannerTimer = null;
+
+        this.initDOM();
+        this.initControls();
+        this.resetBall();
+
+        // Start 60fps render loop
+        this.lastTime = performance.now();
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      initDOM() {
+        this.scoreEl = document.getElementById('stat-score');
+        this.ballEl = document.getElementById('stat-ball');
+        this.targetWordEl = document.getElementById('stat-target-word');
+        this.phonemeStreamEl = document.getElementById('phoneme-stream-container');
+        this.valF1El = document.getElementById('val-f1');
+        this.valF2El = document.getElementById('val-f2');
+        this.discoveredListEl = document.getElementById('discovered-words-list');
+        this.wordsCountBadge = document.getElementById('words-count-badge');
+
+        this.updateHUD();
+      }
+
+      initControls() {
+        // Overlay Start Button
+        const startBtn = document.getElementById('btn-start-audio');
+        const overlay = document.getElementById('audio-overlay');
+        startBtn.addEventListener('click', () => {
+          this.synth.init();
+          this.synth.resume();
+          overlay.classList.add('hidden');
+          this.launchBall();
+        });
+
+        // Touch / Click arcade buttons
+        const leftBtn = document.getElementById('btn-left-flipper');
+        const rightBtn = document.getElementById('btn-right-flipper');
+        const plungerBtn = document.getElementById('btn-plunger');
+
+        const bindPress = (el, onDown, onUp) => {
+          el.addEventListener('pointerdown', (e) => { e.preventDefault(); onDown(); });
+          el.addEventListener('pointerup', (e) => { e.preventDefault(); onUp(); });
+          el.addEventListener('pointerleave', (e) => { e.preventDefault(); onUp(); });
+        };
+
+        bindPress(leftBtn, 
+          () => { this.leftFlipper.isPressed = true; leftBtn.classList.add('pressed'); },
+          () => { this.leftFlipper.isPressed = false; leftBtn.classList.remove('pressed'); }
+        );
+
+        bindPress(rightBtn, 
+          () => { this.rightFlipper.isPressed = true; rightBtn.classList.add('pressed'); },
+          () => { this.rightFlipper.isPressed = false; rightBtn.classList.remove('pressed'); }
+        );
+
+        bindPress(plungerBtn,
+          () => { this.isPlungerCharging = true; plungerBtn.classList.add('pressed'); },
+          () => { 
+            this.isPlungerCharging = false; 
+            plungerBtn.classList.remove('pressed'); 
+            this.firePlunger(); 
+          }
+        );
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+          this.synth.resume();
+          if (e.repeat) return;
+          if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+            this.leftFlipper.isPressed = true;
+            leftBtn.classList.add('pressed');
+          }
+          if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+            this.rightFlipper.isPressed = true;
+            rightBtn.classList.add('pressed');
+          }
+          if (e.code === 'Space' || e.code === 'ArrowDown') {
+            e.preventDefault();
+            this.isPlungerCharging = true;
+            plungerBtn.classList.add('pressed');
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+            this.leftFlipper.isPressed = false;
+            leftBtn.classList.remove('pressed');
+          }
+          if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+            this.rightFlipper.isPressed = false;
+            rightBtn.classList.remove('pressed');
+          }
+          if (e.code === 'Space' || e.code === 'ArrowDown') {
+            this.isPlungerCharging = false;
+            plungerBtn.classList.remove('pressed');
+            this.firePlunger();
+          }
+        });
+
+        // Touch Canvas Sides for instant mobile flippers
+        this.canvas.addEventListener('pointerdown', (e) => {
+          this.synth.resume();
+          const rect = this.canvas.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width;
+          if (x < 0.45) {
+            this.leftFlipper.isPressed = true;
+          } else if (x > 0.55) {
+            this.rightFlipper.isPressed = true;
+          } else {
+            this.isPlungerCharging = true;
+          }
+        });
+
+        window.addEventListener('pointerup', () => {
+          this.leftFlipper.isPressed = false;
+          this.rightFlipper.isPressed = false;
+          if (this.isPlungerCharging) {
+            this.isPlungerCharging = false;
+            this.firePlunger();
+          }
+        });
+      }
+
+      resetBall() {
+        this.ball.x = 432;
+        this.ball.y = 540;
+        this.ball.vx = 0;
+        this.ball.vy = 0;
+        this.ball.inPlay = false;
+      }
+
+      launchBall() {
+        if (this.ball.inPlay) return;
+        this.ball.x = 432;
+        this.ball.y = 530;
+        this.ball.vx = 0;
+        this.ball.vy = -16.5;
+        this.ball.inPlay = true;
+        this.synth.triggerConsonant('P'); // Plunger launch pop
+      }
+
+      firePlunger() {
+        if (!this.ball.inPlay && this.ball.x > 410) {
+          const power = Math.max(10, Math.min(22, this.plungerEnergy));
+          this.ball.vy = -power;
+          this.ball.inPlay = true;
+          this.synth.triggerConsonant('P');
+        }
+        this.plungerEnergy = 0;
+      }
+
+      // -----------------------------------------------------------------------
+      // PHONEME STREAM & WORD RECOGNITION
+      // -----------------------------------------------------------------------
+      registerPhoneme(phoneme, isVowel = false) {
+        const now = performance.now();
+
+        // Clear stream if inactive for more than 2.8 seconds
+        if (this.phonemeStream.length > 0 && now - this.lastPhonemeTime > 2800) {
+          this.phonemeStream = [];
+        }
+
+        // Avoid spamming duplicate identical vowels in a row
+        if (isVowel && this.phonemeStream.length > 0 && this.phonemeStream[this.phonemeStream.length - 1].token === phoneme) {
+          return;
+        }
+
+        this.phonemeStream.push({ token: phoneme, isVowel, time: now });
+        if (this.phonemeStream.length > 5) {
+          this.phonemeStream.shift();
+        }
+        this.lastPhonemeTime = now;
+
+        this.renderPhonemeStream();
+        this.checkWordMatches();
+      }
+
+      renderPhonemeStream() {
+        if (this.phonemeStream.length === 0) {
+          this.phonemeStreamEl.innerHTML = '<span style="color: #475569; font-size: 0.68rem;">Awaiting ball impact...</span>';
+          return;
+        }
+
+        this.phonemeStreamEl.innerHTML = this.phonemeStream.map(p => 
+          `<span class="phoneme-chip ${p.isVowel ? 'vowel' : ''}">${p.token}</span>`
+        ).join('');
+      }
+
+      checkWordMatches() {
+        if (this.phonemeStream.length < 3) return;
+
+        const currentSeq = this.phonemeStream.map(p => p.token);
+
+        // Check if any suffix of currentSeq matches a word in LEXICON
+        for (let len = Math.min(currentSeq.length, 4); len >= 3; len--) {
+          const sub = currentSeq.slice(-len);
+          const match = LEXICON.find(item => {
+            if (item.seq.length !== sub.length) return false;
+            return item.seq.every((val, idx) => val === sub[idx]);
+          });
+
+          if (match) {
+            this.awardWord(match);
+            this.phonemeStream = []; // Reset after a successful word
+            setTimeout(() => this.renderPhonemeStream(), 400);
+            break;
+          }
+        }
+      }
+
+      awardWord(match) {
+        let pts = match.pts;
+        const isBounty = (match.word === BOUNTY_LIST[this.bountyIdx]);
+
+        if (isBounty) {
+          pts *= 3; // 3x Bounty Bonus!
+          this.bountyIdx = (this.bountyIdx + 1) % BOUNTY_LIST.length;
+        }
+
+        this.score += pts;
+        this.discoveredWords.add(match.word);
+
+        // Flash HUD and Banner
+        this.showCelebrationBanner(match.word, pts, isBounty);
+        this.synth.playWordCelebration(match.word);
+        this.updateHUD();
+      }
+
+      showCelebrationBanner(word, pts, isBounty) {
+        if (this.bannerTimer) clearTimeout(this.bannerTimer);
+        this.bannerWordEl.textContent = word;
+        this.bannerPtsEl.textContent = isBounty ? `BOUNTY! +${pts.toLocaleString()} PTS` : `+${pts.toLocaleString()} PTS`;
+        this.bannerEl.classList.add('active');
+
+        this.bannerTimer = setTimeout(() => {
+          this.bannerEl.classList.remove('active');
+        }, 1600);
+      }
+
+      updateHUD() {
+        this.scoreEl.textContent = this.score.toString().padStart(6, '0');
+        this.ballEl.textContent = `${this.ballCount} / ${this.maxBalls}`;
+        this.targetWordEl.textContent = BOUNTY_LIST[this.bountyIdx];
+
+        // Update Discovered Words Tag Card
+        if (this.discoveredWords.size === 0) {
+          this.discoveredListEl.innerHTML = '<span class="empty-words-msg">Spell words by chaining bumper impacts with vowel glides!</span>';
+          this.wordsCountBadge.textContent = '0 DISCOVERED';
+        } else {
+          this.wordsCountBadge.textContent = `${this.discoveredWords.size} DISCOVERED`;
+          this.discoveredListEl.innerHTML = Array.from(this.discoveredWords).map(w => 
+            `<span class="word-badge">${w}</span>`
+          ).join('');
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. MAIN GAME & PHYSICS LOOP
+      // -----------------------------------------------------------------------
+      loop(currentTime) {
+        const dt = Math.min(32, currentTime - this.lastTime);
+        this.lastTime = currentTime;
+
+        this.update(dt);
+        this.render();
+
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      update(dt) {
+        // 1. Plunger Charging
+        if (this.isPlungerCharging) {
+          this.plungerEnergy = Math.min(24, this.plungerEnergy + 0.4);
+        }
+
+        // 2. Flipper Physics
+        this.updateFlipper(this.leftFlipper, true);
+        this.updateFlipper(this.rightFlipper, false);
+
+        // 3. Ball Physics & Gravity
+        if (this.ball.inPlay) {
+          this.ball.vy += this.gravity;
+          this.ball.vx *= 0.996; // Slight air resistance
+          this.ball.vy *= 0.996;
+
+          this.ball.x += this.ball.vx;
+          this.ball.y += this.ball.vy;
+
+          // Ball-to-wall collisions
+          this.handleWallCollisions();
+
+          // Ball-to-bumper collisions
+          this.handleBumperCollisions();
+
+          // Ball-to-flipper collisions
+          this.handleFlipperCollision(this.leftFlipper);
+          this.handleFlipperCollision(this.rightFlipper);
+
+          // Top Spinner
+          this.handleSpinner();
+
+          // Continuous Formant Modulation & Vowel Region Detection
+          this.evaluateVowelSpace();
+
+          // Ball Drain Check (Between or below flippers)
+          if (this.ball.y > this.height + 25) {
+            this.handleDrain();
+          }
+        }
+
+        // Decay Bumper Visual Hit Rings
+        this.bumpers.forEach(b => {
+          if (b.hitAnim > 0) b.hitAnim -= 0.05;
+        });
+      }
+
+      updateFlipper(flipper, isLeft) {
+        const target = flipper.isPressed ? flipper.upAngle : flipper.baseAngle;
+        const diff = target - flipper.currentAngle;
+        flipper.angularVelocity = diff * 0.45;
+        flipper.currentAngle += flipper.angularVelocity;
+      }
+
+      handleWallCollisions() {
+        const b = this.ball;
+        const r = b.radius;
+
+        // Left Boundary Wall
+        if (b.x - r < 20) {
+          b.x = 20 + r;
+          b.vx = -b.vx * 0.75;
+        }
+
+        // Right Plunger Lane Wall
+        const rightWall = b.inPlay && b.y > 140 ? 418 : 442;
+        if (b.x + r > rightWall) {
+          b.x = rightWall - r;
+          b.vx = -b.vx * 0.75;
+        }
+
+        // Curved Top Arch
+        if (b.y - r < 25) {
+          b.y = 25 + r;
+          b.vy = -b.vy * 0.72;
+        }
+
+        // Angled Slingshot Walls leading to flippers
+        // Left lower guide: from (20, 500) to (115, 595)
+        this.collideLineSegment(20, 500, 115, 595, 0.78);
+        // Right lower guide: from (418, 500) to (305, 595)
+        this.collideLineSegment(418, 500, 305, 595, 0.78);
+
+        // Upper Arch Deflectors
+        this.collideLineSegment(20, 95, 90, 24, 0.85);
+        this.collideLineSegment(360, 24, 442, 85, 0.85);
+
+        // Anti-stuck watchdog: if ball is in play but almost motionless for too long, micro-nudge
+        const speed = Math.hypot(b.vx, b.vy);
+        if (b.inPlay && speed < 0.25 && b.x < 415 && b.y < this.height - 100) {
+          this.stuckTimer = (this.stuckTimer || 0) + 1;
+          if (this.stuckTimer > 90) { // ~1.5s stuck
+            b.vx = (Math.random() - 0.5) * 3.5;
+            b.vy = -3.5;
+            this.stuckTimer = 0;
+          }
+        } else {
+          this.stuckTimer = 0;
+        }
+      }
+
+      collideLineSegment(x1, y1, x2, y2, elasticity = 0.8) {
+        const b = this.ball;
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lenSq = dx * dx + dy * dy;
+
+        let t = ((b.x - x1) * dx + (b.y - y1) * dy) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+
+        const closestX = x1 + t * dx;
+        const closestY = y1 + t * dy;
+
+        const distX = b.x - closestX;
+        const distY = b.y - closestY;
+        const dist = Math.hypot(distX, distY);
+
+        if (dist < b.radius) {
+          const nx = distX / (dist || 1);
+          const ny = distY / (dist || 1);
+
+          // Push ball out of boundary
+          b.x = closestX + nx * b.radius;
+          b.y = closestY + ny * b.radius;
+
+          // Reflect velocity vector
+          const dot = b.vx * nx + b.vy * ny;
+          b.vx = (b.vx - 2 * dot * nx) * elasticity;
+          b.vy = (b.vy - 2 * dot * ny) * elasticity;
+        }
+      }
+
+      handleBumperCollisions() {
+        const b = this.ball;
+        this.bumpers.forEach(bumper => {
+          const dx = b.x - bumper.x;
+          const dy = b.y - bumper.y;
+          const dist = Math.hypot(dx, dy);
+          const minDist = b.radius + bumper.r;
+
+          if (dist < minDist) {
+            // Elastic pop kick!
+            const nx = dx / (dist || 1);
+            const ny = dy / (dist || 1);
+
+            b.x = bumper.x + nx * minDist;
+            b.y = bumper.y + ny * minDist;
+
+            const kickSpeed = 9.8;
+            b.vx = nx * kickSpeed;
+            b.vy = ny * kickSpeed;
+
+            bumper.hitAnim = 1.0;
+            this.score += 100;
+            this.updateHUD();
+
+            // Trigger Consonant Speech Articulation
+            this.synth.triggerConsonant(bumper.phoneme);
+            this.registerPhoneme(bumper.phoneme, false);
+          }
+        });
+      }
+
+      handleFlipperCollision(flipper) {
+        const b = this.ball;
+        const tipX = flipper.pivotX + Math.cos(flipper.currentAngle) * flipper.length;
+        const tipY = flipper.pivotY + Math.sin(flipper.currentAngle) * flipper.length;
+
+        const dx = tipX - flipper.pivotX;
+        const dy = tipY - flipper.pivotY;
+        const lenSq = dx * dx + dy * dy;
+
+        let t = ((b.x - flipper.pivotX) * dx + (b.y - flipper.pivotY) * dy) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+
+        const closestX = flipper.pivotX + t * dx;
+        const closestY = flipper.pivotY + t * dy;
+
+        const distX = b.x - closestX;
+        const distY = b.y - closestY;
+        const dist = Math.hypot(distX, distY);
+
+        if (dist < b.radius + 6) {
+          const nx = distX / (dist || 1);
+          const ny = distY / (dist || 1);
+
+          b.x = closestX + nx * (b.radius + 6);
+          b.y = closestY + ny * (b.radius + 6);
+
+          // Normal collision reflection
+          const dot = b.vx * nx + b.vy * ny;
+          b.vx = (b.vx - 2 * dot * nx) * 0.7;
+          b.vy = (b.vy - 2 * dot * ny) * 0.7;
+
+          // Add rotational kinetic impulse from flipper stroke
+          if (flipper.isPressed && Math.abs(flipper.angularVelocity) > 0.05) {
+            const rotationalSpeed = flipper.angularVelocity * flipper.length * (0.6 + t * 0.8);
+            const perpX = -Math.sin(flipper.currentAngle);
+            const perpY = Math.cos(flipper.currentAngle);
+
+            b.vx += perpX * rotationalSpeed * 0.8;
+            b.vy += perpY * rotationalSpeed * 0.8 - 4.5; // Upward launch pop
+            this.synth.triggerConsonant('B'); // Bouncy flipper hit
+          }
+        }
+      }
+
+      handleSpinner() {
+        const s = this.spinner;
+        const b = this.ball;
+
+        if (b.x > s.x - 22 && b.x < s.x + 22 && Math.abs(b.y - s.y) < 14) {
+          if (s.spinSpeed < 0.1) {
+            s.spinSpeed = Math.abs(b.vy) * 0.35 + 0.5;
+            this.synth.triggerConsonant('S'); // Fricative hiss
+            this.registerPhoneme('S', false);
+            this.score += 50;
+            this.updateHUD();
+          }
+        }
+
+        if (s.spinSpeed > 0.02) {
+          s.angle += s.spinSpeed;
+          s.spinSpeed *= 0.94;
+        } else {
+          s.spinSpeed = 0;
+        }
+      }
+
+      // Continuous Vowel Space Modulation & Diphthong Gliding
+      evaluateVowelSpace() {
+        const b = this.ball;
+        const normX = Math.min(1.0, Math.max(0.0, (b.x - 30) / (this.width - 90)));
+        const normY = Math.min(1.0, Math.max(0.0, (b.y - 40) / (this.height - 180)));
+        const speed = Math.hypot(b.vx, b.vy);
+
+        // Update real-time formant filters
+        const formants = this.synth.updateFormants(normX, normY, speed);
+        if (formants) {
+          this.valF1El.textContent = `${formants.f1} Hz`;
+          this.valF2El.textContent = `${formants.f2} Hz`;
+        }
+
+        // Determine which vowel region the ball is currently occupying
+        let currentVowel = null;
+        if (normY < 0.40) {
+          // High Vowel Zone (EE or OO)
+          currentVowel = normX < 0.50 ? 'EE' : 'OO';
+        } else if (normY < 0.70) {
+          // Mid Vowel Zone (EH or OH)
+          currentVowel = normX < 0.50 ? 'EH' : 'OH';
+        } else {
+          // Low Open Vowel Zone (AA / AH - Funnel near flippers)
+          currentVowel = 'AA';
+        }
+
+        // Register vowel when ball is moving with sufficient momentum across zones
+        if (currentVowel && speed > 2.0 && currentVowel !== this.lastVowelToken) {
+          this.lastVowelToken = currentVowel;
+          this.registerPhoneme(currentVowel, true);
+        }
+      }
+
+      handleDrain() {
+        this.synth.triggerConsonant('D');
+        this.ballCount++;
+        this.phonemeStream = [];
+        this.renderPhonemeStream();
+
+        if (this.ballCount > this.maxBalls) {
+          this.isGameOver = true;
+          this.ball.inPlay = false;
+          this.ballCount = 1;
+        } else {
+          this.resetBall();
+        }
+        this.updateHUD();
+      }
+
+      // -----------------------------------------------------------------------
+      // 5. CANVAS RENDERING ENGINE
+      // -----------------------------------------------------------------------
+      render() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.width, this.height);
+
+        this.renderVowelPlayfield(ctx);
+        this.renderWalls(ctx);
+        this.renderBumpers(ctx);
+        this.renderSpinner(ctx);
+        this.renderFlippers(ctx);
+        this.renderPlunger(ctx);
+        this.renderBall(ctx);
+      }
+
+      // Glowing Acoustic 2D Vowel Map on the Floor
+      renderVowelPlayfield(ctx) {
+        // Subtle grid
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.lineWidth = 1;
+        for (let x = 40; x < this.width - 50; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 40);
+          ctx.lineTo(x, this.height - 80);
+          ctx.stroke();
+        }
+
+        // Vowel Region Label Glyphs on the floor
+        const regions = [
+          { label: '/i/ [EE]', x: 100, y: 120, desc: 'High Front' },
+          { label: '/u/ [OO]', x: 340, y: 120, desc: 'High Back' },
+          { label: '/ɛ/ [EH]', x: 110, y: 310, desc: 'Mid Front' },
+          { label: '/oʊ/ [OH]',x: 330, y: 310, desc: 'Mid Back' },
+          { label: '/ɑ/ [AA]', x: 210, y: 520, desc: 'Low Open' }
+        ];
+
+        ctx.textAlign = 'center';
+        regions.forEach(r => {
+          ctx.font = '700 0.85rem "Silkscreen", monospace';
+          ctx.fillStyle = 'rgba(0, 242, 254, 0.18)';
+          ctx.fillText(r.label, r.x, r.y);
+          ctx.font = '0.55rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.fillText(r.desc, r.x, r.y + 14);
+        });
+
+        // Acoustic Formant Wave Overlay from ball position
+        if (this.ball.inPlay) {
+          const grad = ctx.createRadialGradient(this.ball.x, this.ball.y, 4, this.ball.x, this.ball.y, 110);
+          grad.addColorStop(0, 'rgba(0, 242, 254, 0.18)');
+          grad.addColorStop(0.5, 'rgba(255, 126, 179, 0.08)');
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(this.ball.x, this.ball.y, 110, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      renderWalls(ctx) {
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+
+        // Outer Frame
+        ctx.strokeRect(18, 18, this.width - 36, this.height - 36);
+
+        // Plunger Lane Divider
+        ctx.beginPath();
+        ctx.moveTo(418, 140);
+        ctx.lineTo(418, this.height - 30);
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.35)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Angled Slingshot Guides
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(20, 500);
+        ctx.lineTo(115, 595);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(418, 500);
+        ctx.lineTo(305, 595);
+        ctx.stroke();
+
+        // Upper Arch Deflectors
+        ctx.beginPath();
+        ctx.moveTo(20, 95);
+        ctx.lineTo(90, 24);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(360, 24);
+        ctx.lineTo(442, 85);
+        ctx.stroke();
+      }
+
+      renderBumpers(ctx) {
+        this.bumpers.forEach(b => {
+          // Bumper Ring Shockwave on hit
+          if (b.hitAnim > 0) {
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.r + b.hitAnim * 16, 0, Math.PI * 2);
+            ctx.strokeStyle = b.color;
+            ctx.lineWidth = 3 * b.hitAnim;
+            ctx.stroke();
+          }
+
+          // Outer Bumper Body
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+          ctx.strokeStyle = b.color;
+          ctx.lineWidth = 3;
+          ctx.shadowColor = b.color;
+          ctx.shadowBlur = b.hitAnim > 0 ? 25 : 8;
+          ctx.stroke();
+          ctx.shadowBlur = 0; // reset
+
+          // Inner Core
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r * 0.45, 0, Math.PI * 2);
+          ctx.fillStyle = b.hitAnim > 0 ? '#ffffff' : b.color;
+          ctx.fill();
+
+          // Phoneme Letter Label
+          ctx.font = '700 1.05rem "Silkscreen", monospace';
+          ctx.fillStyle = b.hitAnim > 0 ? '#000000' : '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(b.label, b.x, b.y + 1);
+        });
+      }
+
+      renderSpinner(ctx) {
+        const s = this.spinner;
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(s.angle);
+
+        ctx.fillStyle = '#ff7eb3';
+        ctx.shadowColor = '#ff7eb3';
+        ctx.shadowBlur = 10;
+        ctx.fillRect(-s.width / 2, -s.height / 2, s.width, s.height);
+        ctx.shadowBlur = 0;
+
+        ctx.font = '700 0.65rem "Silkscreen", monospace';
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('[S]', 0, 0);
+
+        ctx.restore();
+      }
+
+      renderFlippers(ctx) {
+        const drawFlipper = (flipper, color) => {
+          const tipX = flipper.pivotX + Math.cos(flipper.currentAngle) * flipper.length;
+          const tipY = flipper.pivotY + Math.sin(flipper.currentAngle) * flipper.length;
+
+          ctx.lineCap = 'round';
+          ctx.lineWidth = 14;
+          ctx.strokeStyle = color;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = flipper.isPressed ? 18 : 6;
+
+          ctx.beginPath();
+          ctx.moveTo(flipper.pivotX, flipper.pivotY);
+          ctx.lineTo(tipX, tipY);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Pivot cap
+          ctx.beginPath();
+          ctx.arc(flipper.pivotX, flipper.pivotY, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+        };
+
+        drawFlipper(this.leftFlipper, '#00f2fe');
+        drawFlipper(this.rightFlipper, '#ff7eb3');
+      }
+
+      renderPlunger(ctx) {
+        const px = 432;
+        const py = this.height - 40;
+        const compression = (this.plungerEnergy / 24) * 22;
+
+        ctx.strokeStyle = '#ffd32a';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(px, py + compression);
+        ctx.lineTo(px, py - 18 + compression);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(px, py - 20 + compression, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffd32a';
+        ctx.fill();
+      }
+
+      renderBall(ctx) {
+        const b = this.ball;
+        // Motion trail / glow
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius + 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+        ctx.fill();
+
+        // Metallic chrome ball body
+        const grad = ctx.createRadialGradient(
+          b.x - 3, b.y - 3, 1,
+          b.x, b.y, b.radius
+        );
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, '#cbd5e1');
+        grad.addColorStop(0.8, '#475569');
+        grad.addColorStop(1, '#0f172a');
+
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    // Auto-instantiate game when DOM is loaded
+    window.addEventListener('DOMContentLoaded', () => {
+      window.phonoBallInstance = new PinballGame();
+    });
+  })();
+  </script>
+</body>
+</html>
