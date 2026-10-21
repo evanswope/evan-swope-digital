@@ -1133,6 +1133,63 @@
         osc2.stop(now + 0.45);
       }
 
+      // Shimmering Vocal Glissando for Pharyngeal Ramp Transit (/a/ -> /i/)
+      playRampAscentGlissando() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(360, now + 0.78);
+
+        filter.type = 'bandpass';
+        filter.Q.setValueAtTime(6.0, now);
+        filter.frequency.setValueAtTime(750, now); // /a/
+        filter.frequency.exponentialRampToValueAtTime(2600, now + 0.78); // /i/
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.26, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.82);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.85);
+      }
+
+      // Powerful Resonant Solenoid Punch for Glottal Kickback Ball Save
+      playGlottalKickback() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.22);
+
+        gain.gain.setValueAtTime(0.55, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.28);
+        this.playCelestialChime(1800);
+      }
+
+      // Light Golden Harp Tick for Inlane Rollover Wire Switches
+      playWireRollover() {
+        if (!this.isAudioReady) return;
+        this.playCelestialChime(2200);
+      }
+
       // Trigger Consonant Articulation (Plosives, Fricatives, Nasals, Pops)
       triggerConsonant(phoneme) {
         if (!this.isAudioReady) return;
@@ -1414,7 +1471,9 @@
           radius: 9.5,
           mass: 1.0,
           inPlay: false,
-          inPlungerLane: true
+          inPlungerLane: true,
+          onRamp: false,
+          rampProgress: 0
         };
 
         this.gravity = 0.18;
@@ -1422,7 +1481,7 @@
         this.isPlungerCharging = false;
 
         // Flippers
-        // Left Flipper
+        // Main Left Flipper
         this.leftFlipper = {
           pivotX: 135,
           pivotY: 605,
@@ -1435,7 +1494,7 @@
           angularSpeed: 0.38
         };
 
-        // Right Flipper
+        // Main Right Flipper
         this.rightFlipper = {
           pivotX: 285,
           pivotY: 605,
@@ -1446,6 +1505,54 @@
           isPressed: false,
           angularVelocity: 0,
           angularSpeed: 0.38
+        };
+
+        // Upper Right Mini-Flipper ("The Palatal Valve" - Cross-table Skill Shot)
+        this.upperFlipper = {
+          pivotX: 362,
+          pivotY: 265,
+          length: 46,
+          baseAngle: Math.PI - 0.70, // Rest angle pointing down-left
+          upAngle: Math.PI + 0.40,   // Active flipped angle
+          currentAngle: Math.PI - 0.70,
+          isPressed: false,
+          angularVelocity: 0,
+          angularSpeed: 0.42
+        };
+
+        // Glottal Kickback Solenoid (Left Outlane Ball Save Pocket)
+        this.glottalKickback = {
+          x: 35,
+          y: 615,
+          r: 16,
+          isLit: true,
+          cooldown: 0,
+          anim: 0
+        };
+
+        // Inlane Rollover Wire Switches (Awards +150 & Relights Glottal Kickback)
+        this.inlaneRollovers = [
+          { id: 'left',  x: 66,  y: 535, r: 14, lastHit: -9999, anim: 0 },
+          { id: 'right', x: 362, y: 535, r: 14, lastHit: -9999, anim: 0 }
+        ];
+
+        // The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
+        this.pharynxRamp = {
+          entrance: { x: 80, y: 350, r: 18 },
+          exit: { x: 350, y: 545 },
+          points: [
+            { x: 80, y: 350 },   // 0: Entrance Funnel
+            { x: 55, y: 250 },   // 1: Left Wall Ascent
+            { x: 58, y: 130 },   // 2: Upper Left Crest
+            { x: 130, y: 65 },   // 3: Top Ziggurat Overpass
+            { x: 230, y: 55 },   // 4: Spire Cross
+            { x: 350, y: 90 },   // 5: Upper Right Terrace
+            { x: 382, y: 200 },  // 6: Right Habitrail Drop
+            { x: 375, y: 350 },  // 7: Mid Drop Track
+            { x: 360, y: 470 },  // 8: Lower Habitrail
+            { x: 350, y: 545 }   // 9: Exit onto Right Inlane
+          ],
+          glowAnim: 0
         };
 
         // Playfield Pop Bumpers ([B], [T], [K], [G] - Astrolabe Planetary Dials)
@@ -1477,12 +1584,12 @@
         this.slingshots = [
           {
             id: 'P', label: 'P', phoneme: 'P', color: '#ffd700',
-            p1: { x: 75, y: 475 }, p2: { x: 125, y: 585 }, p3: { x: 35, y: 550 },
+            p1: { x: 82, y: 475 }, p2: { x: 124, y: 580 }, p3: { x: 56, y: 545 },
             anim: 0
           },
           {
             id: 'D', label: 'D', phoneme: 'D', color: '#dfb15b',
-            p1: { x: 345, y: 475 }, p2: { x: 295, y: 585 }, p3: { x: 385, y: 550 },
+            p1: { x: 338, y: 475 }, p2: { x: 296, y: 580 }, p3: { x: 364, y: 545 },
             anim: 0
           }
         ];
@@ -1572,8 +1679,16 @@
         );
 
         bindPress(rightBtn, 
-          () => { this.rightFlipper.isPressed = true; rightBtn.classList.add('pressed'); },
-          () => { this.rightFlipper.isPressed = false; rightBtn.classList.remove('pressed'); }
+          () => { 
+            this.rightFlipper.isPressed = true; 
+            this.upperFlipper.isPressed = true;
+            rightBtn.classList.add('pressed'); 
+          },
+          () => { 
+            this.rightFlipper.isPressed = false; 
+            this.upperFlipper.isPressed = false;
+            rightBtn.classList.remove('pressed'); 
+          }
         );
 
         bindPress(plungerBtn,
@@ -1595,6 +1710,7 @@
           }
           if (e.code === 'KeyD' || e.code === 'ArrowRight') {
             this.rightFlipper.isPressed = true;
+            this.upperFlipper.isPressed = true;
             rightBtn.classList.add('pressed');
           }
           if (e.code === 'Space' || e.code === 'ArrowDown') {
@@ -1611,6 +1727,7 @@
           }
           if (e.code === 'KeyD' || e.code === 'ArrowRight') {
             this.rightFlipper.isPressed = false;
+            this.upperFlipper.isPressed = false;
             rightBtn.classList.remove('pressed');
           }
           if (e.code === 'Space' || e.code === 'ArrowDown') {
@@ -1629,6 +1746,7 @@
             this.leftFlipper.isPressed = true;
           } else if (x > 0.55) {
             this.rightFlipper.isPressed = true;
+            this.upperFlipper.isPressed = true;
           } else {
             this.isPlungerCharging = true;
           }
@@ -1637,6 +1755,7 @@
         window.addEventListener('pointerup', () => {
           this.leftFlipper.isPressed = false;
           this.rightFlipper.isPressed = false;
+          this.upperFlipper.isPressed = false;
           if (this.isPlungerCharging) {
             this.isPlungerCharging = false;
             this.firePlunger();
@@ -1661,6 +1780,13 @@
         this.ball.vy = 0;
         this.ball.inPlay = false;
         this.ball.inPlungerLane = true;
+        this.ball.onRamp = false;
+        this.ball.rampProgress = 0;
+        if (this.glottalKickback) {
+          this.glottalKickback.isLit = true;
+          this.glottalKickback.anim = 0;
+          this.glottalKickback.cooldown = 0;
+        }
         this.scoopHold.active = false;
         if (this.scoops) {
           this.scoops.forEach(s => s.cooldown = 0);
@@ -1959,15 +2085,16 @@
         requestAnimationFrame((t) => this.loop(t));
       }
 
-      update(dt) {
+      update(dt, currentTime = performance.now()) {
         // 1. Plunger Charging
         if (this.isPlungerCharging) {
           this.plungerEnergy = Math.min(24, this.plungerEnergy + 0.4);
         }
 
-        // 2. Flipper Physics
+        // 2. Flipper Physics (Left, Right, and Upper Mini-Flipper "Palatal Valve")
         this.updateFlipper(this.leftFlipper, true);
         this.updateFlipper(this.rightFlipper, false);
+        this.updateFlipper(this.upperFlipper, false);
 
         // 3. Nasal Scoop Hold & Solenoid Ejection
         if (this.scoopHold.active) {
@@ -1990,7 +2117,27 @@
           }
         }
 
-        // 4. Sub-stepping physics with Refresh-Rate Independent Time Scale
+        // 4. Pharyngeal Wireform Sky-Ramp Transit (Elevated Catmull-Rom Habitrail)
+        if (this.ball.onRamp) {
+          this.ball.rampProgress += (Math.max(8, Math.min(33, dt)) / 16.67) * 0.020;
+          if (this.ball.rampProgress >= 1.0) {
+            // Drop cleanly from wireform habitrail mouth onto the Right Inlane!
+            this.ball.onRamp = false;
+            this.ball.x = this.pharynxRamp.exit.x;
+            this.ball.y = this.pharynxRamp.exit.y;
+            this.ball.vx = -0.5;
+            this.ball.vy = 4.2;
+            this.synth.playCelestialChime(1900);
+          } else {
+            const pt = this.getSplinePoint(this.pharynxRamp.points, this.ball.rampProgress);
+            this.ball.x = pt.x;
+            this.ball.y = pt.y;
+            this.ball.vx = 0;
+            this.ball.vy = 0;
+          }
+        }
+
+        // 5. Sub-stepping physics with Refresh-Rate Independent Time Scale
         const clampedDt = Math.max(8, Math.min(33, dt));
         const timeScale = clampedDt / 16.67; // Normalized to 60fps baseline
         const subSteps = 4;
@@ -1999,7 +2146,7 @@
         const friction = Math.pow(0.992, subDt);
 
         for (let s = 0; s < subSteps; s++) {
-          if (this.ball.inPlay && !this.scoopHold.active) {
+          if (this.ball.inPlay && !this.scoopHold.active && !this.ball.onRamp) {
             this.ball.vy += subGravity;
             this.ball.vx *= friction;
             this.ball.vy *= friction;
@@ -2014,7 +2161,7 @@
             this.ball.x += this.ball.vx * subDt;
             this.ball.y += this.ball.vy * subDt;
 
-            // Ball-to-wall collisions
+            // Ball-to-wall collisions (including Inlane / Outlane dividers)
             this.handleWallCollisions();
 
             // Ball-to-bumper collisions
@@ -2029,9 +2176,19 @@
             // Ball-to-slingshot collisions
             this.handleSlingshotCollisions();
 
-            // Ball-to-flipper collisions
-            this.handleFlipperCollision(this.leftFlipper);
-            this.handleFlipperCollision(this.rightFlipper);
+            // Ball-to-flipper collisions (Main Left, Main Right, and Upper Mini-Flipper)
+            this.handleFlipperCollision(this.leftFlipper, false);
+            this.handleFlipperCollision(this.rightFlipper, false);
+            this.handleFlipperCollision(this.upperFlipper, true);
+
+            // Left Outlane Glottal Kickback Solenoid
+            this.handleGlottalKickback();
+
+            // Inlane Rollover Wire Triggers
+            this.handleInlaneRollovers(currentTime);
+
+            // Pharyngeal Ramp Entrance
+            this.handleRampEntrance();
 
             // Top Spinner
             this.handleSpinner();
@@ -2044,7 +2201,7 @@
           }
         }
 
-        if (this.ball.inPlay && !this.scoopHold.active) {
+        if (this.ball.inPlay && !this.scoopHold.active && !this.ball.onRamp) {
           // Continuous Formant Modulation & Vowel Region Detection
           this.evaluateVowelSpace();
         }
@@ -2071,13 +2228,27 @@
           if (sl.anim > 0) sl.anim -= 0.06;
         });
 
+        // Decay Kickback, Ramp Glow, and Rollover Animations
+        if (this.glottalKickback) {
+          if (this.glottalKickback.anim > 0) this.glottalKickback.anim -= 0.04;
+          if (this.glottalKickback.cooldown > 0) this.glottalKickback.cooldown -= dt;
+        }
+        if (this.pharynxRamp && this.pharynxRamp.glowAnim > 0) {
+          this.pharynxRamp.glowAnim -= 0.03;
+        }
+        if (this.inlaneRollovers) {
+          this.inlaneRollovers.forEach(ro => {
+            if (ro.anim > 0) ro.anim -= 0.05;
+          });
+        }
+
         // Update Celestial Starfield
         this.stars.forEach(st => {
           st.twinklePhase += st.twinkleSpeed;
         });
 
         // Stardust Particle Trail
-        if (this.ball.inPlay && !this.scoopHold.active) {
+        if (this.ball.inPlay && !this.scoopHold.active && !this.ball.onRamp) {
           const speed = Math.hypot(this.ball.vx, this.ball.vy);
           if (speed > 1.8 && Math.random() < 0.55) {
             this.particles.push({
@@ -2172,11 +2343,23 @@
           b.vy = Math.abs(b.vy) * 0.72;
         }
 
-        // Angled Slingshot Walls leading to flippers
-        // Left lower guide: from (20, 500) to (125, 595)
-        this.collideLineSegment(20, 500, 125, 595, 0.78);
-        // Right lower guide: from (418, 500) to (295, 595)
-        this.collideLineSegment(418, 500, 295, 595, 0.78);
+        // 3. INLANE & OUTLANE BALL RETURN CORRIDORS
+        // Left divider blade between outlane (x: 20..50) and inlane (x: 52..82):
+        this.collideLineSegment(50, 485, 50, 580, 0.75);
+        // Right divider blade between inlane (x: 340..382) and outlane (x: 386..418):
+        this.collideLineSegment(384, 485, 384, 580, 0.75);
+
+        // Funnel guides leading into inlane / outlane entrances:
+        this.collideLineSegment(20, 460, 50, 485, 0.75);
+        this.collideLineSegment(418, 460, 384, 485, 0.75);
+
+        // Lower return guides feeding balls smoothly onto main flipper heels:
+        this.collideLineSegment(50, 580, 125, 595, 0.78);
+        this.collideLineSegment(384, 580, 295, 595, 0.78);
+
+        // Pharyngeal Ramp Entrance Funnels (guiding shots into entrance at 80, 350):
+        this.collideLineSegment(20, 370, 65, 350, 0.75);
+        this.collideLineSegment(95, 350, 105, 380, 0.75);
 
         // Upper Arch Deflectors
         this.collideLineSegment(20, 95, 90, 24, 0.85);
@@ -2379,7 +2562,7 @@
         }
       }
 
-      handleFlipperCollision(flipper) {
+      handleFlipperCollision(flipper, isUpper = false) {
         const b = this.ball;
         const tipX = flipper.pivotX + Math.cos(flipper.currentAngle) * flipper.length;
         const tipY = flipper.pivotY + Math.sin(flipper.currentAngle) * flipper.length;
@@ -2423,14 +2606,162 @@
           // Add rotational kinetic impulse from active flipper stroke
           if (flipper.isPressed) {
             const tipRatio = 0.5 + t * 0.85;
-            const flipPower = 14.5 * tipRatio;
-
-            b.vx = nx * flipPower * 0.7;
-            b.vy = ny * flipPower - 3.8; // Guaranteed upward flight!
-            this.synth.triggerConsonant('B'); // Bouncy flipper hit
-            this.activateArticulator('lips');
-            this.activateArticulator('larynx');
+            if (isUpper) {
+              const flipPower = 14.0 * tipRatio;
+              b.vx = nx * flipPower * 0.85;
+              b.vy = ny * flipPower - 2.8; // Rockets ball across table into left targets
+              this.synth.triggerConsonant('K');
+              this.activateArticulator('palate');
+              this.score += 50;
+              this.updateHUD();
+            } else {
+              const flipPower = 14.5 * tipRatio;
+              b.vx = nx * flipPower * 0.7;
+              b.vy = ny * flipPower - 3.8; // Guaranteed upward flight!
+              this.synth.triggerConsonant('B'); // Bouncy flipper hit
+              this.activateArticulator('lips');
+              this.activateArticulator('larynx');
+            }
           }
+        }
+      }
+
+      // Catmull-Rom Spline Interpolator for Butter-Smooth Wireform Ramp Curves
+      getSplinePoint(points, t) {
+        const p = Math.max(0, Math.min(1, t)) * (points.length - 1);
+        const idx = Math.floor(p);
+        const frac = p - idx;
+        if (idx >= points.length - 1) return points[points.length - 1];
+
+        const p0 = points[Math.max(0, idx - 1)];
+        const p1 = points[idx];
+        const p2 = points[Math.min(points.length - 1, idx + 1)];
+        const p3 = points[Math.min(points.length - 1, idx + 2)];
+
+        const t2 = frac * frac;
+        const t3 = t2 * frac;
+
+        const x = 0.5 * ((2 * p1.x) +
+          (-p0.x + p2.x) * frac +
+          (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+          (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3);
+
+        const y = 0.5 * ((2 * p1.y) +
+          (-p0.y + p2.y) * frac +
+          (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+          (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3);
+
+        return { x, y };
+      }
+
+      // Glottal Kickback Solenoid (Left Outlane Ball Save Pocket)
+      handleGlottalKickback() {
+        const b = this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
+        const gk = this.glottalKickback;
+
+        // In left outlane pocket (x: 20..50, y: 605..635)
+        if (b.x > 20 && b.x < 50 && b.y >= 605 && b.y <= 635) {
+          if (gk.isLit && gk.cooldown <= 0) {
+            gk.isLit = false;
+            gk.anim = 1.0;
+            gk.cooldown = 1200;
+
+            // Explosive solenoid burst up towards astrolabe
+            b.vx = 3.2;
+            b.vy = -18.2;
+
+            this.synth.playGlottalKickback();
+            this.activateArticulator('larynx');
+            this.score += 500;
+            this.updateHUD();
+
+            this.floaters.push({
+              text: '✦ GLOTTAL KICKBACK! +500 ✦',
+              x: 100,
+              y: 590,
+              vy: -1.2,
+              alpha: 1.0,
+              isImpressive: true
+            });
+
+            // Burst of golden stardust
+            for (let i = 0; i < 18; i++) {
+              this.particles.push({
+                x: gk.x + (Math.random() - 0.5) * 12,
+                y: gk.y + (Math.random() - 0.5) * 12,
+                vx: (Math.random() - 0.5) * 5,
+                vy: -Math.random() * 6 - 2,
+                r: 1.5 + Math.random() * 2,
+                alpha: 1.0,
+                color: '#ff4757'
+              });
+            }
+          }
+        }
+      }
+
+      // Inlane Rollover Wire Switches (Awards +150 & Relights Kickback)
+      handleInlaneRollovers(currentTime) {
+        const b = this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
+
+        for (const ro of this.inlaneRollovers) {
+          const dist = Math.hypot(b.x - ro.x, b.y - ro.y);
+          if (dist < ro.r && b.vy > 0 && (currentTime - ro.lastHit > 600)) {
+            ro.lastHit = currentTime;
+            ro.anim = 1.0;
+
+            const wasLit = this.glottalKickback.isLit;
+            this.glottalKickback.isLit = true;
+
+            this.score += 150;
+            this.updateHUD();
+            this.synth.playWireRollover();
+
+            this.floaters.push({
+              text: wasLit ? '+150' : '+150 • KICKBACK RELIT',
+              x: ro.x,
+              y: ro.y - 12,
+              vy: -0.9,
+              alpha: 1.0,
+              isImpressive: false
+            });
+          }
+        }
+      }
+
+      // Pharyngeal Sky-Ramp Entrance Trigger
+      handleRampEntrance() {
+        const b = this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
+
+        const ent = this.pharynxRamp.entrance;
+        const dist = Math.hypot(b.x - ent.x, b.y - ent.y);
+
+        // Must enter moving upward with speed (vy < -2.8)
+        if (dist < ent.r && b.vy < -2.8) {
+          b.onRamp = true;
+          b.rampProgress = 0;
+          b.vx = 0;
+          b.vy = 0;
+
+          this.pharynxRamp.glowAnim = 1.0;
+          this.synth.playRampAscentGlissando();
+          this.activateArticulator('palate');
+          this.registerPhoneme('EE', true);
+
+          this.score += 350;
+          this.updateHUD();
+
+          this.floaters.push({
+            text: '✦ PHARYNGEAL SKY-RAMP +350 ✦',
+            x: 180,
+            y: 330,
+            vy: -1.0,
+            alpha: 1.0,
+            isImpressive: true
+          });
         }
       }
 
@@ -2565,18 +2896,43 @@
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.width, this.height);
 
+        // 1. Celestial Vowel Nebula Backing & Starfield
         this.renderVowelPlayfield(ctx);
+
+        // 2. Pharyngeal Wireform Ramp Drop Shadow (Cast below obstacles)
+        this.renderWireformRampShadow(ctx);
+
+        // 3. Inlanes, Outlanes, Rollover Switches & Glottal Kickback Solenoid
+        this.renderInlanesAndOutlanes(ctx);
+
+        // 4. Perimeter Walls & Deflectors
         this.renderWalls(ctx);
+
+        // 5. Playfield Obstacles & Articulators
         this.renderScoops(ctx);
         this.renderLingualDeflector(ctx);
         this.renderSlingshots(ctx);
         this.renderBumpers(ctx);
         this.renderSpinner(ctx);
-        this.renderFlippers(ctx);
+        this.renderFlippers(ctx); // Left, Right, & Upper Mini-Flipper
         this.renderPlunger(ctx);
         this.renderParticles(ctx);
+
+        // 6. Ball (Rendered at table level when not elevated on ramp)
+        if (!this.ball.onRamp) {
+          this.renderBall(ctx);
+        }
+
+        // 7. Elevated Pharyngeal Wireform Twin Brass Rails & Cross-Struts (Rendered over ball)
+        this.renderWireformRampRails(ctx);
+
+        // 8. Elevated Ball (Rendered inside the habitrail when onRamp = true)
+        if (this.ball.onRamp) {
+          this.renderElevatedBall(ctx);
+        }
+
+        // 9. Floating Text & Word Toasts
         this.renderFloaters(ctx);
-        this.renderBall(ctx);
       }
 
       // BABEL 3000: Celestial Vowel Constellation Chart
@@ -2719,6 +3075,217 @@
         }
       }
 
+      // Pharyngeal Wireform Ramp Drop Shadow (Cast underneath all obstacles)
+      renderWireformRampShadow(ctx) {
+        if (!this.pharynxRamp || !this.pharynxRamp.points) return;
+        const pts = this.pharynxRamp.points;
+
+        ctx.save();
+        ctx.beginPath();
+        const start = this.getSplinePoint(pts, 0);
+        ctx.moveTo(start.x + 14, start.y + 15);
+
+        for (let i = 1; i <= 60; i++) {
+          const pt = this.getSplinePoint(pts, i / 60);
+          ctx.lineTo(pt.x + 14, pt.y + 15);
+        }
+
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.lineWidth = 14;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Authentic Inlanes, Outlanes, Rollover Wire Switches & Glottal Kickback Solenoid
+      renderInlanesAndOutlanes(ctx) {
+        ctx.save();
+
+        // 1. Divider Blades (Polished Brass Blades separating Outlane & Inlane)
+        // Left divider: (50, 485) to (50, 580)
+        // Right divider: (384, 485) to (384, 580)
+        const dividers = [
+          { topX: 50, topY: 485, botX: 50, botY: 580 },
+          { topX: 384, topY: 485, botX: 384, botY: 580 }
+        ];
+
+        dividers.forEach(d => {
+          // Blade drop shadow
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.lineWidth = 4.5;
+          ctx.beginPath();
+          ctx.moveTo(d.topX + 2, d.topY + 2);
+          ctx.lineTo(d.botX + 2, d.botY + 2);
+          ctx.stroke();
+
+          // Brass Blade Body
+          ctx.strokeStyle = '#dfb15b';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(d.topX, d.topY);
+          ctx.lineTo(d.botX, d.botY);
+          ctx.stroke();
+
+          // Gold Top Finial Stud
+          ctx.beginPath();
+          ctx.arc(d.topX, d.topY, 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd700';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Bottom Anchor Stud
+          ctx.beginPath();
+          ctx.arc(d.botX, d.botY, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#8c6d2b';
+          ctx.fill();
+        });
+
+        // 2. Return Wire Rails leading from inlanes onto flipper pivots
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        // Left inlane exit onto left flipper: (50, 580) -> (125, 595)
+        ctx.moveTo(50, 580);
+        ctx.lineTo(125, 595);
+        // Right inlane exit onto right flipper: (384, 580) -> (295, 595)
+        ctx.moveTo(384, 580);
+        ctx.lineTo(295, 595);
+        // Funnel guides into lane entrances
+        ctx.moveTo(20, 460);
+        ctx.lineTo(50, 485);
+        ctx.moveTo(418, 460);
+        ctx.lineTo(384, 485);
+        ctx.stroke();
+
+        // 3. Inlane Rollover Wire Switches (Left: 66, 535 / Right: 362, 535)
+        this.inlaneRollovers.forEach(ro => {
+          // Playfield Deco Star Lamp Cartouche under wire
+          ctx.save();
+          ctx.translate(ro.x, ro.y);
+
+          // Star lamp backing
+          const isGlowing = ro.anim > 0;
+          ctx.fillStyle = isGlowing ? 'rgba(255, 215, 0, 0.35)' : 'rgba(223, 177, 91, 0.08)';
+          ctx.beginPath();
+          ctx.arc(0, 0, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = isGlowing ? '#ffd700' : 'rgba(223, 177, 91, 0.3)';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // Radiant 4-point Deco star
+          ctx.fillStyle = isGlowing ? '#ffffff' : '#ffd700';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = isGlowing ? 16 : 4;
+          ctx.font = '700 0.65rem "Cinzel", serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('✦', 0, 0);
+          ctx.shadowBlur = 0;
+
+          // Wire rollover bar spanning across corridor
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-11, 0);
+          ctx.lineTo(11, 0);
+          ctx.stroke();
+
+          // Small lane title
+          ctx.font = '700 0.40rem "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
+          ctx.fillText('INLANE', 0, 15);
+          ctx.restore();
+        });
+
+        // 4. Glottal Kickback Solenoid (Left Outlane Ball Save at 35, 615)
+        const gk = this.glottalKickback;
+        if (gk) {
+          ctx.save();
+          ctx.translate(gk.x, gk.y);
+
+          if (gk.isLit) {
+            // Pulsing Ruby / Gold Solenoid Beacon
+            const pulse = 0.7 + 0.3 * Math.sin(performance.now() * 0.006);
+            ctx.beginPath();
+            ctx.arc(0, 0, gk.r + 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 71, 87, ${0.18 * pulse})`;
+            ctx.fill();
+            ctx.strokeStyle = '#ff4757';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#ff4757';
+            ctx.shadowBlur = 14 * pulse;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Kickback active explosion shockwave
+            if (gk.anim > 0) {
+              ctx.beginPath();
+              ctx.arc(0, 0, gk.r + gk.anim * 26, 0, Math.PI * 2);
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 3 * gk.anim;
+              ctx.stroke();
+            }
+
+            // Ruby Core Cabochon
+            const rubGrad = ctx.createRadialGradient(-2, -2, 1, 0, 0, gk.r - 2);
+            rubGrad.addColorStop(0, '#ffffff');
+            rubGrad.addColorStop(0.35, '#ff4757');
+            rubGrad.addColorStop(0.8, '#c0392b');
+            rubGrad.addColorStop(1, '#540916');
+            ctx.beginPath();
+            ctx.arc(0, 0, gk.r - 2, 0, Math.PI * 2);
+            ctx.fillStyle = rubGrad;
+            ctx.fill();
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Label
+            ctx.font = '800 0.44rem "Cinzel", serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SAVE', 0, 0);
+
+            // Arch Tag
+            ctx.font = '700 0.38rem "Space Mono", monospace';
+            ctx.fillStyle = '#ff7675';
+            ctx.fillText('GLOTTAL', 0, 16);
+          } else {
+            // Unlit Dark Bronze Pocket
+            ctx.beginPath();
+            ctx.arc(0, 0, gk.r - 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#111625';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(223, 177, 91, 0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.font = '700 0.38rem "Space Mono", monospace';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('OFF', 0, 0);
+          }
+          ctx.restore();
+        }
+
+        // 5. Right Outlane Gutter Drain Warning
+        ctx.save();
+        ctx.translate(402, 595);
+        ctx.font = '700 0.42rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.55)';
+        ctx.textAlign = 'center';
+        ctx.fillText('▼ DRAIN', 0, 0);
+        ctx.restore();
+
+        ctx.restore();
+      }
+
       renderWalls(ctx) {
         // Polished Burnished Brass Playfield Frame
         ctx.strokeStyle = '#dfb15b';
@@ -2780,20 +3347,9 @@
         ctx.fillText('TRACHEAL AIRWAY • PNEUMATIC BELLOWS ▲', 0, 0);
         ctx.restore();
 
-        // Angled Slingshot Guides (Polished Brass Rails)
+        // Upper Arch Deflectors
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(20, 500);
-        ctx.lineTo(125, 595);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(418, 500);
-        ctx.lineTo(295, 595);
-        ctx.stroke();
-
-        // Upper Arch Deflectors
         ctx.beginPath();
         ctx.moveTo(20, 95);
         ctx.lineTo(90, 24);
@@ -3124,12 +3680,12 @@
       }
 
       renderFlippers(ctx) {
-        const drawFlipper = (flipper, isLeft) => {
+        const drawFlipper = (flipper, width = 15, isUpper = false) => {
           const tipX = flipper.pivotX + Math.cos(flipper.currentAngle) * flipper.length;
           const tipY = flipper.pivotY + Math.sin(flipper.currentAngle) * flipper.length;
 
           ctx.lineCap = 'round';
-          ctx.lineWidth = 15;
+          ctx.lineWidth = width;
           ctx.strokeStyle = '#dfb15b'; // Polished Brass Body
           ctx.shadowColor = '#ffd700';
           ctx.shadowBlur = flipper.isPressed ? 22 : 8;
@@ -3141,25 +3697,36 @@
           ctx.shadowBlur = 0;
 
           // Ivory Inlay Stripe along paddle
-          ctx.lineWidth = 4;
+          ctx.lineWidth = isUpper ? 2.5 : 4;
           ctx.strokeStyle = '#ffffff';
           ctx.beginPath();
-          ctx.moveTo(flipper.pivotX + Math.cos(flipper.currentAngle) * 12, flipper.pivotY + Math.sin(flipper.currentAngle) * 12);
-          ctx.lineTo(flipper.pivotX + Math.cos(flipper.currentAngle) * (flipper.length - 8), flipper.pivotY + Math.sin(flipper.currentAngle) * (flipper.length - 8));
+          ctx.moveTo(flipper.pivotX + Math.cos(flipper.currentAngle) * (isUpper ? 8 : 12), flipper.pivotY + Math.sin(flipper.currentAngle) * (isUpper ? 8 : 12));
+          ctx.lineTo(flipper.pivotX + Math.cos(flipper.currentAngle) * (flipper.length - 6), flipper.pivotY + Math.sin(flipper.currentAngle) * (flipper.length - 6));
           ctx.stroke();
 
           // Brass Pivot Cap with golden stud
           ctx.beginPath();
-          ctx.arc(flipper.pivotX, flipper.pivotY, 6.5, 0, Math.PI * 2);
+          ctx.arc(flipper.pivotX, flipper.pivotY, isUpper ? 5.0 : 6.5, 0, Math.PI * 2);
           ctx.fillStyle = '#ffd700';
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 1.5;
           ctx.stroke();
+
+          if (isUpper) {
+            // Label next to mini-flipper
+            ctx.font = '700 0.38rem "Space Mono", monospace';
+            ctx.fillStyle = 'rgba(254, 240, 138, 0.7)';
+            ctx.textAlign = 'center';
+            ctx.fillText('PALATAL VALVE', flipper.pivotX - 10, flipper.pivotY - 14);
+          }
         };
 
-        drawFlipper(this.leftFlipper, true);
-        drawFlipper(this.rightFlipper, false);
+        drawFlipper(this.leftFlipper, 15, false);
+        drawFlipper(this.rightFlipper, 15, false);
+        if (this.upperFlipper) {
+          drawFlipper(this.upperFlipper, 11, true);
+        }
       }
 
       renderPlunger(ctx) {
@@ -3245,6 +3812,189 @@
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.lineWidth = 1;
         ctx.stroke();
+      }
+
+      // Elevated Pharyngeal Wireform Sky-Ramp (Twin Polished Brass Rails & Cross-Struts)
+      renderWireformRampRails(ctx) {
+        if (!this.pharynxRamp || !this.pharynxRamp.points) return;
+        const pts = this.pharynxRamp.points;
+        const totalSteps = 60;
+        const railDistance = 6.0;
+
+        ctx.save();
+
+        // 1. Calculate spline points and normal vectors
+        const splinePath = [];
+        for (let i = 0; i <= totalSteps; i++) {
+          const t = i / totalSteps;
+          splinePath.push(this.getSplinePoint(pts, t));
+        }
+
+        // Cross-struts connecting the twin rails every few steps
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.75)';
+        ctx.lineWidth = 1.6;
+        for (let i = 2; i < totalSteps; i += 3) {
+          const p = splinePath[i];
+          const pNext = splinePath[i + 1];
+          const dx = pNext.x - p.x;
+          const dy = pNext.y - p.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len;
+          const ny = dx / len;
+
+          ctx.beginPath();
+          ctx.moveTo(p.x - nx * railDistance, p.y - ny * railDistance);
+          ctx.lineTo(p.x + nx * railDistance, p.y + ny * railDistance);
+          ctx.stroke();
+        }
+
+        // 2. Draw Left Rail (outer/upper)
+        ctx.beginPath();
+        for (let i = 0; i <= totalSteps; i++) {
+          const p = splinePath[i];
+          const nextIdx = Math.min(totalSteps, i + 1);
+          const pNext = splinePath[nextIdx];
+          const dx = pNext.x - p.x;
+          const dy = pNext.y - p.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len;
+          const ny = dx / len;
+
+          const rx = p.x - nx * railDistance;
+          const ry = p.y - ny * railDistance;
+          if (i === 0) ctx.moveTo(rx, ry);
+          else ctx.lineTo(rx, ry);
+        }
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 6;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Specular chrome reflection highlight on left rail
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // 3. Draw Right Rail (inner/lower)
+        ctx.beginPath();
+        for (let i = 0; i <= totalSteps; i++) {
+          const p = splinePath[i];
+          const nextIdx = Math.min(totalSteps, i + 1);
+          const pNext = splinePath[nextIdx];
+          const dx = pNext.x - p.x;
+          const dy = pNext.y - p.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len;
+          const ny = dx / len;
+
+          const rx = p.x + nx * railDistance;
+          const ry = p.y + ny * railDistance;
+          if (i === 0) ctx.moveTo(rx, ry);
+          else ctx.lineTo(rx, ry);
+        }
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 6;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Specular chrome reflection highlight on right rail
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // 4. Stepped Art Deco Entrance Portal Arch at (80, 350)
+        const ent = this.pharynxRamp.entrance;
+        const glow = this.pharynxRamp.glowAnim || 0;
+
+        ctx.save();
+        ctx.translate(ent.x, ent.y);
+
+        // Entrance Portal Bezel
+        ctx.strokeStyle = glow > 0 ? '#55efc4' : '#dfb15b';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = glow > 0 ? '#00cec9' : '#ffd700';
+        ctx.shadowBlur = glow > 0 ? 20 : 6;
+        ctx.strokeRect(-16, -10, 32, 20);
+        ctx.shadowBlur = 0;
+
+        // Stepped Chevron Decals
+        ctx.fillStyle = glow > 0 ? 'rgba(85, 239, 196, 0.25)' : 'rgba(223, 177, 91, 0.12)';
+        ctx.fillRect(-14, -8, 28, 16);
+
+        // Portal Sign
+        ctx.font = '800 0.44rem "Cinzel", serif';
+        ctx.fillStyle = glow > 0 ? '#ffffff' : '#ffd700';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('▲ RAMP ▲', 0, -1);
+
+        ctx.font = '700 0.35rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
+        ctx.fillText('PHARYNX', 0, 15);
+        ctx.restore();
+
+        // 5. Exit Chute Mouth at (350, 545)
+        const ex = this.pharynxRamp.exit;
+        ctx.save();
+        ctx.translate(ex.x, ex.y);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, 9, 0, Math.PI);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      // Elevated Ball Rendering (Physical 3D Elevation over the Ziggurat Spire)
+      renderElevatedBall(ctx) {
+        const b = this.ball;
+        const t = Math.max(0, Math.min(1, b.rampProgress || 0));
+        // Elevation scale peaks around mid-transit (t = 0.5) over top spire
+        const elevation = Math.sin(t * Math.PI);
+        const currentRadius = b.radius + elevation * 3.0; // Grows up to 12.5px!
+
+        ctx.save();
+
+        // Drop shadow onto habitrail bed
+        ctx.beginPath();
+        ctx.arc(b.x + 4, b.y + 6, currentRadius * 0.9, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fill();
+
+        // High Golden Astral Halo
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, currentRadius + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.45)';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 18;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Elevated Chrome Ball Gradient
+        const grad = ctx.createRadialGradient(
+          b.x - 3, b.y - 3, 1,
+          b.x, b.y, currentRadius
+        );
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, '#f1f5f9');
+        grad.addColorStop(0.7, '#64748b');
+        grad.addColorStop(1, '#0f172a');
+
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, currentRadius, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.restore();
       }
     }
 
