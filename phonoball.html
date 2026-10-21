@@ -587,6 +587,18 @@
       font-weight: 700;
       letter-spacing: 1px;
     }
+    .word-badge.compound {
+      background: rgba(255, 215, 0, 0.2);
+      border: 1px solid #ffd700;
+      color: #ffd700;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    }
+    .word-badge.masterpiece {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(16, 185, 129, 0.25));
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+    }
     .empty-words-msg {
       color: #475569;
       font-size: 0.7rem;
@@ -815,6 +827,97 @@
     //   Consonants: B, T, K, P, D, G, S, M, N, L, R
     //   Vowels: EE (/i/), OO (/u/), AA (/ɑ/), EH (/ɛ/), OH (/oʊ/), IH (/ɪ/)
     const LEXICON = [
+      // Compound Words & Multi-Syllable Articulations (Tier IV & V Masterpieces)
+      { word: 'BABEL',    seqs: [['B', 'EH', 'B', 'EH', 'L'], ['B', 'AA', 'B', 'EH', 'L'], ['B', 'EH', 'B', 'EH'], ['B', 'AA', 'B', 'EH']], pts: 5000 },
+      { word: 'PHONOBALL',seqs: [['P', 'OH', 'N', 'OH', 'B', 'OH', 'L'], ['P', 'OH', 'N', 'OH', 'B', 'AA', 'L'], ['P', 'OH', 'N', 'OH', 'B', 'AA']], pts: 10000 },
+      { word: 'PANCAKE',  seqs: [['P', 'AA', 'N', 'K', 'EH', 'K'], ['P', 'EH', 'N', 'K', 'EH', 'K']], pts: 4000, isCompound: true },
+      { word: 'TEACAKE',  seqs: [['T', 'EE', 'K', 'EH', 'K']], pts: 3500, isCompound: true },
+      { word: 'TEAPOT',   seqs: [['T', 'EE', 'P', 'OH', 'T'], ['T', 'EE', 'P', 'AA', 'T']], pts: 3500, isCompound: true },
+      { word: 'TEACUP',   seqs: [['T', 'EE', 'K', 'AA', 'P']], pts: 3000, isCompound: true },
+      { word: 'NETBOOK',  seqs: [['N', 'OH', 'T', 'B', 'OO', 'K'], ['N', 'EH', 'T', 'B', 'OO', 'K']], pts: 3500, isCompound: true },
+      { word: 'KEYNOTE',  seqs: [['K', 'EE', 'N', 'OH', 'T']], pts: 3500, isCompound: true },
+      { word: 'POSTMAN',  seqs: [['P', 'OH', 'S', 'T', 'M', 'AA', 'N']], pts: 4000, isCompound: true },
+      { word: 'SUNSET',   seqs: [['S', 'AA', 'N', 'S', 'EH', 'T']], pts: 3500, isCompound: true },
+      { word: 'SUNBEAM',  seqs: [['S', 'AA', 'N', 'B', 'EE', 'M']], pts: 3500, isCompound: true },
+      { word: 'HOTDOG',   seqs: [['AA', 'T', 'D', 'OH', 'G'], ['OH', 'T', 'D', 'OH', 'G']], pts: 3000, isCompound: true },
+      { word: 'CATNAP',   seqs: [['K', 'AA', 'T', 'N', 'AA', 'P']], pts: 3000, isCompound: true },
+      { word: 'CATNIP',   seqs: [['K', 'AA', 'T', 'N', 'IH', 'P']], pts: 3000, isCompound: true },
+      { word: 'BATMAN',   seqs: [['B', 'AA', 'T', 'M', 'AA', 'N']], pts: 3500, isCompound: true },
+      { word: 'BEDPOST',  seqs: [['B', 'EH', 'D', 'P', 'OH', 'S', 'T']], pts: 4000, isCompound: true },
+      { word: 'POPCORN',  seqs: [['P', 'OH', 'P', 'K', 'OH', 'N'], ['P', 'AA', 'P', 'K', 'OH', 'N']], pts: 3500, isCompound: true },
+      { word: 'MOONBEAM', seqs: [['M', 'OO', 'N', 'B', 'EE', 'M']], pts: 3500, isCompound: true },
+      { word: 'PINPOINT', seqs: [['P', 'IH', 'N', 'P', 'OH', 'N', 'T']], pts: 3500, isCompound: true },
+      { word: 'STANDBY',  seqs: [['S', 'T', 'AA', 'N', 'D', 'B', 'AA']], pts: 3000, isCompound: true },
+      { word: 'BACKSTOP', seqs: [['B', 'AA', 'K', 'S', 'T', 'OH', 'P'], ['B', 'AA', 'K', 'S', 'T', 'AA', 'P']], pts: 3500, isCompound: true },
+      { word: 'DOGHOUSE', seqs: [['D', 'OH', 'G', 'AA', 'S'], ['D', 'AA', 'G', 'AA', 'S']], pts: 3500, isCompound: true },
+      { word: 'TOPDECK',  seqs: [['T', 'OH', 'P', 'D', 'EH', 'K'], ['T', 'AA', 'P', 'D', 'EH', 'K']], pts: 3500, isCompound: true },
+      { word: 'TOPNOTCH', seqs: [['T', 'OH', 'P', 'N', 'AA', 'T'], ['T', 'AA', 'P', 'N', 'AA', 'T']], pts: 4000, isCompound: true },
+      { word: 'DAYBED',   seqs: [['D', 'EH', 'B', 'EH', 'D']], pts: 3000, isCompound: true },
+      { word: 'DAYTIME',  seqs: [['D', 'EH', 'T', 'AA', 'M']], pts: 3000, isCompound: true },
+      { word: 'DAYLIGHT', seqs: [['D', 'EH', 'L', 'AA', 'T']], pts: 3500, isCompound: true },
+      { word: 'COCONUT',  seqs: [['K', 'OH', 'K', 'OH', 'N', 'AA', 'T']], pts: 3500, isCompound: true },
+      { word: 'BONBON',   seqs: [['B', 'OH', 'N', 'B', 'OH', 'N'], ['B', 'AA', 'N', 'B', 'AA', 'N']], pts: 2500, isCompound: true },
+      { word: 'BAMBOO',   seqs: [['B', 'AA', 'M', 'B', 'OO']], pts: 2500, isCompound: true },
+      { word: 'NUTMEG',   seqs: [['N', 'AA', 'T', 'M', 'EH', 'G']], pts: 3000, isCompound: true },
+      { word: 'BOOTSTRAP',seqs: [['B', 'OO', 'T', 'S', 'T', 'P', 'AA', 'P']], pts: 4000, isCompound: true },
+
+      // Multi-Syllabic Lexicon Entries
+      { word: 'POTATO',   seqs: [['P', 'OH', 'T', 'EH', 'T', 'OH'], ['P', 'AA', 'T', 'EH', 'T', 'OH']], pts: 2500 },
+      { word: 'TOMATO',   seqs: [['T', 'OH', 'M', 'EH', 'T', 'OH'], ['T', 'AA', 'M', 'EH', 'T', 'OH']], pts: 2500 },
+      { word: 'MAGNET',   seqs: [['M', 'AA', 'G', 'N', 'EH', 'T']], pts: 2500 },
+      { word: 'BANDIT',   seqs: [['B', 'AA', 'N', 'D', 'IH', 'T']], pts: 2500 },
+      { word: 'DOMINO',   seqs: [['D', 'OH', 'M', 'IH', 'N', 'OH'], ['D', 'AA', 'M', 'IH', 'N', 'OH']], pts: 3000 },
+      { word: 'PUPPET',   seqs: [['P', 'AA', 'P', 'EH', 'T']], pts: 2500 },
+      { word: 'TALISMAN', seqs: [['T', 'AA', 'L', 'IH', 'S', 'M', 'AA', 'N'], ['T', 'AA', 'S', 'M', 'AA', 'N']], pts: 3500 },
+      { word: 'COMPASS',  seqs: [['K', 'OH', 'M', 'P', 'AA', 'S'], ['K', 'AA', 'M', 'P', 'AA', 'S']], pts: 3000 },
+      { word: 'CONTACT',  seqs: [['K', 'OH', 'N', 'T', 'AA', 'K', 'T'], ['K', 'AA', 'N', 'T', 'AA', 'K', 'T']], pts: 3500 },
+      { word: 'GIGANTIC', seqs: [['G', 'IH', 'G', 'AA', 'N', 'T', 'IH', 'K']], pts: 4000 },
+      { word: 'CANOPY',   seqs: [['K', 'AA', 'N', 'OH', 'P', 'EE']], pts: 3000 },
+      { word: 'MONOCLE',  seqs: [['M', 'OH', 'N', 'OH', 'K', 'EH', 'L'], ['M', 'AA', 'N', 'OH', 'K', 'EH', 'L']], pts: 3500 },
+      { word: 'DIGNITY',  seqs: [['D', 'IH', 'G', 'N', 'IH', 'T', 'EE']], pts: 3500 },
+      { word: 'PIGMENT',  seqs: [['P', 'IH', 'G', 'M', 'EH', 'N', 'T']], pts: 3500 },
+      { word: 'GASKET',   seqs: [['G', 'AA', 'S', 'K', 'EH', 'T']], pts: 2500 },
+      { word: 'BASKET',   seqs: [['B', 'AA', 'S', 'K', 'EH', 'T']], pts: 2500 },
+      { word: 'CASKET',   seqs: [['K', 'AA', 'S', 'K', 'EH', 'T']], pts: 2500 },
+      { word: 'MAGNETIC', seqs: [['M', 'AA', 'G', 'N', 'EH', 'T', 'IH', 'K']], pts: 4000 },
+      { word: 'ACOUSTIC', seqs: [['AA', 'K', 'OO', 'S', 'T', 'IH', 'K'], ['AA', 'K', 'OH', 'S', 'T', 'IH', 'K']], pts: 4000 },
+      { word: 'PHONEME',  seqs: [['P', 'OH', 'N', 'EE', 'M']], pts: 3500 },
+      { word: 'BONUS',    seqs: [['B', 'OH', 'N', 'AA', 'S']], pts: 1800 },
+      { word: 'TONIC',    seqs: [['T', 'OH', 'N', 'IH', 'K'], ['T', 'AA', 'N', 'IH', 'K']], pts: 2000 },
+      { word: 'PANIC',    seqs: [['P', 'AA', 'N', 'IH', 'K']], pts: 2000 },
+      { word: 'MUSIC',    seqs: [['M', 'OO', 'S', 'IH', 'K'], ['M', 'EE', 'OO', 'S', 'IH', 'K']], pts: 2500 },
+      { word: 'SONIC',    seqs: [['S', 'OH', 'N', 'IH', 'K'], ['S', 'AA', 'N', 'IH', 'K']], pts: 2000 },
+      { word: 'COSMIC',   seqs: [['K', 'OH', 'S', 'M', 'IH', 'K'], ['K', 'AA', 'S', 'M', 'IH', 'K']], pts: 2500 },
+      { word: 'MINUTE',   seqs: [['M', 'IH', 'N', 'IH', 'T'], ['M', 'IH', 'N', 'OO', 'T']], pts: 2000 },
+      { word: 'MOMENT',   seqs: [['M', 'OH', 'M', 'EH', 'N', 'T']], pts: 2500 },
+      { word: 'STATIC',   seqs: [['S', 'T', 'AA', 'T', 'IH', 'K']], pts: 2500 },
+      { word: 'STIGMA',   seqs: [['S', 'T', 'IH', 'G', 'M', 'AA']], pts: 2500 },
+      { word: 'STATUS',   seqs: [['S', 'T', 'AA', 'T', 'AA', 'S']], pts: 2500 },
+      { word: 'PISTON',   seqs: [['P', 'IH', 'S', 'T', 'OH', 'N'], ['P', 'IH', 'S', 'T', 'AA', 'N']], pts: 2500 },
+      { word: 'CUSTOM',   seqs: [['K', 'AA', 'S', 'T', 'OH', 'M']], pts: 2500 },
+      { word: 'DYNAMO',   seqs: [['D', 'AA', 'N', 'AA', 'M', 'OH'], ['D', 'IH', 'N', 'AA', 'M', 'OH']], pts: 3000 },
+      { word: 'COCOA',    seqs: [['K', 'OH', 'K', 'OH']], pts: 1500 },
+
+      // Consonant Clusters & S-Words
+      { word: 'STAMP',    seqs: [['S', 'T', 'AA', 'M', 'P']], pts: 1200 },
+      { word: 'STAND',    seqs: [['S', 'T', 'AA', 'N', 'D']], pts: 1200 },
+      { word: 'SPEND',    seqs: [['S', 'P', 'EH', 'N', 'D']], pts: 1200 },
+      { word: 'SCOOP',    seqs: [['S', 'K', 'OO', 'P']], pts: 1200 },
+      { word: 'SKATE',    seqs: [['S', 'K', 'EH', 'T']], pts: 1200 },
+      { word: 'STACK',    seqs: [['S', 'T', 'AA', 'K']], pts: 1200 },
+      { word: 'STICK',    seqs: [['S', 'T', 'IH', 'K']], pts: 1200 },
+      { word: 'STOCK',    seqs: [['S', 'T', 'OH', 'K'], ['S', 'T', 'AA', 'K']], pts: 1200 },
+      { word: 'STEEP',    seqs: [['S', 'T', 'EE', 'P']], pts: 1200 },
+      { word: 'SMACK',    seqs: [['S', 'M', 'AA', 'K']], pts: 1200 },
+      { word: 'SMOKE',    seqs: [['S', 'M', 'OH', 'K']], pts: 1200 },
+      { word: 'SNAKE',    seqs: [['S', 'N', 'EH', 'K']], pts: 1200 },
+      { word: 'SPARK',    seqs: [['S', 'P', 'AA', 'K']], pts: 1200 },
+      { word: 'SPOON',    seqs: [['S', 'P', 'OO', 'N']], pts: 1200 },
+      { word: 'SPEED',    seqs: [['S', 'P', 'EE', 'D']], pts: 1200 },
+      { word: 'STOMP',    seqs: [['S', 'T', 'OH', 'M', 'P'], ['S', 'T', 'AA', 'M', 'P']], pts: 1500 },
+      { word: 'STINK',    seqs: [['S', 'T', 'IH', 'N', 'K']], pts: 1200 },
+      { word: 'SKUNK',    seqs: [['S', 'K', 'AA', 'N', 'K']], pts: 1500 },
+
       // Direct user target words with full phonetic allophones & dialect variants
       { word: 'DODO', seqs: [['D', 'OH', 'D', 'OH'], ['D', 'OO', 'D', 'OO'], ['D', 'OH', 'D', 'OO'], ['D', 'OO', 'D', 'OH']], pts: 1200 },
       { word: 'COOT', seqs: [['K', 'OO', 'T'], ['K', 'OH', 'T']], pts: 700 },
@@ -1021,8 +1124,8 @@
       { word: 'NETS', seqs: [['N', 'EH', 'T', 'S']], pts: 1000 }
     ];
 
-    // Telegraph Target Dispatch List (Includes User's Favorite Words Early!)
-    const BOUNTY_LIST = ['CAT', 'COP', 'DODO', 'COOT', 'CUTE', 'BAT', 'MAN', 'PIN', 'TOP', 'DOG', 'NET', 'MAP', 'SUN', 'STOP', 'BOOT', 'MUD', 'BED', 'CUP', 'TOOT', 'DUCK', 'GOON', 'SPIN'];
+    // Telegraph Target Dispatch List (Includes Signature Words, Compounds & Masterpieces!)
+    const BOUNTY_LIST = ['CAT', 'TOOT', 'TEAPOT', 'BABEL', 'PANCAKE', 'MAGNET', 'SUNSET', 'BANDIT', 'COCOA', 'POSTMAN', 'DOMINO', 'DOGHOUSE', 'ACOUSTIC', 'PUPPET', 'CATNIP', 'COMPASS', 'PHONOBALL'];
 
     // -------------------------------------------------------------------------
     // 2. WEB AUDIO ACOUSTIC FORMANT SYNTHESIZER
@@ -2257,12 +2360,14 @@
           left: [
             { label: 'P', phoneme: 'P', family: 'LABIAL', color: '#ffd700' },
             { label: 'B', phoneme: 'B', family: 'LABIAL', color: '#4facfe' },
-            { label: 'M', phoneme: 'M', family: 'NASAL',  color: '#f6e58d' }
+            { label: 'M', phoneme: 'M', family: 'NASAL',  color: '#f6e58d' },
+            { label: 'K', phoneme: 'K', family: 'VELAR',  color: '#38ef7d' }
           ],
           right: [
             { label: 'D', phoneme: 'D', family: 'DENTAL', color: '#dfb15b' },
             { label: 'T', phoneme: 'T', family: 'DENTAL', color: '#f093fb' },
-            { label: 'N', phoneme: 'N', family: 'NASAL',  color: '#2ed573' }
+            { label: 'N', phoneme: 'N', family: 'NASAL',  color: '#2ed573' },
+            { label: 'G', phoneme: 'G', family: 'VELAR',  color: '#ff9f43' }
           ]
         };
         this.slingshotBankIdx = { left: 0, right: 0 };
@@ -2640,6 +2745,24 @@
 
       onFlipperStroke(isLeft = true) {
         this.cycleSkillShotLane(isLeft ? -1 : 1);
+        if (this.slingshotBanks && this.slingshots && this.ball && this.ball.y > 480) {
+          if (isLeft) {
+            this.slingshotBankIdx.left = (this.slingshotBankIdx.left + 1) % this.slingshotBanks.left.length;
+            const entry = this.slingshotBanks.left[this.slingshotBankIdx.left];
+            this.slingshots[0].label = entry.label;
+            this.slingshots[0].phoneme = entry.phoneme;
+            this.slingshots[0].family = entry.family;
+            this.slingshots[0].color = entry.color;
+          } else {
+            this.slingshotBankIdx.right = (this.slingshotBankIdx.right + 1) % this.slingshotBanks.right.length;
+            const entry = this.slingshotBanks.right[this.slingshotBankIdx.right];
+            this.slingshots[1].label = entry.label;
+            this.slingshots[1].phoneme = entry.phoneme;
+            this.slingshots[1].family = entry.family;
+            this.slingshots[1].color = entry.color;
+          }
+          if (this.synth && this.synth.playLaneChangeTick) this.synth.playLaneChangeTick();
+        }
       }
 
       cycleSkillShotLane(dir = 1) {
@@ -2671,6 +2794,35 @@
         if (!this.articulators) return;
         this.articulators[name] = true;
         this.updateArticulatorLamps();
+      }
+
+      // Astrolabe Planetary Dial: Rotate Pop Bumper Consonants & Rings
+      rotateBumpers() {
+        if (!this.bumpers || this.bumpers.length < 4) return;
+        const labels = this.bumpers.map(b => b.label);
+        const phonemes = this.bumpers.map(b => b.phoneme);
+        const colors = this.bumpers.map(b => b.color);
+        for (let i = 0; i < 4; i++) {
+          const nextIdx = (i + 1) % 4;
+          this.bumpers[i].label = labels[nextIdx];
+          this.bumpers[i].phoneme = phonemes[nextIdx];
+          this.bumpers[i].color = colors[nextIdx];
+          this.bumpers[i].ringRotation = (this.bumpers[i].ringRotation || 0) + Math.PI / 4;
+        }
+
+        if (this.synth && this.synth.playCelestialChime) {
+          this.synth.playCelestialChime(2400);
+        }
+
+        if (!this.floaters) this.floaters = [];
+        this.floaters.push({
+          text: `✦ ASTROLABE SHIFT: [${this.bumpers.map(b => b.label).join(' ')}] ✦`,
+          x: 210,
+          y: 200,
+          vy: -0.8,
+          alpha: 1.0,
+          isImpressive: false
+        });
       }
 
       // Dynamic Consonant Mutation (Articulator Mutation Engine)
@@ -2913,9 +3065,10 @@
       registerPhoneme(phoneme, isVowel = false) {
         const now = performance.now();
 
-        // Clear stream if inactive for more than 3.8 seconds
-        if (this.phonemeStream.length > 0 && now - this.lastPhonemeTime > 3800) {
+        // Clear stream if inactive for more than 8.5 seconds (supports multi-syllabic transit)
+        if (this.phonemeStream.length > 0 && now - this.lastPhonemeTime > 8500) {
           this.phonemeStream = [];
+          this.lastAwardedTailIdx = -1;
         }
 
         // Avoid spamming duplicate identical vowels in a row
@@ -2938,9 +3091,10 @@
         }
 
         this.phonemeStream.push({ token: phoneme, isVowel, time: now });
-        // Expand buffer capacity up to 8 tokens for multi-syllable & CVC chains
-        if (this.phonemeStream.length > 8) {
+        // Expand buffer capacity up to 12 tokens for multi-syllable & compound words
+        if (this.phonemeStream.length > 12) {
           this.phonemeStream.shift();
+          if (this.lastAwardedTailIdx > -1) this.lastAwardedTailIdx--;
         }
         this.lastPhonemeTime = now;
 
@@ -2997,9 +3151,9 @@
           candidateSeqs.push(collapsed);
         }
 
-        // Search each candidate sequence for the longest matching word suffix (from 6 down to 2)
+        // Search each candidate sequence for the longest matching word suffix (from 12 down to 2)
         for (const seqList of candidateSeqs) {
-          for (let len = Math.min(seqList.length, 6); len >= 2; len--) {
+          for (let len = Math.min(seqList.length, 12); len >= 2; len--) {
             const sub = seqList.slice(-len);
             const match = LEXICON.find(item => {
               const seqs = item.seqs || [item.seq];
@@ -3007,9 +3161,88 @@
             });
 
             if (match) {
+              const isMurmur = (match.word.length === 2) || (match.pts <= 250);
+
+              // Prevent duplicate awarding of the exact same word at the same tail
+              if (this.lastAwardedTailIdx === this.phonemeStream.length && this.lastAwardedWord === match.word) {
+                continue;
+              }
+
+              this.lastAwardedTailIdx = this.phonemeStream.length;
+              this.lastAwardedWord = match.word;
+
               this.awardWord(match);
-              this.phonemeStream = []; // Reset after a successful word
-              return;
+
+              // Compound Word Staging Engine (Multi-Root Articulation Bank):
+              const now = performance.now();
+              const COMPOUND_DICTIONARY = {
+                'COOKBOOK': { root: 'COOK', leaf: 'BOOK', pts: 4000 },
+                'TEACAKE':  { root: 'TEA',  leaf: 'CAKE', pts: 3500 },
+                'DAYBOOK':  { root: 'DAY',  leaf: 'BOOK', pts: 3500 },
+                'PANCAKE':  { root: 'PAN',  leaf: 'CAKE', pts: 4000 },
+                'NETBOOK':  { root: 'NET',  leaf: 'BOOK', pts: 3500 },
+                'KEYNOTE':  { root: 'KEY',  leaf: 'NOTE', pts: 3500 },
+                'DAYBED':   { root: 'DAY',  leaf: 'BED',  pts: 3000 },
+                'DAYTIME':  { root: 'DAY',  leaf: 'TIME', pts: 3000 },
+                'DAYLIGHT': { root: 'DAY',  leaf: 'LIGHT',pts: 3500 },
+                'CATNAP':   { root: 'CAT',  leaf: 'NAP',  pts: 3000 },
+                'CATNIP':   { root: 'CAT',  leaf: 'NIP',  pts: 3000 },
+                'BATMAN':   { root: 'BAT',  leaf: 'MAN',  pts: 3500 },
+                'TEAPOT':   { root: 'TEA',  leaf: 'POT',  pts: 3500 },
+                'TEACUP':   { root: 'TEA',  leaf: 'CUP',  pts: 3000 },
+                'POSTMAN':  { root: 'POST', leaf: 'MAN',  pts: 4000 },
+                'SUNSET':   { root: 'SUN',  leaf: 'SET',  pts: 3500 },
+                'SUNBEAM':  { root: 'SUN',  leaf: 'BEAM', pts: 3500 },
+                'HOTDOG':   { root: 'HOT',  leaf: 'DOG',  pts: 3000 },
+                'BEDPOST':  { root: 'BED',  leaf: 'POST', pts: 4000 },
+                'DOGHOUSE': { root: 'DOG',  leaf: 'HOUSE',pts: 3500 },
+                'TOPDECK':  { root: 'TOP',  leaf: 'DECK', pts: 3500 },
+                'TOPNOTCH': { root: 'TOP',  leaf: 'NOTCH',pts: 4000 },
+                'NUTMEG':   { root: 'NUT',  leaf: 'MEG',  pts: 3000 }
+              };
+
+              if (!this.recentRoots) this.recentRoots = [];
+              // Prune roots older than 14 seconds
+              this.recentRoots = this.recentRoots.filter(r => now - r.time < 14000);
+
+              // Check if current word pairs with any recent root
+              for (let rIdx = this.recentRoots.length - 1; rIdx >= 0; rIdx--) {
+                const r = this.recentRoots[rIdx];
+                const candidate1 = r.word + match.word;
+                const candidate2 = match.word + r.word;
+                const compMatch = COMPOUND_DICTIONARY[candidate1] ? candidate1 : (COMPOUND_DICTIONARY[candidate2] ? candidate2 : null);
+
+                if (compMatch && !this.discoveredWords.has(compMatch)) {
+                  const compData = COMPOUND_DICTIONARY[compMatch];
+                  this.awardWord({
+                    word: compMatch,
+                    pts: compData.pts,
+                    isCompound: true,
+                    root: compData.root,
+                    leaf: compData.leaf,
+                    seqs: [match.seqs ? match.seqs[0] : [match.token]]
+                  });
+                  this.recentRoots.splice(rIdx, 1);
+                  break;
+                }
+              }
+
+              // Add current word to recent roots if not a tiny murmur and has length >= 3
+              if (!isMurmur && match.word.length >= 3) {
+                this.recentRoots.push({ word: match.word, time: now });
+                if (this.recentRoots.length > 5) this.recentRoots.shift();
+              }
+
+              if (isMurmur) {
+                // Non-destructive: KEEP THE BUFFER INTACT so it can grow into longer words!
+                return;
+              } else {
+                // For 3+ letter words: preserve trailing phonemes for compound chaining & plurals!
+                if (this.phonemeStream.length > 8) {
+                  this.phonemeStream = this.phonemeStream.slice(-3);
+                }
+                return;
+              }
             }
           }
         }
@@ -3123,11 +3356,15 @@
         } else {
           this.wordsCountBadge.textContent = `${this.discoveredWords.size} SYNTHESIZED`;
           const allWords = Array.from(this.discoveredWords);
-          const recent = allWords.slice(-5).reverse();
+          const recent = allWords.slice(-8).reverse();
           const moreCount = allWords.length - recent.length;
-          let html = recent.map((w, idx) => 
-            `<span class="word-badge ${idx === 0 ? 'latest' : ''}">${idx === 0 ? '★ ' : ''}${w}</span>`
-          ).join('');
+          let html = recent.map((w, idx) => {
+            const isMaster = (w === 'BABEL' || w === 'PHONOBALL');
+            const isComp = (w.length >= 6);
+            const badgeClass = isMaster ? 'masterpiece' : (isComp ? 'compound' : (idx === 0 ? 'latest' : ''));
+            const prefix = isMaster ? '👑 ' : (isComp ? '✦ ' : (idx === 0 ? '★ ' : ''));
+            return `<span class="word-badge ${badgeClass}">${prefix}${w}</span>`;
+          }).join('');
           if (moreCount > 0) {
             html += `<span class="word-badge-more">+${moreCount} archived</span>`;
           }
@@ -3204,8 +3441,8 @@
               // Lunar Well [M]: Kicks diagonally up-right toward Palatal Valve (Upper Mini-Flipper)
               hb.x = sc.x + 4;
               hb.y = sc.y - (sc.r + hb.radius + 4);
-              hb.vx = 5.6;
-              hb.vy = -6.8;
+              hb.vx = 7.6;
+              hb.vy = -5.2;
             } else {
               // Solar Well [N]: Kicks diagonally up-left toward Dental Arch Drop Target Bank
               hb.x = sc.x - 4;
@@ -4502,8 +4739,27 @@
             this.synth.triggerConsonant('S'); // Fricative hiss
             this.registerPhoneme('S', false);
 
-            // Cycle consonants upon Astrolabe spinner spin
+            // Cycle consonants upon Astrolabe spinner spin & rotate Planetary Bumpers!
             this.cycleConsonants('SPINNER');
+            this.rotateBumpers();
+
+            // Plural Articulation: If recently articulated a singular root, attach -S!
+            if (this.recentRoots && this.recentRoots.length > 0) {
+              const nowTime = performance.now();
+              for (let rIdx = this.recentRoots.length - 1; rIdx >= 0; rIdx--) {
+                const r = this.recentRoots[rIdx];
+                if (nowTime - r.time < 12000) {
+                  const pluralWord = r.word + 'S';
+                  const matchPlural = LEXICON.find(w => w.word === pluralWord);
+                  if (matchPlural && !this.discoveredWords.has(pluralWord)) {
+                    this.awardWord(matchPlural);
+                    this.showCelebrationBanner(pluralWord, matchPlural.pts, false, `★ PLURAL ARTICULATION: [${r.word}] + [S] ★`);
+                    this.recentRoots.splice(rIdx, 1);
+                    break;
+                  }
+                }
+              }
+            }
 
             // Charge Velar Vault Gate Dynamo
             if (this.velarVaults) {
