@@ -2364,10 +2364,10 @@
           anim: 0
         };
 
-        // Inlane Rollover Wire Switches (Awards +150 & Relights Glottal Kickback)
+        // Inlane Rollover Wire Switches (Awards +150, Articulates Inlane Vowels & Relights Kickback)
         this.inlaneRollovers = [
-          { id: 'left',  x: 88,  y: 620, r: 14, lastHit: -9999, anim: 0 },
-          { id: 'right', x: 332, y: 620, r: 14, lastHit: -9999, anim: 0 }
+          { id: 'left',  x: 88,  y: 620, r: 14, lastHit: -9999, anim: 0, vowel: 'EH', label: '/ɛ/ [EH]' },
+          { id: 'right', x: 332, y: 620, r: 14, lastHit: -9999, anim: 0, vowel: 'OH', label: '/oʊ/ [OH]' }
         ];
 
         // Subarea 3: The Pharyngeal Wireform Sky-Ramp (3D Elevated Brass Habitrail)
@@ -2389,12 +2389,12 @@
           glowAnim: 0
         };
 
-        // Subarea 1: Playfield Pop Bumpers ([B], [T], [K], [G] - Tucked Upper Astrolabe Sanctuary)
+        // Subarea 1: Apex Shrine Pop Bumpers (The Sacred Cardinal Vowel Triangle + Vault G Dynamo)
         this.bumpers = [
-          { id: 'B',  x: 150, y: 205, r: 26, color: '#4facfe', label: 'B',  phoneme: 'B', hitAnim: 0, ringRotation: 0 },
-          { id: 'T',  x: 270, y: 205, r: 26, color: '#f093fb', label: 'T',  phoneme: 'T', hitAnim: 0, ringRotation: 0 },
-          { id: 'K',  x: 210, y: 280, r: 26, color: '#38ef7d', label: 'K',  phoneme: 'K', hitAnim: 0, ringRotation: 0 },
-          { id: 'G',  x: 210, y: 130, r: 22, color: '#ffd700', label: 'G',  phoneme: 'G', hitAnim: 0, ringRotation: 0 }
+          { id: 'EE', x: 150, y: 205, r: 26, color: '#4facfe', label: '/i/',   phoneme: 'EE', hitAnim: 0, ringRotation: 0, isVowel: true },
+          { id: 'OO', x: 270, y: 205, r: 26, color: '#ff4757', label: '/u/',   phoneme: 'OO', hitAnim: 0, ringRotation: 0, isVowel: true },
+          { id: 'AA', x: 210, y: 280, r: 26, color: '#ffd700', label: '/ɑ/',   phoneme: 'AA', hitAnim: 0, ringRotation: 0, isVowel: true },
+          { id: 'G',  x: 210, y: 130, r: 22, color: '#ff9f43', label: 'G',     phoneme: 'G',  hitAnim: 0, ringRotation: 0, isVowel: false }
         ];
 
         // Subarea 2: The Twin Minarets: Lateral Nasal Sanctuaries ([M] Left Wing & [N] Right Wing)
@@ -2442,13 +2442,15 @@
           bridgeWave: 0
         };
 
-        // Subarea 3: Center-field Tongue Ridge ("Lingua Deflector Wedge" - Diamond Deflector)
+        // Subarea 3: Processional Lingual Altar (Inlaid Fairway Floor Rollover Pad)
         this.lingualDeflector = {
           x: 210,
           y: 490,
-          r: 18,
+          r: 20,
           hitAnim: 0,
-          label: 'LINGUA'
+          cooldown: 0,
+          label: 'LINGUA',
+          vowel: 'AA'
         };
 
         // Dynamic Consonant Banks for Slingshots (Articulator Mutation Engine)
@@ -2468,17 +2470,17 @@
         };
         this.slingshotBankIdx = { left: 0, right: 0 };
 
-        // Active Triangular Slingshots (Compact Art Deco Sunbursts with 100px Flipper Clearspace)
+        // Active Triangular Slingshots (Anti-Resonance Cross-Fairway Kicking Slingshots)
         this.slingshots = [
           {
             id: 'P', label: 'P', phoneme: 'P', family: 'LABIAL', color: '#ffd700',
             p1: { x: 130, y: 565 }, p2: { x: 165, y: 645 }, p3: { x: 105, y: 615 },
-            anim: 0
+            anim: 0, cooldown: 0
           },
           {
             id: 'D', label: 'D', phoneme: 'D', family: 'DENTAL', color: '#dfb15b',
             p1: { x: 290, y: 565 }, p2: { x: 255, y: 645 }, p3: { x: 315, y: 615 },
-            anim: 0
+            anim: 0, cooldown: 0
           }
         ];
 
@@ -3186,10 +3188,7 @@
           return;
         }
 
-        // CRITICAL FIX: When ANY consonant arrives, reset lastVowelToken so that 
-        // departing the consonant will immediately register the surrounding vowel field!
         if (!isVowel) {
-          this.lastVowelToken = null;
           this.lastConsonantTime = now;
         }
 
@@ -3717,6 +3716,8 @@
                 b.vx = -0.5;
                 b.vy = 4.2;
                 this.synth.playCelestialChime(1900);
+                this.synth.triggerVowel('u');
+                this.registerPhoneme('OO', true);
                 if (this.tierProgress) {
                   this.tierProgress.rampCompleted = true;
                   this.unlockTier(5); // Tier V: Palatal Citadel
@@ -3901,14 +3902,16 @@
           }
         }
 
-        // Decay Lingual Deflector Animation
-        if (this.lingualDeflector && this.lingualDeflector.hitAnim > 0) {
-          this.lingualDeflector.hitAnim -= 0.04;
+        // Decay Lingual Deflector Animation & Cooldown
+        if (this.lingualDeflector) {
+          if (this.lingualDeflector.hitAnim > 0) this.lingualDeflector.hitAnim -= 0.04;
+          if (this.lingualDeflector.cooldown > 0) this.lingualDeflector.cooldown--;
         }
 
-        // Decay Slingshot Kick Animation
+        // Decay Slingshot Kick Animation & Cooldown
         this.slingshots.forEach(sl => {
           if (sl.anim > 0) sl.anim -= 0.06;
+          if (sl.cooldown > 0) sl.cooldown--;
         });
 
         // Decay Drop Target Hit Flashes and Drop Animations
@@ -4231,25 +4234,22 @@
             this.score += 100;
             this.updateHUD();
 
-            // Trigger Consonant Speech Articulation & Celestial Astrolabe Chime
-            this.synth.triggerConsonant(bumper.phoneme);
-            this.synth.playCelestialChime(1420 + Math.random() * 280);
-            this.registerPhoneme(bumper.phoneme, false);
-
-            if (bumper.phoneme === 'B') {
-              this.activateArticulator('lips');
-              if (this.tierProgress) {
-                this.tierProgress.labialHits = (this.tierProgress.labialHits || 0) + 1;
-                if (this.tierProgress.labialHits >= 3) {
-                  this.unlockTier(2); // Tier II: Labial Gateway
-                }
-              }
-            }
-
-            if (bumper.phoneme === 'G') {
-              this.activateArticulator('palate');
-              if (this.velarVaults) {
-                this.chargeVelarGate(35);
+            // Trigger Phoneme Articulation (Cardinal Vowels on triangle, G Dynamo on summit)
+            if (bumper.isVowel) {
+              const vChar = bumper.phoneme === 'EE' ? 'i' : (bumper.phoneme === 'OO' ? 'u' : 'ɑ');
+              this.synth.triggerVowel(vChar);
+              this.synth.playCelestialChime(1550 + Math.random() * 250);
+              this.registerPhoneme(bumper.phoneme, true);
+              if (bumper.phoneme === 'EE') this.activateArticulator('palate');
+              else if (bumper.phoneme === 'OO') this.activateArticulator('velum');
+              else if (bumper.phoneme === 'AA') this.activateArticulator('tongue');
+            } else {
+              this.synth.triggerConsonant(bumper.phoneme);
+              this.synth.playCelestialChime(1420 + Math.random() * 280);
+              this.registerPhoneme(bumper.phoneme, false);
+              if (bumper.phoneme === 'G') {
+                this.activateArticulator('palate');
+                if (this.velarVaults) this.chargeVelarGate(35);
               }
             }
           }
@@ -4330,6 +4330,7 @@
         }
       }
 
+      // Subarea 3: Processional Lingual Altar (Inlaid Fairway Floor Rollover Pad)
       handleLingualDeflector(b = this.ball) {
         b = b || this.ball;
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
@@ -4337,51 +4338,52 @@
         const dx = b.x - def.x;
         const dy = b.y - def.y;
         const dist = Math.hypot(dx, dy);
-        const minDist = b.radius + def.r;
 
-        if (dist < minDist) {
-          const nx = dx / (dist || 1);
-          const ny = dy / (dist || 1);
-
-          b.x = def.x + nx * minDist;
-          b.y = def.y + ny * minDist;
-
-          const popSpeed = 9.2;
-          b.vx = nx * popSpeed;
-          b.vy = ny * popSpeed;
-
-          def.hitAnim = 1.0;
-          this.score += 75;
-          this.updateHUD();
-
-          this.synth.playCelestialChime(1550);
-          this.synth.triggerConsonant('T');
-          this.activateArticulator('tongue');
-
-          // Advance Tier III: Lingual Plain on 2 direct hits
-          if (this.tierProgress) {
-            this.tierProgress.linguaHits = (this.tierProgress.linguaHits || 0) + 1;
-            if (this.tierProgress.linguaHits >= 2) {
-              this.unlockTier(3); // Tier III: Lingual Plain
-            }
-          }
-
-          // Cycle consonants upon striking the Lingual post
-          this.cycleConsonants('LINGUA');
-
-          // Multiball Tongue Jackpot!
-          if (this.isMultiballActive) {
-            this.score += 10000;
+        // Open Fairway: Ball glides smoothly over the inlaid altar without velocity deflection!
+        if (dist < def.r + 6) {
+          if (!def.cooldown || def.cooldown <= 0) {
+            def.cooldown = 25; // ~400ms cooldown
+            def.hitAnim = 1.0;
+            this.score += 250;
             this.updateHUD();
-            this.synth.playJackpotChime();
-            this.floaters.push({
-              text: '★ TONGUE JACKPOT! +10,000 ★',
-              x: def.x,
-              y: def.y - 18,
-              vy: -1.2,
-              alpha: 1.0,
-              isImpressive: true
-            });
+
+            this.synth.playCelestialChime(1350);
+            this.activateArticulator('tongue');
+
+            // Advance Tier III: Lingual Plain on 2 direct passes
+            if (this.tierProgress) {
+              this.tierProgress.linguaHits = (this.tierProgress.linguaHits || 0) + 1;
+              if (this.tierProgress.linguaHits >= 2) {
+                this.unlockTier(3); // Tier III: Lingual Plain
+              }
+            }
+
+            // Cycle consonants upon crossing the Lingual Altar
+            this.cycleConsonants('LINGUA');
+
+            // Multiball Tongue Jackpot!
+            if (this.isMultiballActive) {
+              this.score += 10000;
+              this.updateHUD();
+              this.synth.playJackpotChime();
+              this.floaters.push({
+                text: '★ TONGUE JACKPOT! +10,000 ★',
+                x: def.x,
+                y: def.y - 18,
+                vy: -1.2,
+                alpha: 1.0,
+                isImpressive: true
+              });
+            } else {
+              this.floaters.push({
+                text: '✦ LINGUA ALTAR +250 ✦',
+                x: def.x,
+                y: def.y - 14,
+                vy: -0.9,
+                alpha: 1.0,
+                isImpressive: false
+              });
+            }
           }
         }
       }
@@ -4391,6 +4393,8 @@
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
 
         for (const sl of this.slingshots) {
+          if (sl.cooldown && sl.cooldown > 0) continue;
+
           // 1. Check active kicking face: segment p1 -> p2
           const x1 = sl.p1.x, y1 = sl.p1.y;
           const x2 = sl.p2.x, y2 = sl.p2.y;
@@ -4410,18 +4414,24 @@
           const dist = Math.hypot(distX, distY);
 
           if (dist < b.radius + 3.5) {
-            // Powerful upward-inward kick: sends ball soaring into mid and upper field!
-            const nx = (sl.id === 'P') ? 0.62 : -0.62;
-            const ny = -0.78;
-
-            b.x = closestX + nx * (b.radius + 4);
-            b.y = closestY + ny * (b.radius + 4);
-
-            const kickSpeed = 14.8;
-            b.vx = nx * kickSpeed;
-            b.vy = ny * kickSpeed;
-
+            sl.cooldown = 14; // ~230ms anti-resonance lockout
             sl.anim = 1.0;
+
+            // Kicks up-and-across toward opposing midfield fairways with dynamic dispersion
+            const spread = (t - 0.5) * 0.30;
+            const baseNx = (sl.id === 'P') ? 0.72 : -0.72;
+            const baseNy = -0.69;
+            const nx = baseNx + (sl.id === 'P' ? -spread : spread);
+            const ny = baseNy - Math.abs(spread) * 0.40;
+            const norm = Math.hypot(nx, ny) || 1;
+
+            b.x = closestX + (nx / norm) * (b.radius + 4);
+            b.y = closestY + (ny / norm) * (b.radius + 4);
+
+            const kickSpeed = 14.2;
+            b.vx = (nx / norm) * kickSpeed;
+            b.vy = (ny / norm) * kickSpeed;
+
             this.synth.triggerConsonant(sl.phoneme);
             this.registerPhoneme(sl.phoneme, false);
 
@@ -4591,7 +4601,7 @@
         }
       }
 
-      // Inlane Rollover Wire Switches (Awards +150 & Relights Kickback)
+      // Inlane Rollover Wire Switches (Awards +150, Articulates Inlane Vowels & Relights Kickback)
       handleInlaneRollovers(currentTime, b = this.ball) {
         b = b || this.ball;
         if (!b.inPlay || b.inPlungerLane || b.onRamp) return;
@@ -4609,8 +4619,16 @@
             this.updateHUD();
             this.synth.playWireRollover();
 
+            // Articulate Inlane Vowel (Left: /ɛ/ [EH], Right: /oʊ/ [OH])
+            if (ro.vowel) {
+              this.registerPhoneme(ro.vowel, true);
+              if (this.synth && this.synth.triggerVowel) {
+                this.synth.triggerVowel(ro.vowel === 'EH' ? 'ɛ' : 'oʊ');
+              }
+            }
+
             this.floaters.push({
-              text: wasLit ? '+150' : '+150 • KICKBACK RELIT',
+              text: `${ro.label || ro.vowel} • +150${!wasLit ? ' • KICKBACK RELIT' : ''}`,
               x: ro.x,
               y: ro.y - 12,
               vy: -0.9,
@@ -5144,30 +5162,21 @@
           this.activateArticulator('larynx');
         }
 
-        // Determine which vowel region the ball is currently occupying
+        // Acoustic Prosody and Formant Tracking
+        // (Discrete phoneme tokens are earned exclusively by physical targets: Rollovers, Bumpers, Drops, Scoops & Vaults!)
         let currentVowel = null;
         if (normY < 0.38) {
-          // High Vowel Zone (EE or OO)
           currentVowel = normX < 0.50 ? 'EE' : 'OO';
         } else if (normY < 0.68) {
-          // Mid Vowel Zone (EH or OH)
           currentVowel = normX < 0.50 ? 'EH' : 'OH';
         } else {
-          // Low Open Vowel Zone (AA / AH - Funnel near flippers)
           currentVowel = 'AA';
         }
 
-        // Register vowel when ball is moving across zones (speed > 1.2)
-        if (currentVowel && speed > 1.2 && currentVowel !== this.lastVowelToken) {
-          this.lastVowelToken = currentVowel;
-          this.registerPhoneme(currentVowel, true);
-          this.activateArticulator('tongue');
-
-          if (this.tierProgress && this.tierProgress.vowelsVisited) {
-            this.tierProgress.vowelsVisited.add(currentVowel);
-            if (this.tierProgress.vowelsVisited.size >= 3) {
-              this.unlockTier(3); // Tier III: Lingual Plain
-            }
+        if (currentVowel && speed > 2.0 && this.tierProgress && this.tierProgress.vowelsVisited) {
+          this.tierProgress.vowelsVisited.add(currentVowel);
+          if (this.tierProgress.vowelsVisited.size >= 3) {
+            this.unlockTier(3); // Tier III: Lingual Plain
           }
         }
       }
@@ -5967,10 +5976,10 @@
           ctx.lineTo(11, 0);
           ctx.stroke();
 
-          // Small lane title
-          ctx.font = '700 0.40rem "Space Mono", monospace';
-          ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
-          ctx.fillText('INLANE', 0, 15);
+          // Vowel Text Label (/ɛ/ [EH] or /oʊ/ [OH])
+          ctx.font = '700 0.44rem "Space Mono", monospace';
+          ctx.fillStyle = isGlowing ? '#ffffff' : 'rgba(254, 240, 138, 0.85)';
+          ctx.fillText(ro.label || 'INLANE', 0, 15);
           ctx.restore();
         });
 
@@ -6666,64 +6675,66 @@
         });
       }
 
+      // Subarea 3: Processional Lingual Altar (Inlaid Fairway Floor Rollover Pad)
       renderLingualDeflector(ctx) {
         const def = this.lingualDeflector;
         if (!def) return;
 
-        // 1. Shockwave Ripple on Impact
+        // 1. Radiant Gold Shockwave Ripple on Impact
         if (def.hitAnim > 0) {
           ctx.beginPath();
-          ctx.arc(def.x, def.y, def.r + def.hitAnim * 18, 0, Math.PI * 2);
-          ctx.strokeStyle = '#ff7675';
-          ctx.lineWidth = 2.5 * def.hitAnim;
-          ctx.shadowColor = '#e74c3c';
-          ctx.shadowBlur = 18 * def.hitAnim;
+          ctx.arc(def.x, def.y, def.r + def.hitAnim * 24, 0, Math.PI * 2);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 3 * def.hitAnim;
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 22 * def.hitAnim;
           ctx.stroke();
           ctx.shadowBlur = 0;
         }
 
-        // 2. Art Deco Hexagonal Brass Bezel
+        // 2. Inlaid Gold & Lapis Altar Cartouche (Floor Level)
         ctx.save();
         ctx.translate(def.x, def.y);
+
+        // Outer stepped brass cartouche bezel
         ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const a = (i * Math.PI * 2) / 6 - Math.PI / 6;
+        for (let i = 0; i < 8; i++) {
+          const a = (i * Math.PI * 2) / 8 - Math.PI / 8;
           const px = Math.cos(a) * (def.r + 3);
           const py = Math.sin(a) * (def.r + 3);
           if (i === 0) ctx.moveTo(px, py);
           else ctx.lineTo(px, py);
         }
         ctx.closePath();
-        ctx.fillStyle = '#1e131d';
+        ctx.fillStyle = def.hitAnim > 0 ? 'rgba(255, 215, 0, 0.28)' : 'rgba(15, 23, 42, 0.75)';
         ctx.fill();
-        ctx.strokeStyle = '#dfb15b';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = def.hitAnim > 0 ? '#ffffff' : '#dfb15b';
+        ctx.lineWidth = 1.8;
         ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = def.hitAnim > 0 ? 20 : 6;
+        ctx.shadowBlur = def.hitAnim > 0 ? 18 : 6;
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // 3. Polished Ruby Gemstone Cabochon Core (The Anatomical Tongue / Lingua)
-        const gemGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, def.r);
-        gemGrad.addColorStop(0, '#ffffff');
-        gemGrad.addColorStop(0.3, '#ff7675');
-        gemGrad.addColorStop(0.7, '#d63031');
-        gemGrad.addColorStop(1, '#540916');
-
+        // Inner circular runic plate
         ctx.beginPath();
-        ctx.arc(0, 0, def.r - 2, 0, Math.PI * 2);
-        ctx.fillStyle = def.hitAnim > 0 ? '#fff0f3' : gemGrad;
+        ctx.arc(0, 0, def.r - 3, 0, Math.PI * 2);
+        ctx.fillStyle = def.hitAnim > 0 ? 'rgba(255, 240, 138, 0.35)' : 'rgba(20, 10, 30, 0.65)';
         ctx.fill();
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1;
         ctx.stroke();
 
-        // 4. Deco Emblem Label
-        ctx.font = '800 0.46rem "Cinzel", serif';
-        ctx.fillStyle = def.hitAnim > 0 ? '#000000' : '#fef08a';
+        // Sacred Cuneiform Inscription '𒀀' (Water / Origin / /ɑ/)
+        ctx.font = '700 0.95rem "Cinzel", serif';
+        ctx.fillStyle = def.hitAnim > 0 ? '#ffffff' : '#ffd700';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('LINGUA', 0, 0);
+        ctx.fillText('𒀀', 0, -2);
+
+        // Altar Subtitle
+        ctx.font = '700 0.38rem "Space Mono", monospace';
+        ctx.fillStyle = def.hitAnim > 0 ? '#ffffff' : 'rgba(254, 240, 138, 0.85)';
+        ctx.fillText('LINGUA', 0, 11);
 
         ctx.restore();
       }
