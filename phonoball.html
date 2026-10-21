@@ -1190,6 +1190,49 @@
         this.playCelestialChime(2200);
       }
 
+      // Crisp Mechanical Solenoid Snap on Drop Target Impact
+      playDropTargetSnap() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(820, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.045);
+
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.055);
+      }
+
+      // Solenoid Bank Reset Clack for Dental Arch Drop Target Bank
+      playDropTargetBankReset() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+
+        gain.gain.setValueAtTime(0.6, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.095);
+        this.playCelestialChime(2050);
+      }
+
       // Trigger Consonant Articulation (Plosives, Fricatives, Nasals, Pops)
       triggerConsonant(phoneme) {
         if (!this.isAudioReady) return;
@@ -1593,6 +1636,15 @@
             anim: 0
           }
         ];
+
+        // Dental Arch Drop Target Bank (4-Bank: [D]-[E]-[N]-[T] Alveolar & Dental Ridge)
+        this.dropTargets = [
+          { id: 'D', label: 'D', phoneme: 'D',  x: 92,  y: 215, isDown: false, anim: 0, hitFlash: 0 },
+          { id: 'E', label: 'E', phoneme: 'EH', x: 98,  y: 232, isDown: false, anim: 0, hitFlash: 0 },
+          { id: 'N', label: 'N', phoneme: 'N',  x: 104, y: 249, isDown: false, anim: 0, hitFlash: 0 },
+          { id: 'T', label: 'T', phoneme: 'T',  x: 110, y: 266, isDown: false, anim: 0, hitFlash: 0 }
+        ];
+        this.dropTargetResetTimer = 0;
 
         // Top Spinner (Fricative S - Astrological Gyroscope)
         this.spinner = {
@@ -2137,7 +2189,35 @@
           }
         }
 
-        // 5. Sub-stepping physics with Refresh-Rate Independent Time Scale
+        // 5. Dental Arch Drop Target Bank Reset Timer
+        if (this.dropTargetResetTimer > 0) {
+          this.dropTargetResetTimer -= dt;
+          if (this.dropTargetResetTimer <= 0) {
+            this.dropTargets.forEach(t => {
+              t.isDown = false;
+              t.anim = 0;
+              t.hitFlash = 0;
+            });
+            this.synth.playDropTargetBankReset();
+
+            // Golden starburst particles along the bank
+            for (const t of this.dropTargets) {
+              for (let i = 0; i < 4; i++) {
+                this.particles.push({
+                  x: t.x + (Math.random() - 0.5) * 8,
+                  y: t.y + (Math.random() - 0.5) * 8,
+                  vx: (Math.random() - 0.5) * 2,
+                  vy: -Math.random() * 2 - 1,
+                  r: 1.2,
+                  alpha: 1.0,
+                  color: '#ffd700'
+                });
+              }
+            }
+          }
+        }
+
+        // 6. Sub-stepping physics with Refresh-Rate Independent Time Scale
         const clampedDt = Math.max(8, Math.min(33, dt));
         const timeScale = clampedDt / 16.67; // Normalized to 60fps baseline
         const subSteps = 4;
@@ -2175,6 +2255,9 @@
 
             // Ball-to-slingshot collisions
             this.handleSlingshotCollisions();
+
+            // Dental Arch Drop Target Bank Collisions
+            this.handleDropTargetCollisions();
 
             // Ball-to-flipper collisions (Main Left, Main Right, and Upper Mini-Flipper)
             this.handleFlipperCollision(this.leftFlipper, false);
@@ -2227,6 +2310,14 @@
         this.slingshots.forEach(sl => {
           if (sl.anim > 0) sl.anim -= 0.06;
         });
+
+        // Decay Drop Target Hit Flashes and Drop Animations
+        if (this.dropTargets) {
+          this.dropTargets.forEach(t => {
+            if (t.anim > 0) t.anim -= 0.05;
+            if (t.hitFlash > 0) t.hitFlash -= 0.08;
+          });
+        }
 
         // Decay Kickback, Ramp Glow, and Rollover Animations
         if (this.glottalKickback) {
@@ -2765,6 +2856,106 @@
         }
       }
 
+      // Dental Arch Drop Target Bank Collisions (4-Bank: [D]-[E]-[N]-[T])
+      handleDropTargetCollisions() {
+        const b = this.ball;
+        if (!b.inPlay || b.inPlungerLane || b.onRamp || this.scoopHold.active || !this.dropTargets) return;
+
+        // Angle along bank: from (92, 215) to (110, 266)
+        const bankAngle = Math.atan2(51, 18);
+        const normalX = Math.sin(bankAngle);   // ~0.943 pointing outward into playfield
+        const normalY = -Math.cos(bankAngle);  // ~-0.333
+
+        for (const t of this.dropTargets) {
+          if (t.isDown) continue; // Ball rolls freely over sunken slot!
+
+          const dx = b.x - t.x;
+          const dy = b.y - t.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < b.radius + 8.5) {
+            // Mechanical impact: target drops flush inside slot!
+            t.isDown = true;
+            t.anim = 1.0;
+            t.hitFlash = 1.0;
+
+            // Elastic bounce off target face
+            const dot = b.vx * normalX + b.vy * normalY;
+            if (dot < 0) {
+              b.vx = (b.vx - 1.8 * dot * normalX) * 0.78;
+              b.vy = (b.vy - 1.8 * dot * normalY) * 0.78;
+            }
+
+            // Project ball outside face
+            b.x = t.x + normalX * (b.radius + 9);
+            b.y = t.y + normalY * (b.radius + 9);
+
+            // Mechanical sound & speech phoneme
+            this.synth.playDropTargetSnap();
+            if (t.phoneme === 'EH') {
+              this.synth.updateFormants(0.25, 0.55, 3.0);
+              this.registerPhoneme('EH', true);
+            } else {
+              this.synth.triggerConsonant(t.phoneme);
+              this.registerPhoneme(t.phoneme, false);
+            }
+
+            this.activateArticulator('palate');
+            if (t.id === 'D' || t.id === 'T') {
+              this.activateArticulator('tongue');
+            }
+
+            this.score += 200;
+            this.updateHUD();
+
+            this.floaters.push({
+              text: `[${t.label}] +200`,
+              x: t.x + 18,
+              y: t.y - 10,
+              vy: -0.9,
+              alpha: 1.0,
+              isImpressive: false
+            });
+
+            // Check if entire Dental Arch bank is completed!
+            const allDown = this.dropTargets.every(target => target.isDown);
+            if (allDown) {
+              this.handleDentalBankComplete();
+            }
+            break;
+          }
+        }
+      }
+
+      handleDentalBankComplete() {
+        this.score += 1500;
+        this.updateHUD();
+
+        // Relight Glottal Kickback & activate palate
+        this.glottalKickback.isLit = true;
+        this.activateArticulator('palate');
+
+        this.floaters.push({
+          text: '✦ DENTAL ARCH COMPLETE • +1,500 ✦',
+          x: 180,
+          y: 220,
+          vy: -1.2,
+          alpha: 1.0,
+          isImpressive: true
+        });
+
+        this.showCelebrationBanner('DENTAL ARCH!', 1500, true, 'ALL 4 TARGETS DOWN • KICKBACK RELIT!');
+
+        // Check if "DENT" is in lexicon and award word if not already discovered!
+        const dentWord = LEXICON.find(w => w.word === 'DENT');
+        if (dentWord && !this.discoveredWords.has('DENT')) {
+          this.awardWord(dentWord);
+        }
+
+        // Schedule mechanical reset after 800ms
+        this.dropTargetResetTimer = 800;
+      }
+
       handleSpinner() {
         const s = this.spinner;
         const b = this.ball;
@@ -2883,6 +3074,15 @@
         this.phonemeStream = [];
         this.updateHUD();
 
+        if (this.dropTargets) {
+          this.dropTargets.forEach(t => {
+            t.isDown = false;
+            t.anim = 0;
+            t.hitFlash = 0;
+          });
+          this.dropTargetResetTimer = 0;
+        }
+
         this.resetBall();
         this.launchBall();
       }
@@ -2912,6 +3112,7 @@
         this.renderScoops(ctx);
         this.renderLingualDeflector(ctx);
         this.renderSlingshots(ctx);
+        this.renderDropTargets(ctx); // Dental Arch 4-Bank ([D]-[E]-[N]-[T])
         this.renderBumpers(ctx);
         this.renderSpinner(ctx);
         this.renderFlippers(ctx); // Left, Right, & Upper Mini-Flipper
@@ -3634,6 +3835,92 @@
           ctx.fillStyle = 'rgba(223, 177, 91, 0.85)';
           ctx.fillText(sl.id === 'P' ? 'LABIAL' : 'ALVEOLAR', midX3, midY3 + 10);
         });
+      }
+
+      // Dental Arch Drop Target Bank (4-Bank: [D]-[E]-[N]-[T] Alveolar / Dental Bank)
+      renderDropTargets(ctx) {
+        if (!this.dropTargets) return;
+
+        ctx.save();
+
+        // 1. Art Deco Stepped Brass Base Bracket Housing along bank
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.moveTo(82, 202);
+        ctx.lineTo(120, 278);
+        ctx.stroke();
+
+        // Label above bank
+        ctx.save();
+        ctx.translate(88, 198);
+        ctx.rotate(Math.atan2(51, 18));
+        ctx.font = '700 0.38rem "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
+        ctx.textAlign = 'center';
+        ctx.fillText('• DENTAL ARCH •', 32, -8);
+        ctx.restore();
+
+        // 2. Render each of the 4 drop targets
+        const bankAngle = Math.atan2(51, 18);
+        const targetWidth = 14;
+        const targetDepth = 5.5;
+
+        this.dropTargets.forEach(t => {
+          ctx.save();
+          ctx.translate(t.x, t.y);
+          ctx.rotate(bankAngle);
+
+          // Slot cutout in playfield
+          ctx.fillStyle = '#060810';
+          ctx.fillRect(-targetWidth / 2 - 1, -targetDepth / 2 - 1, targetWidth + 2, targetDepth + 2);
+          ctx.strokeStyle = 'rgba(223, 177, 91, 0.4)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(-targetWidth / 2 - 1, -targetDepth / 2 - 1, targetWidth + 2, targetDepth + 2);
+
+          if (!t.isDown) {
+            // TARGET IS STANDING: Raised Ivory-Enamel 3D Target Face
+            // Cast slight drop shadow underneath
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            ctx.fillRect(-targetWidth / 2 + 1, -targetDepth / 2 + 2, targetWidth, targetDepth);
+
+            // Ivory Enamel Plate
+            ctx.fillStyle = t.hitFlash > 0 ? '#ffffff' : '#f8fafc';
+            ctx.fillRect(-targetWidth / 2, -targetDepth / 2, targetWidth, targetDepth);
+
+            // Polished Brass Beveled Edge
+            ctx.strokeStyle = t.hitFlash > 0 ? '#ffd700' : '#dfb15b';
+            ctx.lineWidth = 1.4;
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = t.hitFlash > 0 ? 16 : 4;
+            ctx.strokeRect(-targetWidth / 2, -targetDepth / 2, targetWidth, targetDepth);
+            ctx.shadowBlur = 0;
+
+            // Target Letter (D, E, N, T)
+            ctx.font = '900 0.65rem "Cinzel", serif';
+            ctx.fillStyle = t.hitFlash > 0 ? '#000000' : '#0f172a';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(t.label, 0, 0);
+          } else {
+            // TARGET IS KNOCKED DOWN: Sunken Flush inside Slot
+            ctx.fillStyle = 'rgba(223, 177, 91, 0.18)';
+            ctx.fillRect(-targetWidth / 2, -targetDepth / 2, targetWidth, targetDepth);
+
+            // Dim green/gold indicator showing target is struck
+            ctx.beginPath();
+            ctx.arc(0, 0, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#2ed573';
+            ctx.shadowColor = '#2ed573';
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.restore();
+        });
+
+        ctx.restore();
       }
 
       renderSpinner(ctx) {
