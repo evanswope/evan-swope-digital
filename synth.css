@@ -1612,6 +1612,9 @@ canvas#grid-canvas {
   color: #94a3b8;
   font-size: 1rem;
   transition: all 0.25s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .topo-control-group:hover .topo-icon-box,
@@ -1663,6 +1666,7 @@ canvas#grid-canvas {
   outline: none;
   cursor: pointer;
   transition: background 0.2s ease;
+  touch-action: pan-x;
 }
 
 .topo-slider:hover,
@@ -1708,19 +1712,72 @@ canvas#grid-canvas {
 }
 
 @media (max-width: 768px) {
+  .topo-card {
+    padding: 1.25rem 1.2rem;
+  }
   .topo-dock {
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
+    gap: 0.65rem 0.5rem;
+    padding: 0.75rem 0.6rem;
   }
   .topo-canvas-wrapper {
-    height: 310px;
+    height: 320px;
+  }
+  .topo-slider {
+    height: 6px;
+  }
+  .topo-slider::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  .topo-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
   }
 }
 
 @media (max-width: 480px) {
+  .topo-card {
+    padding: 1rem 0.8rem;
+    border-radius: 12px;
+  }
+  .topo-canvas-wrapper {
+    height: 265px;
+  }
   .topo-dock {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 0.5rem;
+    padding: 0.75rem 0.5rem;
+  }
+  /* Center the 7th slider (Tumble) across both columns */
+  .topo-control-group:last-child {
+    grid-column: span 2;
+    max-width: 190px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .topo-icon-box {
+    width: 42px;
+    height: 42px;
+    font-size: 1.05rem;
+  }
+  .topo-slider {
+    height: 6px;
+  }
+  .topo-slider::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+  }
+  .topo-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+  }
+  .topo-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
   }
 }
+
 
 

@@ -87,7 +87,7 @@
       this.tapeShaperNode = null;
       this.noiseBuffer = null;
       this.currentDelayTime = 0.28;
-      this.lastAppliedBump = 0.20;
+      this.lastAppliedBump = 0.00;
 
       // Clock / Arp state
       this.currentStep = 0;
@@ -97,13 +97,13 @@
 
       // Independent Parameters
       this.params = {
-        sprout: 5,     // 3..12 nodes / notes
-        twist: 0.35,   // 0..1 helical torsion / portamento glide
-        bloat: 0.50,   // 0..1 fullness / octave register
-        spike: 0.35,   // 0..1 rib sharpness / filter cutoff & pluck
-        bump: 0.20,    // 0..1 surface ripples / warm tape drive
-        tint: 0.35,    // 0..1 modal scale & metallic color
-        tumble: 0.45   // 0..1 rotation speed / tempo & stereo pan
+        sprout: 4,     // 3..12 nodes / notes (4-node crystalline loop)
+        twist: 0.08,   // 0..1 helical torsion / portamento glide
+        bloat: 0.00,   // 0..1 fullness / octave register (slender upper chime)
+        spike: 0.00,   // 0..1 rib sharpness / filter cutoff (pure warm wave)
+        bump: 0.00,    // 0..1 surface ripples / warm tape drive (pristine tone)
+        tint: 1.00,    // 0..1 modal scale & metallic color (Electric Cobalt Mixolydian)
+        tumble: 0.32   // 0..1 rotation speed / tempo & stereo pan (103 BPM)
       };
 
       // Animation & mesh update flags
@@ -152,7 +152,8 @@
 
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-      this.camera.position.set(0, 0, 7.2);
+      const camZ = width < 480 ? 8.4 : (width < 768 ? 7.8 : 7.2);
+      this.camera.position.set(0, 0, camZ);
 
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -242,6 +243,7 @@
         const h = this.container.clientHeight;
         if (w === 0 || h === 0) return;
         this.camera.aspect = w / h;
+        this.camera.position.z = w < 480 ? 8.4 : (w < 768 ? 7.8 : 7.2);
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(w, h);
       });
@@ -988,13 +990,13 @@
 
     reset() {
       this.params = {
-        sprout: 5,
-        twist: 0.35,
-        bloat: 0.50,
-        spike: 0.35,
-        bump: 0.20,
-        tint: 0.35,
-        tumble: 0.45
+        sprout: 4,
+        twist: 0.08,
+        bloat: 0.00,
+        spike: 0.00,
+        bump: 0.00,
+        tint: 1.00,
+        tumble: 0.32
       };
 
       const idMap = {
