@@ -2377,6 +2377,146 @@
           osc.stop(now + delay + 0.08);
         });
       }
+
+      // Heavy Metallic Captive-Ball Impact & Kiln Furnace Steam Rush
+      playCaptiveBallHit(intensity = 1.0) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const vol = Math.min(1.0, 0.35 + intensity * 0.15);
+
+        // 1. Solid brass sphere impact ping
+        const pingOsc = this.ctx.createOscillator();
+        const pingGain = this.ctx.createGain();
+        pingOsc.type = 'triangle';
+        pingOsc.frequency.setValueAtTime(880, now);
+        pingOsc.frequency.exponentialRampToValueAtTime(140, now + 0.14);
+        pingGain.gain.setValueAtTime(vol * 0.8, now);
+        pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+        pingOsc.connect(pingGain);
+        pingGain.connect(this.masterGain);
+        pingOsc.start(now);
+        pingOsc.stop(now + 0.18);
+
+        // 2. Deep subterranean furnace resonance
+        const subOsc = this.ctx.createOscillator();
+        const subGain = this.ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(95, now);
+        subOsc.frequency.exponentialRampToValueAtTime(38, now + 0.28);
+        subGain.gain.setValueAtTime(vol * 0.6, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.30);
+        subOsc.connect(subGain);
+        subGain.connect(this.masterGain);
+        subOsc.start(now);
+        subOsc.stop(now + 0.32);
+
+        // 3. Furnace bellow rush
+        this.playNoiseBurst(now + 0.02, 1800, 0.14, vol * 0.45);
+      }
+
+      // Processional Magnetic Accelerator Trench Induction Surge
+      playAcceleratorBoost() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.26);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(280, now);
+        filter.frequency.exponentialRampToValueAtTime(2400, now + 0.26);
+        filter.Q.setValueAtTime(4.5, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.40, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.30);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.32);
+      }
+
+      // High-RPM Mechanical Cuneiform Astrolabe Spinner Ratchet
+      playSpinnerWhir() {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(1400 + Math.random() * 400, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.025);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.028);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.03);
+      }
+
+      // Temple of Marduk Portcullis Bash Toy Impact & Bronze Recoil
+      playBashPortcullisHit(stage = 1) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const baseFreq = stage === 1 ? 260 : (stage === 2 ? 380 : 540);
+
+        // 1. Heavy bronze door clonk
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(65, now + 0.22);
+        gain.gain.setValueAtTime(0.55, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.25);
+
+        // 2. High iron rattle
+        this.playNoiseBurst(now, 3400, 0.08, 0.45);
+
+        // 3. Stage 2/3 electrical lightning zap
+        if (stage >= 2) {
+          const zap = this.ctx.createOscillator();
+          const zapGain = this.ctx.createGain();
+          zap.type = 'sawtooth';
+          zap.frequency.setValueAtTime(1200, now + 0.04);
+          zap.frequency.exponentialRampToValueAtTime(200, now + 0.16);
+          zapGain.gain.setValueAtTime(0.25, now + 0.04);
+          zapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          zap.connect(zapGain);
+          zapGain.connect(this.masterGain);
+          zap.start(now + 0.04);
+          zap.stop(now + 0.20);
+        }
+      }
+
+      // Citadel Retractable Drawbridge Servo Motor & Clank
+      playDrawbridgeServo(isDown = true) {
+        if (!this.isAudioReady) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(isDown ? 340 : 180, now);
+        osc.frequency.linearRampToValueAtTime(isDown ? 160 : 360, now + 0.24);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.28);
+        this.playNoiseBurst(now + 0.22, 2600, 0.06, 0.35);
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -2674,6 +2814,72 @@
           angle: 0,
           spinSpeed: 0,
           phoneme: 'S'
+        };
+
+        // -----------------------------------------------------------------
+        // THE 4 MECHANICAL TOWER ASSEMBLIES (DISTINCT PHYSICAL GAMEPLAY)
+        // -----------------------------------------------------------------
+        // 1. TIER I: Kiln Bellows Captive-Ball & Armored Hearth
+        this.captiveBall = {
+          x: 382,
+          y: 636,
+          vy: 0,
+          restY: 636,
+          targetY: 585,
+          radius: 8.5,
+          mass: 1.4,
+          springK: 0.16,
+          damping: 0.86,
+          hitAnim: 0,
+          temperature: 300, // 300, 600, 900, 1200 (Meltdown!)
+          maxTemp: 1200,
+          stokedCount: 0,
+          cooldownTimer: 0
+        };
+
+        // 2. TIER II: Processional Magnetic Accelerator Trench & Dual Spinners
+        this.trench = {
+          x1: 194,
+          x2: 226,
+          y1: 470,
+          y2: 575,
+          boostActive: false,
+          boostPulse: 0,
+          cooldown: 0
+        };
+        this.dualSpinners = [
+          { id: 'S', label: 'S', phoneme: 'S', x: 155, y: 520, r: 13, angle: 0, spinSpeed: 0, hitAnim: 0 },
+          { id: 'L', label: 'L', phoneme: 'L', x: 265, y: 520, r: 13, angle: 0, spinSpeed: 0, hitAnim: 0 }
+        ];
+
+        // 3. TIER IV: Upper Citadel Malachite Mini-Playfield & Drawbridge Gate
+        this.citadel = {
+          entryGateOpen: false,
+          drawbridgeRaised: true, // While targets standing, drawbridge is UP (ball trapped in citadel!)
+          drawbridgeAnim: 1.0,    // 1 = fully raised (closed), 0 = lowered (open)
+          safetyTimer: 0,         // Prevent endless entrapment
+          malachiteWave: 0
+        };
+
+        // 4. TIER V: Temple of Marduk Bash Portcullis
+        this.bashPortcullis = {
+          x: 210,
+          y: 52,
+          w: 44,
+          h: 12,
+          hits: 0,
+          maxHits: 3,
+          isDown: false,
+          recoilAnim: 0,
+          flashAnim: 0,
+          hitShake: 0
+        };
+
+        // 5. TIER III: Staged Minaret Ball Locks for Resonant Multiball
+        this.minaretLocks = {
+          moonLocked: false,
+          sunLocked: false,
+          ballCount: 0
         };
 
         // -----------------------------------------------------------------
@@ -2988,6 +3194,25 @@
           this.velarVaults.hold.ball = null;
           this.velarVaults.warpTransit.active = false;
           this.velarVaults.warpTransit.ball = null;
+        }
+        if (this.captiveBall) {
+          this.captiveBall.x = 382;
+          this.captiveBall.y = this.captiveBall.restY;
+          this.captiveBall.vy = 0;
+          this.captiveBall.temperature = 300;
+          this.captiveBall.hitAnim = 0;
+        }
+        if (this.trench) {
+          this.trench.boostActive = false;
+          this.trench.boostPulse = 0;
+        }
+        if (this.citadel) {
+          this.citadel.drawbridgeRaised = true;
+          this.citadel.drawbridgeAnim = 1.0;
+        }
+        if (this.bashPortcullis) {
+          this.bashPortcullis.recoilAnim = 0;
+          this.bashPortcullis.flashAnim = 0;
         }
         this.resetArticulators();
       }
@@ -3868,6 +4093,7 @@
       }
 
       update(dt, currentTime = performance.now()) {
+        dt = (typeof dt === 'number' && !isNaN(dt) && dt > 0) ? dt : 16.67;
         // 1. Plunger Charging (smooth 0.85s charge from 0 to 100)
         if (this.isPlungerCharging) {
           this.plungerEnergy = Math.min(100, this.plungerEnergy + dt * 0.12);
@@ -4117,6 +4343,12 @@
             });
             this.synth.playDropTargetBankReset();
 
+            // Re-raise Citadel Drawbridge (defensive barrier resets)
+            if (this.citadel && !this.citadel.drawbridgeRaised) {
+              this.citadel.drawbridgeRaised = true;
+              this.synth.playDrawbridgeServo(false);
+            }
+
             // Golden starburst particles along the bank
             for (const t of this.dropTargets) {
               for (let i = 0; i < 4; i++) {
@@ -4202,8 +4434,18 @@
               // Pharyngeal Ramp Entrance
               this.handleRampEntrance(b);
 
-              // Top Spinner
+              // Top Spinner & Dual Cuneiform Spinners
               this.handleSpinner(b);
+              this.handleDualSpinners(b);
+
+              // Processional Magnetic Accelerator Trench
+              this.handleAcceleratorTrench(b);
+
+              // Kiln Bellows Captive-Ball
+              this.handleCaptiveBall(b);
+
+              // Temple of Marduk Bash Portcullis
+              this.handleBashPortcullis(b);
 
               // The Velar Vaults Collisions & Portcullis Barrier
               this.handleVaultCollisions(b);
@@ -4308,6 +4550,90 @@
           this.inlaneRollovers.forEach(ro => {
             if (ro.anim > 0) ro.anim -= 0.05;
           });
+        }
+
+        // Update Captive Ball 1D physics
+        if (this.captiveBall) {
+          const cap = this.captiveBall;
+          const k = cap.springK || 0.16;
+          const damp = cap.damping || 0.86;
+          const springF = -k * (cap.y - cap.restY);
+          cap.vy = (cap.vy + springF * (dt / 16.67)) * damp;
+          cap.y += cap.vy * (dt / 16.67);
+
+          // Top switch collision
+          if (cap.y <= cap.targetY) {
+            cap.y = cap.targetY;
+            cap.vy = Math.abs(cap.vy) * 0.4;
+            cap.stokedCount++;
+            cap.temperature = Math.min(1200, cap.temperature + 300);
+            this.synth.playCaptiveBallHit(2.0);
+            this.registerPhoneme('B', false);
+            this.floaters.push({
+              text: `🔥 KILN STOKED: ${cap.temperature}°F 🔥`,
+              x: 382, y: 565, vy: -1.2, alpha: 1.0, isImpressive: true
+            });
+
+            // Burst flame particles from hearth
+            for (let i = 0; i < 18; i++) {
+              this.particles.push({
+                x: 382 + (Math.random() - 0.5) * 16,
+                y: 630 + (Math.random() - 0.5) * 12,
+                vx: (Math.random() - 0.5) * 5,
+                vy: -Math.random() * 6 - 2,
+                r: 1.2 + Math.random() * 2.2,
+                alpha: 1.0,
+                color: Math.random() > 0.4 ? '#f59e0b' : '#ef4444'
+              });
+            }
+
+            if (cap.temperature >= 1200) {
+              this.score += 15000;
+              this.updateHUD();
+              this.showCelebrationBanner('KILN MELTDOWN!', 15000, true, 'BELLOWS WHITE HOT • +15,000 PTS • 2X KILN FRENZY!');
+              this.triggerMultiball(2, 'KILN FRENZY MULTIBALL!');
+              cap.temperature = 300;
+            }
+          }
+
+          if (cap.y > cap.restY) {
+            cap.y = cap.restY;
+            cap.vy = 0;
+          }
+          if (cap.hitAnim > 0) cap.hitAnim -= 0.05;
+        }
+
+        // Update Magnetic Trench
+        if (this.trench) {
+          if (this.trench.boostPulse > 0) this.trench.boostPulse -= 0.035;
+          if (this.trench.cooldown > 0) this.trench.cooldown -= dt;
+        }
+
+        // Update Dual Spinners
+        if (this.dualSpinners) {
+          this.dualSpinners.forEach(sp => {
+            if (sp.spinSpeed > 0.05) {
+              sp.angle += sp.spinSpeed * (dt / 16.67) * 0.05;
+              sp.spinSpeed *= 0.94;
+            } else {
+              sp.spinSpeed = 0;
+            }
+            if (sp.hitAnim > 0) sp.hitAnim -= 0.05;
+          });
+        }
+
+        // Update Upper Citadel Drawbridge
+        if (this.citadel) {
+          const targetAnim = this.citadel.drawbridgeRaised ? 1.0 : 0.0;
+          this.citadel.drawbridgeAnim += (targetAnim - this.citadel.drawbridgeAnim) * 0.12;
+          this.citadel.malachiteWave = (this.citadel.malachiteWave || 0) + dt * 0.003;
+        }
+
+        // Update Bash Portcullis Animations
+        if (this.bashPortcullis) {
+          if (this.bashPortcullis.recoilAnim > 0) this.bashPortcullis.recoilAnim -= 0.06;
+          if (this.bashPortcullis.flashAnim > 0) this.bashPortcullis.flashAnim -= 0.05;
+          if (this.bashPortcullis.hitShake > 0) this.bashPortcullis.hitShake *= 0.85;
         }
 
         // Update Kiln Glowing Embers
@@ -4501,16 +4827,39 @@
         // Lower Feed Wire Guide below Mezzanine (leading down past Scoop [N] to Right Inlane)
         this.collideLineSegment(348, 410, 348, 540, 0.8, b);
 
-        // Palatal Mezzanine Drop Chute Detection (x: 255..315, y: 335..360)
-        if (b.x >= 255 && b.x <= 315 && b.y >= 335 && b.y <= 360 && b.vy > 0) {
-          if (this.mezzanineDropCooldown <= 0) {
-            this.mezzanineDropCooldown = 25;
-            this.synth.playMezzanineDrop();
-            this.floaters.push({
-              text: '▾ MEZZANINE DROP ▾',
-              x: 285, y: 375, vy: 0.8, alpha: 0.85, isImpressive: false
-            });
+        // Citadel One-Way Wire Gate: allows downward ball entrance from Vocal Grotto, blocks upward exit
+        if (b.x >= 370 && b.x <= 405 && b.y >= 185 && b.y <= 205 && b.vy < 0) {
+          this.collideLineSegment(375, 195, 405, 195, 0.75, b);
+        }
+
+        // Palatal Citadel Drawbridge Gate & Drop Chute (x: 255..315, y: 335..360)
+        if (this.citadel && this.citadel.drawbridgeRaised) {
+          // Drawbridge is UP (locked): Solid barrier keeping ball inside the Upper Citadel!
+          this.collideLineSegment(255, 336, 315, 336, 0.82, b);
+        } else {
+          // Drawbridge is LOWERED (open): Ball can drop down off the shelf!
+          if (b.x >= 255 && b.x <= 315 && b.y >= 335 && b.y <= 360 && b.vy > 0) {
+            if (this.mezzanineDropCooldown <= 0) {
+              this.mezzanineDropCooldown = 25;
+              this.synth.playMezzanineDrop();
+              this.floaters.push({
+                text: '▾ MEZZANINE DROP ▾',
+                x: 285, y: 375, vy: 0.8, alpha: 0.85, isImpressive: false
+              });
+            }
           }
+        }
+
+        // Subarea 5 / Tier I: Kiln Bellows Captive-Ball Channel Guide Rails (x: 370..394, y: 575..655)
+        this.collideLineSegment(370, 575, 370, 650, 0.82, b);
+        this.collideLineSegment(394, 575, 394, 650, 0.82, b);
+        this.collideLineSegment(370, 575, 394, 575, 0.82, b);
+        this.collideCircle(370, 650, 3.5, 0.8, b);
+        this.collideCircle(394, 650, 3.5, 0.8, b);
+
+        // Subarea 1 / Tier V: Temple of Marduk Bash Portcullis Solid Barrier
+        if (this.bashPortcullis && !this.bashPortcullis.isDown) {
+          this.collideLineSegment(188, 52, 232, 52, 0.82, b);
         }
 
         // Sky-Ramp Portcullis Gate Collision (blocks entrance at y=410 when closed)
@@ -5335,6 +5684,12 @@
           this.awardWord(dentWord);
         }
 
+        // Lower the Citadel Drawbridge to breach the Upper Citadel and open the escape ramp!
+        if (this.citadel) {
+          this.citadel.drawbridgeRaised = false;
+          this.synth.playDrawbridgeServo(true);
+        }
+
         // Schedule mechanical reset after 6.5s to give player time to shoot exposed Vault K
         this.dropTargetResetTimer = 6500;
       }
@@ -5403,6 +5758,161 @@
         } else {
           s.spinSpeed = 0;
         }
+      }
+
+      // -----------------------------------------------------------------------
+      // 1. TIER I: KILN BELLOWS CAPTIVE-BALL MECHANICS
+      // -----------------------------------------------------------------------
+      handleCaptiveBall(b = this.ball) {
+        if (!this.captiveBall || !b.inPlay || b.inPlungerLane || b.onRamp) return;
+        const cap = this.captiveBall;
+        const dx = b.x - cap.x;
+        const dy = b.y - cap.y;
+        const dist = Math.hypot(dx, dy);
+        const minDist = b.radius + cap.radius; // 7.8 + 8.5 = 16.3
+
+        if (dist < minDist) {
+          const nx = dx / (dist || 1);
+          const ny = dy / (dist || 1);
+
+          // Position active ball outside collision sphere
+          b.x = cap.x + nx * (minDist + 0.5);
+          b.y = cap.y + ny * (minDist + 0.5);
+
+          // Impulse transfer: push captive ball upward into kiln track
+          const impactSpeed = Math.abs(b.vy);
+          cap.vy = Math.min(-4.0, -impactSpeed * 1.35 - 3.2);
+          cap.hitAnim = 1.0;
+
+          // Rebound active ball downwards and outwards
+          b.vy = Math.abs(b.vy) * 0.70 + 2.0;
+          b.vx += nx * 2.5;
+
+          this.score += 250;
+          this.updateHUD();
+          this.synth.playCaptiveBallHit(1.0);
+
+          // Spark particles at point of impact
+          for (let i = 0; i < 8; i++) {
+            this.particles.push({
+              x: cap.x + nx * cap.radius,
+              y: cap.y + ny * cap.radius,
+              vx: (Math.random() - 0.5) * 4,
+              vy: (Math.random() - 0.5) * 4,
+              r: 1.0 + Math.random() * 1.5,
+              alpha: 0.9,
+              color: '#ffd700'
+            });
+          }
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 2. TIER II: PROCESSIONAL MAGNETIC ACCELERATOR TRENCH
+      // -----------------------------------------------------------------------
+      handleAcceleratorTrench(b = this.ball) {
+        if (!this.trench || !b.inPlay || b.inPlungerLane || b.onRamp) return;
+        const tr = this.trench;
+
+        // Check if sphere is inside the sunken accelerator channel
+        if (b.x >= tr.x1 && b.x <= tr.x2 && b.y >= tr.y1 && b.y <= tr.y2) {
+          // If sphere is rolling upward, apply magnetic induction accelerator thrust!
+          if (b.vy < -0.8) {
+            b.vy = Math.max(-23.0, b.vy - 1.8);
+            // Center the sphere in the channel
+            b.vx = (210 - b.x) * 0.25;
+
+            if (!tr.boostActive) {
+              tr.boostActive = true;
+              tr.boostPulse = 1.0;
+              this.score += 500;
+              this.updateHUD();
+              this.synth.playAcceleratorBoost();
+              this.floaters.push({
+                text: '⚡ MAGNETIC BOOST! +500 ⚡',
+                x: 210, y: 520, vy: -1.8, alpha: 1.0, isImpressive: true
+              });
+            }
+          }
+        } else if (b.y < tr.y1 - 10 || b.y > tr.y2 + 20) {
+          tr.boostActive = false;
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 3. TIER II: DUAL CUNEIFORM ASTROLABE SPINNERS ([S] & [L])
+      // -----------------------------------------------------------------------
+      handleDualSpinners(b = this.ball) {
+        if (!this.dualSpinners || !b.inPlay || b.inPlungerLane || b.onRamp) return;
+
+        this.dualSpinners.forEach(sp => {
+          if (Math.abs(b.x - sp.x) < 14 && Math.abs(b.y - sp.y) < 12) {
+            if (sp.spinSpeed < 0.2) {
+              sp.spinSpeed = Math.max(26, Math.abs(b.vy) * 5.5 + 12);
+              sp.hitAnim = 1.0;
+              this.synth.triggerConsonant(sp.phoneme);
+              this.registerPhoneme(sp.phoneme, false);
+              this.synth.playSpinnerWhir();
+              this.score += 250;
+              this.updateHUD();
+              this.floaters.push({
+                text: `[${sp.label}] +250`,
+                x: sp.x, y: sp.y - 16, vy: -0.9, alpha: 0.9, isImpressive: false
+              });
+            }
+          }
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. TIER V: TEMPLE OF MARDUK BASH PORTCULLIS
+      // -----------------------------------------------------------------------
+      handleBashPortcullis(b = this.ball) {
+        if (!this.bashPortcullis || this.bashPortcullis.isDown || !b.inPlay || b.inPlungerLane || b.onRamp) return;
+        const gate = this.bashPortcullis;
+
+        // Front face strike test
+        if (b.x >= gate.x - gate.w / 2 && b.x <= gate.x + gate.w / 2 && Math.abs(b.y - gate.y) <= 8 && b.vy < 0) {
+          b.vy = Math.abs(b.vy) * 0.85 + 2.5;
+          b.vx += (b.x - gate.x) * 0.25;
+
+          gate.hits++;
+          gate.recoilAnim = 1.0;
+          gate.flashAnim = 1.0;
+          gate.hitShake = 12;
+
+          this.synth.playBashPortcullisHit(gate.hits);
+
+          if (gate.hits === 1) {
+            this.score += 1500;
+            this.floaters.push({
+              text: '★ TEMPLE RUMBLES! (1/3) +1,500 ★',
+              x: gate.x, y: gate.y - 18, vy: -1.0, alpha: 1.0, isImpressive: true
+            });
+          } else if (gate.hits === 2) {
+            this.score += 3500;
+            this.spawnLightningBolt(gate.x, 20, gate.x, gate.y);
+            this.floaters.push({
+              text: '⚡ PORTCULLIS CRACKED! (2/3) +3,500 ⚡',
+              x: gate.x, y: gate.y - 18, vy: -1.0, alpha: 1.0, isImpressive: true
+            });
+          } else if (gate.hits >= 3) {
+            gate.isDown = true;
+            this.score += 10000;
+            if (this.velarVaults) {
+              this.velarVaults.gate.isOpen = true;
+              this.velarVaults.gate.autoCloseTimer = 35000;
+            }
+            this.showCelebrationBanner('SANCTUARY UNSEALED!', 10000, true, 'PORTCULLIS BREACHED • SHOOT VAULT [G] TO CONQUER BABEL!');
+            this.spawnLightningBolt(gate.x, 20, gate.x, gate.y);
+          }
+          this.updateHUD();
+        }
+      }
+
+      // Multiball Spawner / Staging Trigger
+      triggerMultiball(ballCount = 2, title = 'POLYGLOT MULTIBALL!') {
+        this.triggerWrathOfMarduk();
       }
 
       // -----------------------------------------------------------------------
@@ -5779,8 +6289,14 @@
         // 1. The Great Ziggurat of Babel Playfield (Mudbrick Kilns, Glazed Lapis Avenue, Terraces & Storm Sky)
         this.renderZigguratPlayfield(ctx);
 
+        // 1.1 Processional Accelerator Trench & Copper Induction Coils (Sunken Midfield Bed)
+        this.renderAcceleratorTrench(ctx);
+
         // 1.4 Palatal Citadel Mezzanine Elevated Platform Deck (Subarea 4 3D Raised Shelf)
         this.renderPalatalMezzanineDeck(ctx);
+
+        // 1.45 Citadel Retractable Spiked Drawbridge & Clearance Ramp
+        this.renderCitadelDrawbridge(ctx);
 
         // 1.5 Subarea Architecture & Monumental Facades (Arches, Battlements, Minarets & Dedication Plaques)
         this.renderSubareaArchitecture(ctx);
@@ -5816,6 +6332,9 @@
         this.renderDropTargets(ctx); // Dental Arch 4-Bank ([D]-[E]-[N]-[T])
         this.renderBumpers(ctx);
         this.renderSpinner(ctx);
+        this.renderDualSpinners(ctx); // Processional Way Dual Astrolabe Spinners [S] & [L]
+        this.renderCaptiveBallHearth(ctx); // Kiln Bellows Captive-Ball Furnace
+        this.renderBashPortcullis(ctx); // Temple of Marduk Recoiling Bash Portcullis
         this.renderVelarVaults(ctx); // The Velar Vaults (Vault K & Vault G)
         this.renderFlippers(ctx); // Left, Right, & Upper Mini-Flipper
         this.renderPlunger(ctx);
@@ -8488,6 +9007,486 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('[S]', 0, 0);
+
+        ctx.restore();
+      }
+
+      // -----------------------------------------------------------------------
+      // 1. TIER I: KILN BELLOWS CAPTIVE-BALL & ARMORED HEARTH
+      // -----------------------------------------------------------------------
+      renderCaptiveBallHearth(ctx) {
+        if (!this.captiveBall) return;
+        const cap = this.captiveBall;
+        const time = performance.now();
+
+        ctx.save();
+
+        // A. Terracotta Brick Housing & Mortar Seams (x: 366..398, y: 572..658)
+        ctx.fillStyle = '#6b200b';
+        ctx.fillRect(366, 572, 32, 86);
+        ctx.strokeStyle = '#2b0b04';
+        ctx.lineWidth = 1.4;
+        ctx.strokeRect(366, 572, 32, 86);
+
+        // Brick masonry row divisions
+        ctx.strokeStyle = 'rgba(20, 8, 4, 0.7)';
+        ctx.lineWidth = 1.0;
+        for (let by = 586; by < 658; by += 14) {
+          ctx.beginPath();
+          ctx.moveTo(366, by);
+          ctx.lineTo(398, by);
+          ctx.stroke();
+        }
+
+        // Heavy Industrial Hex Bolts (2 on left flank, 2 on right flank)
+        [[364, 595], [364, 635], [400, 595], [400, 635]].forEach(([bx, by]) => {
+          ctx.fillStyle = '#4b5563';
+          ctx.beginPath();
+          ctx.arc(bx, by, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#9ca3af';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        });
+
+        // B. Glowing Cast-Iron Radial Brazier Grate underneath the channel
+        const heatNorm = Math.min(1.0, (cap.temperature - 300) / 900);
+        const heatPulse = 0.75 + 0.25 * Math.sin(time * 0.008);
+        const grateGrad = ctx.createRadialGradient(382, 615, 2, 382, 615, 18);
+        grateGrad.addColorStop(0, `rgba(254, 240, 138, ${0.9 * heatPulse})`);
+        grateGrad.addColorStop(0.35, `rgba(249, 115, 22, ${0.75 * heatPulse})`);
+        grateGrad.addColorStop(0.7, `rgba(185, 28, 28, ${0.45 * heatPulse})`);
+        grateGrad.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = grateGrad;
+        ctx.fillRect(370, 580, 24, 70);
+
+        // Radial iron grate bars behind the ball
+        ctx.strokeStyle = '#1e1b18';
+        ctx.lineWidth = 1.6;
+        for (let gy = 588; gy <= 648; gy += 10) {
+          ctx.beginPath();
+          ctx.moveTo(371, gy);
+          ctx.lineTo(393, gy);
+          ctx.stroke();
+        }
+
+        // C. Polished Bronze Guide Rails
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2.0;
+        ctx.shadowColor = '#d97706';
+        ctx.shadowBlur = 6;
+        // Left rail
+        ctx.beginPath(); ctx.moveTo(372, 574); ctx.lineTo(372, 654); ctx.stroke();
+        // Right rail
+        ctx.beginPath(); ctx.moveTo(392, 574); ctx.lineTo(392, 654); ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Specular chrome reflection highlight on rails
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(371.5, 575); ctx.lineTo(371.5, 653); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(391.5, 575); ctx.lineTo(391.5, 653); ctx.stroke();
+
+        // D. Top Armored Target Switch & Compression Spring (y: 575..588)
+        const springCompression = Math.max(0, 595 - cap.y);
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for (let i = 0; i <= 6; i++) {
+          const sy = 576 + (i / 6) * (14 - springCompression * 0.6);
+          const sx = 382 + (i % 2 === 0 ? -4 : 4);
+          if (i === 0) ctx.moveTo(382, sy);
+          else ctx.lineTo(sx, sy);
+        }
+        ctx.stroke();
+
+        // Armored strike target plate
+        ctx.fillStyle = cap.hitAnim > 0 ? '#ffffff' : '#22c55e';
+        ctx.fillRect(375, 584 - springCompression * 0.4, 14, 4);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.0;
+        ctx.strokeRect(375, 584 - springCompression * 0.4, 14, 4);
+
+        // E. The Captive Brass Pinball Sphere
+        ctx.save();
+        // Drop shadow onto grate
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 3;
+        ctx.beginPath();
+        ctx.arc(cap.x, cap.y, cap.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#1c0c04';
+        ctx.fill();
+        ctx.restore();
+
+        // Metallic Brass Sphere Shading
+        const ballGrad = ctx.createRadialGradient(
+          cap.x - cap.radius * 0.35, cap.y - cap.radius * 0.35, 1,
+          cap.x, cap.y, cap.radius
+        );
+        ballGrad.addColorStop(0, '#fffbe6'); // Specular highlight
+        ballGrad.addColorStop(0.3, '#fde047'); // Radiant brass
+        ballGrad.addColorStop(0.65, '#ca8a04'); // Antique gold
+        ballGrad.addColorStop(1, '#713f12'); // Dark bronze shadow
+
+        ctx.fillStyle = ballGrad;
+        ctx.beginPath();
+        ctx.arc(cap.x, cap.y, cap.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Subtle specular rim highlight
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // F. Temperature Gauge Label Badge
+        ctx.font = '700 0.36rem "Space Mono", monospace';
+        ctx.fillStyle = heatNorm > 0.6 ? '#fef08a' : '#d97706';
+        ctx.textAlign = 'center';
+        ctx.fillText(`KILN ${cap.temperature}°`, 382, 668);
+
+        ctx.restore();
+      }
+
+      // -----------------------------------------------------------------------
+      // 2. TIER II: PROCESSIONAL MAGNETIC ACCELERATOR TRENCH
+      // -----------------------------------------------------------------------
+      renderAcceleratorTrench(ctx) {
+        if (!this.trench) return;
+        const tr = this.trench;
+        const time = performance.now();
+
+        ctx.save();
+
+        // A. Sunken Trench Bed (x: 194..226, y: 470..575)
+        const trenchGrad = ctx.createLinearGradient(tr.x1, 0, tr.x2, 0);
+        trenchGrad.addColorStop(0, '#040d21');
+        trenchGrad.addColorStop(0.5, '#091e48');
+        trenchGrad.addColorStop(1, '#040d21');
+        ctx.fillStyle = trenchGrad;
+        ctx.fillRect(tr.x1, tr.y1, tr.x2 - tr.x1, tr.y2 - tr.y1);
+
+        // Dark shadow sidewalls giving sunken depth
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(tr.x1, tr.y1, 3, tr.y2 - tr.y1);
+        ctx.fillRect(tr.x2 - 3, tr.y1, 3, tr.y2 - tr.y1);
+
+        // B. Lateral Copper Magnetic Accelerator Coils (Under transparent lexan covers)
+        const coilYPositions = [485, 510, 535, 560];
+        coilYPositions.forEach(cy => {
+          // Left coil bundle
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(tr.x1 - 6, cy - 7, 7, 14);
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(tr.x1 - 6, cy - 7, 7, 14);
+          // Coil winding lines
+          for (let wy = cy - 5; wy <= cy + 5; wy += 2.5) {
+            ctx.beginPath();
+            ctx.moveTo(tr.x1 - 6, wy);
+            ctx.lineTo(tr.x1 + 1, wy);
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+
+          // Right coil bundle
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(tr.x2 - 1, cy - 7, 7, 14);
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(tr.x2 - 1, cy - 7, 7, 14);
+          // Coil winding lines
+          for (let wy = cy - 5; wy <= cy + 5; wy += 2.5) {
+            ctx.beginPath();
+            ctx.moveTo(tr.x2 - 1, wy);
+            ctx.lineTo(tr.x2 + 6, wy);
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+
+          // Clear lexan cover glares
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
+          ctx.fillRect(tr.x1 - 6, cy - 7, 3, 14);
+          ctx.fillRect(tr.x2 + 3, cy - 7, 3, 14);
+        });
+
+        // C. Glowing Magnetic Flux Energy (Active Surge or Idle Shimmer)
+        const pPulse = tr.boostPulse || 0;
+        if (pPulse > 0.05) {
+          const fluxGrad = ctx.createLinearGradient(0, tr.y2, 0, tr.y1);
+          fluxGrad.addColorStop(0, `rgba(56, 189, 248, ${0.85 * pPulse})`);
+          fluxGrad.addColorStop(0.5, `rgba(254, 240, 138, ${0.95 * pPulse})`);
+          fluxGrad.addColorStop(1, `rgba(56, 189, 248, ${0.4 * pPulse})`);
+          ctx.fillStyle = fluxGrad;
+          ctx.fillRect(tr.x1 + 2, tr.y1, tr.x2 - tr.x1 - 4, tr.y2 - tr.y1);
+
+          // Electric induction arcs
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(tr.x1 + 6, tr.y2 - 10);
+          ctx.lineTo(210 + (Math.random() - 0.5) * 8, 520);
+          ctx.lineTo(tr.x2 - 6, tr.y1 + 15);
+          ctx.stroke();
+        }
+
+        // D. Illuminated Processional Ascent Chevrons (▲ ▲ ▲)
+        const chevPulse = 0.5 + 0.5 * Math.sin(time * 0.008);
+        [555, 525, 495].forEach((cy, idx) => {
+          ctx.strokeStyle = pPulse > 0 ? '#38bdf8' : `rgba(255, 215, 0, ${0.45 + 0.3 * chevPulse})`;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(202, cy + 6);
+          ctx.lineTo(210, cy);
+          ctx.lineTo(218, cy + 6);
+          ctx.stroke();
+        });
+
+        ctx.restore();
+      }
+
+      // -----------------------------------------------------------------------
+      // 3. TIER II: DUAL CUNEIFORM ASTROLABE SPINNERS ([S] & [L])
+      // -----------------------------------------------------------------------
+      renderDualSpinners(ctx) {
+        if (!this.dualSpinners) return;
+
+        this.dualSpinners.forEach(sp => {
+          ctx.save();
+          ctx.translate(sp.x, sp.y);
+
+          // 1. Polished Brass Mounting Posts & Jeweled Pivot
+          ctx.fillStyle = '#8c5e12';
+          ctx.fillRect(-sp.r - 2, -3, 3, 6);
+          ctx.fillRect(sp.r - 1, -3, 3, 6);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(-sp.r - 2, -3, 3, 6);
+          ctx.strokeRect(sp.r - 1, -3, 3, 6);
+
+          // 2. 3D Astrolabe Disc with Perspective Foreshortening
+          const cosAngle = Math.cos(sp.angle);
+          ctx.scale(1.0, cosAngle);
+
+          // Cast Drop Shadow
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(0, 0, sp.r, 0, Math.PI * 2);
+          ctx.fillStyle = '#1e1406';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Disc Gold Gradient (Face changes with rotation angle)
+          const isFront = cosAngle >= 0;
+          const discGrad = ctx.createLinearGradient(-sp.r, -sp.r, sp.r, sp.r);
+          if (isFront) {
+            discGrad.addColorStop(0, '#fffbe6');
+            discGrad.addColorStop(0.4, '#ffd700');
+            discGrad.addColorStop(1, '#b45309');
+          } else {
+            discGrad.addColorStop(0, '#d97706');
+            discGrad.addColorStop(0.6, '#92400e');
+            discGrad.addColorStop(1, '#451a03');
+          }
+
+          ctx.fillStyle = discGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, sp.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Beveled Rim
+          ctx.strokeStyle = sp.hitAnim > 0 ? '#ffffff' : '#fef08a';
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          // Embossed Phoneme Lettering [S] or [L]
+          if (Math.abs(cosAngle) > 0.25) {
+            ctx.font = '900 0.68rem "Cinzel", serif';
+            ctx.fillStyle = isFront ? '#1c1917' : '#fef08a';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`[${sp.label}]`, 0, 0);
+          }
+
+          ctx.restore();
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. TIER IV: UPPER CITADEL RETRACTABLE DRAWBRIDGE GATE
+      // -----------------------------------------------------------------------
+      renderCitadelDrawbridge(ctx) {
+        if (!this.citadel) return;
+        const cit = this.citadel;
+        const time = performance.now();
+
+        ctx.save();
+        const gateX1 = 255;
+        const gateX2 = 315;
+        const gateY = 336;
+        const gateW = gateX2 - gateX1; // 60px
+        const anim = cit.drawbridgeAnim; // 1 = fully raised (locked), 0 = lowered (open)
+
+        if (anim > 0.05) {
+          // DRAWBRIDGE IS RAISED (LOCKED): Solid defensive spiked portcullis gate
+          // Drop shadow cast down-left
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetY = 4 * anim;
+          ctx.fillStyle = '#060f0a';
+          ctx.fillRect(gateX1, gateY - 3 * anim, gateW, 6 * anim);
+          ctx.restore();
+
+          // Bronze gate beam
+          const gateGrad = ctx.createLinearGradient(gateX1, gateY - 3, gateX2, gateY + 3);
+          gateGrad.addColorStop(0, '#ffd700');
+          gateGrad.addColorStop(0.5, '#b45309');
+          gateGrad.addColorStop(1, '#78350f');
+          ctx.fillStyle = gateGrad;
+          ctx.fillRect(gateX1, gateY - 2.5 * anim, gateW, 5 * anim);
+
+          // Defensive Spikes protruding from gate face
+          ctx.fillStyle = '#ffd700';
+          for (let sx = gateX1 + 5; sx <= gateX2 - 5; sx += 8) {
+            ctx.beginPath();
+            ctx.moveTo(sx - 2, gateY + 2.5 * anim);
+            ctx.lineTo(sx + 2, gateY + 2.5 * anim);
+            ctx.lineTo(sx, gateY + (2.5 + 4.5 * anim) * anim);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Support chains on left and right ends
+          ctx.strokeStyle = '#9ca3af';
+          ctx.lineWidth = 1.0;
+          ctx.beginPath();
+          ctx.moveTo(gateX1 + 2, gateY);
+          ctx.lineTo(gateX1 + 2, gateY - 14 * anim);
+          ctx.moveTo(gateX2 - 2, gateY);
+          ctx.lineTo(gateX2 - 2, gateY - 14 * anim);
+          ctx.stroke();
+
+          // Gate status badge
+          ctx.font = '700 0.34rem "Space Mono", monospace';
+          ctx.fillStyle = '#f59e0b';
+          ctx.textAlign = 'center';
+          ctx.fillText('▲ CITADEL DRAWBRIDGE: LOCKED ▲', 285, gateY - 6 * anim);
+        } else {
+          // DRAWBRIDGE IS LOWERED (OPEN): Flat smooth ramp plate with green clearance chevrons
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          ctx.fillRect(gateX1, gateY - 2, gateW, 8);
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(gateX1, gateY - 2, gateW, 8);
+
+          // Emerald clearance arrows
+          const pPulse = 0.5 + 0.5 * Math.sin(time * 0.01);
+          ctx.font = '700 0.35rem "Space Mono", monospace';
+          ctx.fillStyle = `rgba(52, 211, 153, ${0.7 + 0.3 * pPulse})`;
+          ctx.textAlign = 'center';
+          ctx.fillText('▼ CITADEL BREACHED • EXIT OPEN ▼', 285, gateY + 5);
+        }
+
+        // Citadel One-Way Wire Gate at (390, 195)
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(390, 195, 6, Math.PI * 0.2, Math.PI * 0.8);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // -----------------------------------------------------------------------
+      // 5. TIER V: TEMPLE OF MARDUK BASH PORTCULLIS
+      // -----------------------------------------------------------------------
+      renderBashPortcullis(ctx) {
+        if (!this.bashPortcullis) return;
+        const gate = this.bashPortcullis;
+        const time = performance.now();
+
+        ctx.save();
+        const recoil = (gate.recoilAnim || 0) * 4;
+        const gy = gate.y - recoil;
+
+        if (!gate.isDown) {
+          // BASH GATE IS STANDING: Heavy chrome steel strike-plate and bronze security bars
+          ctx.translate(gate.x, gy);
+
+          // 1. Chrome steel strike-plate in front
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetY = 3;
+          ctx.fillStyle = gate.flashAnim > 0 ? '#ffffff' : '#cbd5e1';
+          ctx.fillRect(-gate.w / 2, -gate.h / 2, gate.w, gate.h);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.8;
+          ctx.strokeRect(-gate.w / 2, -gate.h / 2, gate.w, gate.h);
+          ctx.restore();
+
+          // Heavy iron rivet studs on the plate
+          [-16, -6, 6, 16].forEach(rx => {
+            ctx.fillStyle = '#475569';
+            ctx.beginPath(); ctx.arc(rx, 0, 1.8, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 0.6; ctx.stroke();
+          });
+
+          // 2. Vertical bronze security bars behind plate
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.6;
+          for (let bx = -gate.w / 2 + 4; bx <= gate.w / 2 - 4; bx += 6) {
+            ctx.beginPath();
+            ctx.moveTo(bx, -gate.h / 2 - 4);
+            ctx.lineTo(bx, gate.h / 2 + 2);
+            ctx.stroke();
+          }
+
+          // 3. Three Gemstone Durability Indicators (◆ ◆ ◆)
+          for (let i = 0; i < 3; i++) {
+            const gx = -12 + i * 12;
+            const isHit = gate.hits > i;
+            ctx.beginPath();
+            ctx.arc(gx, -gate.h / 2 - 8, 3.2, 0, Math.PI * 2);
+            ctx.fillStyle = isHit ? '#fbbf24' : '#ef4444';
+            ctx.shadowColor = isHit ? '#ffd700' : '#7f1d1d';
+            ctx.shadowBlur = isHit ? 10 : 3;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+
+          // Status Floater tag
+          ctx.font = '700 0.34rem "Space Mono", monospace';
+          ctx.fillStyle = gate.hits === 2 ? '#fef08a' : 'rgba(255, 215, 0, 0.85)';
+          ctx.textAlign = 'center';
+          ctx.fillText(`MARDUK PORTCULLIS [${gate.hits}/3]`, 0, gate.h / 2 + 10);
+        } else {
+          // BASH GATE IS DOWN: Fully recessed into stone, revealing open golden portal!
+          ctx.translate(gate.x, gate.y);
+          ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+          ctx.fillRect(-gate.w / 2, -4, gate.w, 8);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.4;
+          ctx.strokeRect(-gate.w / 2, -4, gate.w, 8);
+
+          const pulse = 0.5 + 0.5 * Math.sin(time * 0.012);
+          ctx.font = '700 0.36rem "Space Mono", monospace';
+          ctx.fillStyle = pulse > 0.4 ? '#ffffff' : '#ffd700';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 12;
+          ctx.textAlign = 'center';
+          ctx.fillText('★ SANCTUARY OPEN • CONQUER BABEL! ★', 0, 16);
+          ctx.shadowBlur = 0;
+        }
 
         ctx.restore();
       }
