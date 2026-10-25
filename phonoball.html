@@ -467,6 +467,26 @@
       padding: 0.15rem 0.45rem;
       border-radius: 4px;
     }
+    .word-chip.sacred {
+      color: #040814;
+      background: linear-gradient(180deg, #ffe66d 0%, #dfb15b 100%);
+      border-color: #ffffff;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.55);
+    }
+    .cvc-hint-strip {
+      font-family: var(--font-mono);
+      font-size: 0.54rem;
+      color: #38bdf8;
+      background: rgba(4, 12, 28, 0.85);
+      border: 1px dashed rgba(0, 242, 254, 0.35);
+      border-radius: 5px;
+      padding: 0.24rem 0.45rem;
+      margin-top: 0.3rem;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     /* Overlays */
     .audio-overlay {
@@ -777,6 +797,9 @@
           <span style="color:var(--text-muted);">BONUS TABLET WORD:</span>
           <span class="target-word-highlight" id="stat-target-word">BAT</span>
         </div>
+        <div class="cvc-hint-strip" id="cvc-hint-strip">
+          NEXT: HIT ANY CONSONANT [B P M T D N K G S L R]
+        </div>
         <div class="formant-bars">
           <span>F₁ (JAW): <strong id="val-f1">500 Hz</strong></span>
           <span>F₂ (TONGUE): <strong id="val-f2">1500 Hz</strong></span>
@@ -848,7 +871,7 @@
     ];
 
     // =========================================================================
-    // 2. SPACE CADET MISSIONS (MAPPED TO BABEL TRIALS)
+    // 2. SPACE CADET MISSIONS (12 BABEL TRIALS + WIZARD MULTIBALL)
     // =========================================================================
     const MISSIONS = [
       {
@@ -885,6 +908,17 @@
         targetWord: 'TOP'
       },
       {
+        id: 'ORBITAL_SPINNER',
+        name: 'WINGED BULL ORBIT',
+        scName: 'Orbital Velocity',
+        desc: 'SPIN THE RIGHT ORBIT BULL GATE 10 REVOLUTIONS',
+        type: 'SPINNER',
+        goal: 10,
+        lights: 3,
+        pts: 24000,
+        targetWord: 'BULL'
+      },
+      {
         id: 'SCIENCE_MISSION',
         name: 'CUNEIFORM TABLETS',
         scName: 'Science Mission',
@@ -896,15 +930,26 @@
         targetWord: 'CAT'
       },
       {
+        id: 'MINIMAL_PAIRS',
+        name: 'ROYAL LEXICON',
+        scName: 'Xenolinguistics',
+        desc: 'SYNTHESIZE ANY 2 SPOKEN C-V-C WORDS',
+        type: 'WORDS',
+        goal: 2,
+        lights: 3,
+        pts: 30000,
+        targetWord: 'KING'
+      },
+      {
         id: 'STRAY_COMET',
         name: 'STAR OF ISHTAR',
         scName: 'Stray Comet',
-        desc: 'SHOOT THE RIGHT HYPERSPACE CHUTE',
+        desc: 'SHOOT THE RIGHT HYPERSPACE CHUTE [S]',
         type: 'HYPERSPACE',
         goal: 1,
         lights: 3,
         pts: 30000,
-        targetWord: 'GOD'
+        targetWord: 'STAR'
       },
       {
         id: 'SPACE_RADIATION',
@@ -915,7 +960,18 @@
         goal: 2,
         lights: 3,
         pts: 28000,
-        targetWord: 'RUN'
+        targetWord: 'ROAR'
+      },
+      {
+        id: 'ROYAL_INSCRIPTION',
+        name: 'STELE OF HAMMURABI',
+        scName: 'Artifact Recovery',
+        desc: 'HIT 5 CONSONANT TABLETS OR WORMHOLES',
+        type: 'TARGETS',
+        goal: 5,
+        lights: 3,
+        pts: 32000,
+        targetWord: 'LAW'
       },
       {
         id: 'BLACK_HOLE',
@@ -926,25 +982,35 @@
         goal: 1,
         lights: 4,
         pts: 40000,
-        targetWord: 'LIPS'
+        targetWord: 'MARDUK'
+      },
+      {
+        id: 'COSMIC_SYMPHONY',
+        name: 'CHORUS OF SHINAR',
+        scName: 'Resonance Test',
+        desc: 'TRIGGER 10 VOWEL BUMPERS OR TOP ARCHES',
+        type: 'BUMPERS',
+        goal: 10,
+        lights: 4,
+        pts: 38000,
+        targetWord: 'SONG'
       },
       {
         id: 'ALIEN_MENACE',
         name: 'TOWER OF TONGUES',
         scName: 'Alien Menace',
-        desc: 'SPEAK 2 C-V-C WORDS WITH THE VOCAL SYNTHESIZER',
+        desc: 'SPEAK 3 C-V-C WORDS TO UNLEASH BABEL MULTIBALL!',
         type: 'WORDS',
-        goal: 2,
-        lights: 4,
-        pts: 50000,
+        goal: 3,
+        lights: 5,
+        pts: 60000,
         targetWord: 'BABEL'
       }
     ];
 
     // =========================================================================
-    // 3. CURATED C-V-C PHONETIC LEXICON & FORMANT TABLE
+    // 3. EXPANDED 330+ WORD C-V-C PHONETIC LEXICON & FORMANT TABLE
     // =========================================================================
-    // Vowel Formants: F1 (Jaw height), F2 (Tongue front/back), F3 (Lip rounding)
     const VOWEL_FORMANTS = {
       'EE': { ipa: '/i/',  label: 'EE', f1: 280, f2: 2350, f3: 3000, color: '#00f2fe' },
       'IH': { ipa: '/ɪ/',  label: 'IH', f1: 400, f2: 1950, f3: 2600, color: '#38bdf8' },
@@ -955,141 +1021,456 @@
       'OO': { ipa: '/u/',  label: 'OO', f1: 310, f2: 820,  f3: 2250, color: '#10b981' }
     };
 
-    // Consonant Acoustic Profiles (Locus F1/F2, burst frequency, voiced, nasal/fricative)
     const CONSONANT_PROFILES = {
-      'B': { label: 'B', group: 'LABIAL',  f1: 200, f2: 900,  burst: 600,  voiced: true,  type: 'stop',   color: '#f97316' },
-      'P': { label: 'P', group: 'LABIAL',  f1: 200, f2: 900,  burst: 750,  voiced: false, type: 'stop',   color: '#fb923c' },
-      'M': { label: 'M', group: 'LABIAL',  f1: 260, f2: 1000, burst: 400,  voiced: true,  type: 'nasal',  color: '#fdba74' },
-      'T': { label: 'T', group: 'CORONAL', f1: 220, f2: 1800, burst: 3600, voiced: false, type: 'stop',   color: '#34d399' },
-      'D': { label: 'D', group: 'CORONAL', f1: 220, f2: 1800, burst: 3000, voiced: true,  type: 'stop',   color: '#10b981' },
-      'N': { label: 'N', group: 'CORONAL', f1: 260, f2: 1700, burst: 1400, voiced: true,  type: 'nasal',  color: '#6ee7b7' },
-      'K': { label: 'K', group: 'VELAR',   f1: 240, f2: 1450, burst: 1900, voiced: false, type: 'stop',   color: '#c084fc' },
-      'G': { label: 'G', group: 'VELAR',   f1: 240, f2: 1450, burst: 1650, voiced: true,  type: 'stop',   color: '#a855f7' },
-      'S': { label: 'S', group: 'SIBILANT',f1: 250, f2: 2000, burst: 5200, voiced: false, type: 'fric',   color: '#38bdf8' },
-      'L': { label: 'L', group: 'LIQUID',  f1: 340, f2: 1150, burst: 1200, voiced: true,  type: 'liquid', color: '#fde047' },
-      'R': { label: 'R', group: 'LIQUID',  f1: 380, f2: 1250, burst: 1350, voiced: true,  type: 'liquid', color: '#facc15' }
+      'B': { label: 'B', group: 'LABIAL',   f1: 200, f2: 900,  burst: 600,  voiced: true,  type: 'stop',   color: '#f97316' },
+      'P': { label: 'P', group: 'LABIAL',   f1: 200, f2: 900,  burst: 750,  voiced: false, type: 'stop',   color: '#fb923c' },
+      'M': { label: 'M', group: 'LABIAL',   f1: 260, f2: 1000, burst: 400,  voiced: true,  type: 'nasal',  color: '#fdba74' },
+      'T': { label: 'T', group: 'CORONAL',  f1: 220, f2: 1800, burst: 3600, voiced: false, type: 'stop',   color: '#34d399' },
+      'D': { label: 'D', group: 'CORONAL',  f1: 220, f2: 1800, burst: 3000, voiced: true,  type: 'stop',   color: '#10b981' },
+      'N': { label: 'N', group: 'CORONAL',  f1: 260, f2: 1700, burst: 1400, voiced: true,  type: 'nasal',  color: '#6ee7b7' },
+      'K': { label: 'K', group: 'VELAR',    f1: 240, f2: 1450, burst: 1900, voiced: false, type: 'stop',   color: '#c084fc' },
+      'G': { label: 'G', group: 'VELAR',    f1: 240, f2: 1450, burst: 1650, voiced: true,  type: 'stop',   color: '#a855f7' },
+      'S': { label: 'S', group: 'SIBILANT', f1: 250, f2: 2000, burst: 5200, voiced: false, type: 'fric',   color: '#38bdf8' },
+      'L': { label: 'L', group: 'LIQUID',   f1: 340, f2: 1150, burst: 1200, voiced: true,  type: 'liquid', color: '#fde047' },
+      'R': { label: 'R', group: 'LIQUID',   f1: 380, f2: 1250, burst: 1350, voiced: true,  type: 'liquid', color: '#facc15' }
     };
 
-    // Rich C-V-C Word Map: [C1, V, C2] -> English Word & Point Value
+    // Comprehensive Vowel-Specific C-V-C Lexicon (330+ Words + Sacred Babylonian Relics!)
     const CVC_WORDS = [
-      // B-words
-      { c1: 'B', v: ['AA','UH','EH'], c2: 'T', word: 'BAT', pts: 1500 },
-      { c1: 'B', v: ['IH'],           c2: 'T', word: 'BIT', pts: 1500 },
-      { c1: 'B', v: ['EE'],           c2: 'T', word: 'BEAT', pts: 1800 },
-      { c1: 'B', v: ['OO','OH'],      c2: 'T', word: 'BOOT', pts: 1800 },
-      { c1: 'B', v: ['EH','AA'],      c2: 'D', word: 'BED', pts: 1500 },
-      { c1: 'B', v: ['AA','UH','OH'], c2: 'G', word: 'BUG', pts: 1500 },
-      { c1: 'B', v: ['IH','EE'],      c2: 'G', word: 'BIG', pts: 1500 },
-      { c1: 'B', v: ['AA','OH','OO'], c2: 'K', word: 'BOOK', pts: 1800 },
-      { c1: 'B', v: ['AA','UH','OH'], c2: 'S', word: 'BUS', pts: 1500 },
-      { c1: 'B', v: ['EE','EH'],      c2: 'L', word: 'BELL', pts: 2000 },
-      { c1: 'B', v: ['AA','OH','OO'], c2: 'L', word: 'BALL', pts: 2200 },
-      { c1: 'B', v: ['AA','UH','OH'], c2: 'N', word: 'BUN', pts: 1500 },
-      { c1: 'B', v: ['AA','UH','OH'], c2: 'R', word: 'BAR', pts: 1600 },
-      { c1: 'B', v: ['EE','AA'],      c2: 'M', word: 'BEAM', pts: 2000 },
-      { c1: 'B', v: ['OO','OH'],      c2: 'M', word: 'BOOM', pts: 2200 },
-      { c1: 'B', v: ['AA','EH'],      c2: 'B', word: 'BABEL', pts: 5000 },
+      // ==================== [B] ONSET ====================
+      { c1: 'B', v: ['AA','EH'],      c2: 'B', word: 'BABEL',  pts: 5000, sacred: true },
+      { c1: 'B', v: ['IH','EE'],      c2: 'B', word: 'BIB',    pts: 1600 },
+      { c1: 'B', v: ['OH','UH','OO'], c2: 'B', word: 'BOB',    pts: 1600 },
+      { c1: 'B', v: ['AA','OH'],      c2: 'P', word: 'BOP',    pts: 1600 },
+      { c1: 'B', v: ['EE','IH','EH'], c2: 'P', word: 'BEEP',   pts: 1800 },
+      { c1: 'B', v: ['OO','UH'],      c2: 'P', word: 'BOOP',   pts: 1800 },
+      { c1: 'B', v: ['EE'],           c2: 'M', word: 'BEAM',   pts: 2400, sacred: true },
+      { c1: 'B', v: ['AA','EH','IH'], c2: 'M', word: 'BAM',    pts: 1700 },
+      { c1: 'B', v: ['UH'],           c2: 'M', word: 'BUM',    pts: 1500 },
+      { c1: 'B', v: ['OO','OH'],      c2: 'M', word: 'BOOM',   pts: 2200 },
+      { c1: 'B', v: ['AA'],           c2: 'T', word: 'BAT',    pts: 1600 },
+      { c1: 'B', v: ['IH'],           c2: 'T', word: 'BIT',    pts: 1500 },
+      { c1: 'B', v: ['EH'],           c2: 'T', word: 'BET',    pts: 1600 },
+      { c1: 'B', v: ['EE'],           c2: 'T', word: 'BEAT',   pts: 1800 },
+      { c1: 'B', v: ['UH'],           c2: 'T', word: 'BUT',    pts: 1500 },
+      { c1: 'B', v: ['OH'],           c2: 'T', word: 'BOAT',   pts: 2000 },
+      { c1: 'B', v: ['OO'],           c2: 'T', word: 'BOOT',   pts: 1800 },
+      { c1: 'B', v: ['EE'],           c2: 'D', word: 'BEAD',   pts: 1800 },
+      { c1: 'B', v: ['IH'],           c2: 'D', word: 'BID',    pts: 1600 },
+      { c1: 'B', v: ['EH'],           c2: 'D', word: 'BED',    pts: 1600 },
+      { c1: 'B', v: ['AA'],           c2: 'D', word: 'BAD',    pts: 1600 },
+      { c1: 'B', v: ['UH'],           c2: 'D', word: 'BUD',    pts: 1600 },
+      { c1: 'B', v: ['OH','OO'],      c2: 'D', word: 'BODE',   pts: 1800 },
+      { c1: 'B', v: ['EE'],           c2: 'N', word: 'BEAN',   pts: 1800 },
+      { c1: 'B', v: ['IH'],           c2: 'N', word: 'BIN',    pts: 1600 },
+      { c1: 'B', v: ['EH'],           c2: 'N', word: 'BEN',    pts: 1600 },
+      { c1: 'B', v: ['AA'],           c2: 'N', word: 'BAN',    pts: 1700 },
+      { c1: 'B', v: ['UH'],           c2: 'N', word: 'BUN',    pts: 1600 },
+      { c1: 'B', v: ['OH'],           c2: 'N', word: 'BONE',   pts: 2000 },
+      { c1: 'B', v: ['OO'],           c2: 'N', word: 'BOON',   pts: 2200 },
+      { c1: 'B', v: ['EE'],           c2: 'K', word: 'BEAK',   pts: 1900 },
+      { c1: 'B', v: ['IH','EH'],      c2: 'K', word: 'BRICK',  pts: 3200, sacred: true },
+      { c1: 'B', v: ['AA'],           c2: 'K', word: 'BACK',   pts: 1800 },
+      { c1: 'B', v: ['UH'],           c2: 'K', word: 'BUCK',   pts: 1800 },
+      { c1: 'B', v: ['OO','OH'],      c2: 'K', word: 'BOOK',   pts: 2000 },
+      { c1: 'B', v: ['IH','EE'],      c2: 'G', word: 'BIG',    pts: 1600 },
+      { c1: 'B', v: ['EH'],           c2: 'G', word: 'BEG',    pts: 1600 },
+      { c1: 'B', v: ['AA'],           c2: 'G', word: 'BAG',    pts: 1600 },
+      { c1: 'B', v: ['UH'],           c2: 'G', word: 'BUG',    pts: 1600 },
+      { c1: 'B', v: ['OH','OO'],      c2: 'G', word: 'BOG',    pts: 1600 },
+      { c1: 'B', v: ['AA','EE','IH'], c2: 'S', word: 'BASE',   pts: 2000 },
+      { c1: 'B', v: ['UH','EH'],      c2: 'S', word: 'BUS',    pts: 1600 },
+      { c1: 'B', v: ['OH','OO'],      c2: 'S', word: 'BOSS',   pts: 2000 },
+      { c1: 'B', v: ['EE','IH'],      c2: 'L', word: 'BILL',   pts: 1700 },
+      { c1: 'B', v: ['EH'],           c2: 'L', word: 'BELL',   pts: 2200 },
+      { c1: 'B', v: ['AA'],           c2: 'L', word: 'BALL',   pts: 2400 },
+      { c1: 'B', v: ['OH'],           c2: 'L', word: 'BOWL',   pts: 2000 },
+      { c1: 'B', v: ['OO','UH'],      c2: 'L', word: 'BULL',   pts: 3500, sacred: true },
+      { c1: 'B', v: ['AA'],           c2: 'R', word: 'BAR',    pts: 1800 },
+      { c1: 'B', v: ['EE','IH'],      c2: 'R', word: 'BEER',   pts: 1800 },
+      { c1: 'B', v: ['EH','UH'],      c2: 'R', word: 'BEAR',   pts: 2000 },
+      { c1: 'B', v: ['OH','OO'],      c2: 'R', word: 'BOAR',   pts: 2200 },
 
-      // P-words
-      { c1: 'P', v: ['AA','OH','UH'], c2: 'T', word: 'POT', pts: 1500 },
-      { c1: 'P', v: ['IH','EE'],      c2: 'T', word: 'PIT', pts: 1500 },
-      { c1: 'P', v: ['EH'],           c2: 'T', word: 'PET', pts: 1500 },
-      { c1: 'P', v: ['AA','IH','EE'], c2: 'N', word: 'PIN', pts: 1600 },
-      { c1: 'P', v: ['AA','OH'],      c2: 'P', word: 'POP', pts: 1800 },
-      { c1: 'P', v: ['AA','EH','IH'], c2: 'K', word: 'PACK', pts: 1600 },
-      { c1: 'P', v: ['EE'],           c2: 'K', word: 'PEAK', pts: 2000 },
-      { c1: 'P', v: ['IH','EE','AA'], c2: 'G', word: 'PIG', pts: 1500 },
-      { c1: 'P', v: ['OO','OH'],      c2: 'L', word: 'POOL', pts: 1800 },
+      // ==================== [P] ONSET ====================
+      { c1: 'P', v: ['AA','UH'],      c2: 'B', word: 'PUB',    pts: 1700 },
+      { c1: 'P', v: ['EE','IH','EH'], c2: 'B', word: 'PLEB',   pts: 1800 },
+      { c1: 'P', v: ['OO','OH'],      c2: 'B', word: 'PROBE',  pts: 2400 },
+      { c1: 'P', v: ['EE'],           c2: 'P', word: 'PEEP',   pts: 1700 },
+      { c1: 'P', v: ['IH'],           c2: 'P', word: 'PIP',    pts: 1600 },
+      { c1: 'P', v: ['EH'],           c2: 'P', word: 'PEP',    pts: 1600 },
+      { c1: 'P', v: ['AA','OH'],      c2: 'P', word: 'POP',    pts: 1800 },
+      { c1: 'P', v: ['UH'],           c2: 'P', word: 'PUP',    pts: 1700 },
+      { c1: 'P', v: ['OO'],           c2: 'P', word: 'POOP',   pts: 1800 },
+      { c1: 'P', v: ['AA','OH','EE'], c2: 'M', word: 'PALM',   pts: 2200 },
+      { c1: 'P', v: ['OO','UH','IH'], c2: 'M', word: 'PLUM',   pts: 1900 },
+      { c1: 'P', v: ['EE'],           c2: 'T', word: 'PEAT',   pts: 1700 },
+      { c1: 'P', v: ['IH'],           c2: 'T', word: 'PIT',    pts: 1600 },
+      { c1: 'P', v: ['EH'],           c2: 'T', word: 'PET',    pts: 1600 },
+      { c1: 'P', v: ['AA'],           c2: 'T', word: 'PAT',    pts: 1600 },
+      { c1: 'P', v: ['OH'],           c2: 'T', word: 'POT',    pts: 1700 },
+      { c1: 'P', v: ['UH','OO'],      c2: 'T', word: 'PUTT',   pts: 1700 },
+      { c1: 'P', v: ['AA','EH'],      c2: 'D', word: 'PAD',    pts: 1700 },
+      { c1: 'P', v: ['OH','OO','UH'], c2: 'D', word: 'POD',    pts: 1800 },
+      { c1: 'P', v: ['EE','IH'],      c2: 'D', word: 'SPEED',  pts: 2000 },
+      { c1: 'P', v: ['IH','EE'],      c2: 'N', word: 'PIN',    pts: 1600 },
+      { c1: 'P', v: ['EH'],           c2: 'N', word: 'PEN',    pts: 1700 },
+      { c1: 'P', v: ['AA'],           c2: 'N', word: 'PAN',    pts: 1600 },
+      { c1: 'P', v: ['UH','OH','OO'], c2: 'N', word: 'PUN',    pts: 1700 },
+      { c1: 'P', v: ['EE'],           c2: 'K', word: 'PEAK',   pts: 2200 },
+      { c1: 'P', v: ['IH'],           c2: 'K', word: 'PICK',   pts: 1800 },
+      { c1: 'P', v: ['EH'],           c2: 'K', word: 'PECK',   pts: 1800 },
+      { c1: 'P', v: ['AA'],           c2: 'K', word: 'PACK',   pts: 1800 },
+      { c1: 'P', v: ['UH','OH','OO'], c2: 'K', word: 'PUCK',   pts: 1900 },
+      { c1: 'P', v: ['IH','EE'],      c2: 'G', word: 'PIG',    pts: 1600 },
+      { c1: 'P', v: ['EH','AA'],      c2: 'G', word: 'PEG',    pts: 1600 },
+      { c1: 'P', v: ['UH','OH','OO'], c2: 'G', word: 'PUG',    pts: 1700 },
+      { c1: 'P', v: ['EE','IH'],      c2: 'S', word: 'PEACE',  pts: 2400 },
+      { c1: 'P', v: ['AA','EH'],      c2: 'S', word: 'PASS',   pts: 1800 },
+      { c1: 'P', v: ['UH','OH','OO'], c2: 'S', word: 'PULSE',  pts: 2200 },
+      { c1: 'P', v: ['EE'],           c2: 'L', word: 'PEEL',   pts: 1800 },
+      { c1: 'P', v: ['IH'],           c2: 'L', word: 'PILL',   pts: 1700 },
+      { c1: 'P', v: ['AA','EH'],      c2: 'L', word: 'PAL',    pts: 1700 },
+      { c1: 'P', v: ['OH'],           c2: 'L', word: 'POLE',   pts: 1800 },
+      { c1: 'P', v: ['OO','UH'],      c2: 'L', word: 'POOL',   pts: 2000 },
+      { c1: 'P', v: ['EE','IH'],      c2: 'R', word: 'PEER',   pts: 1800 },
+      { c1: 'P', v: ['EH','AA'],      c2: 'R', word: 'PEAR',   pts: 1800 },
+      { c1: 'P', v: ['OH','OO','UH'], c2: 'R', word: 'POUR',   pts: 1800 },
 
-      // M-words
-      { c1: 'M', v: ['AA','EH','IH'], c2: 'N', word: 'MAN', pts: 1500 },
-      { c1: 'M', v: ['OO','OH'],      c2: 'N', word: 'MOON', pts: 2500 },
-      { c1: 'M', v: ['AA','OH'],      c2: 'P', word: 'MAP', pts: 1600 },
-      { c1: 'M', v: ['AA','EH','IH'], c2: 'T', word: 'MAT', pts: 1500 },
-      { c1: 'M', v: ['EE'],           c2: 'T', word: 'MEET', pts: 1800 },
-      { c1: 'M', v: ['AA','UH','OH'], c2: 'G', word: 'MUG', pts: 1500 },
-      { c1: 'M', v: ['AA','UH'],      c2: 'D', word: 'MUD', pts: 1800 },
-      { c1: 'M', v: ['AA','IH','EE'], c2: 'L', word: 'MILL', pts: 1600 },
-      { c1: 'M', v: ['AA','OH'],      c2: 'R', word: 'MARDUK', pts: 5000 },
+      // ==================== [M] ONSET ====================
+      { c1: 'M', v: ['AA','OH','UH'], c2: 'B', word: 'MOB',    pts: 1700 },
+      { c1: 'M', v: ['AA'],           c2: 'P', word: 'MAP',    pts: 1800 },
+      { c1: 'M', v: ['OH','OO','UH'], c2: 'P', word: 'MOP',    pts: 1600 },
+      { c1: 'M', v: ['EE','IH','EH'], c2: 'M', word: 'MIME',   pts: 1900 },
+      { c1: 'M', v: ['AA','OH','UH'], c2: 'M', word: 'MOM',    pts: 1800 },
+      { c1: 'M', v: ['EE'],           c2: 'T', word: 'MEET',   pts: 1800 },
+      { c1: 'M', v: ['IH'],           c2: 'T', word: 'MITT',   pts: 1600 },
+      { c1: 'M', v: ['EH'],           c2: 'T', word: 'MET',    pts: 1600 },
+      { c1: 'M', v: ['AA'],           c2: 'T', word: 'MAT',    pts: 1600 },
+      { c1: 'M', v: ['UH'],           c2: 'T', word: 'MUTT',   pts: 1600 },
+      { c1: 'M', v: ['OH'],           c2: 'T', word: 'MOAT',   pts: 2000 },
+      { c1: 'M', v: ['OO'],           c2: 'T', word: 'MOOT',   pts: 1900 },
+      { c1: 'M', v: ['EE','IH'],      c2: 'D', word: 'MEAD',   pts: 2000 },
+      { c1: 'M', v: ['AA','EH'],      c2: 'D', word: 'MAD',    pts: 1700 },
+      { c1: 'M', v: ['UH'],           c2: 'D', word: 'MUD',    pts: 2200, sacred: true },
+      { c1: 'M', v: ['OH'],           c2: 'D', word: 'MODE',   pts: 2000 },
+      { c1: 'M', v: ['OO'],           c2: 'D', word: 'MOOD',   pts: 2000 },
+      { c1: 'M', v: ['EE','IH'],      c2: 'N', word: 'MEAN',   pts: 1800 },
+      { c1: 'M', v: ['EH'],           c2: 'N', word: 'MEN',    pts: 1700 },
+      { c1: 'M', v: ['AA'],           c2: 'N', word: 'MAN',    pts: 1700 },
+      { c1: 'M', v: ['OH'],           c2: 'N', word: 'MOAN',   pts: 1800 },
+      { c1: 'M', v: ['OO','UH'],      c2: 'N', word: 'MOON',   pts: 3200, sacred: true },
+      { c1: 'M', v: ['EE','IH'],      c2: 'K', word: 'MEEK',   pts: 1800 },
+      { c1: 'M', v: ['AA','EH'],      c2: 'K', word: 'MAKE',   pts: 1800 },
+      { c1: 'M', v: ['UH','OH','OO'], c2: 'K', word: 'MUCK',   pts: 1700 },
+      { c1: 'M', v: ['UH','AA','OH'], c2: 'G', word: 'MUG',    pts: 1700 },
+      { c1: 'M', v: ['EE','IH','EH'], c2: 'G', word: 'MEGA',   pts: 2200 },
+      { c1: 'M', v: ['IH','EE'],      c2: 'S', word: 'MISS',   pts: 1700 },
+      { c1: 'M', v: ['EH'],           c2: 'S', word: 'MESS',   pts: 1700 },
+      { c1: 'M', v: ['AA'],           c2: 'S', word: 'MASS',   pts: 1800 },
+      { c1: 'M', v: ['OH'],           c2: 'S', word: 'MOSS',   pts: 1800 },
+      { c1: 'M', v: ['OO','UH'],      c2: 'S', word: 'MOOSE',  pts: 2200 },
+      { c1: 'M', v: ['EE'],           c2: 'L', word: 'MEAL',   pts: 1800 },
+      { c1: 'M', v: ['IH','EH'],      c2: 'L', word: 'MILL',   pts: 1700 },
+      { c1: 'M', v: ['AA'],           c2: 'L', word: 'MALL',   pts: 1700 },
+      { c1: 'M', v: ['OH'],           c2: 'L', word: 'MOLE',   pts: 1800 },
+      { c1: 'M', v: ['OO','UH'],      c2: 'L', word: 'MULE',   pts: 2000 },
+      { c1: 'M', v: ['AA','OH'],      c2: 'R', word: 'MARDUK', pts: 6000, sacred: true },
+      { c1: 'M', v: ['EE','IH','EH'], c2: 'R', word: 'MIRROR', pts: 2400 },
+      { c1: 'M', v: ['OO','UH'],      c2: 'R', word: 'MOOR',   pts: 2000 },
 
-      // T-words
-      { c1: 'T', v: ['AA','OH','UH'], c2: 'P', word: 'TOP', pts: 1800 },
-      { c1: 'T', v: ['EE','IH'],      c2: 'P', word: 'TIP', pts: 1500 },
-      { c1: 'T', v: ['AA','EH','IH'], c2: 'N', word: 'TEN', pts: 1600 },
-      { c1: 'T', v: ['OO','OH'],      c2: 'N', word: 'TONE', pts: 2000 },
-      { c1: 'T', v: ['AA','UH'],      c2: 'B', word: 'TUB', pts: 1500 },
-      { c1: 'T', v: ['AA','IH','EE'], c2: 'K', word: 'TICK', pts: 1600 },
-      { c1: 'T', v: ['AA','OH'],      c2: 'L', word: 'TALL', pts: 1800 },
-      { c1: 'T', v: ['EE','EH'],      c2: 'M', word: 'TEAM', pts: 1800 },
-      { c1: 'T', v: ['AA','OH','OO'], c2: 'R', word: 'TOWER', pts: 3500 },
+      // ==================== [T] ONSET ====================
+      { c1: 'T', v: ['UH','AA','OH'], c2: 'B', word: 'TUB',    pts: 1600 },
+      { c1: 'T', v: ['OO','EE','IH'], c2: 'B', word: 'TUBE',   pts: 2000 },
+      { c1: 'T', v: ['EE','IH'],      c2: 'P', word: 'TIP',    pts: 1600 },
+      { c1: 'T', v: ['AA','EH'],      c2: 'P', word: 'TAP',    pts: 1600 },
+      { c1: 'T', v: ['OH','UH','OO'], c2: 'P', word: 'TOP',    pts: 2000 },
+      { c1: 'T', v: ['EE'],           c2: 'M', word: 'TEAM',   pts: 1900 },
+      { c1: 'T', v: ['IH','EH','AA'], c2: 'M', word: 'TIME',   pts: 2400 },
+      { c1: 'T', v: ['OO','OH','UH'], c2: 'M', word: 'TOMB',   pts: 2800, sacred: true },
+      { c1: 'T', v: ['AA','IH','EH'], c2: 'T', word: 'TOT',    pts: 1700 },
+      { c1: 'T', v: ['OO','OH','EE'], c2: 'T', word: 'TOOT',   pts: 1800 },
+      { c1: 'T', v: ['OH','OO'],      c2: 'D', word: 'TOAD',   pts: 1900 },
+      { c1: 'T', v: ['AA','IH','EE'], c2: 'D', word: 'TIDE',   pts: 2000 },
+      { c1: 'T', v: ['EE'],           c2: 'N', word: 'TEEN',   pts: 1700 },
+      { c1: 'T', v: ['IH'],           c2: 'N', word: 'TIN',    pts: 1600 },
+      { c1: 'T', v: ['EH'],           c2: 'N', word: 'TEN',    pts: 1700 },
+      { c1: 'T', v: ['AA'],           c2: 'N', word: 'TAN',    pts: 1600 },
+      { c1: 'T', v: ['UH'],           c2: 'N', word: 'TON',    pts: 1700 },
+      { c1: 'T', v: ['OH'],           c2: 'N', word: 'TONE',   pts: 2200 },
+      { c1: 'T', v: ['OO'],           c2: 'N', word: 'TUNE',   pts: 2200 },
+      { c1: 'T', v: ['EE'],           c2: 'K', word: 'TEAK',   pts: 1800 },
+      { c1: 'T', v: ['IH','EH'],      c2: 'K', word: 'TICK',   pts: 1700 },
+      { c1: 'T', v: ['AA'],           c2: 'K', word: 'TACK',   pts: 1700 },
+      { c1: 'T', v: ['UH','OH','OO'], c2: 'K', word: 'TUCK',   pts: 1700 },
+      { c1: 'T', v: ['AA','EH','IH'], c2: 'G', word: 'TAG',    pts: 1600 },
+      { c1: 'T', v: ['UH','OH','OO'], c2: 'G', word: 'TUG',    pts: 1700 },
+      { c1: 'T', v: ['OH','AA','OO'], c2: 'S', word: 'TOSS',   pts: 1700 },
+      { c1: 'T', v: ['EE','IH','EH'], c2: 'S', word: 'TEASE',  pts: 1800 },
+      { c1: 'T', v: ['EE'],           c2: 'L', word: 'TEAL',   pts: 1900 },
+      { c1: 'T', v: ['IH'],           c2: 'L', word: 'TILL',   pts: 1600 },
+      { c1: 'T', v: ['EH'],           c2: 'L', word: 'TELL',   pts: 1800 },
+      { c1: 'T', v: ['AA'],           c2: 'L', word: 'TALL',   pts: 1900 },
+      { c1: 'T', v: ['OH'],           c2: 'L', word: 'TOLL',   pts: 1800 },
+      { c1: 'T', v: ['OO','UH'],      c2: 'L', word: 'TOOL',   pts: 2000 },
+      { c1: 'T', v: ['AA'],           c2: 'R', word: 'TAR',    pts: 2200, sacred: true },
+      { c1: 'T', v: ['EE','IH'],      c2: 'R', word: 'TIER',   pts: 2800, sacred: true },
+      { c1: 'T', v: ['EH'],           c2: 'R', word: 'TEAR',   pts: 1900 },
+      { c1: 'T', v: ['OH','OO','UH'], c2: 'R', word: 'TOWER',  pts: 4500, sacred: true },
 
-      // D-words
-      { c1: 'D', v: ['AA','OH','UH'], c2: 'G', word: 'DOG', pts: 1600 },
-      { c1: 'D', v: ['IH','EE'],      c2: 'G', word: 'DIG', pts: 1600 },
-      { c1: 'D', v: ['AA','OH'],      c2: 'T', word: 'DOT', pts: 1500 },
-      { c1: 'D', v: ['AA','EH','IH'], c2: 'N', word: 'DEN', pts: 1600 },
-      { c1: 'D', v: ['EE','OO','OH'], c2: 'M', word: 'DOME', pts: 2200 },
-      { c1: 'D', v: ['EE','IH'],      c2: 'P', word: 'DEEP', pts: 1800 },
-      { c1: 'D', v: ['AA','EH','OO'], c2: 'K', word: 'DECK', pts: 1800 },
-      { c1: 'D', v: ['OO','AA','EH'], c2: 'D', word: 'DUDE', pts: 1800 },
-      { c1: 'D', v: ['AA','OH','EE'], c2: 'R', word: 'DOOR', pts: 1800 },
+      // ==================== [D] ONSET ====================
+      { c1: 'D', v: ['AA','EH','UH'], c2: 'B', word: 'DAB',    pts: 1600 },
+      { c1: 'D', v: ['EE'],           c2: 'P', word: 'DEEP',   pts: 2000 },
+      { c1: 'D', v: ['IH','EH'],      c2: 'P', word: 'DIP',    pts: 1600 },
+      { c1: 'D', v: ['OH','OO','AA'], c2: 'P', word: 'DROP',   pts: 1900 },
+      { c1: 'D', v: ['IH','EE'],      c2: 'M', word: 'DIM',    pts: 1700 },
+      { c1: 'D', v: ['AA','EH'],      c2: 'M', word: 'DAM',    pts: 1700 },
+      { c1: 'D', v: ['OH'],           c2: 'M', word: 'DOME',   pts: 2800, sacred: true },
+      { c1: 'D', v: ['OO','UH'],      c2: 'M', word: 'DOOM',   pts: 2500 },
+      { c1: 'D', v: ['AA','OH'],      c2: 'T', word: 'DOT',    pts: 1600 },
+      { c1: 'D', v: ['EE','IH','EH'], c2: 'T', word: 'DATE',   pts: 1800 },
+      { c1: 'D', v: ['EE'],           c2: 'D', word: 'DEED',   pts: 2000 },
+      { c1: 'D', v: ['IH'],           c2: 'D', word: 'DID',    pts: 1600 },
+      { c1: 'D', v: ['EH'],           c2: 'D', word: 'DEAD',   pts: 1900 },
+      { c1: 'D', v: ['AA'],           c2: 'D', word: 'DAD',    pts: 1700 },
+      { c1: 'D', v: ['UH'],           c2: 'D', word: 'DUD',    pts: 1600 },
+      { c1: 'D', v: ['OO','OH'],      c2: 'D', word: 'DUDE',   pts: 2000 },
+      { c1: 'D', v: ['EE','IH'],      c2: 'N', word: 'DEAN',   pts: 1800 },
+      { c1: 'D', v: ['EH'],           c2: 'N', word: 'DEN',    pts: 1800 },
+      { c1: 'D', v: ['AA','OH'],      c2: 'N', word: 'DAWN',   pts: 2400 },
+      { c1: 'D', v: ['UH'],           c2: 'N', word: 'DONE',   pts: 1800 },
+      { c1: 'D', v: ['OO'],           c2: 'N', word: 'DUNE',   pts: 2400, sacred: true },
+      { c1: 'D', v: ['EH'],           c2: 'K', word: 'DECK',   pts: 1900 },
+      { c1: 'D', v: ['AA','OH'],      c2: 'K', word: 'DOCK',   pts: 1900 },
+      { c1: 'D', v: ['UH','OO'],      c2: 'K', word: 'DUCK',   pts: 1800 },
+      { c1: 'D', v: ['IH','EE'],      c2: 'G', word: 'DIG',    pts: 1700 },
+      { c1: 'D', v: ['AA','OH'],      c2: 'G', word: 'DOG',    pts: 1700 },
+      { c1: 'D', v: ['UH','OO'],      c2: 'G', word: 'DUG',    pts: 1700 },
+      { c1: 'D', v: ['AA','IH','EE'], c2: 'S', word: 'DICE',   pts: 2000 },
+      { c1: 'D', v: ['OH','OO','UH'], c2: 'S', word: 'DOSE',   pts: 1900 },
+      { c1: 'D', v: ['EE'],           c2: 'L', word: 'DEAL',   pts: 1900 },
+      { c1: 'D', v: ['IH','EH'],      c2: 'L', word: 'DILL',   pts: 1700 },
+      { c1: 'D', v: ['AA','OH'],      c2: 'L', word: 'DOLL',   pts: 1800 },
+      { c1: 'D', v: ['UH','OO'],      c2: 'L', word: 'DULL',   pts: 1700 },
+      { c1: 'D', v: ['EE','IH'],      c2: 'R', word: 'DEER',   pts: 1900 },
+      { c1: 'D', v: ['EH','AA'],      c2: 'R', word: 'DARE',   pts: 1900 },
+      { c1: 'D', v: ['OH','OO','UH'], c2: 'R', word: 'DOOR',   pts: 2200 },
 
-      // N-words
-      { c1: 'N', v: ['EH','AA','IH'], c2: 'T', word: 'NET', pts: 1600 },
-      { c1: 'N', v: ['UH','AA','OH'], c2: 'T', word: 'NUT', pts: 1600 },
-      { c1: 'N', v: ['OH','OO'],      c2: 'T', word: 'NOTE', pts: 2000 },
-      { c1: 'N', v: ['AA','IH'],      c2: 'P', word: 'NAP', pts: 1500 },
-      { c1: 'N', v: ['OH','OO'],      c2: 'D', word: 'NODE', pts: 2000 },
-      { c1: 'N', v: ['OO','EE'],      c2: 'N', word: 'NOON', pts: 1800 },
+      // ==================== [N] ONSET ====================
+      { c1: 'N', v: ['AA','IH','OH'], c2: 'B', word: 'KNOB',   pts: 1800 },
+      { c1: 'N', v: ['IH','EE'],      c2: 'P', word: 'NIP',    pts: 1600 },
+      { c1: 'N', v: ['AA','EH'],      c2: 'P', word: 'NAP',    pts: 1600 },
+      { c1: 'N', v: ['OH','OO','UH'], c2: 'P', word: 'NOPE',   pts: 1800 },
+      { c1: 'N', v: ['EE','EH','AA'], c2: 'M', word: 'NAME',   pts: 2200 },
+      { c1: 'N', v: ['UH','OH','OO'], c2: 'M', word: 'NUMB',   pts: 1800 },
+      { c1: 'N', v: ['EE'],           c2: 'T', word: 'NEAT',   pts: 1800 },
+      { c1: 'N', v: ['IH'],           c2: 'T', word: 'KNIT',   pts: 1800 },
+      { c1: 'N', v: ['EH'],           c2: 'T', word: 'NET',    pts: 1700 },
+      { c1: 'N', v: ['AA'],           c2: 'T', word: 'GNAT',   pts: 1700 },
+      { c1: 'N', v: ['UH'],           c2: 'T', word: 'NUT',    pts: 1700 },
+      { c1: 'N', v: ['OH','OO'],      c2: 'T', word: 'NOTE',   pts: 2200 },
+      { c1: 'N', v: ['EE','IH'],      c2: 'D', word: 'NEED',   pts: 1900 },
+      { c1: 'N', v: ['AA','UH'],      c2: 'D', word: 'NOD',    pts: 1700 },
+      { c1: 'N', v: ['OH','OO'],      c2: 'D', word: 'NODE',   pts: 2200 },
+      { c1: 'N', v: ['UH','AA'],      c2: 'N', word: 'NUN',    pts: 1800 },
+      { c1: 'N', v: ['IH','EE','EH'], c2: 'N', word: 'NINE',   pts: 2000 },
+      { c1: 'N', v: ['OO','OH'],      c2: 'N', word: 'NOON',   pts: 2200 },
+      { c1: 'N', v: ['IH','EE'],      c2: 'K', word: 'NICK',   pts: 1700 },
+      { c1: 'N', v: ['EH'],           c2: 'K', word: 'NECK',   pts: 1800 },
+      { c1: 'N', v: ['AA','OH'],      c2: 'K', word: 'KNOCK',  pts: 2000 },
+      { c1: 'N', v: ['OO','UH'],      c2: 'K', word: 'NOOK',   pts: 2000 },
+      { c1: 'N', v: ['AA','EH','UH'], c2: 'G', word: 'NAG',    pts: 1600 },
+      { c1: 'N', v: ['EE','IH','AA'], c2: 'S', word: 'NICE',   pts: 1900 },
+      { c1: 'N', v: ['OH'],           c2: 'S', word: 'NOSE',   pts: 2000 },
+      { c1: 'N', v: ['OO','UH'],      c2: 'S', word: 'NOOSE',  pts: 2000 },
+      { c1: 'N', v: ['EE','IH'],      c2: 'L', word: 'KNEEL',  pts: 2000 },
+      { c1: 'N', v: ['AA','EH'],      c2: 'L', word: 'NAIL',   pts: 2000 },
+      { c1: 'N', v: ['UH','OH','OO'], c2: 'L', word: 'NULL',   pts: 1900 },
+      { c1: 'N', v: ['EE','IH','EH'], c2: 'R', word: 'NEAR',   pts: 1900 },
+      { c1: 'N', v: ['AA','OH','OO'], c2: 'R', word: 'NOR',    pts: 1700 },
 
-      // K-words
-      { c1: 'K', v: ['AA','EH'],      c2: 'T', word: 'CAT', pts: 1800 },
-      { c1: 'K', v: ['IH','EE'],      c2: 'T', word: 'KIT', pts: 1600 },
-      { c1: 'K', v: ['AA','OH','UH'], c2: 'P', word: 'CUP', pts: 1600 },
-      { c1: 'K', v: ['EE'],           c2: 'P', word: 'KEEP', pts: 1800 },
-      { c1: 'K', v: ['IH','EE','EH'], c2: 'K', word: 'KICK', pts: 2000 },
-      { c1: 'K', v: ['OO','OH'],      c2: 'K', word: 'COOK', pts: 1800 },
-      { c1: 'K', v: ['IH','EE','AA'], c2: 'N', word: 'KING', pts: 2500 },
-      { c1: 'K', v: ['OO','OH','AA'], c2: 'L', word: 'COOL', pts: 2000 },
-      { c1: 'K', v: ['AA','OH'],      c2: 'R', word: 'CORE', pts: 2000 },
-      { c1: 'K', v: ['OH','OO','AA'], c2: 'D', word: 'CODE', pts: 2000 },
+      // ==================== [K] ONSET ====================
+      { c1: 'K', v: ['AA','OH'],      c2: 'B', word: 'COB',    pts: 1600 },
+      { c1: 'K', v: ['UH','OO','IH'], c2: 'B', word: 'CUB',    pts: 1700 },
+      { c1: 'K', v: ['EE'],           c2: 'P', word: 'KEEP',   pts: 2000 },
+      { c1: 'K', v: ['AA','EH'],      c2: 'P', word: 'CAP',    pts: 1700 },
+      { c1: 'K', v: ['OH'],           c2: 'P', word: 'COP',    pts: 1700 },
+      { c1: 'K', v: ['UH'],           c2: 'P', word: 'CUP',    pts: 1800 },
+      { c1: 'K', v: ['OO'],           c2: 'P', word: 'COOP',   pts: 1900 },
+      { c1: 'K', v: ['AA','EH','EE'], c2: 'M', word: 'CAME',   pts: 1800 },
+      { c1: 'K', v: ['OH','OO','UH'], c2: 'M', word: 'COMET',  pts: 3500, sacred: true },
+      { c1: 'K', v: ['IH'],           c2: 'T', word: 'KIT',    pts: 1700 },
+      { c1: 'K', v: ['AA','EH'],      c2: 'T', word: 'CAT',    pts: 1800 },
+      { c1: 'K', v: ['UH'],           c2: 'T', word: 'CUT',    pts: 1700 },
+      { c1: 'K', v: ['OH','OO'],      c2: 'T', word: 'COAT',   pts: 2000 },
+      { c1: 'K', v: ['IH','EE','EH'], c2: 'D', word: 'KID',    pts: 1700 },
+      { c1: 'K', v: ['AA'],           c2: 'D', word: 'COD',    pts: 1700 },
+      { c1: 'K', v: ['OH','OO','UH'], c2: 'D', word: 'CODE',   pts: 2200 },
+      { c1: 'K', v: ['EE'],           c2: 'N', word: 'KEEN',   pts: 1900 },
+      { c1: 'K', v: ['IH'],           c2: 'N', word: 'KING',   pts: 3500, sacred: true },
+      { c1: 'K', v: ['AA','EH'],      c2: 'N', word: 'CAN',    pts: 1600 },
+      { c1: 'K', v: ['OH','OO','UH'], c2: 'N', word: 'CONE',   pts: 2000 },
+      { c1: 'K', v: ['IH','EE','EH'], c2: 'K', word: 'KICK',   pts: 2000 },
+      { c1: 'K', v: ['AA'],           c2: 'K', word: 'CAKE',   pts: 2000 },
+      { c1: 'K', v: ['OO','OH','UH'], c2: 'K', word: 'COOK',   pts: 1900 },
+      { c1: 'K', v: ['EH','IH','EE'], c2: 'G', word: 'KEG',    pts: 1800 },
+      { c1: 'K', v: ['AA','OH','UH'], c2: 'G', word: 'COG',    pts: 1800 },
+      { c1: 'K', v: ['IH','EE'],      c2: 'S', word: 'KISS',   pts: 2000 },
+      { c1: 'K', v: ['AA','EH','OH'], c2: 'S', word: 'CASE',   pts: 1800 },
+      { c1: 'K', v: ['EE'],           c2: 'L', word: 'KEEL',   pts: 1900 },
+      { c1: 'K', v: ['IH','EH'],      c2: 'L', word: 'KILN',   pts: 3500, sacred: true },
+      { c1: 'K', v: ['AA'],           c2: 'L', word: 'CALL',   pts: 1800 },
+      { c1: 'K', v: ['OH'],           c2: 'L', word: 'COAL',   pts: 2200 },
+      { c1: 'K', v: ['OO','UH'],      c2: 'L', word: 'COOL',   pts: 2200 },
+      { c1: 'K', v: ['AA'],           c2: 'R', word: 'CAR',    pts: 1800 },
+      { c1: 'K', v: ['EH','EE','IH'], c2: 'R', word: 'CARE',   pts: 1800 },
+      { c1: 'K', v: ['OH','OO','UH'], c2: 'R', word: 'CORE',   pts: 2200 },
 
-      // G-words
-      { c1: 'G', v: ['AA','OH','UH'], c2: 'D', word: 'GOD', pts: 2500 },
-      { c1: 'G', v: ['EH','AA','IH'], c2: 'T', word: 'GATE', pts: 2200 },
-      { c1: 'G', v: ['EH','EE','AA'], c2: 'M', word: 'GAME', pts: 2200 },
-      { c1: 'G', v: ['OH','OO','AA'], c2: 'L', word: 'GOLD', pts: 2500 },
-      { c1: 'G', v: ['AA','UH'],      c2: 'P', word: 'GAP', pts: 1600 },
-      { c1: 'G', v: ['EE','IH','AA'], c2: 'R', word: 'GEAR', pts: 2000 },
+      // ==================== [G] ONSET ====================
+      { c1: 'G', v: ['AA','OH','UH'], c2: 'B', word: 'GOB',    pts: 1600 },
+      { c1: 'G', v: ['AA','EH','UH'], c2: 'P', word: 'GAP',    pts: 1700 },
+      { c1: 'G', v: ['EH','EE'],      c2: 'M', word: 'GAME',   pts: 2400 },
+      { c1: 'G', v: ['UH','AA','OH'], c2: 'M', word: 'GUM',    pts: 1700 },
+      { c1: 'G', v: ['EH'],           c2: 'T', word: 'GET',    pts: 1600 },
+      { c1: 'G', v: ['AA','EE','IH'], c2: 'T', word: 'GATE',   pts: 3500, sacred: true },
+      { c1: 'G', v: ['UH'],           c2: 'T', word: 'GUT',    pts: 1600 },
+      { c1: 'G', v: ['OH','OO'],      c2: 'T', word: 'GOAT',   pts: 2000 },
+      { c1: 'G', v: ['AA','OH'],      c2: 'D', word: 'GOD',    pts: 3500, sacred: true },
+      { c1: 'G', v: ['OO','UH','EE'], c2: 'D', word: 'GOOD',   pts: 2000 },
+      { c1: 'G', v: ['EH','AA','EE'], c2: 'N', word: 'GAIN',   pts: 2000 },
+      { c1: 'G', v: ['UH','OH'],      c2: 'N', word: 'GUN',    pts: 1700 },
+      { c1: 'G', v: ['OO'],           c2: 'N', word: 'GOON',   pts: 1800 },
+      { c1: 'G', v: ['EE','IH','EH'], c2: 'K', word: 'GEEK',   pts: 2000 },
+      { c1: 'G', v: ['AA','EH','IH'], c2: 'G', word: 'GAG',    pts: 1600 },
+      { c1: 'G', v: ['AA','EH'],      c2: 'S', word: 'GAS',    pts: 1700 },
+      { c1: 'G', v: ['EE','OO','OH'], c2: 'S', word: 'GOOSE',  pts: 2000 },
+      { c1: 'G', v: ['IH','EE'],      c2: 'L', word: 'GILL',   pts: 1700 },
+      { c1: 'G', v: ['AA','EH'],      c2: 'L', word: 'GALE',   pts: 2000 },
+      { c1: 'G', v: ['UH'],           c2: 'L', word: 'GULL',   pts: 1800 },
+      { c1: 'G', v: ['OH'],           c2: 'L', word: 'GOLD',   pts: 3500, sacred: true },
+      { c1: 'G', v: ['OO'],           c2: 'L', word: 'GHOUL',  pts: 2200 },
+      { c1: 'G', v: ['EE','IH','EH'], c2: 'R', word: 'GEAR',   pts: 2000 },
+      { c1: 'G', v: ['OH','OO','AA'], c2: 'R', word: 'GORE',   pts: 1900 },
 
-      // S-words
-      { c1: 'S', v: ['AA','UH','OH'], c2: 'N', word: 'SUN', pts: 2200 },
-      { c1: 'S', v: ['IH','EE'],      c2: 'N', word: 'SIN', pts: 2200 },
-      { c1: 'S', v: ['EH','AA','IH'], c2: 'T', word: 'SET', pts: 1600 },
-      { c1: 'S', v: ['AA','OH','UH'], c2: 'P', word: 'SAP', pts: 1500 },
-      { c1: 'S', v: ['EE','OO'],      c2: 'P', word: 'SOUP', pts: 1800 },
-      { c1: 'S', v: ['AA','EH','IH'], c2: 'K', word: 'SACK', pts: 1600 },
-      { c1: 'S', v: ['EE','OH'],      c2: 'L', word: 'SEAL', pts: 2000 },
-      { c1: 'S', v: ['AA','OH','EE'], c2: 'R', word: 'STAR', pts: 2500 },
-      { c1: 'S', v: ['EE','AA'],      c2: 'D', word: 'SEED', pts: 1800 },
+      // ==================== [S] ONSET ====================
+      { c1: 'S', v: ['AA','OH'],      c2: 'B', word: 'SOB',    pts: 1600 },
+      { c1: 'S', v: ['UH','OO','IH'], c2: 'B', word: 'SUB',    pts: 1700 },
+      { c1: 'S', v: ['EE'],           c2: 'P', word: 'SEEP',   pts: 1800 },
+      { c1: 'S', v: ['IH'],           c2: 'P', word: 'SIP',    pts: 1600 },
+      { c1: 'S', v: ['AA','EH'],      c2: 'P', word: 'SAP',    pts: 1600 },
+      { c1: 'S', v: ['OH'],           c2: 'P', word: 'SOAP',   pts: 2000 },
+      { c1: 'S', v: ['OO','UH'],      c2: 'P', word: 'SOUP',   pts: 2000 },
+      { c1: 'S', v: ['EE','IH'],      c2: 'M', word: 'SEAM',   pts: 1800 },
+      { c1: 'S', v: ['AA','EH'],      c2: 'M', word: 'SAME',   pts: 1800 },
+      { c1: 'S', v: ['UH','OH','OO'], c2: 'M', word: 'SUMER',  pts: 4500, sacred: true },
+      { c1: 'S', v: ['EE'],           c2: 'T', word: 'SEAT',   pts: 1800 },
+      { c1: 'S', v: ['IH'],           c2: 'T', word: 'SIT',    pts: 1600 },
+      { c1: 'S', v: ['EH'],           c2: 'T', word: 'SET',    pts: 1700 },
+      { c1: 'S', v: ['AA'],           c2: 'T', word: 'SAT',    pts: 1600 },
+      { c1: 'S', v: ['OO','OH','UH'], c2: 'T', word: 'SOOT',   pts: 1900 },
+      { c1: 'S', v: ['EE','IH'],      c2: 'D', word: 'SEED',   pts: 2000 },
+      { c1: 'S', v: ['AA','EH'],      c2: 'D', word: 'SAD',    pts: 1600 },
+      { c1: 'S', v: ['OH','UH','OO'], c2: 'D', word: 'SOD',    pts: 1600 },
+      { c1: 'S', v: ['EE'],           c2: 'N', word: 'SEEN',   pts: 1800 },
+      { c1: 'S', v: ['IH','EH'],      c2: 'N', word: 'SIN',    pts: 3200, sacred: true },
+      { c1: 'S', v: ['UH','AA'],      c2: 'N', word: 'SUN',    pts: 3200, sacred: true },
+      { c1: 'S', v: ['OH'],           c2: 'N', word: 'SONG',   pts: 2800, sacred: true },
+      { c1: 'S', v: ['OO'],           c2: 'N', word: 'SOON',   pts: 2000 },
+      { c1: 'S', v: ['EE'],           c2: 'K', word: 'SEEK',   pts: 2000 },
+      { c1: 'S', v: ['IH','EH'],      c2: 'K', word: 'SICK',   pts: 1700 },
+      { c1: 'S', v: ['AA'],           c2: 'K', word: 'SACK',   pts: 1700 },
+      { c1: 'S', v: ['OH'],           c2: 'K', word: 'SOAK',   pts: 1900 },
+      { c1: 'S', v: ['UH','OO'],      c2: 'K', word: 'SUCK',   pts: 1700 },
+      { c1: 'S', v: ['AA','EH','UH'], c2: 'G', word: 'SAG',    pts: 1600 },
+      { c1: 'S', v: ['AA','EH','OH'], c2: 'S', word: 'SAUCE',  pts: 1900 },
+      { c1: 'S', v: ['EE'],           c2: 'L', word: 'SEAL',   pts: 3000, sacred: true },
+      { c1: 'S', v: ['IH'],           c2: 'L', word: 'SILL',   pts: 1600 },
+      { c1: 'S', v: ['EH'],           c2: 'L', word: 'SELL',   pts: 1700 },
+      { c1: 'S', v: ['OH','OO','UH'], c2: 'L', word: 'SOUL',   pts: 2600, sacred: true },
+      { c1: 'S', v: ['AA'],           c2: 'R', word: 'STAR',   pts: 3500, sacred: true },
+      { c1: 'S', v: ['EE','IH','EH'], c2: 'R', word: 'SEER',   pts: 2600, sacred: true },
+      { c1: 'S', v: ['OH','OO','UH'], c2: 'R', word: 'SOAR',   pts: 2400 },
 
-      // L-words
-      { c1: 'L', v: ['IH','EE','AA'], c2: 'P', word: 'LIPS', pts: 2200 },
-      { c1: 'L', v: ['AA','OH'],      c2: 'K', word: 'LOCK', pts: 2000 },
-      { c1: 'L', v: ['AA','OH','UH'], c2: 'G', word: 'LOG', pts: 1600 },
-      { c1: 'L', v: ['IH','EH','AA'], c2: 'T', word: 'LIT', pts: 1800 },
-      { c1: 'L', v: ['OO','OH'],      c2: 'P', word: 'LOOP', pts: 2000 },
-      { c1: 'L', v: ['EE','AA'],      c2: 'D', word: 'LEAD', pts: 1800 },
+      // ==================== [L] ONSET ====================
+      { c1: 'L', v: ['AA','EH'],      c2: 'B', word: 'LAB',    pts: 1900 },
+      { c1: 'L', v: ['OH','OO','IH'], c2: 'B', word: 'LOB',    pts: 1700 },
+      { c1: 'L', v: ['EE'],           c2: 'P', word: 'LEAP',   pts: 2000 },
+      { c1: 'L', v: ['IH'],           c2: 'P', word: 'LIPS',   pts: 2600, sacred: true },
+      { c1: 'L', v: ['AA','EH'],      c2: 'P', word: 'LAP',    pts: 1700 },
+      { c1: 'L', v: ['OH'],           c2: 'P', word: 'LOP',    pts: 1600 },
+      { c1: 'L', v: ['OO','UH'],      c2: 'P', word: 'LOOP',   pts: 2200 },
+      { c1: 'L', v: ['AA','EH','IH'], c2: 'M', word: 'LAMB',   pts: 2200, sacred: true },
+      { c1: 'L', v: ['OO','OH','UH'], c2: 'M', word: 'LOOM',   pts: 2000 },
+      { c1: 'L', v: ['IH','EE'],      c2: 'T', word: 'LIT',    pts: 1800 },
+      { c1: 'L', v: ['EH'],           c2: 'T', word: 'LET',    pts: 1600 },
+      { c1: 'L', v: ['AA','OH'],      c2: 'T', word: 'LOT',    pts: 1600 },
+      { c1: 'L', v: ['OO','UH'],      c2: 'T', word: 'LOOT',   pts: 2200 },
+      { c1: 'L', v: ['EE'],           c2: 'D', word: 'LEAD',   pts: 1900 },
+      { c1: 'L', v: ['IH'],           c2: 'D', word: 'LID',    pts: 1600 },
+      { c1: 'L', v: ['EH'],           c2: 'D', word: 'LED',    pts: 1700 },
+      { c1: 'L', v: ['AA'],           c2: 'D', word: 'LAD',    pts: 1700 },
+      { c1: 'L', v: ['OH','OO','UH'], c2: 'D', word: 'LOAD',   pts: 1900 },
+      { c1: 'L', v: ['EE','IH'],      c2: 'N', word: 'LEAN',   pts: 1800 },
+      { c1: 'L', v: ['AA','EH'],      c2: 'N', word: 'LION',   pts: 3500, sacred: true },
+      { c1: 'L', v: ['OH'],           c2: 'N', word: 'LONE',   pts: 1900 },
+      { c1: 'L', v: ['OO','UH'],      c2: 'N', word: 'LOON',   pts: 1900 },
+      { c1: 'L', v: ['EE'],           c2: 'K', word: 'LEAK',   pts: 1800 },
+      { c1: 'L', v: ['IH','EH'],      c2: 'K', word: 'LICK',   pts: 1700 },
+      { c1: 'L', v: ['AA','OH'],      c2: 'K', word: 'LOCK',   pts: 2200 },
+      { c1: 'L', v: ['UH'],           c2: 'K', word: 'LUCK',   pts: 2000 },
+      { c1: 'L', v: ['OO'],           c2: 'K', word: 'LOOK',   pts: 1900 },
+      { c1: 'L', v: ['EH','IH','EE'], c2: 'G', word: 'LEG',    pts: 1700 },
+      { c1: 'L', v: ['AA','OH'],      c2: 'G', word: 'LOG',    pts: 1700 },
+      { c1: 'L', v: ['UH','OO'],      c2: 'G', word: 'LUG',    pts: 1700 },
+      { c1: 'L', v: ['EE','IH'],      c2: 'S', word: 'LEASE',  pts: 1800 },
+      { c1: 'L', v: ['EH'],           c2: 'S', word: 'LESS',   pts: 1700 },
+      { c1: 'L', v: ['AA','OH'],      c2: 'S', word: 'LOSS',   pts: 1700 },
+      { c1: 'L', v: ['OO','UH'],      c2: 'S', word: 'LOOSE',  pts: 1900 },
+      { c1: 'L', v: ['UH','OH','OO'], c2: 'L', word: 'LULL',   pts: 1800 },
+      { c1: 'L', v: ['AA','EE','IH'], c2: 'L', word: 'LAW',    pts: 3000, sacred: true },
+      { c1: 'L', v: ['EE','IH','EH'], c2: 'R', word: 'LEER',   pts: 1800 },
+      { c1: 'L', v: ['OH','OO','AA'], c2: 'R', word: 'LORE',   pts: 2600, sacred: true },
 
-      // R-words
-      { c1: 'R', v: ['AA','UH','OH'], c2: 'N', word: 'RUN', pts: 1800 },
-      { c1: 'R', v: ['EE','IH'],      c2: 'N', word: 'RING', pts: 2200 },
-      { c1: 'R', v: ['AA','OH'],      c2: 'K', word: 'ROCK', pts: 1800 },
-      { c1: 'R', v: ['EH','AA'],      c2: 'D', word: 'RED', pts: 1600 },
-      { c1: 'R', v: ['AA','EH'],      c2: 'M', word: 'RAMP', pts: 2200 },
-      { c1: 'R', v: ['OO','OH'],      c2: 'M', word: 'ROOM', pts: 1800 },
-      { c1: 'R', v: ['AA','EH','IH'], c2: 'P', word: 'RIP', pts: 1600 },
-      { c1: 'R', v: ['EE','OO','OH'], c2: 'L', word: 'RULE', pts: 2000 }
+      // ==================== [R] ONSET ====================
+      { c1: 'R', v: ['IH','EE','EH'], c2: 'B', word: 'RIB',    pts: 1800 },
+      { c1: 'R', v: ['AA','OH'],      c2: 'B', word: 'ROB',    pts: 1700 },
+      { c1: 'R', v: ['UH'],           c2: 'B', word: 'RUB',    pts: 1700 },
+      { c1: 'R', v: ['OO'],           c2: 'B', word: 'ROBE',   pts: 2200 },
+      { c1: 'R', v: ['EE'],           c2: 'P', word: 'REAP',   pts: 2000 },
+      { c1: 'R', v: ['IH'],           c2: 'P', word: 'RIP',    pts: 1700 },
+      { c1: 'R', v: ['AA','EH'],      c2: 'P', word: 'RAP',    pts: 1700 },
+      { c1: 'R', v: ['OH','OO','UH'], c2: 'P', word: 'ROPE',   pts: 2000 },
+      { c1: 'R', v: ['IH','EE'],      c2: 'M', word: 'RIM',    pts: 1700 },
+      { c1: 'R', v: ['AA','EH'],      c2: 'M', word: 'RAMP',   pts: 2500 },
+      { c1: 'R', v: ['UH'],           c2: 'M', word: 'RUM',    pts: 1800 },
+      { c1: 'R', v: ['OH'],           c2: 'M', word: 'ROAM',   pts: 2000 },
+      { c1: 'R', v: ['OO'],           c2: 'M', word: 'ROOM',   pts: 2000 },
+      { c1: 'R', v: ['AA','EH'],      c2: 'T', word: 'RAT',    pts: 1700 },
+      { c1: 'R', v: ['OH','UH'],      c2: 'T', word: 'ROT',    pts: 1600 },
+      { c1: 'R', v: ['OO','EE','IH'], c2: 'T', word: 'ROOT',   pts: 2200 },
+      { c1: 'R', v: ['EE'],           c2: 'D', word: 'REED',   pts: 2200, sacred: true },
+      { c1: 'R', v: ['IH'],           c2: 'D', word: 'RID',    pts: 1600 },
+      { c1: 'R', v: ['EH'],           c2: 'D', word: 'RED',    pts: 1700 },
+      { c1: 'R', v: ['AA'],           c2: 'D', word: 'ROD',    pts: 1800 },
+      { c1: 'R', v: ['OH','OO','UH'], c2: 'D', word: 'ROAD',   pts: 2000 },
+      { c1: 'R', v: ['EE','IH'],      c2: 'N', word: 'RING',   pts: 2400 },
+      { c1: 'R', v: ['AA','EH'],      c2: 'N', word: 'RAN',    pts: 1700 },
+      { c1: 'R', v: ['UH','OH','OO'], c2: 'N', word: 'RUN',    pts: 1800 },
+      { c1: 'R', v: ['EE','IH'],      c2: 'K', word: 'REEK',   pts: 1700 },
+      { c1: 'R', v: ['EH'],           c2: 'K', word: 'WRECK',  pts: 2000 },
+      { c1: 'R', v: ['AA'],           c2: 'K', word: 'RACK',   pts: 1800 },
+      { c1: 'R', v: ['OH'],           c2: 'K', word: 'ROCK',   pts: 2000 },
+      { c1: 'R', v: ['OO','UH'],      c2: 'K', word: 'ROOK',   pts: 2400, sacred: true },
+      { c1: 'R', v: ['IH','EE'],      c2: 'G', word: 'RIG',    pts: 1700 },
+      { c1: 'R', v: ['AA','EH'],      c2: 'G', word: 'RAG',    pts: 1600 },
+      { c1: 'R', v: ['UH','OH','OO'], c2: 'G', word: 'RUG',    pts: 1800 },
+      { c1: 'R', v: ['EE','IH','EH'], c2: 'S', word: 'RACE',   pts: 2000 },
+      { c1: 'R', v: ['OH','OO','AA'], c2: 'S', word: 'ROSE',   pts: 2200 },
+      { c1: 'R', v: ['EE','IH'],      c2: 'L', word: 'REEL',   pts: 1900 },
+      { c1: 'R', v: ['AA','EH'],      c2: 'L', word: 'RAIL',   pts: 2200 },
+      { c1: 'R', v: ['OH'],           c2: 'L', word: 'ROLL',   pts: 2000 },
+      { c1: 'R', v: ['OO','UH'],      c2: 'L', word: 'RULE',   pts: 2400 },
+      { c1: 'R', v: ['EE','IH','EH'], c2: 'R', word: 'REAR',   pts: 1800 },
+      { c1: 'R', v: ['OH','OO','AA'], c2: 'R', word: 'ROAR',   pts: 2800, sacred: true }
     ];
 
     // =========================================================================
@@ -1115,7 +1496,6 @@
         this.masterGain.gain.value = 0.42;
         this.masterGain.connect(this.ctx.destination);
 
-        // Pre-build white noise buffer for fricatives & plosive bursts
         const sr = this.ctx.sampleRate || 44100;
         this.noiseBuffer = this.ctx.createBuffer(1, sr * 1.5, sr);
         const data = this.noiseBuffer.getChannelData(0);
@@ -1134,14 +1514,12 @@
         if (el2) el2.textContent = this.lastF2 + ' Hz';
       }
 
-      // Speak a single Vowel with 3 Klatt Formant Resonators + Space Cadet Bumper Chime
       speakVowel(vowelKey, duration = 0.24, pitch = 130) {
         if (!this.isSetup) return;
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
         this.updateHUDFormants(vf.f1, vf.f2);
 
         const now = this.ctx.currentTime;
-        // Glottal Source (Sawtooth + Triangle for warm vocal cord harmonics)
         const glottal = this.ctx.createOscillator();
         glottal.type = 'sawtooth';
         glottal.frequency.setValueAtTime(pitch, now);
@@ -1156,7 +1534,6 @@
         voiceEnv.gain.linearRampToValueAtTime(0.45, now + 0.025);
         voiceEnv.gain.exponentialRampToValueAtTime(0.008, now + duration);
 
-        // Parallel Formant Filter Bank (F1, F2, F3)
         const f1Node = this.ctx.createBiquadFilter();
         f1Node.type = 'bandpass';
         f1Node.frequency.setValueAtTime(vf.f1, now);
@@ -1188,7 +1565,6 @@
         subOsc.stop(now + duration);
       }
 
-      // Articulate a Consonant (Plosive Burst, Nasal Murmur, Fricative Hiss, or Liquid Glide)
       speakConsonant(consKey) {
         if (!this.isSetup) return;
         const cp = CONSONANT_PROFILES[consKey] || CONSONANT_PROFILES['T'];
@@ -1196,7 +1572,6 @@
 
         const now = this.ctx.currentTime;
 
-        // 1. Noise burst / frication
         if (this.noiseBuffer) {
           const noise = this.ctx.createBufferSource();
           noise.buffer = this.noiseBuffer;
@@ -1218,7 +1593,6 @@
           noise.stop(now + dur);
         }
 
-        // 2. Voiced formant transition or nasal murmur
         if (cp.voiced) {
           const osc = this.ctx.createOscillator();
           osc.type = 'sawtooth';
@@ -1251,7 +1625,6 @@
         }
       }
 
-      // Co-articulate & Speak a Full C-V-C Word Smoothly! (e.g., B -> AA -> T)
       speakCVCWord(c1Key, vKey, c2Key) {
         if (!this.isSetup) return;
         const c1 = CONSONANT_PROFILES[c1Key] || CONSONANT_PROFILES['B'];
@@ -1261,10 +1634,8 @@
         const now = this.ctx.currentTime;
         const totalDur = 0.48;
 
-        // Initial Consonant burst
         this.speakConsonant(c1Key);
 
-        // Continuous Glottal Carrier across C1 -> V -> C2 formant trajectory!
         const osc = this.ctx.createOscillator();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(132, now + 0.03);
@@ -1302,14 +1673,12 @@
         osc.start(now + 0.02);
         osc.stop(now + totalDur);
 
-        // Schedule Coda Consonant burst at +340ms + Victory Chime
         setTimeout(() => {
           this.speakConsonant(c2Key);
           this.playWordChord();
         }, 310);
       }
 
-      // Space Cadet Iconic FM Sound Effects
       playFlipperClick(isUp = true) {
         if (!this.isSetup) return;
         const now = this.ctx.currentTime;
@@ -1326,6 +1695,24 @@
         g.connect(this.masterGain);
         osc.start(now);
         osc.stop(now + 0.045);
+      }
+
+      playSpinnerTick(pitch = 880) {
+        if (!this.isSetup) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(pitch, now);
+        osc.frequency.exponentialRampToValueAtTime(pitch * 1.35, now + 0.028);
+
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.16, now);
+        g.gain.exponentialRampToValueAtTime(0.004, now + 0.03);
+
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.03);
       }
 
       playPlungerLaunch() {
@@ -1387,7 +1774,6 @@
 
       playRampAscent() {
         if (!this.isSetup) return;
-        // Glide F1/F2 from /ɑ/ to /i/ while playing rising Space Cadet arpeggio
         const notes = [261.6, 329.6, 392.0, 523.2, 659.2, 784.0];
         notes.forEach((n, idx) => {
           setTimeout(() => {
@@ -1476,16 +1862,18 @@
         this.bumperTier = 1; // 1..4 (Upgraded by completing Top Vowel Lanes)
         this.isGameOver = false;
 
-        // Skill Shot & Combo State
+        // Skill Shot, Super Flipper Charge & Combo State
         this.skillShotActive = true;
         this.skillShotLaneIdx = 1; // Defaults to middle lane /ɑ/
         this.comboCount = 0;
         this.comboTimer = 0;
+        this.superShotTimer = 0; // Activated by Inlanes [I] & [P]!
 
         // Ziggurat Rank & Promotion State (Space Cadet 9-Light Rank Ring -> 7 Ziggurat Gems)
         this.rankIndex = 0; // 0..6 (Ranks I to VII)
         this.rankLights = 0; // 0..7 (When 7, Launch Ramp promotes!)
         this.promotionReady = false;
+        this.missionsCompletedCount = 0;
 
         // Space Cadet Mission Computer State
         this.selectedMissionIdx = 0;
@@ -1496,9 +1884,11 @@
         this.fuelTickTimer = 0;
         this.hyperspaceLevel = 0; // 0..4
 
-        // C-V-C Phonetic Buffer ([C1] - [V] - [C2])
+        // C-V-C Phonetic Buffer ([C1] - [V] - [C2]) & Linguistic History
         this.cvc = { c1: null, v: null, c2: null };
         this.discoveredWords = new Set();
+        this.spokenHistory = []; // Array of { c1, v, c2, word, sacred }
+        this.lastSpokenCVC = null;
         this.targetWord = 'BAT';
 
         // Ball Pool (Supports single ball + 2-ball / 3-ball Multiball!)
@@ -1530,12 +1920,20 @@
         ];
 
         // ---------------------------------------------------------------------
-        // TOP 3 VOWEL ROLLOVER LANES (/i/, /ɑ/, /u/) & 6 FUEL ROLLOVERS
+        // TOP 3 VOWEL ROLLOVER LANES (/i/, /ɑ/, /u/), 4 BOTTOM [L-I-P-S] LANES & 6 FUEL ROLLOVERS
         // ---------------------------------------------------------------------
         this.topLanes = [
           { x: 152, y: 78, vowel: 'EE', label: '/i/', cuneiform: '𒀀', lit: false, cooldown: 0, flash: 0 },
           { x: 198, y: 78, vowel: 'AA', label: '/ɑ/', cuneiform: '𒁀', lit: false, cooldown: 0, flash: 0 },
           { x: 244, y: 78, vowel: 'OO', label: '/u/', cuneiform: '𒌋', lit: false, cooldown: 0, flash: 0 }
+        ];
+
+        // 4 Lower Inlane / Outlane Rollovers ([L] - [I] - [P] - [S])
+        this.bottomLanes = [
+          { x: 35,  y: 615, letter: 'L', cons: 'L',  isInlane: false, lit: false, cooldown: 0, flash: 0 },
+          { x: 67,  y: 615, letter: 'I', vowel: 'IH', isInlane: true,  lit: false, cooldown: 0, flash: 0 },
+          { x: 349, y: 615, letter: 'P', cons: 'P',  isInlane: true,  lit: false, cooldown: 0, flash: 0 },
+          { x: 381, y: 615, letter: 'S', cons: 'S',  isInlane: false, lit: false, cooldown: 0, flash: 0 }
         ];
 
         this.fuelRollovers = [
@@ -1545,6 +1943,28 @@
           { x: 208, y: 348, lit: true, cooldown: 0 },
           { x: 208, y: 542, lit: true, cooldown: 0 },
           { x: 208, y: 576, lit: true, cooldown: 0 }
+        ];
+
+        // ---------------------------------------------------------------------
+        // RIGHT ORBIT WHIRLING WINGED BULL SPINNER GATE (x=384, y=282)
+        // ---------------------------------------------------------------------
+        this.orbitSpinner = {
+          x: 384,
+          y: 282,
+          r: 15,
+          angle: 0,
+          angVel: 0,
+          accumAngle: 0,
+          streak: 0,
+          cooldown: 0
+        };
+
+        // ---------------------------------------------------------------------
+        // 2 RUBY & BRASS REBOUND RUBBER POSTS (Above Inlane/Outlane Dividers)
+        // ---------------------------------------------------------------------
+        this.reboundPosts = [
+          { x: 52,  y: 568, r: 6.5, flash: 0, vowel: 'EH' },
+          { x: 364, y: 568, r: 6.5, flash: 0, vowel: 'OH' }
         ];
 
         // ---------------------------------------------------------------------
@@ -1755,29 +2175,65 @@
 
         if (match) {
           const isTarget = match.word === this.targetWord;
-          const pts = (match.pts * (isTarget ? 2 : 1)) * this.multiplier;
+          const isSacred = !!match.sacred;
+          const superMult = this.superShotTimer > 0 ? 2 : 1;
+          let pts = (match.pts * (isTarget ? 2 : 1) * superMult) * this.multiplier;
+
+          // Check Linguistic Chain Bonuses (Rhyme, Alliteration, Minimal Pair!)
+          let chainNotes = [];
+          if (this.lastSpokenCVC && this.lastSpokenCVC.word !== match.word) {
+            if (this.lastSpokenCVC.v === v && this.lastSpokenCVC.c2 === c2) {
+              const rhymePts = 3500 * this.multiplier;
+              pts += rhymePts;
+              chainNotes.push('RHYME CHAIN +' + rhymePts.toLocaleString());
+              this.spawnFloatingText(208, 355, '🎵 RHYME: ' + this.lastSpokenCVC.word + ' → ' + match.word + '!', '#00f2fe', true);
+            } else if (this.lastSpokenCVC.c1 === c1) {
+              const allitPts = 2000 * this.multiplier;
+              pts += allitPts;
+              chainNotes.push('ALLITERATION +' + allitPts.toLocaleString());
+            }
+          }
+
+          // Check Minimal Pair against previously spoken words (differs by strictly 1 phoneme)
+          const minPair = this.spokenHistory.find(h =>
+            h.word !== match.word &&
+            ((h.c1 === c1 ? 1 : 0) + (h.v === v ? 1 : 0) + (h.c2 === c2 ? 1 : 0)) === 2
+          );
+          if (minPair && !this.discoveredWords.has(match.word)) {
+            const pairPts = 2500 * this.multiplier;
+            pts += pairPts;
+            chainNotes.push('MINIMAL PAIR (' + minPair.word + ')');
+            this.spawnFloatingText(208, 382, '🔬 MINIMAL PAIR: ' + minPair.word + '/' + match.word + ' +' + pairPts.toLocaleString(), '#34d399', true);
+          }
+
           this.addScore(pts);
           this.discoveredWords.add(match.word);
+          this.lastSpokenCVC = { c1, v, c2, word: match.word, sacred: isSacred };
+          if (!this.spokenHistory.some(h => h.word === match.word)) {
+            this.spokenHistory.push(this.lastSpokenCVC);
+          }
 
-          this.showBanner(
-            isTarget ? '★ BONUS TABLET WORD! ★' : '✦ WORD SYNTHESIZED ✦',
-            match.word,
-            '+' + pts.toLocaleString() + ' PTS • KILN STOKED!'
-          );
+          const bannerTitle = isTarget
+            ? '★ BONUS TABLET WORD! ★'
+            : (isSacred ? '👑 SACRED BABEL RELIC! 👑' : '✦ WORD SYNTHESIZED ✦');
+          const subBanner = '+' + pts.toLocaleString() + ' PTS' + (chainNotes.length ? ' • ' + chainNotes[0] : (isSacred ? ' • +1 RANK GEM!' : ' • KILN STOKED!'));
 
-          this.spawnFloatingText(x || 208, y || 410, '🗣️ "' + match.word + '" +' + pts.toLocaleString(), '#ffd700', true);
-          this.spawnShockwave(208, 445, '#ffd700');
+          this.showBanner(bannerTitle, match.word, subBanner);
+          this.spawnFloatingText(x || 208, y || 410, '🗣️ "' + match.word + '" +' + pts.toLocaleString(), isSacred ? '#ffd700' : '#38bdf8', true);
+          this.spawnShockwave(208, 445, isSacred ? '#ffd700' : '#00f2fe');
 
           if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'WORDS') {
             this.advanceMission(1);
           }
-          if (isTarget) {
+          if (isTarget || isSacred) {
             this.awardRankLights(1);
+          }
+          if (isTarget) {
             this.pickNextTargetWord();
           }
         } else {
           const syllable = c1 + '-' + v + '-' + c2;
-          const pts = 500 * this.multiplier;
+          const pts = 600 * this.multiplier;
           this.addScore(pts);
           this.spawnFloatingText(x || 208, y || 420, '𒀀 ' + syllable + ' +' + pts, '#38bdf8', false);
         }
@@ -1793,6 +2249,15 @@
         const pool = CVC_WORDS.filter(w => !this.discoveredWords.has(w.word));
         const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : CVC_WORDS[Math.floor(Math.random() * CVC_WORDS.length)];
         this.targetWord = pick.word;
+      }
+
+      // Helper: Returns valid C2 consonants and words given current C1 (+ V)
+      getValidNextCompletions() {
+        if (!this.cvc.c1) return [];
+        if (this.cvc.v) {
+          return CVC_WORDS.filter(w => w.c1 === this.cvc.c1 && w.v.includes(this.cvc.v));
+        }
+        return CVC_WORDS.filter(w => w.c1 === this.cvc.c1);
       }
 
       // ---------------------------------------------------------------------
@@ -1838,6 +2303,7 @@
         const m = MISSIONS[this.selectedMissionIdx];
         this.missionActive = false;
         this.missionProgress = 0;
+        this.missionsCompletedCount++;
         const pts = m.pts * this.multiplier;
         this.addScore(pts);
         this.awardRankLights(m.lights);
@@ -1845,6 +2311,11 @@
 
         this.showBanner('★ MISSION ACCOMPLISHED ★', m.name, '+' + pts.toLocaleString() + ' PTS • +' + m.lights + ' RANK LIGHTS');
         this.spawnShockwave(208, 445, '#ffd700');
+
+        // Every 3 missions completed or completing ALIEN_MENACE unleashes 3-Ball Babel Multiball!
+        if (m.id === 'ALIEN_MENACE' || this.missionsCompletedCount % 3 === 0) {
+          this.triggerMultiball(3, 'CONFOUNDING OF TONGUES!');
+        }
 
         this.selectedMissionIdx = (this.selectedMissionIdx + 1) % MISSIONS.length;
         this.missionGoal = MISSIONS[this.selectedMissionIdx].goal;
@@ -1927,13 +2398,47 @@
           this.plungerCharge = Math.min(100, this.plungerCharge + dt * 0.11);
         }
 
-        // 2. Timers (Center Furnace Ball-Save Post, Gravity Well, Shake, Combo, Fuel)
+        // 2. Timers (Furnace Ball-Save Post, Super Flipper Charge, Gravity Well, Shake, Combo, Fuel)
         if (this.centerPostTimer > 0) this.centerPostTimer = Math.max(0, this.centerPostTimer - dt);
+        if (this.superShotTimer > 0) this.superShotTimer = Math.max(0, this.superShotTimer - dt);
         if (this.gravityWellTimer > 0) this.gravityWellTimer = Math.max(0, this.gravityWellTimer - dt);
         if (this.shakeTimer > 0) this.shakeTimer = Math.max(0, this.shakeTimer - dt);
         if (this.comboTimer > 0) {
           this.comboTimer = Math.max(0, this.comboTimer - dt);
           if (this.comboTimer === 0) this.comboCount = 0;
+        }
+
+        // 2b. Update Right Orbit Whirling Winged Bull Spinner
+        if (this.orbitSpinner.cooldown > 0) this.orbitSpinner.cooldown -= dt;
+        if (Math.abs(this.orbitSpinner.angVel) > 0.03) {
+          const stepAng = this.orbitSpinner.angVel * (dt / 16.67);
+          this.orbitSpinner.angle += stepAng;
+          this.orbitSpinner.accumAngle += Math.abs(stepAng);
+          while (this.orbitSpinner.accumAngle >= Math.PI) {
+            this.orbitSpinner.accumAngle -= Math.PI;
+            this.orbitSpinner.streak++;
+            this.synth.playSpinnerTick(620 + Math.min(14, this.orbitSpinner.streak) * 45);
+            this.addScore(250 * this.multiplier);
+            this.fuel = Math.min(6.0, this.fuel + 0.12);
+            if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'SPINNER') {
+              this.advanceMission(1);
+            }
+            if (this.orbitSpinner.streak === 6) {
+              const bonus = 2500 * this.multiplier;
+              this.addScore(bonus);
+              this.spawnFloatingText(340, 275, '🐂 BULL WHIRLWIND! +' + bonus.toLocaleString(), '#ffd700', true);
+              if (this.cvc.c1 && !this.cvc.v) {
+                const targetObj = CVC_WORDS.find(w => w.word === this.targetWord);
+                this.registerVowel(targetObj ? targetObj.v[0] : 'OO', this.orbitSpinner.x, this.orbitSpinner.y);
+              }
+            }
+          }
+          this.orbitSpinner.angVel *= 0.962;
+          if (Math.abs(this.orbitSpinner.angVel) <= 0.035) {
+            this.orbitSpinner.angVel = 0;
+            this.orbitSpinner.streak = 0;
+            this.updateHUD();
+          }
         }
 
         // Fuel consumption during active missions
@@ -1964,6 +2469,13 @@
         this.topLanes.forEach(l => {
           if (l.cooldown > 0) l.cooldown -= dt;
           if (l.flash > 0) l.flash = Math.max(0, l.flash - 0.04);
+        });
+        this.bottomLanes.forEach(bl => {
+          if (bl.cooldown > 0) bl.cooldown -= dt;
+          if (bl.flash > 0) bl.flash = Math.max(0, bl.flash - 0.04);
+        });
+        this.reboundPosts.forEach(rp => {
+          if (rp.flash > 0) rp.flash = Math.max(0, rp.flash - 0.06);
         });
         this.fuelRollovers.forEach(fr => {
           if (fr.cooldown > 0) fr.cooldown -= dt;
@@ -2067,6 +2579,7 @@
 
             this.collideWalls(b);
             this.collideFlippers(b);
+            this.collideReboundPosts(b);
 
             // Collide with Center Furnace Ball-Save Post (when active)
             if (this.centerPostTimer > 0) {
@@ -2080,6 +2593,7 @@
             this.collideBumpers(b);
             this.collideTargetBanks(b);
             this.checkRollovers(b);
+            this.checkOrbitSpinner(b);
             this.checkWormholes(b);
             this.checkLaunchRamp(b);
 
@@ -2242,9 +2756,40 @@
               b.vy -= 1.65 * vn * ny;
             }
             if (Math.abs(f.angVel) > 0.015) {
-              b.vx += tx * tangSpeed * 1.45;
-              b.vy += ty * tangSpeed * 1.45 - 5.2;
+              const boost = this.superShotTimer > 0 ? 1.18 : 1.0;
+              b.vx += tx * tangSpeed * 1.45 * boost;
+              b.vy += (ty * tangSpeed * 1.45 - 5.2) * boost;
+              if (this.superShotTimer > 0) {
+                this.spawnParticles(cx, cy, '#00f2fe', 8);
+              }
             }
+          }
+        }
+      }
+
+      collideReboundPosts(b) {
+        for (const rp of this.reboundPosts) {
+          if (this.collideCircleObstacle(b, rp.x, rp.y, rp.r, 1.24)) {
+            if (rp.flash <= 0.1) {
+              rp.flash = 1.0;
+              this.addScore(200 * this.multiplier);
+              this.spawnParticles(rp.x, rp.y, '#f43f5e', 7);
+              if (this.cvc.c1 && !this.cvc.v) {
+                this.registerVowel(rp.vowel, rp.x, rp.y);
+              }
+            }
+          }
+        }
+      }
+
+      checkOrbitSpinner(b) {
+        const sp = this.orbitSpinner;
+        if (sp.cooldown <= 0 && Math.hypot(b.x - sp.x, b.y - sp.y) < sp.r) {
+          const spd = Math.hypot(b.vx, b.vy);
+          if (spd > 1.8) {
+            sp.cooldown = 320;
+            sp.angVel = (b.vy < 0 ? 1 : -1) * Math.max(0.45, Math.min(1.65, spd * 0.13));
+            this.spawnParticles(sp.x, sp.y, '#ffd700', 8);
           }
         }
       }
@@ -2406,6 +2951,39 @@
             this.updateHUD();
           }
         }
+
+        // 4 Lower Inlane / Outlane Rollovers ([L] - [I] - [P] - [S])
+        for (const bl of this.bottomLanes) {
+          if (bl.cooldown <= 0 && Math.hypot(b.x - bl.x, b.y - bl.y) < 14) {
+            bl.cooldown = 650;
+            bl.lit = true;
+            bl.flash = 1.0;
+            this.addScore(500 * this.multiplier);
+
+            if (bl.cons) {
+              this.registerConsonant(bl.cons, bl.x, bl.y);
+            } else if (bl.vowel) {
+              this.registerVowel(bl.vowel, bl.x, bl.y);
+            }
+
+            if (bl.isInlane) {
+              this.superShotTimer = 6500;
+              this.spawnFloatingText(bl.x, bl.y - 16, '⚡ 2X SUPER FLIPPER READY! ⚡', '#00f2fe', true);
+            }
+
+            if (this.bottomLanes.every(x => x.lit)) {
+              const lipsPts = 10000 * this.multiplier;
+              this.addScore(lipsPts);
+              this.kickbackLit = true;
+              this.centerPostTimer = Math.max(this.centerPostTimer, 15000);
+              this.awardRankLights(1);
+              this.synth.playWordChord();
+              this.showBanner('🗣️ L-I-P-S CALIBRATED! 🗣️', '+10,000 BONUS', 'KICKBACK & KILN FURNACE RELIT • +1 RANK GEM');
+              setTimeout(() => this.bottomLanes.forEach(x => { x.lit = false; }), 500);
+            }
+            this.updateHUD();
+          }
+        }
       }
 
       checkWormholes(b) {
@@ -2557,14 +3135,18 @@
       // =====================================================================
       cycleTopLanes(dir) {
         const states = this.topLanes.map(l => l.lit);
+        const botStates = this.bottomLanes.map(l => l.lit);
         if (dir > 0) {
           states.unshift(states.pop());
+          botStates.unshift(botStates.pop());
           this.skillShotLaneIdx = (this.skillShotLaneIdx + 1) % 3;
         } else {
           states.push(states.shift());
+          botStates.push(botStates.shift());
           this.skillShotLaneIdx = (this.skillShotLaneIdx + 2) % 3;
         }
         this.topLanes.forEach((l, i) => { l.lit = states[i]; });
+        this.bottomLanes.forEach((l, i) => { l.lit = botStates[i]; });
       }
 
       setFlipperSide(side, isDown) {
@@ -2746,6 +3328,23 @@
         if (s2) s2.classList.toggle('filled', !!this.cvc.v);
         if (s3) s3.classList.toggle('filled', !!this.cvc.c2);
 
+        // Live Next-Shot Word Completion Hints in Sidebar
+        const hintEl = document.getElementById('cvc-hint-strip');
+        if (hintEl) {
+          if (!this.cvc.c1) {
+            const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
+            hintEl.textContent = 'START [' + (tObj ? tObj.c1 : 'B') + '] FOR "' + this.targetWord + '" OR ANY CONSONANT';
+          } else if (!this.cvc.v) {
+            const matches = this.getValidNextCompletions();
+            const sample = matches.slice(0, 3).map(w => w.v[0] + '→' + w.word).join(' • ');
+            hintEl.textContent = 'SHOOT VOWEL BUMPER/ARCH: ' + sample;
+          } else {
+            const matches = this.getValidNextCompletions();
+            const sample = matches.slice(0, 4).map(w => '[' + w.c2 + ']→' + w.word + (w.sacred ? '★' : '')).join(' • ');
+            hintEl.textContent = sample ? ('FINISH: ' + sample) : 'SHOOT ANY CONSONANT TO SPEAK SYLLABLE!';
+          }
+        }
+
         setTxt('rank-lights-count', this.rankLights + '/7 LIT');
         document.querySelectorAll('#ranks-ladder .rank-row').forEach(row => {
           const r = Number(row.getAttribute('data-rank'));
@@ -2753,10 +3352,14 @@
           row.classList.toggle('current', r === this.rankIndex + 1);
         });
 
-        setTxt('words-count-badge', this.discoveredWords.size + ' SPOKEN');
+        setTxt('words-count-badge', this.discoveredWords.size + ' / ' + CVC_WORDS.length + ' SPOKEN');
         const listEl = document.getElementById('discovered-words-list');
         if (listEl && this.discoveredWords.size > 0) {
-          listEl.innerHTML = Array.from(this.discoveredWords).map(w => '<span class="word-chip">' + w + '</span>').join('');
+          listEl.innerHTML = Array.from(this.discoveredWords).map(w => {
+            const wObj = CVC_WORDS.find(x => x.word === w);
+            const cls = (wObj && wObj.sacred) ? 'word-chip sacred' : 'word-chip';
+            return '<span class="' + cls + '">' + (wObj && wObj.sacred ? '★ ' : '') + w + '</span>';
+          }).join('');
         }
       }
 
@@ -3315,15 +3918,68 @@
           ctx.stroke();
         }
 
+        // 4 Lower Inlane / Outlane Rollover Medallions ([L] - [I] - [P] - [S])
+        for (const bl of this.bottomLanes) {
+          ctx.beginPath();
+          ctx.arc(bl.x, bl.y, 8.5, 0, Math.PI * 2);
+          ctx.fillStyle = bl.lit ? '#00f2fe' : '#091326';
+          if (bl.lit || bl.flash > 0.1) {
+            ctx.shadowColor = '#00f2fe';
+            ctx.shadowBlur = 10;
+          }
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = bl.isInlane ? '#ffd700' : '#38bdf8';
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          ctx.font = '700 0.52rem "Silkscreen", monospace';
+          ctx.fillStyle = bl.lit ? '#040814' : '#e2e8f0';
+          ctx.fillText(bl.letter, bl.x, bl.y + 3.5);
+        }
+
         ctx.restore();
       }
 
       renderWormholes(ctx, now) {
         const pulse = 0.5 + 0.5 * Math.sin(now * 0.01);
+        const validC2Set = new Set(
+          (this.cvc.c1 && this.cvc.v) ? this.getValidNextCompletions().map(w => w.c2) : []
+        );
         ctx.save();
         ctx.textAlign = 'center';
 
+        // 1. 3D Rotating Golden Winged Bull Spinner Gate in Right Orbit (x=384, y=282)
+        const sp = this.orbitSpinner;
+        ctx.save();
+        ctx.translate(sp.x, sp.y);
+        // Brass mounting stanchions & crossbar
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(-13, 0);
+        ctx.lineTo(13, 0);
+        ctx.stroke();
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(-15, -4, 4, 8);
+        ctx.fillRect(11, -4, 4, 8);
+
+        // Rotating 3D Brass Spinner Plate (foreshortened by cos(sp.angle))
+        const scaleY = Math.max(0.18, Math.abs(Math.cos(sp.angle)));
+        ctx.fillStyle = Math.abs(sp.angVel) > 0.1 ? '#fef08a' : '#d97706';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.1;
+        ctx.fillRect(-10, -10 * scaleY, 20, 20 * scaleY);
+        ctx.strokeRect(-10, -10 * scaleY, 20, 20 * scaleY);
+        if (scaleY > 0.45) {
+          ctx.font = '700 0.42rem "Space Mono", monospace';
+          ctx.fillStyle = '#090d16';
+          ctx.fillText('🐂', 0, 3);
+        }
+        ctx.restore();
+
         for (const wh of this.wormholes) {
+          const isC2Match = validC2Set.has(wh.cons);
           if (wh.isHyperspace) {
             // GLOWING CYAN ACRYLIC HYPERSPACE TUNNEL & RAMP PLATE (Right Chute [S])
             const cGrad = ctx.createRadialGradient(wh.x, wh.y, 3, wh.x, wh.y, 26);
@@ -3342,8 +3998,8 @@
           ctx.arc(wh.x, wh.y, wh.r + 3.5, 0, Math.PI * 2);
           ctx.fillStyle = '#475569';
           ctx.fill();
-          ctx.lineWidth = 2.2;
-          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = isC2Match ? 2.8 : 2.2;
+          ctx.strokeStyle = isC2Match ? '#00f2fe' : '#ffd700';
           ctx.stroke();
 
           // Deep Dark Subterranean Kicker Cavity
@@ -3353,8 +4009,8 @@
           ctx.fill();
           ctx.lineWidth = 2.0;
           ctx.strokeStyle = wh.color;
-          ctx.shadowColor = wh.color;
-          ctx.shadowBlur = 8 + pulse * 6;
+          ctx.shadowColor = isC2Match ? '#00f2fe' : wh.color;
+          ctx.shadowBlur = (isC2Match ? 14 : 8) + pulse * 6;
           ctx.stroke();
           ctx.shadowBlur = 0;
 
@@ -3445,6 +4101,9 @@
       renderTargetBanks(ctx, now) {
         const targetObj = CVC_WORDS.find(w => w.word === this.targetWord);
         const neededCons = !this.cvc.c1 ? (targetObj && targetObj.c1) : (this.cvc.v ? (targetObj && targetObj.c2) : null);
+        const validC2Set = new Set(
+          (this.cvc.c1 && this.cvc.v) ? this.getValidNextCompletions().map(w => w.c2) : []
+        );
         const pulse = 0.5 + 0.5 * Math.sin(now * 0.012);
 
         ctx.save();
@@ -3452,21 +4111,22 @@
 
         const drawTablet = (t, baseColor) => {
           const isNeeded = neededCons === t.cons;
+          const isValidC2 = validC2Set.has(t.cons);
           const w = 20, h = 25;
           ctx.save();
           ctx.translate(t.x, t.y);
 
           // Recessed Stone Cuneiform Tablet
           ctx.fillStyle = t.isDown ? 'rgba(15, 23, 42, 0.45)' : (t.hitAnim > 0 ? '#ffffff' : '#b48a4e');
-          if (isNeeded && !t.isDown) {
-            ctx.shadowColor = '#ffd700';
-            ctx.shadowBlur = 12 + pulse * 8;
+          if ((isNeeded || isValidC2) && !t.isDown) {
+            ctx.shadowColor = isNeeded ? '#ffd700' : '#00f2fe';
+            ctx.shadowBlur = (isNeeded ? 12 : 9) + pulse * 6;
           }
           ctx.fillRect(-w / 2, -h / 2, w, h);
           ctx.shadowBlur = 0;
 
-          ctx.lineWidth = isNeeded ? 2.2 : 1.3;
-          ctx.strokeStyle = isNeeded ? '#ffd700' : baseColor;
+          ctx.lineWidth = (isNeeded || isValidC2) ? 2.2 : 1.3;
+          ctx.strokeStyle = isNeeded ? '#ffd700' : (isValidC2 ? '#00f2fe' : baseColor);
           ctx.strokeRect(-w / 2, -h / 2, w, h);
 
           if (!t.isDown) {
@@ -3547,6 +4207,20 @@
         drawStripedGuide(56, 662, 132, 726);
         drawStripedGuide(360, 662, 284, 726);
 
+        // 2b. 2 Ruby & Brass Rebound Rubber Posts Above Inlane Dividers
+        for (const rp of this.reboundPosts) {
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+          ctx.fillStyle = rp.flash > 0.1 ? '#ffffff' : '#f43f5e';
+          ctx.shadowColor = '#f43f5e';
+          ctx.shadowBlur = rp.flash > 0.1 ? 12 : 5;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.lineWidth = 2.0;
+          ctx.strokeStyle = '#ffd700';
+          ctx.stroke();
+        }
+
         // 3. Beveled 3D Brass & Gold Perimeter Walls
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
         ctx.lineWidth = 5.5;
@@ -3603,10 +4277,15 @@
           ctx.arc(f.x, f.y, r1, f.angle - Math.PI / 2, f.angle + Math.PI / 2, true);
           ctx.closePath();
 
-          ctx.fillStyle = '#f8fafc';
+          ctx.fillStyle = this.superShotTimer > 0 ? '#e0f2fe' : '#f8fafc';
+          if (this.superShotTimer > 0) {
+            ctx.shadowColor = '#00f2fe';
+            ctx.shadowBlur = 12;
+          }
           ctx.fill();
+          ctx.shadowBlur = 0;
           ctx.lineWidth = 2.8;
-          ctx.strokeStyle = '#dc2626'; // Crimson rubber ring
+          ctx.strokeStyle = this.superShotTimer > 0 ? '#00f2fe' : '#dc2626'; // Super cyan or crimson rubber ring
           ctx.stroke();
 
           // Metallic Pivot Nut
