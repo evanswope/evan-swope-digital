@@ -350,6 +350,23 @@
       padding: 0.35rem 0.2rem;
       text-align: center;
       transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+    .cvc-slot:hover {
+      border-color: #ffffff;
+    }
+    .cvc-slot.locked {
+      border-color: #f43f5e !important;
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.55) !important;
+    }
+    .slot-lock-badge {
+      font-family: var(--font-mono);
+      font-size: 0.44rem;
+      color: #f43f5e;
+      display: block;
+      margin-top: 1px;
+      letter-spacing: 0.5px;
     }
     .cvc-slot.filled {
       border-color: var(--cyan-glow);
@@ -466,6 +483,12 @@
       border: 1px solid var(--gold-primary);
       padding: 0.15rem 0.45rem;
       border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .word-chip:hover {
+      transform: scale(1.06);
+      border-color: #ffffff;
     }
     .word-chip.sacred {
       color: #040814;
@@ -651,7 +674,10 @@
     <div class="header-nav-row">
       <a href="experiments.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> LAB EXPERIMENTS</a>
       <div class="game-badge"><i class="fa-solid fa-satellite"></i> SPACE CADET GEOMETRY × KLATT FORMANT SYNTH</div>
-      <button id="btn-nudge" class="back-link" style="cursor:pointer;" title="Nudge Table [X or Space]"><i class="fa-solid fa-bolt"></i> NUDGE [Z/M]</button>
+      <div style="display:flex;gap:0.35rem;">
+        <button id="btn-mute" class="back-link" style="cursor:pointer;" title="Toggle Audio Mute [M]"><i class="fa-solid fa-volume-high"></i> AUDIO [M]</button>
+        <button id="btn-nudge" class="back-link" style="cursor:pointer;" title="Nudge Table [X or Space]"><i class="fa-solid fa-bolt"></i> NUDGE [X]</button>
+      </div>
     </div>
     <h1 class="game-title">3D PINBALL: TOWER OF BABEL</h1>
     <p class="game-subtitle">Space Cadet Playfield Architecture • Real-Time Vocal Tract Synthesis • 7 Ziggurat Ranks</p>
@@ -744,7 +770,10 @@
       <div class="sc-panel">
         <div class="sc-panel-title">
           <span><i class="fa-solid fa-terminal"></i> MISSION COMPUTER</span>
-          <span id="mission-status-badge" style="color:#34d399;font-family:var(--font-mono);font-size:0.55rem;">STANDBY</span>
+          <div style="display:flex;align-items:center;gap:0.35rem;">
+            <button id="btn-cycle-mission" style="background:rgba(16,185,129,0.18);border:1px solid #10b981;color:#a7f3d0;font-family:var(--font-mono);font-size:0.48rem;padding:0.1rem 0.35rem;border-radius:4px;cursor:pointer;" title="Cycle Mission Selection">CYCLE ↻</button>
+            <span id="mission-status-badge" style="color:#34d399;font-family:var(--font-mono);font-size:0.55rem;">STANDBY</span>
+          </div>
         </div>
         <div class="mission-dmd-box">
           <div class="dmd-header">
@@ -775,26 +804,32 @@
       <div class="sc-panel">
         <div class="sc-panel-title">
           <span><i class="fa-solid fa-wave-square"></i> C-V-C VOCAL SYNTH</span>
-          <span id="phoneme-last-spoken" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.56rem;">READY</span>
+          <div style="display:flex;align-items:center;gap:0.35rem;">
+            <span id="phoneme-last-spoken" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.56rem;">READY</span>
+            <button id="btn-clear-cvc" style="background:rgba(244,63,94,0.16);border:1px solid rgba(244,63,94,0.5);color:#fda4af;font-family:var(--font-mono);font-size:0.46rem;padding:0.08rem 0.32rem;border-radius:4px;cursor:pointer;" title="Clear C-V-C Slots [C]">CLR</button>
+          </div>
         </div>
         <div class="cvc-matrix">
-          <div class="cvc-slot" id="cvc-slot-1">
+          <div class="cvc-slot" id="cvc-slot-1" title="Click or press [1] to Lock/Unlock Onset C₁">
             <span class="slot-type">ONS [C₁]</span>
             <span class="slot-phoneme" id="cvc-val-1">_</span>
+            <span class="slot-lock-badge" id="cvc-lock-1">[1] PIN</span>
           </div>
           <span class="cvc-arrow">→</span>
-          <div class="cvc-slot vowel-slot" id="cvc-slot-2">
+          <div class="cvc-slot vowel-slot" id="cvc-slot-2" title="Click or press [2] to Lock/Unlock Vowel V">
             <span class="slot-type">NUC [V]</span>
             <span class="slot-phoneme" id="cvc-val-2">_</span>
+            <span class="slot-lock-badge" id="cvc-lock-2">[2] PIN</span>
           </div>
           <span class="cvc-arrow">→</span>
-          <div class="cvc-slot" id="cvc-slot-3">
+          <div class="cvc-slot" id="cvc-slot-3" title="Coda C₂ resolves word">
             <span class="slot-type">COD [C₂]</span>
             <span class="slot-phoneme" id="cvc-val-3">_</span>
+            <span class="slot-lock-badge" style="color:var(--text-muted);">SPEAK</span>
           </div>
         </div>
-        <div class="target-word-banner">
-          <span style="color:var(--text-muted);">BONUS TABLET WORD:</span>
+        <div class="target-word-banner" id="target-word-box" style="cursor:pointer;" title="Click to hear Bonus Word spoken!">
+          <span style="color:var(--text-muted);">BONUS WORD <i class="fa-solid fa-volume-low" style="color:var(--gold-primary);"></i>:</span>
           <span class="target-word-highlight" id="stat-target-word">BAT</span>
         </div>
         <div class="cvc-hint-strip" id="cvc-hint-strip">
@@ -852,6 +887,7 @@
       <p>Hit <code>[T][D][N]</code> to choose a mission, then shoot the <strong>Launch Ramp</strong>. Completing missions lights the <strong>Inner 7-Star Rank Circle</strong>. When all 7 Rank Lights are lit, shoot the <strong>Launch Ramp</strong> to ascend to the next Ziggurat Tier!</p>
     </div>
   </section>
+
 
   <script>
   (function () {
@@ -1022,17 +1058,17 @@
     };
 
     const CONSONANT_PROFILES = {
-      'B': { label: 'B', group: 'LABIAL',   f1: 200, f2: 900,  burst: 600,  voiced: true,  type: 'stop',   color: '#f97316' },
-      'P': { label: 'P', group: 'LABIAL',   f1: 200, f2: 900,  burst: 750,  voiced: false, type: 'stop',   color: '#fb923c' },
-      'M': { label: 'M', group: 'LABIAL',   f1: 260, f2: 1000, burst: 400,  voiced: true,  type: 'nasal',  color: '#fdba74' },
-      'T': { label: 'T', group: 'CORONAL',  f1: 220, f2: 1800, burst: 3600, voiced: false, type: 'stop',   color: '#34d399' },
-      'D': { label: 'D', group: 'CORONAL',  f1: 220, f2: 1800, burst: 3000, voiced: true,  type: 'stop',   color: '#10b981' },
-      'N': { label: 'N', group: 'CORONAL',  f1: 260, f2: 1700, burst: 1400, voiced: true,  type: 'nasal',  color: '#6ee7b7' },
-      'K': { label: 'K', group: 'VELAR',    f1: 240, f2: 1450, burst: 1900, voiced: false, type: 'stop',   color: '#c084fc' },
-      'G': { label: 'G', group: 'VELAR',    f1: 240, f2: 1450, burst: 1650, voiced: true,  type: 'stop',   color: '#a855f7' },
-      'S': { label: 'S', group: 'SIBILANT', f1: 250, f2: 2000, burst: 5200, voiced: false, type: 'fric',   color: '#38bdf8' },
-      'L': { label: 'L', group: 'LIQUID',   f1: 340, f2: 1150, burst: 1200, voiced: true,  type: 'liquid', color: '#fde047' },
-      'R': { label: 'R', group: 'LIQUID',   f1: 380, f2: 1250, burst: 1350, voiced: true,  type: 'liquid', color: '#facc15' }
+      'B': { label: 'B', group: 'LABIAL',   f1: 200, f2: 900,  f3: 2250, burst: 600,  voiced: true,  type: 'stop',   color: '#f97316' },
+      'P': { label: 'P', group: 'LABIAL',   f1: 200, f2: 900,  f3: 2250, burst: 750,  voiced: false, type: 'stop',   color: '#fb923c' },
+      'M': { label: 'M', group: 'LABIAL',   f1: 260, f2: 1000, f3: 2300, burst: 900,  voiced: true,  type: 'nasal',  color: '#fdba74' },
+      'T': { label: 'T', group: 'CORONAL',  f1: 220, f2: 1800, f3: 2650, burst: 3600, voiced: false, type: 'stop',   color: '#34d399' },
+      'D': { label: 'D', group: 'CORONAL',  f1: 220, f2: 1800, f3: 2650, burst: 3000, voiced: true,  type: 'stop',   color: '#10b981' },
+      'N': { label: 'N', group: 'CORONAL',  f1: 260, f2: 1700, f3: 2550, burst: 1350, voiced: true,  type: 'nasal',  color: '#6ee7b7' },
+      'K': { label: 'K', group: 'VELAR',    f1: 240, f2: 1450, f3: 2200, burst: 1900, voiced: false, type: 'stop',   color: '#c084fc' },
+      'G': { label: 'G', group: 'VELAR',    f1: 240, f2: 1450, f3: 2200, burst: 1650, voiced: true,  type: 'stop',   color: '#a855f7' },
+      'S': { label: 'S', group: 'SIBILANT', f1: 250, f2: 2000, f3: 2850, burst: 5200, voiced: false, type: 'fric',   color: '#38bdf8' },
+      'L': { label: 'L', group: 'LIQUID',   f1: 340, f2: 1150, f3: 2750, burst: 1200, voiced: true,  type: 'liquid', color: '#fde047' },
+      'R': { label: 'R', group: 'LIQUID',   f1: 380, f2: 1250, f3: 1650, burst: 1350, voiced: true,  type: 'liquid', color: '#facc15' }
     };
 
     // Comprehensive Vowel-Specific C-V-C Lexicon (330+ Words + Sacred Babylonian Relics!)
@@ -1480,6 +1516,7 @@
       constructor() {
         this.ctx = null;
         this.isSetup = false;
+        this.isMuted = false;
         this.lastF1 = 500;
         this.lastF2 = 1500;
       }
@@ -1493,7 +1530,7 @@
         if (!AudioCtx) return;
         this.ctx = new AudioCtx();
         this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0.42;
+        this.masterGain.gain.value = this.isMuted ? 0 : 0.42;
         this.masterGain.connect(this.ctx.destination);
 
         const sr = this.ctx.sampleRate || 44100;
@@ -1503,6 +1540,15 @@
           data[i] = Math.random() * 2 - 1;
         }
         this.isSetup = true;
+      }
+
+      toggleMute() {
+        this.init();
+        this.isMuted = !this.isMuted;
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.42, this.ctx.currentTime);
+        }
+        return this.isMuted;
       }
 
       updateHUDFormants(f1, f2) {
@@ -1515,7 +1561,7 @@
       }
 
       speakVowel(vowelKey, duration = 0.24, pitch = 130) {
-        if (!this.isSetup) return;
+        if (!this.isSetup || this.isMuted) return;
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
         this.updateHUDFormants(vf.f1, vf.f2);
 
@@ -1538,25 +1584,34 @@
         f1Node.type = 'bandpass';
         f1Node.frequency.setValueAtTime(vf.f1, now);
         f1Node.Q.setValueAtTime(5.5, now);
+        const f1Gain = this.ctx.createGain();
+        f1Gain.gain.value = 1.0;
 
         const f2Node = this.ctx.createBiquadFilter();
         f2Node.type = 'bandpass';
         f2Node.frequency.setValueAtTime(vf.f2, now);
-        f2Node.Q.setValueAtTime(7.0, now);
+        f2Node.Q.setValueAtTime(6.5, now);
+        const f2Gain = this.ctx.createGain();
+        f2Gain.gain.value = 0.88;
 
         const f3Node = this.ctx.createBiquadFilter();
         f3Node.type = 'bandpass';
         f3Node.frequency.setValueAtTime(vf.f3, now);
-        f3Node.Q.setValueAtTime(8.0, now);
+        f3Node.Q.setValueAtTime(7.5, now);
+        const f3Gain = this.ctx.createGain();
+        f3Gain.gain.value = 0.50;
 
         glottal.connect(f1Node);
         glottal.connect(f2Node);
         glottal.connect(f3Node);
         subOsc.connect(f1Node);
 
-        f1Node.connect(voiceEnv);
-        f2Node.connect(voiceEnv);
-        f3Node.connect(voiceEnv);
+        f1Node.connect(f1Gain);
+        f2Node.connect(f2Gain);
+        f3Node.connect(f3Gain);
+        f1Gain.connect(voiceEnv);
+        f2Gain.connect(voiceEnv);
+        f3Gain.connect(voiceEnv);
         voiceEnv.connect(this.masterGain);
 
         glottal.start(now);
@@ -1566,24 +1621,26 @@
       }
 
       speakConsonant(consKey) {
-        if (!this.isSetup) return;
+        if (!this.isSetup || this.isMuted) return;
         const cp = CONSONANT_PROFILES[consKey] || CONSONANT_PROFILES['T'];
         this.updateHUDFormants(cp.f1, cp.f2);
 
         const now = this.ctx.currentTime;
 
-        if (this.noiseBuffer) {
+        // 1. Manner-specific noise / aspiration / frication
+        if (this.noiseBuffer && cp.type !== 'liquid') {
           const noise = this.ctx.createBufferSource();
           noise.buffer = this.noiseBuffer;
 
           const filter = this.ctx.createBiquadFilter();
           filter.type = cp.type === 'fric' ? 'highpass' : 'bandpass';
           filter.frequency.setValueAtTime(cp.burst, now);
-          filter.Q.setValueAtTime(cp.type === 'fric' ? 2.5 : 4.0, now);
+          filter.Q.setValueAtTime(cp.type === 'fric' ? 2.5 : 3.8, now);
 
           const nGain = this.ctx.createGain();
-          const dur = cp.type === 'fric' ? 0.16 : 0.065;
-          nGain.gain.setValueAtTime(cp.type === 'fric' ? 0.28 : 0.35, now);
+          const dur = cp.type === 'fric' ? 0.16 : (cp.type === 'nasal' ? 0.03 : (cp.voiced ? 0.055 : 0.095));
+          const amp = cp.type === 'fric' ? 0.28 : (cp.type === 'nasal' ? 0.05 : 0.35);
+          nGain.gain.setValueAtTime(amp, now);
           nGain.gain.exponentialRampToValueAtTime(0.005, now + dur);
 
           noise.connect(filter);
@@ -1593,40 +1650,49 @@
           noise.stop(now + dur);
         }
 
+        // 2. Voiced Formant Murmur / Nasal Anti-Formant / Liquid Glide
         if (cp.voiced) {
           const osc = this.ctx.createOscillator();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(125, now);
-          osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
+          const dur = cp.type === 'nasal' || cp.type === 'liquid' ? 0.14 : 0.11;
+          osc.frequency.setValueAtTime(126, now);
+          osc.frequency.exponentialRampToValueAtTime(112, now + dur);
 
           const f1 = this.ctx.createBiquadFilter();
           f1.type = 'bandpass';
           f1.frequency.setValueAtTime(cp.f1, now);
-          f1.frequency.exponentialRampToValueAtTime(450, now + 0.11);
-          f1.Q.setValueAtTime(4.5, now);
+          f1.frequency.exponentialRampToValueAtTime(420, now + dur);
+          f1.Q.setValueAtTime(cp.type === 'nasal' ? 3.5 : 4.5, now);
 
           const f2 = this.ctx.createBiquadFilter();
           f2.type = 'bandpass';
           f2.frequency.setValueAtTime(cp.f2, now);
           f2.Q.setValueAtTime(5.5, now);
 
+          const f3 = this.ctx.createBiquadFilter();
+          f3.type = cp.type === 'nasal' ? 'notch' : 'bandpass';
+          f3.frequency.setValueAtTime(cp.type === 'nasal' ? cp.burst : (cp.f3 || 2400), now);
+          f3.Q.setValueAtTime(4.5, now);
+
           const vGain = this.ctx.createGain();
-          vGain.gain.setValueAtTime(0.32, now);
-          vGain.gain.exponentialRampToValueAtTime(0.008, now + 0.12);
+          vGain.gain.setValueAtTime(cp.type === 'nasal' ? 0.38 : 0.32, now);
+          vGain.gain.exponentialRampToValueAtTime(0.008, now + dur);
 
           osc.connect(f1);
           osc.connect(f2);
+          osc.connect(f3);
           f1.connect(vGain);
           f2.connect(vGain);
+          f3.connect(vGain);
           vGain.connect(this.masterGain);
 
           osc.start(now);
-          osc.stop(now + 0.12);
+          osc.stop(now + dur);
         }
       }
 
       speakCVCWord(c1Key, vKey, c2Key) {
-        if (!this.isSetup) return;
+        if (!this.isSetup || this.isMuted) return;
         const c1 = CONSONANT_PROFILES[c1Key] || CONSONANT_PROFILES['B'];
         const vf = VOWEL_FORMANTS[vKey] || VOWEL_FORMANTS['AA'];
         const c2 = CONSONANT_PROFILES[c2Key] || CONSONANT_PROFILES['T'];
@@ -1649,14 +1715,28 @@
         f1.frequency.exponentialRampToValueAtTime(vf.f1, now + 0.12);
         f1.frequency.setValueAtTime(vf.f1, now + 0.30);
         f1.frequency.exponentialRampToValueAtTime(c2.f1, now + 0.42);
+        const f1G = this.ctx.createGain();
+        f1G.gain.value = 1.0;
 
         const f2 = this.ctx.createBiquadFilter();
         f2.type = 'bandpass';
-        f2.Q.setValueAtTime(7.0, now);
+        f2.Q.setValueAtTime(6.5, now);
         f2.frequency.setValueAtTime(c1.f2, now + 0.03);
         f2.frequency.exponentialRampToValueAtTime(vf.f2, now + 0.12);
         f2.frequency.setValueAtTime(vf.f2, now + 0.30);
         f2.frequency.exponentialRampToValueAtTime(c2.f2, now + 0.42);
+        const f2G = this.ctx.createGain();
+        f2G.gain.value = 0.88;
+
+        const f3 = this.ctx.createBiquadFilter();
+        f3.type = 'bandpass';
+        f3.Q.setValueAtTime(7.0, now);
+        f3.frequency.setValueAtTime(c1.f3 || 2400, now + 0.03);
+        f3.frequency.exponentialRampToValueAtTime(vf.f3, now + 0.12);
+        f3.frequency.setValueAtTime(vf.f3, now + 0.30);
+        f3.frequency.exponentialRampToValueAtTime(c2.f3 || 2400, now + 0.42);
+        const f3G = this.ctx.createGain();
+        f3G.gain.value = 0.48;
 
         const env = this.ctx.createGain();
         env.gain.setValueAtTime(0.01, now);
@@ -1666,8 +1746,13 @@
 
         osc.connect(f1);
         osc.connect(f2);
-        f1.connect(env);
-        f2.connect(env);
+        osc.connect(f3);
+        f1.connect(f1G);
+        f2.connect(f2G);
+        f3.connect(f3G);
+        f1G.connect(env);
+        f2G.connect(env);
+        f3G.connect(env);
         env.connect(this.masterGain);
 
         osc.start(now + 0.02);
@@ -1675,8 +1760,10 @@
 
         setTimeout(() => {
           this.speakConsonant(c2Key);
-          this.playWordChord();
         }, 310);
+        setTimeout(() => {
+          this.playWordChord();
+        }, 430);
       }
 
       playFlipperClick(isUp = true) {
@@ -1832,6 +1919,7 @@
       }
     }
 
+
     // =========================================================================
     // 5. SPACE CADET × TOWER OF BABEL PINBALL ENGINE
     // =========================================================================
@@ -1884,8 +1972,9 @@
         this.fuelTickTimer = 0;
         this.hyperspaceLevel = 0; // 0..4
 
-        // C-V-C Phonetic Buffer ([C1] - [V] - [C2]) & Linguistic History
+        // C-V-C Phonetic Buffer ([C1] - [V] - [C2]), Slot Locks & Linguistic History
         this.cvc = { c1: null, v: null, c2: null };
+        this.cvcLocks = { c1: false, v: false };
         this.discoveredWords = new Set();
         this.spokenHistory = []; // Array of { c1, v, c2, word, sacred }
         this.lastSpokenCVC = null;
@@ -1928,12 +2017,12 @@
           { x: 244, y: 78, vowel: 'OO', label: '/u/', cuneiform: '𒌋', lit: false, cooldown: 0, flash: 0 }
         ];
 
-        // 4 Lower Inlane / Outlane Rollovers ([L] - [I] - [P] - [S])
+        // 4 Lower Inlane / Outlane Rollovers ([L] - [I] - [P] - [S]) — Wider Inlanes!
         this.bottomLanes = [
-          { x: 35,  y: 615, letter: 'L', cons: 'L',  isInlane: false, lit: false, cooldown: 0, flash: 0 },
-          { x: 67,  y: 615, letter: 'I', vowel: 'IH', isInlane: true,  lit: false, cooldown: 0, flash: 0 },
-          { x: 349, y: 615, letter: 'P', cons: 'P',  isInlane: true,  lit: false, cooldown: 0, flash: 0 },
-          { x: 381, y: 615, letter: 'S', cons: 'S',  isInlane: false, lit: false, cooldown: 0, flash: 0 }
+          { x: 32,  y: 615, letter: 'L', cons: 'L',   isInlane: false, lit: false, cooldown: 0, flash: 0 },
+          { x: 64,  y: 615, letter: 'I', vowel: 'IH', isInlane: true,  lit: false, cooldown: 0, flash: 0 },
+          { x: 352, y: 615, letter: 'P', cons: 'P',   isInlane: true,  lit: false, cooldown: 0, flash: 0 },
+          { x: 384, y: 615, letter: 'S', cons: 'S',   isInlane: false, lit: false, cooldown: 0, flash: 0 }
         ];
 
         this.fuelRollovers = [
@@ -1963,8 +2052,8 @@
         // 2 RUBY & BRASS REBOUND RUBBER POSTS (Above Inlane/Outlane Dividers)
         // ---------------------------------------------------------------------
         this.reboundPosts = [
-          { x: 52,  y: 568, r: 6.5, flash: 0, vowel: 'EH' },
-          { x: 364, y: 568, r: 6.5, flash: 0, vowel: 'OH' }
+          { x: 46,  y: 568, r: 6.5, flash: 0, vowel: 'EH' },
+          { x: 370, y: 568, r: 6.5, flash: 0, vowel: 'OH' }
         ];
 
         // ---------------------------------------------------------------------
@@ -1987,11 +2076,11 @@
           { x: 36, y: 528, r: 9, cons: 'M', glyph: '𒈠', isDown: false, hitAnim: 0 }
         ];
 
-        // 2. Center-Left 3-Bank Mission Standup Targets (Coronals [T], [D], [N])
+        // 2. Upper-Left Angled Perimeter Mission Standups (Coronals [T], [D], [N]) — Unobstructed!
         this.missionStandups = [
-          { x: 90, y: 282, r: 9, cons: 'T', glyph: '𒋫', hitAnim: 0, cooldown: 0 },
-          { x: 90, y: 312, r: 9, cons: 'D', glyph: '𒁕', hitAnim: 0, cooldown: 0 },
-          { x: 90, y: 342, r: 9, cons: 'N', glyph: '𒈾', hitAnim: 0, cooldown: 0 }
+          { x: 40, y: 292, r: 9, cons: 'T', glyph: '𒋫', hitAnim: 0, cooldown: 0 },
+          { x: 46, y: 320, r: 9, cons: 'D', glyph: '𒁕', hitAnim: 0, cooldown: 0 },
+          { x: 52, y: 348, r: 9, cons: 'N', glyph: '𒈾', hitAnim: 0, cooldown: 0 }
         ];
 
         // 3. Right 3-Bank Drop Targets (Velars & Sibilants [K], [G], [S])
@@ -2005,8 +2094,8 @@
         // 3 WORMHOLE KICKERS (LIQUIDS & SIBILANTS [L], [R], [S])
         // ---------------------------------------------------------------------
         this.wormholes = [
-          // Left Wormhole Kicker [L]
-          { id: 'LEFT',   x: 56,  y: 315, r: 13, cons: 'L', name: 'LUNAR WORMHOLE [L]', color: '#fde047', ejVx: 5.8,  ejVy: 4.2,  cooldown: 0, holdBall: null, holdTimer: 0 },
+          // Left Wormhole Kicker [L] — Positioned in Open Upper-Left Cove (66, 250)!
+          { id: 'LEFT',   x: 66,  y: 250, r: 13, cons: 'L', name: 'LUNAR WORMHOLE [L]', color: '#fde047', ejVx: 5.2,  ejVy: 4.4,  cooldown: 0, holdBall: null, holdTimer: 0 },
           // Center Sanctuary Kicker [R]
           { id: 'CENTER', x: 292, y: 192, r: 13, cons: 'R', name: 'MARDUK WORMHOLE [R]', color: '#ec4899', ejVx: -4.8, ejVy: 5.5,  cooldown: 0, holdBall: null, holdTimer: 0 },
           // Right Hyperspace Chute Kicker [S]
@@ -2014,7 +2103,7 @@
         ];
 
         // ---------------------------------------------------------------------
-        // LEFT ASCENSION LAUNCH RAMP (Starts Missions & Claims Promotions!)
+        // LEFT ASCENSION LAUNCH RAMP (Exits directly through [I] Inlane at 64, 600!)
         // ---------------------------------------------------------------------
         this.launchRamp = {
           entryX: 122,
@@ -2027,7 +2116,7 @@
             { x: 28,  y: 165 },
             { x: 28,  y: 350 },
             { x: 32,  y: 520 },
-            { x: 70,  y: 635 }
+            { x: 64,  y: 600 }
           ]
         };
 
@@ -2063,6 +2152,9 @@
           rampProgress: 0,
           inWormhole: false,
           stuckFrames: 0,
+          anchorX: x,
+          anchorY: y,
+          anchorFrames: 0,
           trail: []
         };
       }
@@ -2071,16 +2163,16 @@
         const segs = [];
         const addSeg = (x1, y1, x2, y2, bounce = 0.72) => segs.push({ x1, y1, x2, y2, bounce });
 
-        // 1. Top Arch Dome
+        // 1. Top Arch Dome (ry=102 so apex is at y=46, guiding plunger launches right into the 3 Top Vowel Arches!)
         const archPts = 18;
         for (let i = 0; i < archPts; i++) {
           const a1 = Math.PI + (i / archPts) * Math.PI;
           const a2 = Math.PI + ((i + 1) / archPts) * Math.PI;
-          const cx = 230, cy = 148, rx = 212, ry = 128;
+          const cx = 230, cy = 148, rx = 212, ry = 102;
           addSeg(
             cx + Math.cos(a1) * rx, cy + Math.sin(a1) * ry,
             cx + Math.cos(a2) * rx, cy + Math.sin(a2) * ry,
-            0.75
+            0.82
           );
         }
 
@@ -2088,22 +2180,27 @@
         addSeg(18, 148, 18, 675, 0.75);
         addSeg(18, 675, 118, 795, 0.65);
 
-        // 3. Outer Right Plunger Wall & Plunger Partition
+        // 3. Outer Right Plunger Wall & Plunger Partition + Gate Connector
         addSeg(442, 148, 442, 785, 0.75);
         addSeg(412, 168, 412, 785, 0.75);
+        addSeg(398, 175, 412, 168, 0.75);
         addSeg(412, 785, 442, 785, 0.5);
 
         // 4. Inner Right Wall & Right Outlane Funnel
         addSeg(398, 175, 398, 675, 0.75);
         addSeg(398, 675, 298, 795, 0.65);
 
-        // 5. Left Inlane / Outlane Divider & Flipper Feed
-        addSeg(52, 575, 52, 665, 0.7);
-        addSeg(52, 665, 138, 734, 0.65);
+        // 5. Left Inlane / Outlane Divider (x=46 for wider 36px Inlane!) & Flipper Feed
+        addSeg(46, 575, 46, 665, 0.7);
+        addSeg(46, 665, 138, 734, 0.65);
 
-        // 6. Right Inlane / Outlane Divider & Flipper Feed
-        addSeg(364, 575, 364, 665, 0.7);
-        addSeg(364, 665, 278, 734, 0.65);
+        // 6. Right Inlane / Outlane Divider (x=370 for wider 36px Inlane!) & Flipper Feed
+        addSeg(370, 575, 370, 665, 0.7);
+        addSeg(370, 665, 278, 734, 0.65);
+
+        // 6b. Outlane Guard Deflectors below Left/Right Drop Banks
+        addSeg(18, 542, 32, 556, 0.8);
+        addSeg(398, 542, 384, 556, 0.8);
 
         // 7. Left & Right Slingshot Back & Bottom Walls
         addSeg(82, 580, 82, 652, 0.7);
@@ -2111,26 +2208,44 @@
         addSeg(334, 580, 334, 652, 0.7);
         addSeg(334, 652, 284, 678, 0.7);
 
-        // 8. Top Vowel Rollover Lane Dividers (/i/ | /ɑ/ | /u/)
-        addSeg(128, 60, 128, 96, 0.7);
-        addSeg(175, 56, 175, 96, 0.7);
-        addSeg(221, 56, 221, 96, 0.7);
-        addSeg(268, 60, 268, 96, 0.7);
+        // 8. Top Vowel Rollover Lane Dividers (/i/ | /ɑ/ | /u/) with 24px overhead arch clearance
+        addSeg(128, 70, 128, 100, 0.7);
+        addSeg(175, 70, 175, 100, 0.7);
+        addSeg(221, 70, 221, 100, 0.7);
+        addSeg(268, 70, 268, 100, 0.7);
 
-        // 9. Upper-Left Wing & Mission Standup Backing Wall
+        // 9. Upper-Left Wing & Perimeter Backing Wall for [T][D][N] Standups
         addSeg(18, 365, 56, 404, 0.7);
-        addSeg(78, 265, 78, 355, 0.75);
+        addSeg(26, 282, 42, 358, 0.75);
 
-        // 10. Upper-Right Hyperspace Chute Guide & Upper-Right Flipper Feed
-        addSeg(332, 225, 332, 315, 0.75);
+        // 10. Angled Upper-Right Hyperspace Chute Funnel & Upper-Right Flipper Feed
+        addSeg(318, 305, 338, 225, 0.75);
         addSeg(398, 378, 360, 418, 0.7);
 
         return segs;
       }
 
+
       // =====================================================================
       // 6. C-V-C PHONETIC WORD ENGINE & SPACE CADET MISSION STATE MACHINE
       // =====================================================================
+      toggleCvcLock(slot) {
+        if (slot === 'c1') {
+          this.cvcLocks.c1 = !this.cvcLocks.c1;
+          this.spawnFloatingText(208, 415, this.cvcLocks.c1 ? '🔒 ONSET [C₁] LOCKED' : '🔓 ONSET [C₁] UNLOCKED', '#f43f5e', false);
+        } else if (slot === 'v') {
+          this.cvcLocks.v = !this.cvcLocks.v;
+          this.spawnFloatingText(208, 415, this.cvcLocks.v ? '🔒 VOWEL [V] LOCKED' : '🔓 VOWEL [V] UNLOCKED', '#f43f5e', false);
+        }
+        this.updateHUD();
+      }
+
+      clearCvcBuffer() {
+        this.cvc = { c1: null, v: null, c2: null };
+        this.cvcLocks = { c1: false, v: false };
+        this.updateHUD();
+      }
+
       registerConsonant(consKey, x, y) {
         this.synth.speakConsonant(consKey);
         const cp = CONSONANT_PROFILES[consKey];
@@ -2143,7 +2258,7 @@
           this.cvc.c2 = consKey;
           this.evaluateCVCWord(x, y);
           return;
-        } else {
+        } else if (!this.cvcLocks.c1) {
           this.cvc.c1 = consKey;
         }
         this.updateHUD();
@@ -2155,7 +2270,9 @@
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = vf.ipa + ' (' + vowelKey + ')';
 
-        this.cvc.v = vowelKey;
+        if (!this.cvc.v || !this.cvcLocks.v) {
+          this.cvc.v = vowelKey;
+        }
         this.updateHUD();
       }
 
@@ -2165,32 +2282,49 @@
 
         this.synth.speakCVCWord(c1, v, c2);
 
-        let match = CVC_WORDS.find(w => w.c1 === c1 && w.c2 === c2 && w.v.includes(v));
+        // 1. Prioritize active Bonus Target Word if exact match
+        let match = CVC_WORDS.find(w => w.word === this.targetWord && w.c1 === c1 && w.c2 === c2 && w.v.includes(v));
+        let isAllophoneShift = false;
+        // 2. Otherwise find exact (C1, V, C2) match
+        if (!match) {
+          match = CVC_WORDS.find(w => w.c1 === c1 && w.c2 === c2 && w.v.includes(v));
+        }
+        // 3. Fallback to Allophone Vowel Shift (C1, C2) at 0.65x points
         if (!match) {
           match = CVC_WORDS.find(w => w.c1 === c1 && w.c2 === c2);
+          if (match) isAllophoneShift = true;
         }
-
-        // Stoke the Kiln Furnace Ball-Save whenever a word is articulated!
-        this.centerPostTimer = Math.max(this.centerPostTimer, 9500);
 
         if (match) {
           const isTarget = match.word === this.targetWord;
           const isSacred = !!match.sacred;
           const superMult = this.superShotTimer > 0 ? 2 : 1;
-          let pts = (match.pts * (isTarget ? 2 : 1) * superMult) * this.multiplier;
+          const vowelAccuracyMult = isAllophoneShift ? 0.65 : 1.15;
+          let pts = Math.round((match.pts * vowelAccuracyMult * (isTarget ? 2 : 1) * superMult) * this.multiplier);
+
+          // Stoke the Kiln Furnace Ball-Save on Sacred Relics or Bonus Target Words!
+          if (isTarget || isSacred) {
+            this.centerPostTimer = Math.max(this.centerPostTimer, 9500);
+          }
 
           // Check Linguistic Chain Bonuses (Rhyme, Alliteration, Minimal Pair!)
           let chainNotes = [];
+          if (isAllophoneShift) {
+            chainNotes.push('ALLOPHONE ' + VOWEL_FORMANTS[v].ipa + '→' + VOWEL_FORMANTS[match.v[0]].ipa);
+          } else {
+            chainNotes.push('EXACT FORMANT');
+          }
+
           if (this.lastSpokenCVC && this.lastSpokenCVC.word !== match.word) {
             if (this.lastSpokenCVC.v === v && this.lastSpokenCVC.c2 === c2) {
               const rhymePts = 3500 * this.multiplier;
               pts += rhymePts;
-              chainNotes.push('RHYME CHAIN +' + rhymePts.toLocaleString());
+              chainNotes.unshift('RHYME CHAIN +' + rhymePts.toLocaleString());
               this.spawnFloatingText(208, 355, '🎵 RHYME: ' + this.lastSpokenCVC.word + ' → ' + match.word + '!', '#00f2fe', true);
             } else if (this.lastSpokenCVC.c1 === c1) {
               const allitPts = 2000 * this.multiplier;
               pts += allitPts;
-              chainNotes.push('ALLITERATION +' + allitPts.toLocaleString());
+              chainNotes.unshift('ALLITERATION +' + allitPts.toLocaleString());
             }
           }
 
@@ -2202,7 +2336,7 @@
           if (minPair && !this.discoveredWords.has(match.word)) {
             const pairPts = 2500 * this.multiplier;
             pts += pairPts;
-            chainNotes.push('MINIMAL PAIR (' + minPair.word + ')');
+            chainNotes.unshift('MINIMAL PAIR (' + minPair.word + ')');
             this.spawnFloatingText(208, 382, '🔬 MINIMAL PAIR: ' + minPair.word + '/' + match.word + ' +' + pairPts.toLocaleString(), '#34d399', true);
           }
 
@@ -2216,7 +2350,7 @@
           const bannerTitle = isTarget
             ? '★ BONUS TABLET WORD! ★'
             : (isSacred ? '👑 SACRED BABEL RELIC! 👑' : '✦ WORD SYNTHESIZED ✦');
-          const subBanner = '+' + pts.toLocaleString() + ' PTS' + (chainNotes.length ? ' • ' + chainNotes[0] : (isSacred ? ' • +1 RANK GEM!' : ' • KILN STOKED!'));
+          const subBanner = '+' + pts.toLocaleString() + ' PTS • ' + (chainNotes[0] || 'SPOKEN');
 
           this.showBanner(bannerTitle, match.word, subBanner);
           this.spawnFloatingText(x || 208, y || 410, '🗣️ "' + match.word + '" +' + pts.toLocaleString(), isSacred ? '#ffd700' : '#38bdf8', true);
@@ -2240,7 +2374,11 @@
 
         this.updateHUD();
         setTimeout(() => {
-          this.cvc = { c1: null, v: null, c2: null };
+          this.cvc = {
+            c1: this.cvcLocks.c1 ? c1 : null,
+            v:  this.cvcLocks.v  ? v  : null,
+            c2: null
+          };
           this.updateHUD();
         }, 420);
       }
@@ -2342,7 +2480,7 @@
         const bonusPts = 25000 * (this.rankIndex + 1);
         this.addScore(bonusPts);
         this.synth.playPromotionFanfare();
-        this.centerPostTimer = 16000;
+        this.centerPostTimer = 14000;
         this.kickbackLit = true;
 
         this.showBanner('👑 PROMOTED TO TIER ' + rk.roman + ' 👑', rk.title, 'MULTIPLIER ' + rk.mult + 'X • +' + bonusPts.toLocaleString() + ' PTS');
@@ -2364,7 +2502,7 @@
           this.balls.push(nb);
         }
         this.isMultiball = this.balls.length > 1;
-        this.centerPostTimer = 18000;
+        this.centerPostTimer = 15000;
         this.showBanner('⚡ MULTIBALL UNLEASHED ⚡', title, 'ALL SCORES MULTIPLIED!');
       }
 
@@ -2456,16 +2594,7 @@
           }
         }
 
-        // 3. Update Flippers Angular Kinematics
-        for (const f of this.flippers) {
-          const target = f.pressed ? f.activeAngle : f.restAngle;
-          const prev = f.angle;
-          const speed = f.pressed ? 0.36 : 0.22;
-          f.angle += (target - f.angle) * speed;
-          f.angVel = f.angle - prev;
-        }
-
-        // 4. Decay Target & Bumper Animations / Cooldowns
+        // 3. Decay Target & Bumper Animations / Cooldowns
         this.topLanes.forEach(l => {
           if (l.cooldown > 0) l.cooldown -= dt;
           if (l.flash > 0) l.flash = Math.max(0, l.flash - 0.04);
@@ -2494,7 +2623,7 @@
           if (s.flash > 0) s.flash = Math.max(0, s.flash - 0.07);
         });
 
-        // 5. Update Wormhole Hold Timers & Ejections
+        // 4. Update Wormhole Hold Timers & Glottal Overdrive Directional Ejections
         this.wormholes.forEach(wh => {
           if (wh.cooldown > 0) wh.cooldown -= dt;
           if (wh.holdBall) {
@@ -2507,7 +2636,10 @@
               const b = wh.holdBall;
               wh.holdBall = null;
               b.inWormhole = false;
-              b.vx = wh.ejVx + (Math.random() - 0.5) * 1.2;
+              const leftHeld = this.flippers[0].pressed;
+              const rightHeld = this.flippers[1].pressed;
+              const dirBias = leftHeld ? -1.35 : (rightHeld ? 1.35 : (Math.random() - 0.5) * 0.9);
+              b.vx = wh.ejVx + dirBias;
               b.vy = wh.ejVy;
               wh.cooldown = 1100;
               this.synth.playPlungerLaunch();
@@ -2516,41 +2648,22 @@
           }
         });
 
-        // 6. Sub-stepped Ball Physics (8 steps per frame)
+        // 5. Sub-stepped Flipper & Ball Physics (8 steps per frame for smooth mid-arc forehand shots!)
         const SUBSTEPS = 8;
-        for (let bIdx = this.balls.length - 1; bIdx >= 0; bIdx--) {
-          const b = this.balls[bIdx];
-          if (b.inWormhole) continue;
-
-          // Elevated Habitrail Ramp Transit
-          if (b.onRamp) {
-            b.rampProgress += 0.022 * (dt / 16.67);
-            const path = this.launchRamp.path;
-            const totalSegs = path.length - 1;
-            const scaled = Math.min(totalSegs - 0.001, b.rampProgress * totalSegs);
-            const idx = Math.floor(scaled);
-            const frac = scaled - idx;
-            b.x = path[idx].x + (path[idx + 1].x - path[idx].x) * frac;
-            b.y = path[idx].y + (path[idx + 1].y - path[idx].y) * frac;
-
-            if (b.rampProgress >= 1.0) {
-              b.onRamp = false;
-              b.vx = 0.6;
-              b.vy = 4.2;
-              this.spawnFloatingText(70, 620, 'RAMP RETURN • +2,500', '#ffd700', false);
-            }
-            continue;
+        for (let step = 0; step < SUBSTEPS; step++) {
+          // Sub-step Flippers so they sweep smoothly through all intermediate angles
+          for (const f of this.flippers) {
+            const target = f.pressed ? f.activeAngle : f.restAngle;
+            const prev = f.angle;
+            const speed = f.pressed ? 0.078 : 0.042;
+            f.angle += (target - f.angle) * speed;
+            f.angVel = (f.angle - prev) * SUBSTEPS;
           }
 
-          if (!b.inPlay) {
-            b.x = 427;
-            b.y = 740 + (this.plungerCharge * 0.25);
-            b.vx = 0;
-            b.vy = 0;
-            continue;
-          }
+          for (let bIdx = this.balls.length - 1; bIdx >= 0; bIdx--) {
+            const b = this.balls[bIdx];
+            if (b.inWormhole || b.onRamp || !b.inPlay) continue;
 
-          for (let step = 0; step < SUBSTEPS; step++) {
             b.vy += this.gravity / SUBSTEPS;
 
             // Center Gravity Well Vortex
@@ -2568,8 +2681,13 @@
             b.x += b.vx / SUBSTEPS;
             b.y += b.vy / SUBSTEPS;
 
-            if (b.inPlungerLane && b.y < 162 && b.x < 412) {
+            if (b.inPlungerLane && b.y < 164) {
               b.inPlungerLane = false;
+              const pwr = b.launchPower || 55;
+              b.x = 408;
+              b.y = 162;
+              b.vy = -6.05;
+              b.vx = -3.77 - (pwr / 100) * 6.40;
             }
 
             if (!b.inPlungerLane && b.x + b.radius > 410 && b.y < 175 && b.vx > 0) {
@@ -2581,11 +2699,13 @@
             this.collideFlippers(b);
             this.collideReboundPosts(b);
 
-            // Collide with Center Furnace Ball-Save Post (when active)
+            // Collide with Center Furnace Ball-Save Post (when active, consumes 5.5s charge per save)
             if (this.centerPostTimer > 0) {
-              if (this.collideCircleObstacle(b, 208, 742, 10.5, 1.25)) {
+              if (this.collideCircleObstacle(b, 208, 742, 7.5, 1.25)) {
                 b.vy = Math.min(-11.5, b.vy - 4.5);
-                this.spawnParticles(208, 742, '#f97316', 10);
+                this.centerPostTimer = Math.max(0, this.centerPostTimer - 5500);
+                this.spawnParticles(208, 742, '#f97316', 12);
+                this.spawnFloatingText(208, 675, '🔥 KILN FURNACE UPDRAFT SAVE! 🔥', '#ffd700', true);
               }
             }
 
@@ -2597,17 +2717,53 @@
             this.checkWormholes(b);
             this.checkLaunchRamp(b);
 
-            // Left Outlane Kickback Solenoid
-            if (this.kickbackLit && b.x >= 18 && b.x <= 50 && b.y >= 655 && b.y <= 678 && b.vy > 0) {
-              b.vy = -19.5;
-              b.vx = 0.8;
+            // Left Outlane Kickback Solenoid (angled cleanly past UL wing wall!)
+            if (this.kickbackLit && b.x >= 18 && b.x <= 45 && b.y >= 650 && b.y <= 678 && b.vy > 0) {
+              b.x = 56;
+              b.y = 555;
+              b.vx = 3.2;
+              b.vy = -16.8;
               this.kickbackLit = false;
               this.synth.playPlungerLaunch();
               this.addScore(2500 * this.multiplier);
-              this.spawnFloatingText(48, 640, '⚡ KICKBACK SAVE! ⚡', '#00f2fe', true);
+              this.spawnFloatingText(56, 625, '⚡ KICKBACK SAVE! ⚡', '#00f2fe', true);
               this.spawnParticles(34, 665, '#00f2fe', 15);
               this.updateHUD();
             }
+          }
+        }
+
+        // 6. Per-Frame Ball Post-Processing (Ramp Transit, Plunger Position, Anti-Stuck Watchdog, Drain)
+        for (let bIdx = this.balls.length - 1; bIdx >= 0; bIdx--) {
+          const b = this.balls[bIdx];
+          if (b.inWormhole) continue;
+
+          // Elevated Habitrail Ramp Transit (exits at 64, 600 right into Left Inlane [I]!)
+          if (b.onRamp) {
+            b.rampProgress += 0.022 * (dt / 16.67);
+            const path = this.launchRamp.path;
+            const totalSegs = path.length - 1;
+            const scaled = Math.min(totalSegs - 0.001, b.rampProgress * totalSegs);
+            const idx = Math.floor(scaled);
+            const frac = scaled - idx;
+            b.x = path[idx].x + (path[idx + 1].x - path[idx].x) * frac;
+            b.y = path[idx].y + (path[idx + 1].y - path[idx].y) * frac;
+
+            if (b.rampProgress >= 1.0) {
+              b.onRamp = false;
+              b.vx = 0.2;
+              b.vy = 3.6;
+              this.spawnFloatingText(68, 595, 'RAMP RETURN • +2,500', '#ffd700', false);
+            }
+            continue;
+          }
+
+          if (!b.inPlay) {
+            b.x = 427;
+            b.y = 740 + (this.plungerCharge * 0.25);
+            b.vx = 0;
+            b.vy = 0;
+            continue;
           }
 
           const spd = Math.hypot(b.vx, b.vy);
@@ -2618,16 +2774,26 @@
           b.vx *= 0.9992;
           b.vy *= 0.9992;
 
-          // Anti-Stuck Watchdog
-          if (!b.inPlungerLane && spd < 0.35) {
-            b.stuckFrames = (b.stuckFrames || 0) + 1;
-            if (b.stuckFrames > 50) {
-              b.vx = (208 - b.x) * 0.05 + (Math.random() - 0.5) * 4;
-              b.vy = 4.5;
+          // Dual Anti-Stuck Watchdog (checks both low speed AND wedged oscillation anchor)
+          if (!b.inPlungerLane) {
+            if (spd < 0.35) {
+              b.stuckFrames = (b.stuckFrames || 0) + 1;
+            } else {
               b.stuckFrames = 0;
             }
-          } else {
-            b.stuckFrames = 0;
+            if (Math.hypot(b.x - (b.anchorX || b.x), b.y - (b.anchorY || b.y)) < 6.0) {
+              b.anchorFrames = (b.anchorFrames || 0) + 1;
+            } else {
+              b.anchorX = b.x;
+              b.anchorY = b.y;
+              b.anchorFrames = 0;
+            }
+            if (b.stuckFrames > 50 || b.anchorFrames > 110) {
+              b.vx = (208 - b.x) * 0.06 + (Math.random() - 0.5) * 4.5;
+              b.vy = b.y < 300 ? 4.8 : -6.5;
+              b.stuckFrames = 0;
+              b.anchorFrames = 0;
+            }
           }
 
           b.trail.push({ x: b.x, y: b.y });
@@ -2665,6 +2831,7 @@
           if (sw.alpha <= 0) this.shockwaves.splice(i, 1);
         }
       }
+
 
       // =====================================================================
       // 8. COLLISION & TRIGGER HANDLERS
@@ -2751,14 +2918,20 @@
             const ty = Math.cos(f.angle);
 
             const vn = b.vx * nx + b.vy * ny;
+            const isSwingingUp = f.pressed && (
+              (f.side === 'left' && f.angVel < -0.01) ||
+              (f.side === 'right' && f.angVel > 0.01)
+            );
+            const isCradling = f.pressed && Math.abs(f.angVel) < 0.01;
             if (vn < 0) {
-              b.vx -= 1.65 * vn * nx;
-              b.vy -= 1.65 * vn * ny;
+              const bounceFactor = isCradling ? 1.18 : 1.55;
+              b.vx -= bounceFactor * vn * nx;
+              b.vy -= bounceFactor * vn * ny;
             }
-            if (Math.abs(f.angVel) > 0.015) {
+            if (isSwingingUp) {
               const boost = this.superShotTimer > 0 ? 1.18 : 1.0;
               b.vx += tx * tangSpeed * 1.45 * boost;
-              b.vy += (ty * tangSpeed * 1.45 - 5.2) * boost;
+              b.vy += (ty * tangSpeed * 1.45 - 5.4) * boost;
               if (this.superShotTimer > 0) {
                 this.spawnParticles(cx, cy, '#00f2fe', 8);
               }
@@ -2802,8 +2975,18 @@
               b.vx += s.nx * 5.2;
               b.vy += s.ny * 5.2;
               this.addScore(150 * this.multiplier);
-              this.registerConsonant(s.cons, (s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2);
-              this.spawnParticles((s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2, '#ffd700', 8);
+              const mx = (s.x1 + s.x2) / 2;
+              const my = (s.y1 + s.y2) / 2;
+              // Smart Assist Articulator: Slingshots seed an empty C1 or finish a Bonus/Sacred word without overwriting active C1/C2 plans
+              const finishesSpecial = this.cvc.c1 && this.cvc.v && CVC_WORDS.some(
+                w => w.c1 === this.cvc.c1 && w.v.includes(this.cvc.v) && w.c2 === s.cons && (w.word === this.targetWord || w.sacred)
+              );
+              if (!this.cvc.c1 || finishesSpecial) {
+                this.registerConsonant(s.cons, mx, my);
+              } else {
+                this.synth.speakConsonant(s.cons);
+              }
+              this.spawnParticles(mx, my, '#ffd700', 8);
             }
           }
         }
@@ -2961,8 +3144,13 @@
             this.addScore(500 * this.multiplier);
 
             if (bl.cons) {
-              this.registerConsonant(bl.cons, bl.x, bl.y);
-            } else if (bl.vowel) {
+              const finishesSpecial = this.cvc.c1 && this.cvc.v && CVC_WORDS.some(
+                w => w.c1 === this.cvc.c1 && w.v.includes(this.cvc.v) && w.c2 === bl.cons && (w.word === this.targetWord || w.sacred)
+              );
+              if (!this.cvc.c1 || finishesSpecial) {
+                this.registerConsonant(bl.cons, bl.x, bl.y);
+              }
+            } else if (bl.vowel && this.cvc.c1 && !this.cvc.v) {
               this.registerVowel(bl.vowel, bl.x, bl.y);
             }
 
@@ -3071,8 +3259,9 @@
       }
 
       handleBallDrain() {
-        // Kiln Furnace Updraft Save if Center Furnace Post is active!
+        // Kiln Furnace Updraft Save if Center Furnace Post is active! (Consumes save charge)
         if (this.centerPostTimer > 0) {
+          this.centerPostTimer = 0;
           this.ball.x = 208;
           this.ball.y = 720;
           this.ball.vx = (Math.random() - 0.5) * 5.5;
@@ -3082,6 +3271,7 @@
           this.synth.playPlungerLaunch();
           this.spawnParticles(208, 745, '#f97316', 22);
           this.spawnFloatingText(208, 675, '🔥 KILN FURNACE UPDRAFT SAVE! 🔥', '#ffd700', true);
+          this.updateHUD();
           return;
         }
 
@@ -3124,6 +3314,7 @@
         this.missionActive = false;
         this.missionProgress = 0;
         this.cvc = { c1: null, v: null, c2: null };
+        this.cvcLocks = { c1: false, v: false };
         this.discoveredWords.clear();
         this.isGameOver = false;
         document.getElementById('game-over-overlay').classList.add('hidden');
@@ -3172,8 +3363,9 @@
         if (b && !b.inPlay) {
           b.inPlay = true;
           b.inPlungerLane = true;
-          const power = Math.max(45, this.plungerCharge);
-          b.vy = -14.5 - (power / 100) * 6.5;
+          const power = Math.max(15, this.plungerCharge);
+          b.launchPower = power;
+          b.vy = -13.2 - (power / 100) * 7.2;
           b.vx = -0.5;
           this.synth.playPlungerLaunch();
           this.centerPostTimer = 11000;
@@ -3194,6 +3386,15 @@
       }
 
       bindEvents() {
+        const handleMuteToggle = () => {
+          const muted = this.synth.toggleMute();
+          const btn = document.getElementById('btn-mute');
+          if (btn) {
+            btn.textContent = muted ? '🔇 MUTE [M]' : '🔊 AUDIO [M]';
+            btn.style.color = muted ? '#f43f5e' : '#00f2fe';
+          }
+        };
+
         window.addEventListener('keydown', (e) => {
           if (e.repeat) return;
           if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'KeyZ') {
@@ -3209,8 +3410,17 @@
             } else {
               this.nudgeTable();
             }
-          } else if (e.code === 'KeyX' || e.code === 'KeyM') {
+          } else if (e.code === 'KeyX') {
             this.nudgeTable();
+          } else if (e.code === 'KeyM') {
+            handleMuteToggle();
+          } else if (e.code === 'Digit1') {
+            this.toggleCvcLock('c1');
+          } else if (e.code === 'Digit2') {
+            this.toggleCvcLock('v');
+          } else if (e.code === 'KeyC' || e.code === 'Backspace') {
+            e.preventDefault();
+            this.clearCvcBuffer();
           }
         });
 
@@ -3245,6 +3455,36 @@
         }, () => this.releasePlunger());
 
         document.getElementById('btn-nudge')?.addEventListener('click', () => this.nudgeTable());
+        document.getElementById('btn-mute')?.addEventListener('click', handleMuteToggle);
+        document.getElementById('btn-cycle-mission')?.addEventListener('click', () => {
+          this.synth.init();
+          this.cycleMissionSelection();
+        });
+        document.getElementById('cvc-slot-1')?.addEventListener('click', () => this.toggleCvcLock('c1'));
+        document.getElementById('cvc-slot-2')?.addEventListener('click', () => this.toggleCvcLock('v'));
+        document.getElementById('btn-clear-cvc')?.addEventListener('click', () => this.clearCvcBuffer());
+
+        document.getElementById('target-word-box')?.addEventListener('click', () => {
+          const wObj = CVC_WORDS.find(x => x.word === this.targetWord);
+          if (wObj) {
+            this.synth.speakCVCWord(wObj.c1, wObj.v[0], wObj.c2);
+            const vf = VOWEL_FORMANTS[wObj.v[0]];
+            this.spawnFloatingText(208, 395, '🔊 ' + wObj.word + ': [' + wObj.c1 + '] + ' + (vf ? vf.ipa : wObj.v[0]) + ' + [' + wObj.c2 + ']', '#ffd700', true);
+          }
+        });
+
+        document.getElementById('discovered-words-list')?.addEventListener('click', (e) => {
+          const chip = e.target.closest('.word-chip');
+          if (!chip) return;
+          const wordStr = chip.getAttribute('data-word');
+          const wObj = CVC_WORDS.find(x => x.word === wordStr);
+          if (wObj) {
+            this.synth.speakCVCWord(wObj.c1, wObj.v[0], wObj.c2);
+            const vf = VOWEL_FORMANTS[wObj.v[0]];
+            this.spawnFloatingText(208, 395, '🔊 ' + wObj.word + ' (' + wObj.c1 + '-' + (vf ? vf.label : wObj.v[0]) + '-' + wObj.c2 + ')', '#00f2fe', true);
+          }
+        });
+
         document.getElementById('btn-start-audio')?.addEventListener('click', () => {
           this.synth.init();
           document.getElementById('audio-overlay')?.classList.add('hidden');
@@ -3324,9 +3564,17 @@
         setTxt('cvc-val-1', this.cvc.c1 || '_');
         setTxt('cvc-val-2', this.cvc.v ? VOWEL_FORMANTS[this.cvc.v].ipa : '_');
         setTxt('cvc-val-3', this.cvc.c2 || '_');
-        if (s1) s1.classList.toggle('filled', !!this.cvc.c1);
-        if (s2) s2.classList.toggle('filled', !!this.cvc.v);
+        if (s1) {
+          s1.classList.toggle('filled', !!this.cvc.c1);
+          s1.classList.toggle('locked', !!(this.cvcLocks && this.cvcLocks.c1));
+        }
+        if (s2) {
+          s2.classList.toggle('filled', !!this.cvc.v);
+          s2.classList.toggle('locked', !!(this.cvcLocks && this.cvcLocks.v));
+        }
         if (s3) s3.classList.toggle('filled', !!this.cvc.c2);
+        setTxt('cvc-lock-1', (this.cvcLocks && this.cvcLocks.c1) ? '🔒 LOCKED' : '[1] PIN');
+        setTxt('cvc-lock-2', (this.cvcLocks && this.cvcLocks.v) ? '🔒 LOCKED' : '[2] PIN');
 
         // Live Next-Shot Word Completion Hints in Sidebar
         const hintEl = document.getElementById('cvc-hint-strip');
@@ -3358,7 +3606,7 @@
           listEl.innerHTML = Array.from(this.discoveredWords).map(w => {
             const wObj = CVC_WORDS.find(x => x.word === w);
             const cls = (wObj && wObj.sacred) ? 'word-chip sacred' : 'word-chip';
-            return '<span class="' + cls + '">' + (wObj && wObj.sacred ? '★ ' : '') + w + '</span>';
+            return '<span class="' + cls + '" data-word="' + w + '" title="Click to hear ' + w + '">' + (wObj && wObj.sacred ? '★ ' : '') + w + '</span>';
           }).join('');
         }
       }
@@ -3597,6 +3845,28 @@
         ctx.font = '700 0.36rem "Space Mono", monospace';
         ctx.fillStyle = postActive ? '#fef08a' : '#78716c';
         ctx.fillText(postActive ? 'FURNACE ON' : 'FURNACE', cx, 766);
+
+        // 4. Lower-Playfield Peripheral Phoneme Sight Pill (x=208, y=698, right between flippers!)
+        const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
+        const c1Txt = (this.cvcLocks && this.cvcLocks.c1 ? '🔒' : '') + (this.cvc.c1 || '_');
+        const vTxt = (this.cvcLocks && this.cvcLocks.v ? '🔒' : '') + (this.cvc.v ? VOWEL_FORMANTS[this.cvc.v].label : '_');
+        const c2Txt = this.cvc.c2 || '_';
+        ctx.fillStyle = 'rgba(4, 9, 22, 0.86)';
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.65)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.roundRect(cx - 52, 686, 104, 24, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '700 0.52rem "Silkscreen", monospace';
+        ctx.fillStyle = '#00f2fe';
+        ctx.fillText('[' + c1Txt + '] · [' + vTxt + '] · [' + c2Txt + ']', cx, 697);
+
+        const recipeStr = tObj ? (tObj.c1 + '-' + (VOWEL_FORMANTS[tObj.v[0]] ? VOWEL_FORMANTS[tObj.v[0]].label : tObj.v[0]) + '-' + tObj.c2) : '';
+        ctx.font = '700 0.36rem "Space Mono", monospace';
+        ctx.fillStyle = '#fde047';
+        ctx.fillText('GOAL: ' + this.targetWord + (recipeStr ? ' (' + recipeStr + ')' : ''), cx, 706);
 
         ctx.restore();
       }
@@ -4293,6 +4563,60 @@
           ctx.arc(f.x, f.y, 3.8, 0, Math.PI * 2);
           ctx.fillStyle = '#ffd700';
           ctx.fill();
+        }
+
+        // Phonetic Sharpshooter Sight Line when a ball is cradled or slow near a flipper
+        const mainBall = this.balls[0];
+        if (mainBall && mainBall.inPlay && !mainBall.inPlungerLane && !mainBall.onRamp && Math.hypot(mainBall.vx, mainBall.vy) < 3.4 && mainBall.y > 320) {
+          const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
+          let aimTarget = null;
+          if (tObj) {
+            if (!this.cvc.c1 || !this.cvc.v) {
+              const allCons = [...this.leftDropBank, ...this.missionStandups, ...this.rightDropBank, ...this.wormholes];
+              const needC = !this.cvc.c1 ? tObj.c1 : tObj.c2;
+              if (!this.cvc.c1) {
+                aimTarget = allCons.find(x => x.cons === needC && !x.isDown);
+              } else {
+                aimTarget = this.bumpers.find(x => x.vowel === tObj.v[0]) || { x: this.launchRamp.entryX, y: this.launchRamp.entryY };
+              }
+            } else {
+              const allCons = [...this.leftDropBank, ...this.missionStandups, ...this.rightDropBank, ...this.wormholes];
+              aimTarget = allCons.find(x => x.cons === tObj.c2 && !x.isDown);
+            }
+          }
+          if (aimTarget) {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 242, 254, 0.45)';
+            ctx.lineWidth = 1.6;
+            ctx.setLineDash([4, 5]);
+            ctx.beginPath();
+            ctx.moveTo(mainBall.x, mainBall.y);
+            ctx.lineTo(aimTarget.x, aimTarget.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+          }
+        }
+
+        // 3-Zone Plunger Skill-Shot Calibration Gauge when ball is in launch tube
+        if (mainBall && !mainBall.inPlay) {
+          ctx.save();
+          const gx = 415, gy = 656, gw = 5, gh = 68;
+          // Zone 1 (Top / High Power 70-100%: Left Arch /i/)
+          ctx.fillStyle = this.skillShotLaneIdx === 0 ? 'rgba(0, 242, 254, 0.95)' : 'rgba(0, 242, 254, 0.35)';
+          ctx.fillRect(gx, gy, gw, gh * 0.34);
+          // Zone 2 (Mid Power 42-69%: Center Arch /ɑ/)
+          ctx.fillStyle = this.skillShotLaneIdx === 1 ? 'rgba(255, 215, 0, 0.95)' : 'rgba(255, 215, 0, 0.35)';
+          ctx.fillRect(gx, gy + gh * 0.34, gw, gh * 0.33);
+          // Zone 3 (Low Power 15-41%: Right Arch /u/)
+          ctx.fillStyle = this.skillShotLaneIdx === 2 ? 'rgba(16, 185, 129, 0.95)' : 'rgba(16, 185, 129, 0.35)';
+          ctx.fillRect(gx, gy + gh * 0.67, gw, gh * 0.33);
+
+          // Live Plunger Charge Indicator Bar
+          const markerY = gy + gh - (this.plungerCharge / 100) * gh;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(gx - 2, markerY - 1.5, gw + 18, 3);
+          ctx.restore();
         }
 
         // Plunger Spring in Launch Chute
