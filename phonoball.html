@@ -427,6 +427,66 @@
       border-top: 1px dashed rgba(56, 189, 248, 0.25);
     }
 
+    /* Continuous Phoneme Stream Ribbon & Formant Vowel Triangle */
+    .utterance-stream-box {
+      background: rgba(4, 10, 26, 0.92);
+      border: 1.5px solid rgba(223, 177, 91, 0.45);
+      border-radius: 8px;
+      padding: 0.38rem 0.5rem;
+      min-height: 44px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.22rem;
+    }
+    .stream-tokens-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.22rem;
+      min-height: 22px;
+    }
+    .stream-token {
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      padding: 0.1rem 0.34rem;
+      border-radius: 4px;
+      background: rgba(0, 242, 254, 0.14);
+      border: 1px solid var(--cyan-glow);
+      color: #ffffff;
+    }
+    .stream-token.vowel {
+      background: rgba(255, 215, 0, 0.18);
+      border-color: var(--gold-bright);
+      color: var(--gold-bright);
+    }
+    .stream-arrow {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--text-muted);
+    }
+    .stream-prefix-status {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      color: #34d399;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .vowel-triangle-wrap {
+      margin-top: 0.38rem;
+      background: radial-gradient(circle at 50% 45%, rgba(16, 42, 99, 0.65) 0%, rgba(4, 9, 22, 0.95) 100%);
+      border: 1px solid rgba(223, 177, 91, 0.4);
+      border-radius: 8px;
+      padding: 0.2rem;
+      position: relative;
+    }
+    #vowel-triangle-canvas {
+      width: 100%;
+      height: 118px;
+      display: block;
+      cursor: crosshair;
+    }
+
     /* 7 Ziggurat Ranks Ladder */
     .ranks-ladder {
       display: flex;
@@ -800,40 +860,35 @@
         </div>
       </div>
 
-      <!-- 3. C-V-C Vocal Tract Word Builder -->
+      <!-- 3. Continuous Phoneme Stream & Formant Vowel Triangle -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-wave-square"></i> C-V-C VOCAL SYNTH</span>
-          <div style="display:flex;align-items:center;gap:0.35rem;">
-            <span id="phoneme-last-spoken" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.56rem;">READY</span>
-            <button id="btn-clear-cvc" style="background:rgba(244,63,94,0.16);border:1px solid rgba(244,63,94,0.5);color:#fda4af;font-family:var(--font-mono);font-size:0.46rem;padding:0.08rem 0.32rem;border-radius:4px;cursor:pointer;" title="Clear C-V-C Slots [C]">CLR</button>
+          <span><i class="fa-solid fa-wave-square"></i> PHONEME STREAM &amp; TRIANGLE</span>
+          <div style="display:flex;align-items:center;gap:0.28rem;">
+            <span id="phoneme-last-spoken" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.52rem;">READY</span>
+            <button id="btn-speak-stream" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#6ee7b7;font-family:var(--font-mono);font-size:0.45rem;padding:0.08rem 0.3rem;border-radius:4px;cursor:pointer;" title="Cash In &amp; Speak Current Word [E]">SPEAK [E]</button>
+            <button id="btn-clear-cvc" style="background:rgba(244,63,94,0.16);border:1px solid rgba(244,63,94,0.5);color:#fda4af;font-family:var(--font-mono);font-size:0.45rem;padding:0.08rem 0.3rem;border-radius:4px;cursor:pointer;" title="Clear Phoneme Stream [C]">CLR</button>
           </div>
         </div>
-        <div class="cvc-matrix">
-          <div class="cvc-slot" id="cvc-slot-1" title="Click or press [1] to Lock/Unlock Onset C₁">
-            <span class="slot-type">ONS [C₁]</span>
-            <span class="slot-phoneme" id="cvc-val-1">_</span>
-            <span class="slot-lock-badge" id="cvc-lock-1">[1] PIN</span>
+        <div class="utterance-stream-box" id="utterance-stream-box">
+          <div class="stream-tokens-row" id="stream-tokens-row">
+            <span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);">Chain phonemes (e.g. D-ɪ-S-ɑ-S-oʊ-S-i-ɛ-T or S-u-P-ɛ-R-K-ɑ-T)...</span>
           </div>
-          <span class="cvc-arrow">→</span>
-          <div class="cvc-slot vowel-slot" id="cvc-slot-2" title="Click or press [2] to Lock/Unlock Vowel V">
-            <span class="slot-type">NUC [V]</span>
-            <span class="slot-phoneme" id="cvc-val-2">_</span>
-            <span class="slot-lock-badge" id="cvc-lock-2">[2] PIN</span>
+          <div class="stream-prefix-status" id="stream-prefix-status">
+            <span id="stream-locked-word">NO ACTIVE STREAM</span>
+            <span id="stream-timer-label" style="color:var(--gold-primary);"></span>
           </div>
-          <span class="cvc-arrow">→</span>
-          <div class="cvc-slot" id="cvc-slot-3" title="Coda C₂ resolves word">
-            <span class="slot-type">COD [C₂]</span>
-            <span class="slot-phoneme" id="cvc-val-3">_</span>
-            <span class="slot-lock-badge" style="color:var(--text-muted);">SPEAK</span>
-          </div>
+        </div>
+        <!-- Interactive F1 x F2 Formant Vowel Triangle -->
+        <div class="vowel-triangle-wrap">
+          <canvas id="vowel-triangle-canvas" width="268" height="118" title="Interactive IPA Formant Vowel Triangle (Click/Drag to synthesize F1 × F2 vowel!)"></canvas>
         </div>
         <div class="target-word-banner" id="target-word-box" style="cursor:pointer;" title="Click to hear Bonus Word spoken!">
-          <span style="color:var(--text-muted);">BONUS WORD <i class="fa-solid fa-volume-low" style="color:var(--gold-primary);"></i>:</span>
-          <span class="target-word-highlight" id="stat-target-word">BAT</span>
+          <span style="color:var(--text-muted);">TARGET WORD <i class="fa-solid fa-volume-low" style="color:var(--gold-primary);"></i>:</span>
+          <span class="target-word-highlight" id="stat-target-word">SUPERCAT</span>
         </div>
         <div class="cvc-hint-strip" id="cvc-hint-strip">
-          NEXT: HIT ANY CONSONANT [B P M T D N K G S L R]
+          NEXT: HIT ANY PHONEME TO BEGIN STREAM
         </div>
         <div class="formant-bars">
           <span>F₁ (JAW): <strong id="val-f1">500 Hz</strong></span>
@@ -1281,7 +1336,8 @@
       { c1: 'D', v: ['IH','EE'],      c2: 'G', word: 'DIG',    pts: 1700 },
       { c1: 'D', v: ['AA','OH'],      c2: 'G', word: 'DOG',    pts: 1700 },
       { c1: 'D', v: ['UH','OO'],      c2: 'G', word: 'DUG',    pts: 1700 },
-      { c1: 'D', v: ['AA','IH','EE'], c2: 'S', word: 'DICE',   pts: 2000 },
+      { c1: 'D', v: ['IH','EH'],      c2: 'S', word: 'DISS',   pts: 1900 },
+      { c1: 'D', v: ['AA','EE'],      c2: 'S', word: 'DICE',   pts: 2000 },
       { c1: 'D', v: ['OH','OO','UH'], c2: 'S', word: 'DOSE',   pts: 1900 },
       { c1: 'D', v: ['EE'],           c2: 'L', word: 'DEAL',   pts: 1900 },
       { c1: 'D', v: ['IH','EH'],      c2: 'L', word: 'DILL',   pts: 1700 },
@@ -1506,8 +1562,77 @@
       { c1: 'R', v: ['OH'],           c2: 'L', word: 'ROLL',   pts: 2000 },
       { c1: 'R', v: ['OO','UH'],      c2: 'L', word: 'RULE',   pts: 2400 },
       { c1: 'R', v: ['EE','IH','EH'], c2: 'R', word: 'REAR',   pts: 1800 },
-      { c1: 'R', v: ['OH','OO','AA'], c2: 'R', word: 'ROAR',   pts: 2800, sacred: true }
+      { c1: 'R', v: ['OH','OO','AA'], c2: 'R', word: 'ROAR',   pts: 2800, sacred: true },
+
+      // --- 2-PHONEME ROOTS (Used for Fallback Sub-Word Decomposition when a longer word fails!) ---
+      { seq: ['AA','T'],  c1: 'T', v: ['AA','EH'], c2: 'T', word: 'AT',   pts: 900,  isSubWord: true },
+      { seq: ['EH','T'],  c1: 'T', v: ['EH','EE'], c2: 'T', word: 'ATE',  pts: 1100, isSubWord: true },
+      { seq: ['AA','S'],  c1: 'S', v: ['AA','EH'], c2: 'S', word: 'ASS',  pts: 1000, isSubWord: true },
+      { seq: ['S','OH'],  c1: 'S', v: ['OH','OO'], c2: 'S', word: 'SHOW', pts: 1200, isSubWord: true },
+      { seq: ['S','EE'],  c1: 'S', v: ['EE','IH'], c2: 'S', word: 'SHE',  pts: 1200, isSubWord: true },
+      { seq: ['D','OO'],  c1: 'D', v: ['OO','OH'], c2: 'D', word: 'DO',   pts: 900,  isSubWord: true },
+      { seq: ['T','OO'],  c1: 'T', v: ['OO','OH'], c2: 'T', word: 'TO',   pts: 900,  isSubWord: true },
+      { seq: ['G','OH'],  c1: 'G', v: ['OH','OO'], c2: 'G', word: 'GO',   pts: 1000, isSubWord: true },
+      { seq: ['N','OH'],  c1: 'N', v: ['OH','OO'], c2: 'N', word: 'NO',   pts: 950,  isSubWord: true },
+      { seq: ['B','EE'],  c1: 'B', v: ['EE','IH'], c2: 'B', word: 'BE',   pts: 950,  isSubWord: true },
+      { seq: ['M','EE'],  c1: 'M', v: ['EE','IH'], c2: 'M', word: 'ME',   pts: 950,  isSubWord: true },
+      { seq: ['IH','N'],  c1: 'N', v: ['IH','EE'], c2: 'N', word: 'IN',   pts: 900,  isSubWord: true },
+      { seq: ['UH','P'],  c1: 'P', v: ['UH','AA'], c2: 'P', word: 'UP',   pts: 950,  isSubWord: true },
+      { seq: ['OH','R'],  c1: 'R', v: ['OH','AA'], c2: 'R', word: 'OR',   pts: 950,  isSubWord: true },
+      { seq: ['AA','L'],  c1: 'L', v: ['AA','OH'], c2: 'L', word: 'ALL',  pts: 1000, isSubWord: true },
+      { seq: ['EE','T'],  c1: 'T', v: ['EE','IH'], c2: 'T', word: 'EAT',  pts: 1100, isSubWord: true },
+
+      // --- MULTI-SYLLABLE & CLUSTER MASTERPIECE WORDS (Greedy Prefix Stream Engine!) ---
+      { seq: ['D','IH','S','K'],                               c1: 'D', v: ['IH'], c2: 'K', word: 'DISK',         pts: 4200 },
+      { seq: ['D','IH','S','T','AA','N','T'],                  c1: 'D', v: ['IH'], c2: 'T', word: 'DISTANT',      pts: 11000 },
+      { seq: ['D','IH','S','K','UH','B','EH','R'],             c1: 'D', v: ['IH'], c2: 'R', word: 'DISCOVER',     pts: 14000 },
+      { seq: ['D','IH','S','AA','S','OH','S','EE','EH','T'],   c1: 'D', v: ['IH'], c2: 'T', word: 'DISASSOCIATE', pts: 28000, sacred: true },
+      { seq: ['S','OO','P','EH','R'],                          c1: 'S', v: ['OO'], c2: 'R', word: 'SUPER',        pts: 6500 },
+      { seq: ['S','OO','P','EH','R','K','AA','T'],             c1: 'S', v: ['OO'], c2: 'T', word: 'SUPERCAT',     pts: 18500, sacred: true },
+      { seq: ['S','OO','P','EH','R','S','AA','N','IH','K'],    c1: 'S', v: ['OO'], c2: 'K', word: 'SUPERSONIC',   pts: 25000, sacred: true },
+      { seq: ['B','AA','B','IH','L','AA','N'],                 c1: 'B', v: ['AA'], c2: 'N', word: 'BABYLON',      pts: 15000, sacred: true },
+      { seq: ['S','IH','G','OO','R','AA','T'],                 c1: 'S', v: ['IH'], c2: 'T', word: 'ZIGGURAT',     pts: 16000, sacred: true },
+      { seq: ['EH','T','EH','M','EH','N','AA','N','K','EE'],   c1: 'T', v: ['EH'], c2: 'K', word: 'ETEMENANKI',   pts: 30000, sacred: true },
+      { seq: ['M','AA','R','D','OO','K'],                      c1: 'M', v: ['AA'], c2: 'K', word: 'MARDUK',       pts: 12000, sacred: true },
+      { seq: ['IH','S','T','AA','R'],                          c1: 'S', v: ['IH'], c2: 'R', word: 'ISHTAR',       pts: 9500,  sacred: true },
+      { seq: ['S','OO','M','EH','R','EE','AA','N'],            c1: 'S', v: ['OO'], c2: 'N', word: 'SUMERIAN',     pts: 18000, sacred: true },
+      { seq: ['AA','K','EH','D','EE','AA','N'],                c1: 'K', v: ['AA'], c2: 'N', word: 'AKKADIAN',     pts: 16500, sacred: true },
+      { seq: ['G','IH','L','G','AA','M','EH','S'],             c1: 'G', v: ['IH'], c2: 'S', word: 'GILGAMESH',    pts: 19000, sacred: true },
+      { seq: ['K','OO','N','EE','IH','P','OH','R','M'],        c1: 'K', v: ['OO'], c2: 'M', word: 'CUNEIFORM',    pts: 21000, sacred: true },
+      { seq: ['S','IH','N','AA','R'],                          c1: 'S', v: ['IH'], c2: 'R', word: 'SHINAR',       pts: 9000,  sacred: true },
+      { seq: ['T','EH','M','P','UH','L'],                      c1: 'T', v: ['EH'], c2: 'L', word: 'TEMPLE',       pts: 9500,  sacred: true },
+      { seq: ['K','AA','D','EH','T'],                          c1: 'K', v: ['AA'], c2: 'T', word: 'CADET',        pts: 8000,  sacred: true },
+      { seq: ['S','P','EH','S','K','AA','D','EH','T'],         c1: 'S', v: ['EH'], c2: 'T', word: 'SPACECADET',   pts: 24000, sacred: true },
+      { seq: ['P','IH','N','B','AA','L'],                      c1: 'P', v: ['IH'], c2: 'L', word: 'PINBALL',      pts: 11000, sacred: true },
+      { seq: ['OH','R','B','IH','T'],                          c1: 'R', v: ['OH'], c2: 'T', word: 'ORBIT',        pts: 7500 },
+      { seq: ['B','UH','M','P','EH','R'],                      c1: 'B', v: ['UH'], c2: 'R', word: 'BUMPER',       pts: 8500 },
+      { seq: ['P','L','UH','N','G','EH','R'],                  c1: 'P', v: ['UH'], c2: 'R', word: 'PLUNGER',      pts: 10500 },
+      { seq: ['P','OH','R','M','AA','N','T'],                  c1: 'P', v: ['OH'], c2: 'T', word: 'FORMANT',      pts: 12500, sacred: true },
+      { seq: ['S','IH','L','AA','B','UH','L'],                  c1: 'S', v: ['IH'], c2: 'L', word: 'SYLLABLE',     pts: 14000, sacred: true },
+      { seq: ['T','R','AA','N','G','UH','L'],                  c1: 'T', v: ['AA'], c2: 'L', word: 'TRIANGLE',     pts: 13500, sacred: true },
+      { seq: ['R','EH','S','OH','N','AA','N','S'],             c1: 'R', v: ['EH'], c2: 'S', word: 'RESONANCE',    pts: 17000, sacred: true },
+      { seq: ['AA','R','T','IH','K','OO','L','EH','T'],        c1: 'R', v: ['AA'], c2: 'T', word: 'ARTICULATE',   pts: 21000, sacred: true }
     ];
+
+    // Normalize every entry in CVC_WORDS so each has a canonical .seq array of phonemes
+    CVC_WORDS.forEach(w => {
+      if (!w.seq) {
+        if (w.word === 'BABEL') w.seq = ['B', 'AA', 'B', 'EH', 'L'];
+        else if (w.word === 'SUMER') w.seq = ['S', 'OO', 'M', 'EH', 'R'];
+        else w.seq = [w.c1, w.v[0], w.c2];
+      }
+    });
+
+    // Acoustic Formant Vowel Triangle Adjacency Map (allows nearby vowel allophones in multi-syllable streams)
+    const VOWEL_NEIGHBORS = {
+      EE: ['EE', 'IH', 'EH'],
+      IH: ['IH', 'EE', 'EH', 'UH'],
+      EH: ['EH', 'IH', 'EE', 'AA', 'UH'],
+      AA: ['AA', 'UH', 'EH', 'OH'],
+      UH: ['UH', 'AA', 'OH', 'OO', 'EH', 'IH'],
+      OH: ['OH', 'OO', 'UH', 'AA'],
+      OO: ['OO', 'OH', 'UH']
+    };
 
     // =========================================================================
     // 4. KLATT FORMANT SPEECH SYNTHESIZER + SPACE CADET FM AUDIO ENGINE
@@ -1519,6 +1644,7 @@
         this.isMuted = false;
         this.lastF1 = 500;
         this.lastF2 = 1500;
+        this.formantTrail = [{ f1: 500, f2: 1500, time: 0 }];
       }
 
       init() {
@@ -1554,10 +1680,72 @@
       updateHUDFormants(f1, f2) {
         this.lastF1 = Math.round(f1);
         this.lastF2 = Math.round(f2);
+        this.formantTrail.push({ f1: this.lastF1, f2: this.lastF2, time: typeof performance !== 'undefined' ? performance.now() : Date.now() });
+        if (this.formantTrail.length > 16) this.formantTrail.shift();
         const el1 = document.getElementById('val-f1');
         const el2 = document.getElementById('val-f2');
         if (el1) el1.textContent = this.lastF1 + ' Hz';
         if (el2) el2.textContent = this.lastF2 + ' Hz';
+      }
+
+      playXYFormant(f1Freq, f2Freq, duration = 0.22, pitch = 132) {
+        this.init();
+        this.updateHUDFormants(f1Freq, f2Freq);
+        if (!this.isSetup || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const glottal = this.ctx.createOscillator();
+        glottal.type = 'sawtooth';
+        glottal.frequency.setValueAtTime(pitch, now);
+        glottal.frequency.exponentialRampToValueAtTime(pitch * 0.95, now + duration);
+
+        const voiceEnv = this.ctx.createGain();
+        voiceEnv.gain.setValueAtTime(0.01, now);
+        voiceEnv.gain.linearRampToValueAtTime(0.42, now + 0.02);
+        voiceEnv.gain.exponentialRampToValueAtTime(0.008, now + duration);
+
+        const f1Node = this.ctx.createBiquadFilter();
+        f1Node.type = 'bandpass';
+        f1Node.frequency.setValueAtTime(f1Freq, now);
+        f1Node.Q.setValueAtTime(5.5, now);
+
+        const f2Node = this.ctx.createBiquadFilter();
+        f2Node.type = 'bandpass';
+        f2Node.frequency.setValueAtTime(f2Freq, now);
+        f2Node.Q.setValueAtTime(6.5, now);
+        const f2G = this.ctx.createGain();
+        f2G.gain.value = 0.88;
+
+        glottal.connect(f1Node);
+        glottal.connect(f2Node);
+        f1Node.connect(voiceEnv);
+        f2Node.connect(f2G);
+        f2G.connect(voiceEnv);
+        voiceEnv.connect(this.masterGain);
+
+        glottal.start(now);
+        glottal.stop(now + duration);
+      }
+
+      speakPhonemeSequence(seq) {
+        if (!seq || seq.length === 0) return;
+        if (seq.length === 3 && CONSONANT_PROFILES[seq[0]] && VOWEL_FORMANTS[seq[1]] && CONSONANT_PROFILES[seq[2]]) {
+          this.speakCVCWord(seq[0], seq[1], seq[2]);
+          return;
+        }
+        // Multi-phoneme continuous co-articulated speech synthesis (2 to 10+ phonemes)
+        seq.forEach((ph, idx) => {
+          const delayMs = idx * 105;
+          setTimeout(() => {
+            if (VOWEL_FORMANTS[ph]) {
+              this.speakVowel(ph, 0.17, 134 - (idx % 3) * 5);
+            } else if (CONSONANT_PROFILES[ph]) {
+              this.speakConsonant(ph);
+            }
+          }, delayMs);
+        });
+        setTimeout(() => {
+          this.playWordChord();
+        }, seq.length * 105 + 60);
       }
 
       speakVowel(vowelKey, duration = 0.24, pitch = 130) {
@@ -1972,13 +2160,18 @@
         this.fuelTickTimer = 0;
         this.hyperspaceLevel = 0; // 0..4
 
-        // C-V-C Phonetic Buffer ([C1] - [V] - [C2]), Slot Locks & Linguistic History
+        // Continuous Phoneme Stream (Supercat-style Greedy Prefix Engine) & Legacy C-V-C Sync
+        this.phonemeStream = [];
+        this.utteranceTimer = 0;
+        this.lastPhonemeTime = 0;
+        this.lastPhonemeKey = null;
+        this.glottalGraceUsed = false;
         this.cvc = { c1: null, v: null, c2: null };
         this.cvcLocks = { c1: false, v: false };
         this.discoveredWords = new Set();
-        this.spokenHistory = []; // Array of { c1, v, c2, word, sacred }
+        this.spokenHistory = []; // Array of { c1, v, c2, word, sacred, seq }
         this.lastSpokenCVC = null;
-        this.targetWord = 'BAT';
+        this.targetWord = 'SUPERCAT';
 
         // Ball Pool (Supports single ball + 2-ball / 3-ball Multiball!)
         this.ball = this.createBall(427, 740);
@@ -2012,9 +2205,9 @@
         // TOP 3 VOWEL ROLLOVER LANES (/i/, /ɑ/, /u/), 4 BOTTOM [L-I-P-S] LANES & 6 FUEL ROLLOVERS
         // ---------------------------------------------------------------------
         this.topLanes = [
-          { x: 152, y: 78, vowel: 'EE', label: '/i/', cuneiform: '𒀀', lit: false, cooldown: 0, flash: 0 },
-          { x: 198, y: 78, vowel: 'AA', label: '/ɑ/', cuneiform: '𒁀', lit: false, cooldown: 0, flash: 0 },
-          { x: 244, y: 78, vowel: 'OO', label: '/u/', cuneiform: '𒌋', lit: false, cooldown: 0, flash: 0 }
+          { x: 144, y: 84, vowel: 'EE', label: '/i/', cuneiform: '𒀀', lit: false, cooldown: 0, flash: 0 },
+          { x: 200, y: 84, vowel: 'AA', label: '/ɑ/', cuneiform: '𒁀', lit: false, cooldown: 0, flash: 0 },
+          { x: 256, y: 84, vowel: 'OO', label: '/u/', cuneiform: '𒌋', lit: false, cooldown: 0, flash: 0 }
         ];
 
         // 4 Lower Inlane / Outlane Rollovers ([L] - [I] - [P] - [S]) — Wider Inlanes!
@@ -2057,13 +2250,13 @@
         ];
 
         // ---------------------------------------------------------------------
-        // 4 ATTACK BUMPERS (UPPER-CENTER VOWEL DIAMOND CLUSTER)
+        // 4 ATTACK BUMPERS (UPPER-CENTER VOWEL DIAMOND CLUSTER — 48px below Top Lanes!)
         // ---------------------------------------------------------------------
         this.bumpers = [
-          { x: 198, y: 132, r: 17, vowel: 'EH', label: '/ɛ/', hitAnim: 0 },
-          { x: 148, y: 170, r: 17, vowel: 'IH', label: '/ɪ/', hitAnim: 0 },
-          { x: 248, y: 170, r: 17, vowel: 'OH', label: '/oʊ/', hitAnim: 0 },
-          { x: 198, y: 208, r: 17, vowel: 'UH', label: '/ʌ/', hitAnim: 0 }
+          { x: 200, y: 148, r: 17, vowel: 'EH', label: '/ɛ/', hitAnim: 0 },
+          { x: 148, y: 184, r: 17, vowel: 'IH', label: '/ɪ/', hitAnim: 0 },
+          { x: 252, y: 184, r: 17, vowel: 'OH', label: '/oʊ/', hitAnim: 0 },
+          { x: 200, y: 220, r: 17, vowel: 'UH', label: '/ʌ/', hitAnim: 0 }
         ];
 
         // ---------------------------------------------------------------------
@@ -2163,12 +2356,12 @@
         const segs = [];
         const addSeg = (x1, y1, x2, y2, bounce = 0.72) => segs.push({ x1, y1, x2, y2, bounce });
 
-        // 1. Top Arch Dome (ry=102 so apex is at y=46, guiding plunger launches right into the 3 Top Vowel Arches!)
-        const archPts = 18;
+        // 1. High Spacious Top Arch Dome (ry=128 so apex is at y=20, leaving 48px overhead highway!)
+        const archPts = 22;
         for (let i = 0; i < archPts; i++) {
           const a1 = Math.PI + (i / archPts) * Math.PI;
           const a2 = Math.PI + ((i + 1) / archPts) * Math.PI;
-          const cx = 230, cy = 148, rx = 212, ry = 102;
+          const cx = 230, cy = 148, rx = 212, ry = 128;
           addSeg(
             cx + Math.cos(a1) * rx, cy + Math.sin(a1) * ry,
             cx + Math.cos(a2) * rx, cy + Math.sin(a2) * ry,
@@ -2180,14 +2373,14 @@
         addSeg(18, 148, 18, 675, 0.75);
         addSeg(18, 675, 118, 795, 0.65);
 
-        // 3. Outer Right Plunger Wall & Plunger Partition + Gate Connector
+        // 3. Outer Right Plunger Wall & Wide-Open Plunger Exit Throat (y=186)
         addSeg(442, 148, 442, 785, 0.75);
-        addSeg(412, 168, 412, 785, 0.75);
-        addSeg(398, 175, 412, 168, 0.75);
+        addSeg(412, 186, 412, 785, 0.75);
+        addSeg(398, 186, 412, 186, 0.75);
         addSeg(412, 785, 442, 785, 0.5);
 
         // 4. Inner Right Wall & Right Outlane Funnel
-        addSeg(398, 175, 398, 675, 0.75);
+        addSeg(398, 186, 398, 675, 0.75);
         addSeg(398, 675, 298, 795, 0.65);
 
         // 5. Left Inlane / Outlane Divider (x=46 for wider 36px Inlane!) & Flipper Feed
@@ -2208,11 +2401,11 @@
         addSeg(334, 580, 334, 652, 0.7);
         addSeg(334, 652, 284, 678, 0.7);
 
-        // 8. Top Vowel Rollover Lane Dividers (/i/ | /ɑ/ | /u/) with 24px overhead arch clearance
-        addSeg(128, 70, 128, 100, 0.7);
-        addSeg(175, 70, 175, 100, 0.7);
-        addSeg(221, 70, 221, 100, 0.7);
-        addSeg(268, 70, 268, 100, 0.7);
+        // 8. Wide-Open Top Vowel Rollover Lane Dividers (56px wide per lane, y=68..100!)
+        addSeg(116, 68, 116, 100, 0.7);
+        addSeg(172, 68, 172, 100, 0.7);
+        addSeg(228, 68, 228, 100, 0.7);
+        addSeg(284, 68, 284, 100, 0.7);
 
         // 9. Upper-Left Wing & Perimeter Backing Wall for [T][D][N] Standups
         addSeg(18, 365, 56, 404, 0.7);
@@ -2227,7 +2420,7 @@
 
 
       // =====================================================================
-      // 6. C-V-C PHONETIC WORD ENGINE & SPACE CADET MISSION STATE MACHINE
+      // 6. CONTINUOUS PHONEME STREAM ENGINE (SUPERCAT GREEDY PREFIX + SUB-WORD FALLBACK)
       // =====================================================================
       toggleCvcLock(slot) {
         if (slot === 'c1') {
@@ -2241,9 +2434,64 @@
       }
 
       clearCvcBuffer() {
+        this.phonemeStream = [];
+        this.lockedPrefixWord = null;
+        this.utteranceTimer = 0;
+        this.glottalGraceUsed = false;
         this.cvc = { c1: null, v: null, c2: null };
         this.cvcLocks = { c1: false, v: false };
         this.updateHUD();
+      }
+
+      syncLegacyCvcFromStream() {
+        const s = this.phonemeStream;
+        const firstCons = s.find(p => CONSONANT_PROFILES[p]) || null;
+        const firstVowel = s.find(p => VOWEL_FORMANTS[p]) || null;
+        const lastCons = (s.length >= 3 && CONSONANT_PROFILES[s[s.length - 1]]) ? s[s.length - 1] : null;
+        this.cvc = { c1: firstCons, v: firstVowel, c2: lastCons };
+      }
+
+      matchesPrefix(stream, wordObj, exactVowelsOnly = false) {
+        const seq = wordObj.seq;
+        if (!seq || stream.length === 0 || stream.length > seq.length) return false;
+        for (let i = 0; i < stream.length; i++) {
+          const sPh = stream[i];
+          const wPh = seq[i];
+          if (CONSONANT_PROFILES[wPh]) {
+            if (sPh !== wPh) return false;
+          } else if (VOWEL_FORMANTS[wPh]) {
+            if (!VOWEL_FORMANTS[sPh]) return false;
+            if (sPh === wPh) continue;
+            if (!exactVowelsOnly && seq.length === 3 && i === 1 && wordObj.v && wordObj.v.includes(sPh)) continue;
+            if (!exactVowelsOnly && VOWEL_NEIGHBORS[wPh] && VOWEL_NEIGHBORS[wPh].includes(sPh)) continue;
+            return false;
+          } else if (sPh !== wPh) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      findPrefixMatches(stream, includeSubWords = false) {
+        if (!stream || stream.length === 0) return [];
+        const matches = CVC_WORDS.filter(w => {
+          if (!includeSubWords && w.isSubWord) return false;
+          return this.matchesPrefix(stream, w, false);
+        });
+        matches.sort((a, b) => {
+          if ((a.word === this.targetWord) !== (b.word === this.targetWord)) return a.word === this.targetWord ? -1 : 1;
+          const aExact = this.matchesPrefix(stream, a, true);
+          const bExact = this.matchesPrefix(stream, b, true);
+          if (aExact !== bExact) return aExact ? -1 : 1;
+          if (b.seq.length !== a.seq.length) return b.seq.length - a.seq.length;
+          return (b.pts || 0) - (a.pts || 0);
+        });
+        return matches;
+      }
+
+      canExtendStreamWith(ph) {
+        if (!this.phonemeStream || this.phonemeStream.length === 0) return true;
+        return this.findPrefixMatches([...this.phonemeStream, ph], false).length > 0;
       }
 
       registerConsonant(consKey, x, y) {
@@ -2251,151 +2499,295 @@
         const cp = CONSONANT_PROFILES[consKey];
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = '[' + consKey + '] ' + (cp ? cp.group : '');
-
-        if (!this.cvc.c1) {
-          this.cvc.c1 = consKey;
-        } else if (this.cvc.v) {
-          this.cvc.c2 = consKey;
-          this.evaluateCVCWord(x, y);
-          return;
-        } else if (!this.cvcLocks.c1) {
-          this.cvc.c1 = consKey;
-        }
-        this.updateHUD();
+        this.pushPhonemeToStream(consKey, x, y);
       }
 
       registerVowel(vowelKey, x, y) {
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
-        this.synth.speakVowel(vowelKey, 0.24, 128 + this.bumperTier * 10);
+        this.synth.speakVowel(vowelKey, 0.22, 128 + this.bumperTier * 10);
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = vf.ipa + ' (' + vowelKey + ')';
+        this.pushPhonemeToStream(vowelKey, x, y);
+      }
 
-        if (!this.cvc.v || !this.cvcLocks.v) {
-          this.cvc.v = vowelKey;
+      pushPhonemeToStream(ph, x, y) {
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        const s = this.phonemeStream;
+
+        // 1. Duplicate-Bounce Debounce: If same phoneme hits twice within 1.4s and doesn't extend a doubled-phoneme word, sustain without breaking!
+        if (s.length > 0 && s[s.length - 1] === ph && (now - this.lastPhonemeTime < 1400)) {
+          if (this.findPrefixMatches([...s, ph], false).length === 0) {
+            this.lastPhonemeTime = now;
+            this.updateHUD();
+            return;
+          }
         }
+        this.lastPhonemeTime = now;
+        this.lastPhonemeKey = ph;
+
+        const cand = [...s, ph];
+        const matches = this.findPrefixMatches(cand, false);
+
+        if (matches.length > 0) {
+          this.phonemeStream = cand;
+          this.utteranceTimer = 8500;
+          this.syncLegacyCvcFromStream();
+
+          const exactComplete = matches.filter(w => w.seq.length === cand.length);
+          const longerWords = matches.filter(w => w.seq.length > cand.length);
+          const targetCompleted = exactComplete.find(w => w.word === this.targetWord);
+
+          if (targetCompleted) {
+            this.commitStreamWord(targetCompleted, x, y, false);
+            return;
+          }
+
+          if (exactComplete.length > 0 && longerWords.length === 0) {
+            // Leaf word with no longer extensions — resolve immediately!
+            this.commitStreamWord(exactComplete[0], x, y, false);
+            return;
+          }
+
+          if (exactComplete.length > 0 && longerWords.length > 0) {
+            // Supercat / Disassociate Rule: Do NOT prematurely trigger sub-words if longer words exist!
+            this.lockedPrefixWord = exactComplete[0];
+            const nextSample = longerWords.slice(0, 2).map(w => w.word).join(' / ');
+            this.spawnFloatingText(x || 208, y || 410, '🔗 "' + this.lockedPrefixWord.word + '" LOCKED → ' + nextSample, '#34d399', false);
+          }
+          this.updateHUD();
+          return;
+        }
+
+        // 2. Candidate failed to extend any word!
+        // Check Glottal Grace Mulligan if player is >= 3 phonemes deep into a multi-syllable or Target word
+        if (s.length >= 3 && !this.glottalGraceUsed) {
+          const activeLong = this.findPrefixMatches(s, false).filter(w => w.seq.length >= 5 || w.word === this.targetWord);
+          if (activeLong.length > 0) {
+            this.glottalGraceUsed = true;
+            const nextNeed = activeLong[0].seq[s.length];
+            const needLbl = VOWEL_FORMANTS[nextNeed] ? VOWEL_FORMANTS[nextNeed].ipa : ('[' + nextNeed + ']');
+            this.spawnFloatingText(x || 208, y || 415, '🛡️ GLOTTAL GRACE! AIM FOR ' + needLbl + ' (' + activeLong[0].word + ')', '#fde047', false);
+            this.updateHUD();
+            return;
+          }
+        }
+
+        // 3. We failed to sound out the longer word -> decompose & trigger completed sub-words ("diss", "ass", "show", "she", "ate")!
+        if (s.length >= 2) {
+          this.resolveFailedStreamSubwords(s, x, y);
+        }
+
+        // 4. Start fresh stream with the new phoneme ph
+        this.glottalGraceUsed = false;
+        this.lockedPrefixWord = null;
+        if (this.cvcLocks.c1 && s.length > 0 && CONSONANT_PROFILES[s[0]] && VOWEL_FORMANTS[ph]) {
+          this.phonemeStream = [s[0], ph];
+        } else if (this.findPrefixMatches([ph], false).length > 0) {
+          this.phonemeStream = [ph];
+          this.utteranceTimer = 8500;
+        } else {
+          this.phonemeStream = [];
+          this.utteranceTimer = 0;
+        }
+        this.syncLegacyCvcFromStream();
+        this.updateHUD();
+      }
+
+      resolveFailedStreamSubwords(stream, x, y) {
+        // Greedy left-to-right decomposition into constituent sub-words with ambisyllabic consonant liaison
+        // e.g. D-IH-S-AA-S-OH-S-EE-EH-T (failed before completing longer form) -> DISS + ASS + SHOW + SHE + ATE
+        const foundWords = [];
+        let i = 0;
+        const maxSubLen = stream.length >= 6 ? 3 : Math.min(5, Math.max(3, stream.length - 1));
+        while (i < stream.length) {
+          let bestMatch = null;
+          let stepLen = 0;
+          // Pass 1: Exact primary vowel matches first (so D-IH-S -> DISS and S-OH -> SHOW)
+          for (let len = Math.min(stream.length - i, maxSubLen); len >= 2; len--) {
+            const sub = stream.slice(i, i + len);
+            const m = CVC_WORDS.find(w => w.seq.length === len && this.matchesPrefix(sub, w, true));
+            if (m) {
+              bestMatch = m;
+              stepLen = len;
+              break;
+            }
+          }
+          // Pass 2: Ambisyllabic consonant liaison with exact vowel match (e.g. AA-S-OH -> ASS + SHOW sharing 'S'!)
+          if (!bestMatch && i > 0 && !VOWEL_FORMANTS[stream[i - 1]]) {
+            for (let len = Math.min(stream.length - (i - 1), 3); len >= 2; len--) {
+              const sub = stream.slice(i - 1, i - 1 + len);
+              const m = CVC_WORDS.find(w => w.seq.length === len && this.matchesPrefix(sub, w, true));
+              if (m) {
+                bestMatch = m;
+                stepLen = len - 1;
+                break;
+              }
+            }
+          }
+          // Pass 3: Formant-neighbor vowel fallback if no exact vowel match found
+          if (!bestMatch) {
+            for (let len = Math.min(stream.length - i, maxSubLen); len >= 2; len--) {
+              const sub = stream.slice(i, i + len);
+              const m = CVC_WORDS.find(w => w.seq.length === len && this.matchesPrefix(sub, w, false));
+              if (m) {
+                bestMatch = m;
+                stepLen = len;
+                break;
+              }
+            }
+          }
+          if (bestMatch && stepLen > 0) {
+            foundWords.push(bestMatch);
+            i += stepLen;
+          } else {
+            i++;
+          }
+        }
+
+        if (foundWords.length === 1 && !foundWords[0].isSubWord) {
+          // Single complete word (e.g. "DISS" or "SUPER") resolved on fallback without popup spam
+          this.commitStreamWord(foundWords[0], x, y, true);
+          return;
+        }
+
+        if (foundWords.length > 0) {
+          let totalPts = 0;
+          const names = [];
+          foundWords.forEach((w, idx) => {
+            const wPts = Math.round((w.pts || 1200) * 0.85 * this.multiplier);
+            totalPts += wPts;
+            names.push(w.word);
+            this.discoveredWords.add(w.word);
+            this.lastSpokenCVC = { c1: w.c1, v: w.v ? w.v[0] : 'AA', c2: w.c2, word: w.word, sacred: !!w.sacred, seq: w.seq };
+            if (!this.spokenHistory.some(h => h.word === w.word)) {
+              this.spokenHistory.push(this.lastSpokenCVC);
+            }
+            setTimeout(() => {
+              this.synth.speakPhonemeSequence(w.seq);
+            }, idx * 290);
+          });
+          this.addScore(totalPts);
+          if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'WORDS') {
+            this.advanceMission(1);
+          }
+          // Compact non-intrusive floating callout (no screen-blocking banner!)
+          this.spawnFloatingText(x || 208, y || 410, '🗣️ FALLBACK: ' + names.join(' · ') + ' +' + totalPts.toLocaleString(), '#38bdf8', true);
+        }
+      }
+
+      flushPhonemeStream(x, y) {
+        if (!this.phonemeStream || this.phonemeStream.length === 0) return;
+        const s = [...this.phonemeStream];
+        const exact = this.findPrefixMatches(s, false).find(w => w.seq.length === s.length);
+        this.phonemeStream = [];
+        this.lockedPrefixWord = null;
+        this.utteranceTimer = 0;
+        this.glottalGraceUsed = false;
+        this.syncLegacyCvcFromStream();
+        if (exact) {
+          this.commitStreamWord(exact, x, y, false);
+        } else {
+          this.resolveFailedStreamSubwords(s, x, y);
+        }
+        this.updateHUD();
+      }
+
+      commitStreamWord(match, x, y, isFallback = false) {
+        if (!match) return;
+        const streamUsed = this.phonemeStream.length > 0 ? [...this.phonemeStream] : match.seq;
+        const isExactFormant = this.matchesPrefix(streamUsed, match, true);
+        const isTarget = match.word === this.targetWord;
+        const isSacred = !!match.sacred;
+        const isLongMasterpiece = match.seq.length >= 5;
+        const superMult = this.superShotTimer > 0 ? 2 : 1;
+        const lengthBonus = match.seq.length > 3 ? Math.pow(match.seq.length / 3, 1.35) : 1.0;
+        const vowelAccuracyMult = isExactFormant ? 1.15 : 0.80;
+
+        let pts = Math.round((match.pts * lengthBonus * vowelAccuracyMult * (isTarget ? 2 : 1) * superMult) * this.multiplier);
+
+        // Synthesize full phoneme sequence aloud & trace across Formant Vowel Triangle!
+        this.synth.speakPhonemeSequence(match.seq);
+
+        if (isTarget || isSacred || isLongMasterpiece) {
+          this.centerPostTimer = Math.max(this.centerPostTimer, 9500);
+        }
+
+        const c1 = match.c1 || match.seq[0];
+        const v = (match.v && match.v[0]) || match.seq.find(p => VOWEL_FORMANTS[p]) || 'AA';
+        const c2 = match.c2 || match.seq[match.seq.length - 1];
+
+        // Linguistic Chain Bonuses (Rhyme, Alliteration, Multi-Syllable Length!)
+        let chainNotes = [];
+        if (isLongMasterpiece) {
+          chainNotes.push(match.seq.length + '-PHONEME MASTERPIECE');
+        }
+        if (this.lastSpokenCVC && this.lastSpokenCVC.word !== match.word) {
+          if (this.lastSpokenCVC.v === v && this.lastSpokenCVC.c2 === c2) {
+            const rhymePts = 3500 * this.multiplier;
+            pts += rhymePts;
+            chainNotes.unshift('RHYME +' + rhymePts.toLocaleString());
+          } else if (this.lastSpokenCVC.c1 === c1) {
+            const allitPts = 2000 * this.multiplier;
+            pts += allitPts;
+            chainNotes.unshift('ALLITERATION +' + allitPts.toLocaleString());
+          }
+        }
+
+        const isNewWord = !this.discoveredWords.has(match.word);
+        this.addScore(pts);
+        this.discoveredWords.add(match.word);
+        this.lastSpokenCVC = { c1, v, c2, word: match.word, sacred: isSacred, seq: match.seq };
+        if (!this.spokenHistory.some(h => h.word === match.word)) {
+          this.spokenHistory.push(this.lastSpokenCVC);
+        }
+
+        // ONLY show center-screen popup banner for Major Events (Target Word, 5+ Phoneme Masterpiece, or First-Time Sacred Relic)!
+        if (!isFallback && (isTarget || isLongMasterpiece || (isSacred && isNewWord))) {
+          const bannerTitle = isTarget
+            ? '★ TARGET WORD SPOKEN! ★'
+            : (isLongMasterpiece ? '👑 MULTI-SYLLABLE MASTERPIECE! 👑' : '✦ SACRED BABEL RELIC! ✦');
+          const subBanner = '+' + pts.toLocaleString() + ' PTS • ' + (chainNotes[0] || 'SPOKEN');
+          this.showBanner(bannerTitle, match.word, subBanner);
+          this.spawnShockwave(208, 445, '#ffd700');
+        }
+
+        this.spawnFloatingText(x || 208, y || 410, '🗣️ "' + match.word + '" +' + pts.toLocaleString(), (isSacred || isLongMasterpiece) ? '#ffd700' : '#38bdf8', true);
+
+        if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'WORDS') {
+          this.advanceMission(1);
+        }
+        if (isTarget || isSacred || isLongMasterpiece) {
+          this.awardRankLights(isLongMasterpiece ? 2 : 1);
+        }
+        if (isTarget) {
+          this.pickNextTargetWord();
+        }
+
+        // Reset stream (preserving locked onset C1 if pinned)
+        this.phonemeStream = (this.cvcLocks.c1 && c1) ? [c1] : [];
+        this.lockedPrefixWord = null;
+        this.utteranceTimer = 0;
+        this.glottalGraceUsed = false;
+        this.syncLegacyCvcFromStream();
         this.updateHUD();
       }
 
       evaluateCVCWord(x, y) {
-        const { c1, v, c2 } = this.cvc;
-        if (!c1 || !v || !c2) return;
-
-        this.synth.speakCVCWord(c1, v, c2);
-
-        // 1. Prioritize active Bonus Target Word if exact match
-        let match = CVC_WORDS.find(w => w.word === this.targetWord && w.c1 === c1 && w.c2 === c2 && w.v.includes(v));
-        let isAllophoneShift = false;
-        // 2. Otherwise find exact (C1, V, C2) match
-        if (!match) {
-          match = CVC_WORDS.find(w => w.c1 === c1 && w.c2 === c2 && w.v.includes(v));
-        }
-        // 3. Fallback to Allophone Vowel Shift (C1, C2) at 0.65x points
-        if (!match) {
-          match = CVC_WORDS.find(w => w.c1 === c1 && w.c2 === c2);
-          if (match) isAllophoneShift = true;
-        }
-
-        if (match) {
-          const isTarget = match.word === this.targetWord;
-          const isSacred = !!match.sacred;
-          const superMult = this.superShotTimer > 0 ? 2 : 1;
-          const vowelAccuracyMult = isAllophoneShift ? 0.65 : 1.15;
-          let pts = Math.round((match.pts * vowelAccuracyMult * (isTarget ? 2 : 1) * superMult) * this.multiplier);
-
-          // Stoke the Kiln Furnace Ball-Save on Sacred Relics or Bonus Target Words!
-          if (isTarget || isSacred) {
-            this.centerPostTimer = Math.max(this.centerPostTimer, 9500);
-          }
-
-          // Check Linguistic Chain Bonuses (Rhyme, Alliteration, Minimal Pair!)
-          let chainNotes = [];
-          if (isAllophoneShift) {
-            chainNotes.push('ALLOPHONE ' + VOWEL_FORMANTS[v].ipa + '→' + VOWEL_FORMANTS[match.v[0]].ipa);
-          } else {
-            chainNotes.push('EXACT FORMANT');
-          }
-
-          if (this.lastSpokenCVC && this.lastSpokenCVC.word !== match.word) {
-            if (this.lastSpokenCVC.v === v && this.lastSpokenCVC.c2 === c2) {
-              const rhymePts = 3500 * this.multiplier;
-              pts += rhymePts;
-              chainNotes.unshift('RHYME CHAIN +' + rhymePts.toLocaleString());
-              this.spawnFloatingText(208, 355, '🎵 RHYME: ' + this.lastSpokenCVC.word + ' → ' + match.word + '!', '#00f2fe', true);
-            } else if (this.lastSpokenCVC.c1 === c1) {
-              const allitPts = 2000 * this.multiplier;
-              pts += allitPts;
-              chainNotes.unshift('ALLITERATION +' + allitPts.toLocaleString());
-            }
-          }
-
-          // Check Minimal Pair against previously spoken words (differs by strictly 1 phoneme)
-          const minPair = this.spokenHistory.find(h =>
-            h.word !== match.word &&
-            ((h.c1 === c1 ? 1 : 0) + (h.v === v ? 1 : 0) + (h.c2 === c2 ? 1 : 0)) === 2
-          );
-          if (minPair && !this.discoveredWords.has(match.word)) {
-            const pairPts = 2500 * this.multiplier;
-            pts += pairPts;
-            chainNotes.unshift('MINIMAL PAIR (' + minPair.word + ')');
-            this.spawnFloatingText(208, 382, '🔬 MINIMAL PAIR: ' + minPair.word + '/' + match.word + ' +' + pairPts.toLocaleString(), '#34d399', true);
-          }
-
-          this.addScore(pts);
-          this.discoveredWords.add(match.word);
-          this.lastSpokenCVC = { c1, v, c2, word: match.word, sacred: isSacred };
-          if (!this.spokenHistory.some(h => h.word === match.word)) {
-            this.spokenHistory.push(this.lastSpokenCVC);
-          }
-
-          const bannerTitle = isTarget
-            ? '★ BONUS TABLET WORD! ★'
-            : (isSacred ? '👑 SACRED BABEL RELIC! 👑' : '✦ WORD SYNTHESIZED ✦');
-          const subBanner = '+' + pts.toLocaleString() + ' PTS • ' + (chainNotes[0] || 'SPOKEN');
-
-          this.showBanner(bannerTitle, match.word, subBanner);
-          this.spawnFloatingText(x || 208, y || 410, '🗣️ "' + match.word + '" +' + pts.toLocaleString(), isSacred ? '#ffd700' : '#38bdf8', true);
-          this.spawnShockwave(208, 445, isSacred ? '#ffd700' : '#00f2fe');
-
-          if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'WORDS') {
-            this.advanceMission(1);
-          }
-          if (isTarget || isSacred) {
-            this.awardRankLights(1);
-          }
-          if (isTarget) {
-            this.pickNextTargetWord();
-          }
-        } else {
-          const syllable = c1 + '-' + v + '-' + c2;
-          const pts = 600 * this.multiplier;
-          this.addScore(pts);
-          this.spawnFloatingText(x || 208, y || 420, '𒀀 ' + syllable + ' +' + pts, '#38bdf8', false);
-        }
-
-        this.updateHUD();
-        setTimeout(() => {
-          this.cvc = {
-            c1: this.cvcLocks.c1 ? c1 : null,
-            v:  this.cvcLocks.v  ? v  : null,
-            c2: null
-          };
-          this.updateHUD();
-        }, 420);
+        this.flushPhonemeStream(x, y);
       }
 
       pickNextTargetWord() {
-        const pool = CVC_WORDS.filter(w => !this.discoveredWords.has(w.word));
-        const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : CVC_WORDS[Math.floor(Math.random() * CVC_WORDS.length)];
+        const showcasePool = CVC_WORDS.filter(w => !w.isSubWord && !this.discoveredWords.has(w.word) && (w.seq.length >= 4 || w.sacred));
+        const fallbackPool = CVC_WORDS.filter(w => !w.isSubWord && !this.discoveredWords.has(w.word));
+        const pool = showcasePool.length > 0 && Math.random() < 0.65 ? showcasePool : (fallbackPool.length > 0 ? fallbackPool : CVC_WORDS);
+        const pick = pool[Math.floor(Math.random() * pool.length)];
         this.targetWord = pick.word;
       }
 
-      // Helper: Returns valid C2 consonants and words given current C1 (+ V)
+      // Helper: Returns valid next phoneme continuations and words given current phonemeStream
       getValidNextCompletions() {
-        if (!this.cvc.c1) return [];
-        if (this.cvc.v) {
-          return CVC_WORDS.filter(w => w.c1 === this.cvc.c1 && w.v.includes(this.cvc.v));
-        }
-        return CVC_WORDS.filter(w => w.c1 === this.cvc.c1);
+        if (!this.phonemeStream || this.phonemeStream.length === 0) return [];
+        return this.findPrefixMatches(this.phonemeStream, false);
       }
 
       // ---------------------------------------------------------------------
@@ -2536,7 +2928,7 @@
           this.plungerCharge = Math.min(100, this.plungerCharge + dt * 0.11);
         }
 
-        // 2. Timers (Furnace Ball-Save Post, Super Flipper Charge, Gravity Well, Shake, Combo, Fuel)
+        // 2. Timers (Furnace Ball-Save Post, Super Flipper Charge, Gravity Well, Shake, Combo, Utterance Breath, Fuel)
         if (this.centerPostTimer > 0) this.centerPostTimer = Math.max(0, this.centerPostTimer - dt);
         if (this.superShotTimer > 0) this.superShotTimer = Math.max(0, this.superShotTimer - dt);
         if (this.gravityWellTimer > 0) this.gravityWellTimer = Math.max(0, this.gravityWellTimer - dt);
@@ -2544,6 +2936,12 @@
         if (this.comboTimer > 0) {
           this.comboTimer = Math.max(0, this.comboTimer - dt);
           if (this.comboTimer === 0) this.comboCount = 0;
+        }
+        if (this.utteranceTimer > 0) {
+          this.utteranceTimer = Math.max(0, this.utteranceTimer - dt);
+          if (this.utteranceTimer === 0 && this.phonemeStream && this.phonemeStream.length >= 2) {
+            this.flushPhonemeStream(208, 410);
+          }
         }
 
         // 2b. Update Right Orbit Whirling Winged Bull Spinner
@@ -2681,21 +3079,37 @@
             b.x += b.vx / SUBSTEPS;
             b.y += b.vy / SUBSTEPS;
 
-            if (b.inPlungerLane && b.y < 164) {
-              b.inPlungerLane = false;
-              const pwr = b.launchPower || 55;
-              b.x = 408;
-              b.y = 162;
-              b.vy = -6.05;
-              b.vx = -3.77 - (pwr / 100) * 6.40;
+            if (b.inPlungerLane && b.y < 182) {
+              if (b.x > 318 && b.y > 54) {
+                b.vx = -6.8;
+                b.vy = -6.2;
+              } else {
+                b.inPlungerLane = false;
+                const pwr = b.launchPower || 55;
+                b.x = 318;
+                b.y = 52;
+                b.vy = -1.65;
+                if (pwr < 42) {
+                  // Low Power (15-41%): Right Arch /u/ (x=256)
+                  b.vx = -2.35 - ((pwr - 15) / 27) * 0.25;
+                } else if (pwr < 70) {
+                  // Mid Power (42-69%): Center Arch /ɑ/ (x=200)
+                  b.vx = -3.75 - ((pwr - 42) / 28) * 0.35;
+                } else {
+                  // High Power (70-100%): Left Arch /i/ (x=144)
+                  b.vx = -5.20 - ((pwr - 70) / 30) * 0.38;
+                }
+              }
             }
 
-            if (!b.inPlungerLane && b.x + b.radius > 410 && b.y < 175 && b.vx > 0) {
+            if (!b.inPlungerLane && b.x + b.radius > 410 && b.y < 188 && b.vx > 0) {
               b.x = 410 - b.radius;
               b.vx = -Math.abs(b.vx) * 0.75;
             }
 
-            this.collideWalls(b);
+            if (!(b.inPlungerLane && b.y < 186)) {
+              this.collideWalls(b);
+            }
             this.collideFlippers(b);
             this.collideReboundPosts(b);
 
@@ -2947,7 +3361,7 @@
               rp.flash = 1.0;
               this.addScore(200 * this.multiplier);
               this.spawnParticles(rp.x, rp.y, '#f43f5e', 7);
-              if (this.cvc.c1 && !this.cvc.v) {
+              if (this.canExtendStreamWith(rp.vowel)) {
                 this.registerVowel(rp.vowel, rp.x, rp.y);
               }
             }
@@ -2977,11 +3391,8 @@
               this.addScore(150 * this.multiplier);
               const mx = (s.x1 + s.x2) / 2;
               const my = (s.y1 + s.y2) / 2;
-              // Smart Assist Articulator: Slingshots seed an empty C1 or finish a Bonus/Sacred word without overwriting active C1/C2 plans
-              const finishesSpecial = this.cvc.c1 && this.cvc.v && CVC_WORDS.some(
-                w => w.c1 === this.cvc.c1 && w.v.includes(this.cvc.v) && w.c2 === s.cons && (w.word === this.targetWord || w.sacred)
-              );
-              if (!this.cvc.c1 || finishesSpecial) {
+              // Smart Stream Assist: Slingshots seed an empty stream or extend an active valid prefix without breaking multi-syllable words!
+              if (this.canExtendStreamWith(s.cons)) {
                 this.registerConsonant(s.cons, mx, my);
               } else {
                 this.synth.speakConsonant(s.cons);
@@ -3012,7 +3423,12 @@
               const pts = (250 * this.bumperTier) * this.multiplier;
               this.addScore(pts);
               this.synth.playBumperBoing(this.bumperTier);
-              this.registerVowel(bmp.vowel, bmp.x, bmp.y);
+              // Smart Vowel Cluster Assist: If already building a stream, only register bumper vowels that extend a valid word prefix!
+              if (this.canExtendStreamWith(bmp.vowel)) {
+                this.registerVowel(bmp.vowel, bmp.x, bmp.y);
+              } else {
+                this.synth.speakVowel(bmp.vowel, 0.16, 130 + this.bumperTier * 10);
+              }
               this.spawnParticles(bmp.x, bmp.y, VOWEL_FORMANTS[bmp.vowel].color, 10);
 
               if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'BUMPERS') {
@@ -3087,14 +3503,18 @@
       }
 
       checkRollovers(b) {
-        // Top 3 Vowel Rollover Lanes (/i/, /ɑ/, /u/)
+        // Top 3 Vowel Rollover Lanes (/i/, /ɑ/, /u/) — 56px wide open lanes!
         this.topLanes.forEach((lane, idx) => {
-          if (lane.cooldown <= 0 && Math.hypot(b.x - lane.x, b.y - lane.y) < 15) {
+          if (lane.cooldown <= 0 && Math.hypot(b.x - lane.x, b.y - lane.y) < 18) {
             lane.cooldown = 600;
             lane.lit = true;
             lane.flash = 1.0;
             this.addScore(600 * this.multiplier);
-            this.registerVowel(lane.vowel, lane.x, lane.y);
+            if (this.canExtendStreamWith(lane.vowel)) {
+              this.registerVowel(lane.vowel, lane.x, lane.y);
+            } else {
+              this.synth.speakVowel(lane.vowel, 0.20, 140);
+            }
             this.fuel = 6.0;
 
             // Check Plunger Skill Shot!
@@ -3105,7 +3525,7 @@
                 this.addScore(ssPts);
                 this.awardRankLights(1);
                 this.synth.playWordChord();
-                this.showBanner('🎯 BABEL SKILL SHOT! 🎯', lane.label + ' ARCHWAY', '+' + ssPts.toLocaleString() + ' PTS • +1 RANK GEM');
+                this.spawnFloatingText(lane.x, lane.y + 22, '🎯 SKILL SHOT ' + lane.label + '! +' + ssPts.toLocaleString(), '#ffd700', true);
               }
             }
 
@@ -3118,7 +3538,7 @@
               this.addScore(5000 * this.multiplier);
               this.awardRankLights(1);
               this.synth.playWordChord();
-              this.spawnFloatingText(198, 95, '★ BUMPERS UPGRADED LVL ' + this.bumperTier + '! +5,000 ★', '#00f2fe', true);
+              this.spawnFloatingText(200, 108, '▲ FORMANT TRIANGLE LIT! BUMPERS LVL ' + this.bumperTier + ' +5,000 ▲', '#00f2fe', true);
               setTimeout(() => this.topLanes.forEach(l => { l.lit = false; }), 500);
             }
             this.updateHUD();
@@ -3143,14 +3563,9 @@
             bl.flash = 1.0;
             this.addScore(500 * this.multiplier);
 
-            if (bl.cons) {
-              const finishesSpecial = this.cvc.c1 && this.cvc.v && CVC_WORDS.some(
-                w => w.c1 === this.cvc.c1 && w.v.includes(this.cvc.v) && w.c2 === bl.cons && (w.word === this.targetWord || w.sacred)
-              );
-              if (!this.cvc.c1 || finishesSpecial) {
-                this.registerConsonant(bl.cons, bl.x, bl.y);
-              }
-            } else if (bl.vowel && this.cvc.c1 && !this.cvc.v) {
+            if (bl.cons && this.canExtendStreamWith(bl.cons)) {
+              this.registerConsonant(bl.cons, bl.x, bl.y);
+            } else if (bl.vowel && this.canExtendStreamWith(bl.vowel)) {
               this.registerVowel(bl.vowel, bl.x, bl.y);
             }
 
@@ -3166,7 +3581,7 @@
               this.centerPostTimer = Math.max(this.centerPostTimer, 15000);
               this.awardRankLights(1);
               this.synth.playWordChord();
-              this.showBanner('🗣️ L-I-P-S CALIBRATED! 🗣️', '+10,000 BONUS', 'KICKBACK & KILN FURNACE RELIT • +1 RANK GEM');
+              this.spawnFloatingText(208, 635, '🗣️ L-I-P-S CALIBRATED! +10,000 & SAVES LIT!', '#ffd700', true);
               setTimeout(() => this.bottomLanes.forEach(x => { x.lit = false; }), 500);
             }
             this.updateHUD();
@@ -3238,10 +3653,17 @@
           const rampPts = (3000 * this.comboCount) * this.multiplier;
           this.addScore(rampPts);
 
-          // Golden Vowel Bridge: Fill Slot 2 [V] with the Bonus Target Word's vowel!
-          const targetObj = CVC_WORDS.find(w => w.word === this.targetWord);
-          const vKey = targetObj ? targetObj.v[0] : 'AA';
-          this.registerVowel(vKey, lr.entryX, lr.entryY);
+          // Golden Vowel Bridge: Automatically injects the next needed vowel for your active stream or Target Word!
+          const activeMatches = this.getValidNextCompletions();
+          const targetObj = activeMatches.find(w => w.word === this.targetWord) || activeMatches[0] || CVC_WORDS.find(w => w.word === this.targetWord);
+          const nextIdx = this.phonemeStream ? this.phonemeStream.length : 0;
+          const nextPh = (targetObj && targetObj.seq && targetObj.seq[nextIdx]) ? targetObj.seq[nextIdx] : null;
+          const vKey = (nextPh && VOWEL_FORMANTS[nextPh]) ? nextPh : (targetObj && targetObj.v ? targetObj.v[0] : 'AA');
+          if (this.canExtendStreamWith(vKey)) {
+            this.registerVowel(vKey, lr.entryX, lr.entryY);
+          } else if (nextPh && CONSONANT_PROFILES[nextPh]) {
+            this.registerConsonant(nextPh, lr.entryX, lr.entryY);
+          }
 
           if (this.promotionReady) {
             this.promoteRank();
@@ -3315,6 +3737,10 @@
         this.missionProgress = 0;
         this.cvc = { c1: null, v: null, c2: null };
         this.cvcLocks = { c1: false, v: false };
+        this.phonemeStream = [];
+        this.lockedPrefixWord = null;
+        this.utteranceTimer = 0;
+        this.glottalGraceUsed = false;
         this.discoveredWords.clear();
         this.isGameOver = false;
         document.getElementById('game-over-overlay').classList.add('hidden');
@@ -3418,6 +3844,9 @@
             this.toggleCvcLock('c1');
           } else if (e.code === 'Digit2') {
             this.toggleCvcLock('v');
+          } else if (e.code === 'KeyE') {
+            e.preventDefault();
+            this.flushPhonemeStream(208, 410);
           } else if (e.code === 'KeyC' || e.code === 'Backspace') {
             e.preventDefault();
             this.clearCvcBuffer();
@@ -3462,14 +3891,65 @@
         });
         document.getElementById('cvc-slot-1')?.addEventListener('click', () => this.toggleCvcLock('c1'));
         document.getElementById('cvc-slot-2')?.addEventListener('click', () => this.toggleCvcLock('v'));
+        document.getElementById('btn-speak-stream')?.addEventListener('click', () => {
+          this.synth.init();
+          this.flushPhonemeStream(208, 410);
+        });
         document.getElementById('btn-clear-cvc')?.addEventListener('click', () => this.clearCvcBuffer());
+
+        // Interactive Formant Vowel Triangle Canvas (F1 x F2 Acoustic Explorer & Vowel Input)
+        const vtCanvas = document.getElementById('vowel-triangle-canvas');
+        if (vtCanvas) {
+          let isDraggingVT = false;
+          const handleVTInput = (e, isClick) => {
+            const rect = vtCanvas.getBoundingClientRect();
+            const scaleX = vtCanvas.width / rect.width;
+            const scaleY = vtCanvas.height / rect.height;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = Math.max(0, Math.min(vtCanvas.width, (clientX - rect.left) * scaleX));
+            const y = Math.max(0, Math.min(vtCanvas.height, (clientY - rect.top) * scaleY));
+
+            // Map canvas (x, y) to Formant space: F2 (horizontal, 2450 Hz left -> 750 Hz right), F1 (vertical, 230 Hz top -> 820 Hz bottom)
+            const f2 = 2480 - (x / vtCanvas.width) * 1730;
+            const f1 = 220 + (y / vtCanvas.height) * 600;
+            this.synth.playXYFormant(f1, f2, isClick ? 0.22 : 0.14);
+
+            if (isClick) {
+              // Check if user clicked near one of the 7 canonical vowel nodes
+              let bestKey = null;
+              let bestDist = 24;
+              for (const [vKey, vf] of Object.entries(VOWEL_FORMANTS)) {
+                const vx = ((2480 - vf.f2) / 1730) * vtCanvas.width;
+                const vy = ((vf.f1 - 220) / 600) * vtCanvas.height;
+                const d = Math.hypot(x - vx, y - vy);
+                if (d < bestDist) {
+                  bestDist = d;
+                  bestKey = vKey;
+                }
+              }
+              if (bestKey) {
+                this.registerVowel(bestKey, 200, 180);
+              }
+            }
+          };
+
+          vtCanvas.addEventListener('mousedown', (e) => {
+            isDraggingVT = true;
+            handleVTInput(e, true);
+          });
+          vtCanvas.addEventListener('mousemove', (e) => {
+            if (isDraggingVT) handleVTInput(e, false);
+          });
+          window.addEventListener('mouseup', () => { isDraggingVT = false; });
+        }
 
         document.getElementById('target-word-box')?.addEventListener('click', () => {
           const wObj = CVC_WORDS.find(x => x.word === this.targetWord);
           if (wObj) {
-            this.synth.speakCVCWord(wObj.c1, wObj.v[0], wObj.c2);
-            const vf = VOWEL_FORMANTS[wObj.v[0]];
-            this.spawnFloatingText(208, 395, '🔊 ' + wObj.word + ': [' + wObj.c1 + '] + ' + (vf ? vf.ipa : wObj.v[0]) + ' + [' + wObj.c2 + ']', '#ffd700', true);
+            this.synth.speakPhonemeSequence(wObj.seq);
+            const recipe = wObj.seq.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('·');
+            this.spawnFloatingText(208, 395, '🔊 ' + wObj.word + ': ' + recipe, '#ffd700', true);
           }
         });
 
@@ -3479,9 +3959,9 @@
           const wordStr = chip.getAttribute('data-word');
           const wObj = CVC_WORDS.find(x => x.word === wordStr);
           if (wObj) {
-            this.synth.speakCVCWord(wObj.c1, wObj.v[0], wObj.c2);
-            const vf = VOWEL_FORMANTS[wObj.v[0]];
-            this.spawnFloatingText(208, 395, '🔊 ' + wObj.word + ' (' + wObj.c1 + '-' + (vf ? vf.label : wObj.v[0]) + '-' + wObj.c2 + ')', '#00f2fe', true);
+            this.synth.speakPhonemeSequence(wObj.seq);
+            const recipe = wObj.seq.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('·');
+            this.spawnFloatingText(208, 395, '🔊 ' + wObj.word + ' (' + recipe + ')', '#00f2fe', true);
           }
         });
 
@@ -3503,7 +3983,7 @@
         document.getElementById('banner-points-text').textContent = ptsText;
         banner.classList.add('show');
         clearTimeout(this.bannerTimeout);
-        this.bannerTimeout = setTimeout(() => banner.classList.remove('show'), 2100);
+        this.bannerTimeout = setTimeout(() => banner.classList.remove('show'), 1350);
       }
 
       spawnParticles(x, y, color, count = 10) {
@@ -3558,38 +4038,57 @@
           seg.className = 'fuel-seg' + (lit ? (this.fuel <= 1.5 ? ' low' : ' lit') : '');
         });
 
-        const s1 = document.getElementById('cvc-slot-1');
-        const s2 = document.getElementById('cvc-slot-2');
-        const s3 = document.getElementById('cvc-slot-3');
-        setTxt('cvc-val-1', this.cvc.c1 || '_');
-        setTxt('cvc-val-2', this.cvc.v ? VOWEL_FORMANTS[this.cvc.v].ipa : '_');
-        setTxt('cvc-val-3', this.cvc.c2 || '_');
-        if (s1) {
-          s1.classList.toggle('filled', !!this.cvc.c1);
-          s1.classList.toggle('locked', !!(this.cvcLocks && this.cvcLocks.c1));
+        // Continuous Phoneme Stream Box Update
+        const streamBox = document.getElementById('utterance-stream-box');
+        const tokensRow = document.getElementById('stream-tokens-row');
+        if (streamBox) {
+          streamBox.classList.toggle('active-stream', this.phonemeStream.length > 0);
+          streamBox.classList.toggle('locked-word', !!this.lockedPrefixWord);
         }
-        if (s2) {
-          s2.classList.toggle('filled', !!this.cvc.v);
-          s2.classList.toggle('locked', !!(this.cvcLocks && this.cvcLocks.v));
+        if (tokensRow) {
+          if (this.phonemeStream.length === 0) {
+            tokensRow.innerHTML = '<span style="font-size:0.46rem; color:#64748b; font-family:Space Mono,monospace;">HIT CONSONANTS & VOWELS TO SOUND OUT WORDS...</span>';
+          } else {
+            tokensRow.innerHTML = this.phonemeStream.map((ph, idx) => {
+              const isV = Boolean(VOWEL_FORMANTS[ph]);
+              const label = isV ? VOWEL_FORMANTS[ph].ipa : ph;
+              const cls = 'phoneme-token ' + (isV ? 'vowel' : 'cons');
+              const arrow = idx < this.phonemeStream.length - 1 ? '<span class="phoneme-arrow">→</span>' : '';
+              return '<span class="' + cls + '">' + label + '</span>' + arrow;
+            }).join('');
+          }
         }
-        if (s3) s3.classList.toggle('filled', !!this.cvc.c2);
-        setTxt('cvc-lock-1', (this.cvcLocks && this.cvcLocks.c1) ? '🔒 LOCKED' : '[1] PIN');
-        setTxt('cvc-lock-2', (this.cvcLocks && this.cvcLocks.v) ? '🔒 LOCKED' : '[2] PIN');
+
+        if (this.lockedPrefixWord) {
+          const extMatches = this.findPrefixMatches(this.phonemeStream, true).filter(w => w.seq.length > this.phonemeStream.length);
+          const extHint = extMatches.slice(0, 2).map(w => w.word).join('/');
+          setTxt('stream-locked-word', '✓ "' + this.lockedPrefixWord.word + '" LOCKED — EXTEND TO ' + (extHint || 'LONGER WORD') + '!');
+        } else if (this.phonemeStream.length > 0) {
+          const prefMatches = this.findPrefixMatches(this.phonemeStream, true);
+          const topWords = prefMatches.slice(0, 3).map(w => w.word).join(', ');
+          setTxt('stream-locked-word', 'BUILDING: ' + (topWords || 'UTTERANCE'));
+        } else {
+          setTxt('stream-locked-word', 'STREAM IDLE');
+        }
+
+        setTxt('stream-timer-label', this.utteranceTimer > 0 ? ((this.utteranceTimer / 1000).toFixed(1) + 's') : 'READY');
 
         // Live Next-Shot Word Completion Hints in Sidebar
         const hintEl = document.getElementById('cvc-hint-strip');
         if (hintEl) {
-          if (!this.cvc.c1) {
-            const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
-            hintEl.textContent = 'START [' + (tObj ? tObj.c1 : 'B') + '] FOR "' + this.targetWord + '" OR ANY CONSONANT';
-          } else if (!this.cvc.v) {
-            const matches = this.getValidNextCompletions();
-            const sample = matches.slice(0, 3).map(w => w.v[0] + '→' + w.word).join(' • ');
-            hintEl.textContent = 'SHOOT VOWEL BUMPER/ARCH: ' + sample;
+          const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
+          if (this.phonemeStream.length === 0) {
+            const seqStr = tObj ? tObj.seq.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('-') : '';
+            hintEl.textContent = 'TARGET "' + this.targetWord + '": ' + seqStr;
           } else {
-            const matches = this.getValidNextCompletions();
-            const sample = matches.slice(0, 4).map(w => '[' + w.c2 + ']→' + w.word + (w.sacred ? '★' : '')).join(' • ');
-            hintEl.textContent = sample ? ('FINISH: ' + sample) : 'SHOOT ANY CONSONANT TO SPEAK SYLLABLE!';
+            const prefMatches = this.findPrefixMatches(this.phonemeStream, true).filter(w => w.seq.length > this.phonemeStream.length);
+            const idx = this.phonemeStream.length;
+            const nextSteps = prefMatches.slice(0, 3).map(w => {
+              const nextPh = w.seq[idx];
+              const disp = VOWEL_FORMANTS[nextPh] ? VOWEL_FORMANTS[nextPh].ipa : '[' + nextPh + ']';
+              return disp + '→' + w.word;
+            }).join(' • ');
+            hintEl.textContent = nextSteps ? ('NEXT: ' + nextSteps) : 'PRESS [E] OR WAIT TO SPEAK LOCKED WORD!';
           }
         }
 
@@ -3663,6 +4162,126 @@
         this.renderBallsAndFX(ctx, now, true);
 
         ctx.restore();
+
+        // 14. SIDEBAR INTERACTIVE IPA FORMANT VOWEL TRIANGLE (F1 x F2)
+        this.renderSidebarVowelTriangle(now);
+      }
+
+      renderSidebarVowelTriangle(now) {
+        const vtCanvas = document.getElementById('vowel-triangle-canvas');
+        if (!vtCanvas) return;
+        const vctx = vtCanvas.getContext('2d');
+        const w = vtCanvas.width;
+        const h = vtCanvas.height;
+
+        vctx.clearRect(0, 0, w, h);
+
+        // Acoustic Space Grid (F2: 2480 Hz Left -> 750 Hz Right, F1: 220 Hz Top -> 820 Hz Bottom)
+        vctx.strokeStyle = 'rgba(79, 172, 254, 0.12)';
+        vctx.lineWidth = 1;
+        for (let gx = 38; gx < w; gx += 46) {
+          vctx.beginPath(); vctx.moveTo(gx, 0); vctx.lineTo(gx, h); vctx.stroke();
+        }
+        for (let gy = 24; gy < h; gy += 28) {
+          vctx.beginPath(); vctx.moveTo(0, gy); vctx.lineTo(w, gy); vctx.stroke();
+        }
+
+        const toXY = (f1, f2) => ({
+          x: Math.max(18, Math.min(w - 18, ((2480 - f2) / 1730) * w)),
+          y: Math.max(16, Math.min(h - 16, ((f1 - 220) / 600) * h))
+        });
+
+        const pEE = toXY(VOWEL_FORMANTS.EE.f1, VOWEL_FORMANTS.EE.f2);
+        const pAA = toXY(VOWEL_FORMANTS.AA.f1, VOWEL_FORMANTS.AA.f2);
+        const pOO = toXY(VOWEL_FORMANTS.OO.f1, VOWEL_FORMANTS.OO.f2);
+
+        // Outer Cardinal Vowel Triangle (/i/ — /ɑ/ — /u/)
+        const triGrad = vctx.createLinearGradient(pEE.x, pEE.y, pAA.x, pAA.y);
+        triGrad.addColorStop(0, 'rgba(0, 242, 254, 0.14)');
+        triGrad.addColorStop(0.5, 'rgba(255, 215, 0, 0.12)');
+        triGrad.addColorStop(1, 'rgba(16, 185, 129, 0.14)');
+        vctx.fillStyle = triGrad;
+        vctx.beginPath();
+        vctx.moveTo(pEE.x, pEE.y);
+        vctx.lineTo(pAA.x, pAA.y);
+        vctx.lineTo(pOO.x, pOO.y);
+        vctx.closePath();
+        vctx.fill();
+
+        vctx.strokeStyle = 'rgba(223, 177, 91, 0.55)';
+        vctx.lineWidth = 1.5;
+        vctx.setLineDash([3, 3]);
+        vctx.stroke();
+        vctx.setLineDash([]);
+
+        // Axis Labels
+        vctx.font = '700 7.5px "Space Mono", monospace';
+        vctx.fillStyle = 'rgba(148, 163, 184, 0.75)';
+        vctx.textAlign = 'left';
+        vctx.fillText('← FRONT (HIGH F2)', 5, 10);
+        vctx.textAlign = 'right';
+        vctx.fillText('BACK (LOW F2) →', w - 5, 10);
+        vctx.textAlign = 'left';
+        vctx.fillText('OPEN (HIGH F1) ↓', 5, h - 4);
+
+        // Live Co-Articulation Formant Trajectory Trail
+        const trail = (this.synth && this.synth.formantTrail) ? this.synth.formantTrail : [];
+        const activePts = trail.filter(pt => now - pt.t < 2400);
+        if (activePts.length > 1) {
+          vctx.beginPath();
+          activePts.forEach((pt, i) => {
+            const pos = toXY(pt.f1, pt.f2);
+            if (i === 0) vctx.moveTo(pos.x, pos.y);
+            else vctx.lineTo(pos.x, pos.y);
+          });
+          vctx.strokeStyle = '#00f2fe';
+          vctx.lineWidth = 2.4;
+          vctx.shadowColor = '#00f2fe';
+          vctx.shadowBlur = 8;
+          vctx.stroke();
+          vctx.shadowBlur = 0;
+        }
+        if (activePts.length > 0) {
+          const lastPt = activePts[activePts.length - 1];
+          const pos = toXY(lastPt.f1, lastPt.f2);
+          vctx.beginPath();
+          vctx.arc(pos.x, pos.y, 4.5, 0, Math.PI * 2);
+          vctx.fillStyle = '#ffffff';
+          vctx.fill();
+        }
+
+        // Determine which vowels extend the current stream or target word
+        const tObj = CVC_WORDS.find(x => x.word === this.targetWord);
+        const nextIdx = this.phonemeStream.length;
+        const targetNextVowel = (tObj && tObj.seq[nextIdx] && VOWEL_FORMANTS[tObj.seq[nextIdx]]) ? tObj.seq[nextIdx] : null;
+        const lastStreamVowel = [...this.phonemeStream].reverse().find(p => VOWEL_FORMANTS[p]);
+
+        // Plot all 7 Canonical IPA Vowel Nodes
+        for (const [vKey, vf] of Object.entries(VOWEL_FORMANTS)) {
+          const pos = toXY(vf.f1, vf.f2);
+          const isValidNext = this.phonemeStream.length > 0 && this.canExtendStreamWith(vKey);
+          const isTargetNext = targetNextVowel === vKey;
+          const isLastSpoken = lastStreamVowel === vKey;
+          const r = (isTargetNext || isLastSpoken) ? 10.5 : (isValidNext ? 9.5 : 8.2);
+
+          vctx.beginPath();
+          vctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+          vctx.fillStyle = isLastSpoken ? vf.color : (isTargetNext ? 'rgba(255, 215, 0, 0.32)' : '#091428');
+          if (isTargetNext || isValidNext || isLastSpoken) {
+            vctx.shadowColor = isTargetNext ? '#ffd700' : vf.color;
+            vctx.shadowBlur = 9;
+          }
+          vctx.fill();
+          vctx.shadowBlur = 0;
+          vctx.lineWidth = (isTargetNext || isValidNext) ? 2.0 : 1.3;
+          vctx.strokeStyle = isTargetNext ? '#ffd700' : vf.color;
+          vctx.stroke();
+
+          vctx.textAlign = 'center';
+          vctx.font = '700 9.5px "Space Mono", monospace';
+          vctx.fillStyle = isLastSpoken ? '#040814' : '#ffffff';
+          vctx.fillText(vf.ipa, pos.x, pos.y + 3.2);
+        }
       }
 
       renderPlayfieldFloorAndSummit(ctx, now) {
@@ -3848,25 +4467,26 @@
 
         // 4. Lower-Playfield Peripheral Phoneme Sight Pill (x=208, y=698, right between flippers!)
         const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
-        const c1Txt = (this.cvcLocks && this.cvcLocks.c1 ? '🔒' : '') + (this.cvc.c1 || '_');
-        const vTxt = (this.cvcLocks && this.cvcLocks.v ? '🔒' : '') + (this.cvc.v ? VOWEL_FORMANTS[this.cvc.v].label : '_');
-        const c2Txt = this.cvc.c2 || '_';
-        ctx.fillStyle = 'rgba(4, 9, 22, 0.86)';
-        ctx.strokeStyle = 'rgba(223, 177, 91, 0.65)';
-        ctx.lineWidth = 1.2;
+        const streamDisp = this.phonemeStream.length > 0
+          ? this.phonemeStream.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('·')
+          : 'HIT TARGETS TO SPEAK';
+        ctx.fillStyle = 'rgba(4, 9, 22, 0.88)';
+        ctx.strokeStyle = this.lockedPrefixWord ? '#34d399' : 'rgba(223, 177, 91, 0.65)';
+        ctx.lineWidth = 1.3;
         ctx.beginPath();
-        ctx.roundRect(cx - 52, 686, 104, 24, 6);
+        ctx.roundRect(cx - 58, 686, 116, 24, 6);
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = '700 0.52rem "Silkscreen", monospace';
-        ctx.fillStyle = '#00f2fe';
-        ctx.fillText('[' + c1Txt + '] · [' + vTxt + '] · [' + c2Txt + ']', cx, 697);
+        ctx.font = '700 0.48rem "Silkscreen", monospace';
+        ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : '#00f2fe';
+        ctx.fillText(streamDisp.slice(-18), cx, 697);
 
-        const recipeStr = tObj ? (tObj.c1 + '-' + (VOWEL_FORMANTS[tObj.v[0]] ? VOWEL_FORMANTS[tObj.v[0]].label : tObj.v[0]) + '-' + tObj.c2) : '';
-        ctx.font = '700 0.36rem "Space Mono", monospace';
+        const nextIdx = this.phonemeStream.length;
+        const nextGoalPh = (tObj && tObj.seq[nextIdx]) ? (VOWEL_FORMANTS[tObj.seq[nextIdx]] ? VOWEL_FORMANTS[tObj.seq[nextIdx]].ipa : '[' + tObj.seq[nextIdx] + ']') : '';
+        ctx.font = '700 0.35rem "Space Mono", monospace';
         ctx.fillStyle = '#fde047';
-        ctx.fillText('GOAL: ' + this.targetWord + (recipeStr ? ' (' + recipeStr + ')' : ''), cx, 706);
+        ctx.fillText('GOAL: ' + this.targetWord + (nextGoalPh ? ' (NEXT: ' + nextGoalPh + ')' : ''), cx, 706);
 
         ctx.restore();
       }
@@ -4008,24 +4628,24 @@
         ctx.arc(cx, cy + 5, 16, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Live C-V-C & Rank Readout Over Astrolabe
+        // Live Phoneme Stream & Rank Readout Over Astrolabe
         ctx.textAlign = 'center';
         ctx.font = '700 0.52rem "Cinzel", serif';
         ctx.fillStyle = rk.color;
         ctx.fillText('TIER ' + rk.roman, cx, cy - 13);
 
-        const c1Txt = this.cvc.c1 || '·';
-        const vTxt = this.cvc.v ? VOWEL_FORMANTS[this.cvc.v].label : '·';
-        const c2Txt = this.cvc.c2 || '·';
-        ctx.font = '700 0.74rem "Silkscreen", monospace';
-        ctx.fillStyle = '#ffffff';
+        const streamStr = this.phonemeStream.length > 0
+          ? this.phonemeStream.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('-')
+          : '· - · - ·';
+        ctx.font = '700 0.62rem "Silkscreen", monospace';
+        ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : '#ffffff';
         ctx.shadowColor = '#000000';
         ctx.shadowBlur = 4;
-        ctx.fillText(c1Txt + '-' + vTxt + '-' + c2Txt, cx, cy + 4);
+        ctx.fillText(streamStr.slice(-11), cx, cy + 4);
 
         ctx.font = '700 0.44rem "Space Mono", monospace';
         ctx.fillStyle = '#fde047';
-        ctx.fillText('WORD: ' + this.targetWord, cx, cy + 18);
+        ctx.fillText(this.lockedPrefixWord ? ('✓ ' + this.lockedPrefixWord.word) : ('WORD: ' + this.targetWord), cx, cy + 18);
         ctx.shadowBlur = 0;
 
         ctx.restore();
@@ -4143,35 +4763,61 @@
         ctx.save();
         ctx.textAlign = 'center';
 
-        // Top 3 Carved Golden Vowel Rollover Arches (/i/, /ɑ/, /u/)
+        // 0. Upper Playfield Formant Vowel Triangle Constellation (Connecting /i/, /ɑ/, /u/ & 4 Vowel Bumpers)
+        if (this.topLanes.length >= 3 && this.bumpers.length >= 4) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(0, 242, 254, 0.22)';
+          ctx.lineWidth = 1.4;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          // Outer Acoustic Triangle from Top Front /i/ (144,84) -> Back /u/ (256,84) -> Low/Central /ʌ/ (200,220)
+          ctx.moveTo(this.topLanes[0].x, this.topLanes[0].y);
+          ctx.lineTo(this.topLanes[2].x, this.topLanes[2].y);
+          ctx.lineTo(this.bumpers[2].x, this.bumpers[2].y);
+          ctx.lineTo(this.bumpers[3].x, this.bumpers[3].y);
+          ctx.lineTo(this.bumpers[1].x, this.bumpers[1].y);
+          ctx.closePath();
+          // Inner cross-harmonic web
+          ctx.moveTo(this.topLanes[1].x, this.topLanes[1].y);
+          ctx.lineTo(this.bumpers[0].x, this.bumpers[0].y);
+          ctx.lineTo(this.bumpers[3].x, this.bumpers[3].y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+
+        // Top 3 Wide-Open Golden Vowel Rollover Lanes (/i/, /ɑ/, /u/) — 56px wide channels!
         this.topLanes.forEach((l, idx) => {
           const vf = VOWEL_FORMANTS[l.vowel];
           const isSkillShot = this.skillShotActive && idx === this.skillShotLaneIdx;
+          const isStreamMatch = this.phonemeStream.length > 0 && this.canExtendStreamWith(l.vowel);
 
-          // Golden Arch Pediment Frame
-          ctx.fillStyle = '#785212';
+          // Sleek Overhead Arch Header Bar (sits at top of lane y=64..70, never blocking the 56px lane!)
+          ctx.fillStyle = isSkillShot ? '#ffd700' : '#785212';
           ctx.strokeStyle = isSkillShot ? '#ffffff' : '#ffd700';
-          ctx.lineWidth = isSkillShot ? 2.2 : 1.3;
-          ctx.fillRect(l.x - 16, l.y - 16, 32, 30);
-          ctx.strokeRect(l.x - 16, l.y - 16, 32, 30);
-
-          // Illuminated Vowel Medallion
+          ctx.lineWidth = isSkillShot ? 1.8 : 1.1;
           ctx.beginPath();
-          ctx.arc(l.x, l.y, 11, 0, Math.PI * 2);
+          ctx.roundRect(l.x - 18, l.y - 20, 36, 6, 3);
+          ctx.fill();
+          ctx.stroke();
+
+          // Flush Recessed Floor Rollover Medallion (r = 10px inside 56px lane)
+          ctx.beginPath();
+          ctx.arc(l.x, l.y + 2, 10, 0, Math.PI * 2);
           ctx.fillStyle = l.lit ? vf.color : (isSkillShot ? 'rgba(255, 215, 0, ' + (0.35 + 0.55 * pulse) + ')' : '#091326');
-          if (l.lit || isSkillShot) {
+          if (l.lit || isSkillShot || isStreamMatch) {
             ctx.shadowColor = isSkillShot ? '#ffd700' : vf.color;
             ctx.shadowBlur = 12;
           }
           ctx.fill();
           ctx.shadowBlur = 0;
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 1.4;
+          ctx.strokeStyle = isStreamMatch ? '#00f2fe' : '#fef08a';
+          ctx.lineWidth = isStreamMatch ? 2.0 : 1.4;
           ctx.stroke();
 
-          ctx.font = '700 0.58rem "Space Mono", monospace';
+          ctx.font = '700 0.56rem "Space Mono", monospace';
           ctx.fillStyle = l.lit ? '#040814' : '#ffffff';
-          ctx.fillText(l.label, l.x, l.y + 3.5);
+          ctx.fillText(l.label, l.x, l.y + 5.5);
         });
 
         // 6 Fuel Rollover Lights (Glowing Bitumen Fire Insets)
@@ -4213,9 +4859,6 @@
 
       renderWormholes(ctx, now) {
         const pulse = 0.5 + 0.5 * Math.sin(now * 0.01);
-        const validC2Set = new Set(
-          (this.cvc.c1 && this.cvc.v) ? this.getValidNextCompletions().map(w => w.c2) : []
-        );
         ctx.save();
         ctx.textAlign = 'center';
 
@@ -4249,7 +4892,7 @@
         ctx.restore();
 
         for (const wh of this.wormholes) {
-          const isC2Match = validC2Set.has(wh.cons);
+          const isStreamMatch = this.phonemeStream.length > 0 && this.canExtendStreamWith(wh.cons);
           if (wh.isHyperspace) {
             // GLOWING CYAN ACRYLIC HYPERSPACE TUNNEL & RAMP PLATE (Right Chute [S])
             const cGrad = ctx.createRadialGradient(wh.x, wh.y, 3, wh.x, wh.y, 26);
@@ -4268,8 +4911,8 @@
           ctx.arc(wh.x, wh.y, wh.r + 3.5, 0, Math.PI * 2);
           ctx.fillStyle = '#475569';
           ctx.fill();
-          ctx.lineWidth = isC2Match ? 2.8 : 2.2;
-          ctx.strokeStyle = isC2Match ? '#00f2fe' : '#ffd700';
+          ctx.lineWidth = isStreamMatch ? 2.8 : 2.2;
+          ctx.strokeStyle = isStreamMatch ? '#00f2fe' : '#ffd700';
           ctx.stroke();
 
           // Deep Dark Subterranean Kicker Cavity
@@ -4279,8 +4922,8 @@
           ctx.fill();
           ctx.lineWidth = 2.0;
           ctx.strokeStyle = wh.color;
-          ctx.shadowColor = isC2Match ? '#00f2fe' : wh.color;
-          ctx.shadowBlur = (isC2Match ? 14 : 8) + pulse * 6;
+          ctx.shadowColor = isStreamMatch ? '#00f2fe' : wh.color;
+          ctx.shadowBlur = (isStreamMatch ? 14 : 8) + pulse * 6;
           ctx.stroke();
           ctx.shadowBlur = 0;
 
@@ -4293,7 +4936,6 @@
       }
 
       renderBumpers(ctx, now) {
-        const needVowel = !!this.cvc.c1 && !this.cvc.v;
         const pulse = 0.5 + 0.5 * Math.sin(now * 0.012);
 
         ctx.save();
@@ -4301,6 +4943,7 @@
 
         for (const bmp of this.bumpers) {
           const vf = VOWEL_FORMANTS[bmp.vowel];
+          const isStreamMatch = this.phonemeStream.length > 0 && this.canExtendStreamWith(bmp.vowel);
           const scale = 1 + bmp.hitAnim * 0.22;
           const outerR = (bmp.r + 6) * scale;
           const innerR = (bmp.r - 1.5) * scale;
@@ -4328,14 +4971,14 @@
           starGrad.addColorStop(0.5, '#eab308');
           starGrad.addColorStop(1, '#854d0e');
           ctx.fillStyle = bmp.hitAnim > 0.1 ? '#ffffff' : starGrad;
-          if (needVowel || bmp.hitAnim > 0.1) {
-            ctx.shadowColor = '#ffd700';
+          if (isStreamMatch || bmp.hitAnim > 0.1) {
+            ctx.shadowColor = isStreamMatch ? '#00f2fe' : '#ffd700';
             ctx.shadowBlur = 12 + pulse * 6;
           }
           ctx.fill();
           ctx.shadowBlur = 0;
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = isStreamMatch ? '#00f2fe' : '#fef08a';
+          ctx.lineWidth = isStreamMatch ? 1.8 : 1.2;
           ctx.stroke();
 
           // 3. Beaded Golden Pearl Ring (12 Beads)
@@ -4370,10 +5013,8 @@
 
       renderTargetBanks(ctx, now) {
         const targetObj = CVC_WORDS.find(w => w.word === this.targetWord);
-        const neededCons = !this.cvc.c1 ? (targetObj && targetObj.c1) : (this.cvc.v ? (targetObj && targetObj.c2) : null);
-        const validC2Set = new Set(
-          (this.cvc.c1 && this.cvc.v) ? this.getValidNextCompletions().map(w => w.c2) : []
-        );
+        const nextIdx = this.phonemeStream.length;
+        const neededCons = (targetObj && targetObj.seq[nextIdx]) ? targetObj.seq[nextIdx] : null;
         const pulse = 0.5 + 0.5 * Math.sin(now * 0.012);
 
         ctx.save();
@@ -4381,22 +5022,22 @@
 
         const drawTablet = (t, baseColor) => {
           const isNeeded = neededCons === t.cons;
-          const isValidC2 = validC2Set.has(t.cons);
+          const isValidExt = this.phonemeStream.length > 0 && this.canExtendStreamWith(t.cons);
           const w = 20, h = 25;
           ctx.save();
           ctx.translate(t.x, t.y);
 
           // Recessed Stone Cuneiform Tablet
           ctx.fillStyle = t.isDown ? 'rgba(15, 23, 42, 0.45)' : (t.hitAnim > 0 ? '#ffffff' : '#b48a4e');
-          if ((isNeeded || isValidC2) && !t.isDown) {
+          if ((isNeeded || isValidExt) && !t.isDown) {
             ctx.shadowColor = isNeeded ? '#ffd700' : '#00f2fe';
             ctx.shadowBlur = (isNeeded ? 12 : 9) + pulse * 6;
           }
           ctx.fillRect(-w / 2, -h / 2, w, h);
           ctx.shadowBlur = 0;
 
-          ctx.lineWidth = (isNeeded || isValidC2) ? 2.2 : 1.3;
-          ctx.strokeStyle = isNeeded ? '#ffd700' : (isValidC2 ? '#00f2fe' : baseColor);
+          ctx.lineWidth = (isNeeded || isValidExt) ? 2.2 : 1.3;
+          ctx.strokeStyle = isNeeded ? '#ffd700' : (isValidExt ? '#00f2fe' : baseColor);
           ctx.strokeRect(-w / 2, -h / 2, w, h);
 
           if (!t.isDown) {
@@ -4571,17 +5212,15 @@
           const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
           let aimTarget = null;
           if (tObj) {
-            if (!this.cvc.c1 || !this.cvc.v) {
-              const allCons = [...this.leftDropBank, ...this.missionStandups, ...this.rightDropBank, ...this.wormholes];
-              const needC = !this.cvc.c1 ? tObj.c1 : tObj.c2;
-              if (!this.cvc.c1) {
-                aimTarget = allCons.find(x => x.cons === needC && !x.isDown);
-              } else {
-                aimTarget = this.bumpers.find(x => x.vowel === tObj.v[0]) || { x: this.launchRamp.entryX, y: this.launchRamp.entryY };
-              }
+            const nextPh = tObj.seq[this.phonemeStream.length] || tObj.seq[0];
+            if (VOWEL_FORMANTS[nextPh]) {
+              aimTarget = this.bumpers.find(x => x.vowel === nextPh)
+                || this.topLanes.find(x => x.vowel === nextPh)
+                || { x: this.launchRamp.entryX, y: this.launchRamp.entryY };
             } else {
               const allCons = [...this.leftDropBank, ...this.missionStandups, ...this.rightDropBank, ...this.wormholes];
-              aimTarget = allCons.find(x => x.cons === tObj.c2 && !x.isDown);
+              aimTarget = allCons.find(x => x.cons === nextPh && !x.isDown)
+                || allCons.find(x => x.cons === nextPh);
             }
           }
           if (aimTarget) {
