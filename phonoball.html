@@ -1726,29 +1726,32 @@
         glottal.stop(now + duration);
       }
 
-      speakPhonemeSequence(seq) {
+      speakPhonemeSequence(seq, isSacred = false) {
         if (!seq || seq.length === 0) return;
-        if (seq.length === 3 && CONSONANT_PROFILES[seq[0]] && VOWEL_FORMANTS[seq[1]] && CONSONANT_PROFILES[seq[2]]) {
+        const useChoir = isSacred || seq.length >= 5;
+        if (!useChoir && seq.length === 3 && CONSONANT_PROFILES[seq[0]] && VOWEL_FORMANTS[seq[1]] && CONSONANT_PROFILES[seq[2]]) {
           this.speakCVCWord(seq[0], seq[1], seq[2]);
           return;
         }
-        // Multi-phoneme continuous co-articulated speech synthesis (2 to 10+ phonemes)
+        // Multi-phoneme continuous co-articulated speech synthesis with rising prosodic contour & harmonic choir
         seq.forEach((ph, idx) => {
-          const delayMs = idx * 105;
+          const delayMs = idx * 98;
           setTimeout(() => {
             if (VOWEL_FORMANTS[ph]) {
-              this.speakVowel(ph, 0.17, 134 - (idx % 3) * 5);
+              const contourPitch = 128 + Math.sin((idx / Math.max(1, seq.length - 1)) * Math.PI) * 24;
+              this.speakVowel(ph, 0.19, contourPitch, useChoir);
             } else if (CONSONANT_PROFILES[ph]) {
-              this.speakConsonant(ph);
+              this.speakConsonant(ph, 126 + idx * 4);
             }
           }, delayMs);
         });
         setTimeout(() => {
-          this.playWordChord();
-        }, seq.length * 105 + 60);
+          if (useChoir) this.playSacredChoirChord();
+          else this.playWordChord();
+        }, seq.length * 98 + 55);
       }
 
-      speakVowel(vowelKey, duration = 0.24, pitch = 130) {
+      speakVowel(vowelKey, duration = 0.24, pitch = 130, isChoir = false) {
         if (!this.isSetup || this.isMuted) return;
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
         this.updateHUDFormants(vf.f1, vf.f2);
@@ -1760,12 +1763,12 @@
         glottal.frequency.exponentialRampToValueAtTime(pitch * 0.94, now + duration);
 
         const subOsc = this.ctx.createOscillator();
-        subOsc.type = 'triangle';
-        subOsc.frequency.setValueAtTime(pitch * 2, now);
+        subOsc.type = isChoir ? 'sawtooth' : 'triangle';
+        subOsc.frequency.setValueAtTime(isChoir ? pitch * 1.498 : pitch * 2, now); // Perfect 5th choir harmony when sacred/long!
 
         const voiceEnv = this.ctx.createGain();
         voiceEnv.gain.setValueAtTime(0.01, now);
-        voiceEnv.gain.linearRampToValueAtTime(0.45, now + 0.025);
+        voiceEnv.gain.linearRampToValueAtTime(isChoir ? 0.54 : 0.45, now + 0.025);
         voiceEnv.gain.exponentialRampToValueAtTime(0.008, now + duration);
 
         const f1Node = this.ctx.createBiquadFilter();
@@ -1793,6 +1796,7 @@
         glottal.connect(f2Node);
         glottal.connect(f3Node);
         subOsc.connect(f1Node);
+        if (isChoir) subOsc.connect(f2Node);
 
         f1Node.connect(f1Gain);
         f2Node.connect(f2Gain);
@@ -1808,7 +1812,7 @@
         subOsc.stop(now + duration);
       }
 
-      speakConsonant(consKey) {
+      speakConsonant(consKey, basePitch = 126) {
         if (!this.isSetup || this.isMuted) return;
         const cp = CONSONANT_PROFILES[consKey] || CONSONANT_PROFILES['T'];
         this.updateHUDFormants(cp.f1, cp.f2);
@@ -1843,8 +1847,8 @@
           const osc = this.ctx.createOscillator();
           osc.type = 'sawtooth';
           const dur = cp.type === 'nasal' || cp.type === 'liquid' ? 0.14 : 0.11;
-          osc.frequency.setValueAtTime(126, now);
-          osc.frequency.exponentialRampToValueAtTime(112, now + dur);
+          osc.frequency.setValueAtTime(basePitch, now);
+          osc.frequency.exponentialRampToValueAtTime(basePitch * 0.89, now + dur);
 
           const f1 = this.ctx.createBiquadFilter();
           f1.type = 'bandpass';
@@ -1955,21 +1959,142 @@
       }
 
       playFlipperClick(isUp = true) {
-        if (!this.isSetup) return;
+        if (!this.isSetup || this.isMuted) return;
         const now = this.ctx.currentTime;
+        // 1. Heavy 55Hz cabinet solenoid thud
+        const thud = this.ctx.createOscillator();
+        thud.type = 'sine';
+        thud.frequency.setValueAtTime(isUp ? 85 : 58, now);
+        thud.frequency.exponentialRampToValueAtTime(32, now + 0.055);
+        const tg = this.ctx.createGain();
+        tg.gain.setValueAtTime(0.34, now);
+        tg.gain.exponentialRampToValueAtTime(0.004, now + 0.055);
+        thud.connect(tg);
+        tg.connect(this.masterGain);
+        thud.start(now);
+        thud.stop(now + 0.055);
+
+        // 2. Crisp mechanical relay snap
         const osc = this.ctx.createOscillator();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(isUp ? 160 : 110, now);
-        osc.frequency.exponentialRampToValueAtTime(isUp ? 420 : 65, now + 0.045);
-
+        osc.frequency.setValueAtTime(isUp ? 180 : 120, now);
+        osc.frequency.exponentialRampToValueAtTime(isUp ? 480 : 75, now + 0.038);
         const g = this.ctx.createGain();
-        g.gain.setValueAtTime(0.28, now);
-        g.gain.exponentialRampToValueAtTime(0.005, now + 0.045);
-
+        g.gain.setValueAtTime(0.24, now);
+        g.gain.exponentialRampToValueAtTime(0.005, now + 0.038);
         osc.connect(g);
         g.connect(this.masterGain);
         osc.start(now);
-        osc.stop(now + 0.045);
+        osc.stop(now + 0.038);
+      }
+
+      playPlungerPullTick(chargePct = 50) {
+        if (!this.isSetup || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        osc.type = 'square';
+        const f = 190 + chargePct * 3.8;
+        osc.frequency.setValueAtTime(f, now);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.25, now + 0.022);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.11, now);
+        g.gain.exponentialRampToValueAtTime(0.003, now + 0.024);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.024);
+      }
+
+      playWireformRollTick(progress = 0.5) {
+        if (!this.isSetup || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        const f = 520 + Math.sin(progress * Math.PI * 3) * 140;
+        osc.frequency.setValueAtTime(f, now);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.08, now);
+        g.gain.exponentialRampToValueAtTime(0.003, now + 0.035);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.035);
+      }
+
+      playTargetBankReset() {
+        if (!this.isSetup || this.isMuted) return;
+        [240, 310, 420].forEach((freq, i) => {
+          setTimeout(() => {
+            if (!this.isSetup || this.isMuted) return;
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.4, now + 0.045);
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.24, now);
+            g.gain.exponentialRampToValueAtTime(0.004, now + 0.048);
+            osc.connect(g);
+            g.connect(this.masterGain);
+            osc.start(now);
+            osc.stop(now + 0.048);
+          }, i * 42);
+        });
+      }
+
+      playBonusTick(step = 0) {
+        if (!this.isSetup || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        osc.type = 'triangle';
+        const freq = 330 + Math.min(24, step) * 28;
+        osc.frequency.setValueAtTime(freq, now);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.20, now);
+        g.gain.exponentialRampToValueAtTime(0.004, now + 0.05);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+
+      playSacredChoirChord() {
+        if (!this.isSetup || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        [261.63, 392.00, 523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          osc.type = idx < 2 ? 'sawtooth' : 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.035);
+          const g = this.ctx.createGain();
+          g.gain.setValueAtTime(0.16, now + idx * 0.035);
+          g.gain.exponentialRampToValueAtTime(0.004, now + idx * 0.035 + 0.38);
+          osc.connect(g);
+          g.connect(this.masterGain);
+          osc.start(now + idx * 0.035);
+          osc.stop(now + idx * 0.035 + 0.39);
+        });
+      }
+
+      playBabelThunder() {
+        if (!this.isSetup || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        if (this.noiseBuffer) {
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(420, now);
+          filter.frequency.exponentialRampToValueAtTime(75, now + 0.55);
+          const g = this.ctx.createGain();
+          g.gain.setValueAtTime(0.45, now);
+          g.gain.exponentialRampToValueAtTime(0.005, now + 0.55);
+          noise.connect(filter);
+          filter.connect(g);
+          g.connect(this.masterGain);
+          noise.start(now);
+          noise.stop(now + 0.55);
+        }
+        this.playPromotionFanfare();
       }
 
       playSpinnerTick(pitch = 880) {
@@ -2177,15 +2302,23 @@
         this.ball = this.createBall(427, 740);
         this.balls = [this.ball];
         this.isMultiball = false;
+        this.lockLit = true;
+        this.lockedBallsCount = 0;
+        this.babelFrenzyTimer = 0;
+        this.jackpotLit = false;
+        this.ballWordsCount = 0;
+        this.ballSacredCount = 0;
 
         // Physics Constants
         this.gravity = 0.145;
         this.plungerCharge = 0;
+        this.lastPlungerTickPct = 0;
         this.isChargingPlunger = false;
         this.centerPostTimer = 11000; // Furnace Ball-save post active at start of ball
         this.kickbackLit = true;
         this.gravityWellTimer = 0; // Center Gravity Well active timer
         this.shakeTimer = 0;
+        this.orbitGateFlap = { x: 318, y: 52, openAnim: 0 };
 
         // ---------------------------------------------------------------------
         // SPACE CADET 4-FLIPPER GEOMETRY (2 Main Bottom + 2 Midfield Upper)
@@ -2242,11 +2375,16 @@
         };
 
         // ---------------------------------------------------------------------
-        // 2 RUBY & BRASS REBOUND RUBBER POSTS (Above Inlane/Outlane Dividers)
+        // 2 RUBY & BRASS REBOUND RUBBER POSTS + 2 MID-FIELD GOLDEN DEFLECTOR WEDGES
         // ---------------------------------------------------------------------
         this.reboundPosts = [
           { x: 46,  y: 568, r: 6.5, flash: 0, vowel: 'EH' },
           { x: 370, y: 568, r: 6.5, flash: 0, vowel: 'OH' }
+        ];
+
+        this.midDeflectors = [
+          { x: 102, y: 312, r: 10.5, side: 'left',  cons: 'M', vowel: 'IH', flash: 0, cooldown: 0 },
+          { x: 294, y: 312, r: 10.5, side: 'right', cons: 'N', vowel: 'OH', flash: 0, cooldown: 0 }
         ];
 
         // ---------------------------------------------------------------------
@@ -2495,7 +2633,8 @@
       }
 
       registerConsonant(consKey, x, y) {
-        this.synth.speakConsonant(consKey);
+        const prosodyPitch = 124 + Math.min(8, this.phonemeStream.length) * 6;
+        this.synth.speakConsonant(consKey, prosodyPitch);
         const cp = CONSONANT_PROFILES[consKey];
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = '[' + consKey + '] ' + (cp ? cp.group : '');
@@ -2504,7 +2643,8 @@
 
       registerVowel(vowelKey, x, y) {
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
-        this.synth.speakVowel(vowelKey, 0.22, 128 + this.bumperTier * 10);
+        const prosodyPitch = 128 + this.bumperTier * 8 + Math.min(8, this.phonemeStream.length) * 7;
+        this.synth.speakVowel(vowelKey, 0.22, prosodyPitch, this.babelFrenzyTimer > 0);
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = vf.ipa + ' (' + vowelKey + ')';
         this.pushPhonemeToStream(vowelKey, x, y);
@@ -2699,17 +2839,26 @@
         const isTarget = match.word === this.targetWord;
         const isSacred = !!match.sacred;
         const isLongMasterpiece = match.seq.length >= 5;
-        const superMult = this.superShotTimer > 0 ? 2 : 1;
+        const superMult = (this.superShotTimer > 0 ? 2 : 1) * (this.babelFrenzyTimer > 0 ? 2 : 1);
         const lengthBonus = match.seq.length > 3 ? Math.pow(match.seq.length / 3, 1.35) : 1.0;
         const vowelAccuracyMult = isExactFormant ? 1.15 : 0.80;
 
         let pts = Math.round((match.pts * lengthBonus * vowelAccuracyMult * (isTarget ? 2 : 1) * superMult) * this.multiplier);
 
-        // Synthesize full phoneme sequence aloud & trace across Formant Vowel Triangle!
-        this.synth.speakPhonemeSequence(match.seq);
+        // Synthesize full phoneme sequence aloud (2-voice harmonic choir for Sacred / Masterpiece words!)
+        this.synth.speakPhonemeSequence(match.seq, isSacred || isLongMasterpiece);
+
+        this.ballWordsCount = (this.ballWordsCount || 0) + 1;
+        if (this.ballWordsCount % 3 === 0) {
+          this.lockLit = true;
+        }
+        if (isSacred) {
+          this.ballSacredCount = (this.ballSacredCount || 0) + 1;
+        }
 
         if (isTarget || isSacred || isLongMasterpiece) {
           this.centerPostTimer = Math.max(this.centerPostTimer, 9500);
+          this.jackpotLit = true;
         }
 
         const c1 = match.c1 || match.seq[0];
@@ -2761,6 +2910,9 @@
         }
         if (isTarget) {
           this.pickNextTargetWord();
+        }
+        if (isSacred && this.ballSacredCount >= 3 && this.babelFrenzyTimer <= 0 && !this.isMultiball) {
+          this.triggerBabelFrenzy();
         }
 
         // Reset stream (preserving locked onset C1 if pinned)
@@ -2898,6 +3050,18 @@
         this.showBanner('⚡ MULTIBALL UNLEASHED ⚡', title, 'ALL SCORES MULTIPLIED!');
       }
 
+      triggerBabelFrenzy() {
+        this.babelFrenzyTimer = 25000;
+        this.jackpotLit = true;
+        this.lockedBallsCount = 0;
+        this.lockLit = false;
+        this.centerPostTimer = Math.max(this.centerPostTimer, 15000);
+        this.synth.playBabelThunder();
+        this.spawnShockwave(198, 36, '#00f2fe');
+        this.spawnShockwave(208, 445, '#ffd700');
+        this.triggerMultiball(3, 'CONFUSION OF TONGUES!');
+      }
+
       addScore(pts) {
         this.score += Math.round(pts);
         if (this.score > this.highScore) {
@@ -2923,16 +3087,26 @@
       update(dt = 16.67) {
         dt = (typeof dt === 'number' && !isNaN(dt) && dt > 0) ? dt : 16.67;
 
-        // 1. Plunger Charging
+        // 1. Plunger Charging & Mechanical Spring Ratchet Ticks
         if (this.isChargingPlunger) {
           this.plungerCharge = Math.min(100, this.plungerCharge + dt * 0.11);
+          if (this.plungerCharge - (this.lastPlungerTickPct || 0) >= 12) {
+            this.lastPlungerTickPct = this.plungerCharge;
+            this.synth.playPlungerPullTick(this.plungerCharge);
+          }
+        } else {
+          this.lastPlungerTickPct = 0;
         }
 
-        // 2. Timers (Furnace Ball-Save Post, Super Flipper Charge, Gravity Well, Shake, Combo, Utterance Breath, Fuel)
+        // 2. Timers (Furnace Ball-Save Post, Super Flipper Charge, Babel Frenzy, Gravity Well, Shake, Combo, Utterance Breath, Fuel)
         if (this.centerPostTimer > 0) this.centerPostTimer = Math.max(0, this.centerPostTimer - dt);
         if (this.superShotTimer > 0) this.superShotTimer = Math.max(0, this.superShotTimer - dt);
+        if (this.babelFrenzyTimer > 0) this.babelFrenzyTimer = Math.max(0, this.babelFrenzyTimer - dt);
         if (this.gravityWellTimer > 0) this.gravityWellTimer = Math.max(0, this.gravityWellTimer - dt);
         if (this.shakeTimer > 0) this.shakeTimer = Math.max(0, this.shakeTimer - dt);
+        if (this.orbitGateFlap && this.orbitGateFlap.openAnim > 0) {
+          this.orbitGateFlap.openAnim = Math.max(0, this.orbitGateFlap.openAnim - 0.035);
+        }
         if (this.comboTimer > 0) {
           this.comboTimer = Math.max(0, this.comboTimer - dt);
           if (this.comboTimer === 0) this.comboCount = 0;
@@ -3004,6 +3178,12 @@
         this.reboundPosts.forEach(rp => {
           if (rp.flash > 0) rp.flash = Math.max(0, rp.flash - 0.06);
         });
+        if (this.midDeflectors) {
+          this.midDeflectors.forEach(md => {
+            if (md.flash > 0) md.flash = Math.max(0, md.flash - 0.06);
+            if (md.cooldown > 0) md.cooldown = Math.max(0, md.cooldown - dt);
+          });
+        }
         this.fuelRollovers.forEach(fr => {
           if (fr.cooldown > 0) fr.cooldown -= dt;
         });
@@ -3085,6 +3265,7 @@
                 b.vy = -6.2;
               } else {
                 b.inPlungerLane = false;
+                if (this.orbitGateFlap) this.orbitGateFlap.openAnim = 1.0;
                 const pwr = b.launchPower || 55;
                 b.x = 318;
                 b.y = 52;
@@ -3154,7 +3335,11 @@
 
           // Elevated Habitrail Ramp Transit (exits at 64, 600 right into Left Inlane [I]!)
           if (b.onRamp) {
+            const prevProg = b.rampProgress;
             b.rampProgress += 0.022 * (dt / 16.67);
+            if (Math.floor(b.rampProgress * 8) > Math.floor(prevProg * 8)) {
+              this.synth.playWireformRollTick(b.rampProgress);
+            }
             const path = this.launchRamp.path;
             const totalSegs = path.length - 1;
             const scaled = Math.min(totalSegs - 0.001, b.rampProgress * totalSegs);
@@ -3367,6 +3552,27 @@
             }
           }
         }
+
+        // 2 Mid-Field Golden Triangular Deflector Wedges (Left x=102, y=312; Right x=294, y=312)
+        if (this.midDeflectors) {
+          for (const md of this.midDeflectors) {
+            if (this.collideCircleObstacle(b, md.x, md.y, md.r, 1.38)) {
+              if (md.cooldown <= 0) {
+                md.cooldown = 280;
+                md.flash = 1.0;
+                this.addScore(350 * this.multiplier);
+                this.synth.playBumperBoing(this.bumperTier);
+                this.spawnParticles(md.x, md.y, '#ffd700', 8);
+                // Smart Stream Feed: Feeds whichever phoneme (vowel or consonant) extends the player's active stream!
+                if (this.phonemeStream.length > 0 && this.canExtendStreamWith(md.vowel)) {
+                  this.registerVowel(md.vowel, md.x, md.y);
+                } else if (this.canExtendStreamWith(md.cons)) {
+                  this.registerConsonant(md.cons, md.x, md.y);
+                }
+              }
+            }
+          }
+        }
       }
 
       checkOrbitSpinner(b) {
@@ -3455,8 +3661,10 @@
             }
             if (this.leftDropBank.every(x => x.isDown)) {
               this.kickbackLit = true;
+              this.lockLit = true;
               this.addScore(4000 * this.multiplier);
-              this.spawnFloatingText(85, 498, 'LABIAL TABLETS CLEAR! KICKBACK LIT +4,000', '#f97316', true);
+              this.synth.playTargetBankReset();
+              this.spawnFloatingText(85, 498, 'LABIAL TABLETS CLEAR! LOCK & KICKBACK LIT +4,000', '#f97316', true);
               setTimeout(() => this.leftDropBank.forEach(x => { x.isDown = false; }), 2200);
             }
           }
@@ -3494,8 +3702,10 @@
             }
             if (this.rightDropBank.every(x => x.isDown)) {
               this.centerPostTimer = Math.max(this.centerPostTimer, 12000);
+              this.lockLit = true;
               this.addScore(4000 * this.multiplier);
-              this.spawnFloatingText(310, 498, 'VELAR TABLETS CLEAR! FURNACE SAVE +4,000', '#a855f7', true);
+              this.synth.playTargetBankReset();
+              this.spawnFloatingText(310, 498, 'VELAR TABLETS CLEAR! LOCK & FURNACE LIT +4,000', '#a855f7', true);
               setTimeout(() => this.rightDropBank.forEach(x => { x.isDown = false; }), 2200);
             }
           }
@@ -3627,6 +3837,21 @@
               }
             }
 
+            if (wh.id === 'CENTER' && this.lockLit && !this.isMultiball) {
+              this.lockedBallsCount = (this.lockedBallsCount || 0) + 1;
+              this.lockLit = false;
+              if (this.lockedBallsCount === 1) {
+                const lockPts = 10000 * this.multiplier;
+                this.addScore(lockPts);
+                this.awardRankLights(1);
+                this.synth.playSacredChoirChord();
+                this.spawnShockwave(wh.x, wh.y, '#ffd700');
+                this.spawnFloatingText(wh.x - 45, wh.y - 18, '🔒 VESSEL 1 LOCKED IN SANCTUARY! +' + lockPts.toLocaleString(), '#ffd700', true);
+              } else if (this.lockedBallsCount >= 2) {
+                this.triggerBabelFrenzy();
+              }
+            }
+
             if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'WORMHOLE') {
               this.advanceMission(1);
             }
@@ -3647,10 +3872,18 @@
           this.synth.playRampAscent();
           this.fuel = 6.0;
 
-          // Combo Counter
+          // Combo Counter & Babel Ramp Jackpot!
           this.comboCount = this.comboTimer > 0 ? this.comboCount + 1 : 1;
           this.comboTimer = 6500;
-          const rampPts = (3000 * this.comboCount) * this.multiplier;
+          let rampPts = (3000 * this.comboCount) * this.multiplier;
+          if (this.jackpotLit || this.babelFrenzyTimer > 0 || this.isMultiball) {
+            const jpPts = 25000 * this.multiplier * (this.babelFrenzyTimer > 0 ? 2 : 1);
+            rampPts += jpPts;
+            if (this.babelFrenzyTimer <= 0) this.jackpotLit = false;
+            this.synth.playSacredChoirChord();
+            this.spawnShockwave(lr.entryX, lr.entryY, '#ffd700');
+            this.spawnFloatingText(140, 185, '👑 BABEL RAMP JACKPOT! +' + jpPts.toLocaleString() + ' 👑', '#ffd700', true);
+          }
           this.addScore(rampPts);
 
           // Golden Vowel Bridge: Automatically injects the next needed vowel for your active stream or Target Word!
@@ -3697,10 +3930,24 @@
           return;
         }
 
+        // End-of-Ball Babylonian Tablet Bonus Countdown!
+        const wordsSpokenThisBall = this.ballWordsCount || 0;
+        const sacredThisBall = this.ballSacredCount || 0;
+        const tabletBonus = ((wordsSpokenThisBall * 2500) + (sacredThisBall * 8000) + ((this.rankIndex + 1) * 3000)) * this.multiplier;
+        this.addScore(tabletBonus);
+        const tickCount = Math.min(12, Math.max(4, wordsSpokenThisBall + 3));
+        for (let t = 0; t < tickCount; t++) {
+          setTimeout(() => this.synth.playBonusTick(t), t * 55);
+        }
+
         if (this.ballNumber < this.maxBalls) {
           this.ballNumber++;
           this.resetBall();
-          this.showBanner('VESSEL ' + this.ballNumber + ' OF ' + this.maxBalls, 'READY IN LAUNCH TUBE', 'AIM FOR FLASHING SKILL SHOT ARCH!');
+          this.showBanner(
+            'TABLET BONUS +' + tabletBonus.toLocaleString(),
+            'VESSEL ' + this.ballNumber + ' OF ' + this.maxBalls,
+            wordsSpokenThisBall + ' WORDS • ' + sacredThisBall + ' SACRED • ' + this.multiplier + 'X MULT'
+          );
         } else {
           this.isGameOver = true;
           const rk = ZIGGURAT_RANKS[this.rankIndex];
@@ -3716,6 +3963,9 @@
         this.ball = this.createBall(427, 740);
         this.balls = [this.ball];
         this.isMultiball = false;
+        this.babelFrenzyTimer = 0;
+        this.ballWordsCount = 0;
+        this.ballSacredCount = 0;
         this.centerPostTimer = 11000;
         this.kickbackLit = true;
         this.skillShotActive = true;
@@ -3735,6 +3985,10 @@
         this.selectedMissionIdx = 0;
         this.missionActive = false;
         this.missionProgress = 0;
+        this.lockLit = true;
+        this.lockedBallsCount = 0;
+        this.babelFrenzyTimer = 0;
+        this.jackpotLit = false;
         this.cvc = { c1: null, v: null, c2: null };
         this.cvcLocks = { c1: false, v: false };
         this.phonemeStream = [];
@@ -4318,7 +4572,28 @@
         }
         ctx.restore();
 
-        // D. Brushed-Steel Outer Orbit Channel along Upper-Right Launch Curve
+        // C2. Warm Incandescent General Illumination (GI) Playfield Light Pools
+        ctx.save();
+        const giPools = [
+          { x: 200, y: 175, r: 95, c: 'rgba(255, 200, 90, 0.13)' },
+          { x: 105, y: 622, r: 72, c: 'rgba(255, 190, 75, 0.14)' },
+          { x: 311, y: 622, r: 72, c: 'rgba(255, 190, 75, 0.14)' },
+          { x: 84,  y: 290, r: 58, c: 'rgba(251, 146, 60, 0.12)' },
+          { x: 212, y: 114, r: 62, c: this.lockLit ? 'rgba(16, 185, 129, 0.18)' : 'rgba(192, 132, 252, 0.12)' },
+          { x: 208, y: 445, r: 120, c: this.babelFrenzyTimer > 0 ? 'rgba(255, 215, 0, 0.20)' : 'rgba(56, 189, 248, 0.08)' }
+        ];
+        for (const gp of giPools) {
+          const g = ctx.createRadialGradient(gp.x, gp.y, 4, gp.x, gp.y, gp.r);
+          g.addColorStop(0, gp.c);
+          g.addColorStop(1, 'transparent');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(gp.x, gp.y, gp.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // D. Brushed-Steel Outer Orbit Channel along Upper-Right Launch Curve + One-Way Gate Flap
         ctx.save();
         ctx.beginPath();
         ctx.arc(230, 148, 198, Math.PI * 1.12, Math.PI * 1.96);
@@ -4328,6 +4603,26 @@
         ctx.strokeStyle = 'rgba(226, 232, 240, 0.35)';
         ctx.lineWidth = 2;
         ctx.stroke();
+
+        // One-Way Chrome Orbit Gate Flap at (318, 52)
+        if (this.orbitGateFlap) {
+          const gf = this.orbitGateFlap;
+          ctx.save();
+          ctx.translate(gf.x, gf.y);
+          // Brass Hinge Bracket
+          ctx.fillStyle = '#ffd700';
+          ctx.fillRect(-3, -10, 6, 4);
+          // Swinging Stainless Gate Wire
+          const swingAng = -gf.openAnim * 0.85;
+          ctx.rotate(swingAng);
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.moveTo(0, -6);
+          ctx.lineTo(0, 12);
+          ctx.stroke();
+          ctx.restore();
+        }
         ctx.restore();
 
         // E. THE GOLDEN HORNED ZIGGURAT TEMPLE OF MARDUK AT THE SUMMIT (x=198, y=14..60)
@@ -4370,10 +4665,45 @@
         ctx.fillRect(tx - 14, 16, 28, 12); // High shrine
         ctx.strokeRect(tx - 14, 16, 28, 12);
 
-        // Dark Sanctuary Portals
-        ctx.fillStyle = '#090d16';
-        ctx.fillRect(tx - 5, 45, 10, 13);
-        ctx.fillRect(tx - 4, 31, 8, 11);
+        // 7 Illuminated Sanctuary Windows (synced with this.rankLights & Babel Frenzy)
+        const winCoords = [
+          { x: tx - 32, y: 46 }, { x: tx - 20, y: 46 }, { x: tx + 16, y: 46 }, { x: tx + 28, y: 46 },
+          { x: tx - 18, y: 31 }, { x: tx + 14, y: 31 },
+          { x: tx - 2,  y: 19 }
+        ];
+        winCoords.forEach((wc, idx) => {
+          const isLit = idx < this.rankLights || this.babelFrenzyTimer > 0;
+          ctx.fillStyle = isLit ? (this.babelFrenzyTimer > 0 && (Math.floor(now / 80) + idx) % 2 === 0 ? '#00f2fe' : '#fef08a') : '#090d16';
+          if (isLit) {
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 6;
+          }
+          ctx.fillRect(wc.x, wc.y, 4, 7);
+          ctx.shadowBlur = 0;
+        });
+
+        // Central Sanctuary Portal & Lock Status Beacon
+        ctx.fillStyle = this.babelFrenzyTimer > 0 ? '#00f2fe' : (this.lockLit ? '#10b981' : '#090d16');
+        ctx.fillRect(tx - 5, 44, 10, 14);
+        ctx.fillRect(tx - 4, 31, 8, 10);
+
+        // Crackling Lightning Arcs from the Bull Horns of Marduk during Babel Frenzy!
+        if (this.babelFrenzyTimer > 0 || this.promotionReady) {
+          ctx.save();
+          ctx.strokeStyle = this.babelFrenzyTimer > 0 ? '#00f2fe' : '#ffd700';
+          ctx.lineWidth = 1.6;
+          ctx.shadowColor = ctx.strokeStyle;
+          ctx.shadowBlur = 10;
+          const jitter = () => (Math.sin(now * 0.09) * 4);
+          ctx.beginPath();
+          ctx.moveTo(tx - 40, 12);
+          ctx.lineTo(tx - 20, 6 + jitter());
+          ctx.lineTo(tx, 10 - jitter());
+          ctx.lineTo(tx + 20, 6 + jitter());
+          ctx.lineTo(tx + 40, 12);
+          ctx.stroke();
+          ctx.restore();
+        }
 
         // V-Shaped Golden Filigree Wings Framing the 4 Attack Bumpers
         ctx.strokeStyle = '#dfb15b';
@@ -4653,6 +4983,7 @@
 
       renderShotGuidesAndRampBase(ctx, now) {
         const pulse = 0.5 + 0.5 * Math.sin(now * 0.008);
+        const chaseStep = Math.floor(now / 95) % 5;
         ctx.save();
         ctx.textAlign = 'center';
 
@@ -4669,6 +5000,25 @@
         ctx.lineWidth = 20;
         ctx.stroke();
 
+        // Chasing Runway Jewel Lamps Embedded in Left Launch Ramp Floor
+        for (let r = 0; r < 5; r++) {
+          const t = r / 4;
+          const rx = 122 * (1 - t) * (1 - t) + 2 * 88 * (1 - t) * t + 58 * t * t;
+          const ry = 228 * (1 - t) * (1 - t) + 2 * 165 * (1 - t) * t + 96 * t * t;
+          const isChasing = r === chaseStep || this.babelFrenzyTimer > 0;
+          ctx.beginPath();
+          ctx.arc(rx, ry, 3.4, 0, Math.PI * 2);
+          ctx.fillStyle = isChasing
+            ? (this.jackpotLit || this.babelFrenzyTimer > 0 ? '#ffd700' : '#34d399')
+            : '#451a03';
+          if (isChasing) {
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.shadowBlur = 8;
+          }
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
         // Golden Stepped Ishtar Citadel Gate Beside Ramp Entrance (x=96..135, y=125..165)
         ctx.fillStyle = '#b47e16';
         ctx.strokeStyle = '#fef08a';
@@ -4679,9 +5029,10 @@
         ctx.strokeRect(108, 118, 20, 12);
 
         // Flashing Chevrons into Launch Ramp
+        const isJackpotRamp = this.jackpotLit || this.babelFrenzyTimer > 0;
         for (let i = 0; i < 3; i++) {
           const y = 268 - i * 13;
-          ctx.fillStyle = this.promotionReady
+          ctx.fillStyle = (this.promotionReady || isJackpotRamp)
             ? 'rgba(255, 215, 0, ' + (0.4 + 0.6 * pulse) + ')'
             : 'rgba(16, 185, 129, ' + (0.35 + 0.5 * pulse) + ')';
           ctx.beginPath();
@@ -4692,13 +5043,16 @@
           ctx.fill();
         }
         ctx.font = '700 0.44rem "Space Mono", monospace';
-        ctx.fillStyle = this.promotionReady ? '#ffd700' : '#34d399';
-        ctx.fillText(this.promotionReady ? '★ PROMOTE ★' : 'LAUNCH RAMP', 122, 282);
+        ctx.fillStyle = (this.promotionReady || isJackpotRamp) ? '#ffd700' : '#34d399';
+        ctx.fillText(this.promotionReady ? '★ PROMOTE ★' : (isJackpotRamp ? '★ JACKPOT ★' : 'LAUNCH RAMP'), 122, 282);
 
         // 2. Right Hyperspace Chute Chevrons & 4 Hyperspace Level Gems
         for (let i = 0; i < 3; i++) {
           const y = 310 - i * 14;
-          ctx.fillStyle = 'rgba(0, 242, 254, ' + (0.35 + 0.55 * pulse) + ')';
+          const isChaseR = (2 - i) === (chaseStep % 3);
+          ctx.fillStyle = isChaseR
+            ? 'rgba(255, 255, 255, 0.9)'
+            : 'rgba(0, 242, 254, ' + (0.35 + 0.55 * pulse) + ')';
           ctx.beginPath();
           ctx.moveTo(356, y - 5);
           ctx.lineTo(348, y + 3);
@@ -4714,6 +5068,66 @@
         }
         ctx.fillStyle = '#00f2fe';
         ctx.fillText('HYPERSPACE', 356, 326);
+
+        // 3. 2 Mid-Field Golden Triangular Fan-Ribbed Deflector Wedges (Matching Concept Art!)
+        if (this.midDeflectors) {
+          for (const md of this.midDeflectors) {
+            ctx.save();
+            ctx.translate(md.x, md.y);
+            const sDir = md.side === 'left' ? 1 : -1;
+            const scale = 1 + (md.flash || 0) * 0.14;
+            ctx.scale(scale, scale);
+
+            // Drop shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+            ctx.beginPath();
+            ctx.moveTo(-11 * sDir + 2, -13 + 3);
+            ctx.lineTo(13 * sDir + 2, 0 + 3);
+            ctx.lineTo(-11 * sDir + 2, 13 + 3);
+            ctx.closePath();
+            ctx.fill();
+
+            // Sculpted Gold Wedge Body
+            const wGrad = ctx.createLinearGradient(-12, -12, 12, 12);
+            wGrad.addColorStop(0, '#fef08a');
+            wGrad.addColorStop(0.5, '#eab308');
+            wGrad.addColorStop(1, '#78350f');
+            ctx.fillStyle = md.flash > 0.1 ? '#ffffff' : wGrad;
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(-11 * sDir, -13);
+            ctx.lineTo(13 * sDir, 0);
+            ctx.lineTo(-11 * sDir, 13);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Engraved Fan-Shaped Radial Sunburst Ribs Inside Wedge
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.0;
+            for (let rib = -2; rib <= 2; rib++) {
+              ctx.beginPath();
+              ctx.moveTo(11 * sDir, 0);
+              ctx.lineTo(-9 * sDir, rib * 4.5);
+              ctx.stroke();
+            }
+
+            // 3 Brass Acorn Corner Rivets
+            [[-9 * sDir, -10], [10 * sDir, 0], [-9 * sDir, 10]].forEach(([rx, ry]) => {
+              ctx.beginPath();
+              ctx.arc(rx, ry, 1.8, 0, Math.PI * 2);
+              ctx.fillStyle = '#ffffff';
+              ctx.fill();
+            });
+
+            // Phonetic Liaison Badge Below Deflector
+            ctx.font = '700 0.36rem "Space Mono", monospace';
+            ctx.fillStyle = '#fef08a';
+            ctx.fillText('[' + md.cons + ']', 0, 21);
+            ctx.restore();
+          }
+        }
 
         ctx.restore();
       }
@@ -4884,15 +5298,42 @@
         ctx.lineWidth = 1.1;
         ctx.fillRect(-10, -10 * scaleY, 20, 20 * scaleY);
         ctx.strokeRect(-10, -10 * scaleY, 20, 20 * scaleY);
-        if (scaleY > 0.45) {
-          ctx.font = '700 0.42rem "Space Mono", monospace';
-          ctx.fillStyle = '#090d16';
-          ctx.fillText('🐂', 0, 3);
+        if (scaleY > 0.42) {
+          // Custom-Drawn Babylonian Bull of Heaven Bas-Relief on Spinner Plate!
+          ctx.save();
+          ctx.scale(1, scaleY);
+          ctx.strokeStyle = '#451a03';
+          ctx.fillStyle = '#451a03';
+          ctx.lineWidth = 1.4;
+          // Sweeping Crescent Bull Horns
+          ctx.beginPath();
+          ctx.moveTo(-3, -2);
+          ctx.quadraticCurveTo(-8, -5, -6, -8);
+          ctx.moveTo(3, -2);
+          ctx.quadraticCurveTo(8, -5, 6, -8);
+          ctx.stroke();
+          // Sculpted Bull Head & Snout
+          ctx.beginPath();
+          ctx.moveTo(-4, -2);
+          ctx.lineTo(4, -2);
+          ctx.lineTo(2.5, 5);
+          ctx.lineTo(-2.5, 5);
+          ctx.closePath();
+          ctx.fill();
+          // Gold Nose Ring
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 0.9;
+          ctx.beginPath();
+          ctx.arc(0, 6, 1.6, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
         }
         ctx.restore();
 
         for (const wh of this.wormholes) {
           const isStreamMatch = this.phonemeStream.length > 0 && this.canExtendStreamWith(wh.cons);
+          const isCenterLock = !wh.isHyperspace && wh.cons === 'R' && (this.lockLit || this.babelFrenzyTimer > 0);
+
           if (wh.isHyperspace) {
             // GLOWING CYAN ACRYLIC HYPERSPACE TUNNEL & RAMP PLATE (Right Chute [S])
             const cGrad = ctx.createRadialGradient(wh.x, wh.y, 3, wh.x, wh.y, 26);
@@ -4906,30 +5347,85 @@
             ctx.fill();
           }
 
-          // 3D Brushed-Steel Recessed Saucer Housing
+          // 3D Brushed-Steel Hooded Scoop Pocket (Raised Rear Horseshoe Dome + Rivets)
+          ctx.save();
+          ctx.translate(wh.x, wh.y);
+
+          // Cast Shadow Behind Scoop Hood
           ctx.beginPath();
-          ctx.arc(wh.x, wh.y, wh.r + 3.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#475569';
+          ctx.arc(1.5, 2.5, wh.r + 5.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
           ctx.fill();
-          ctx.lineWidth = isStreamMatch ? 2.8 : 2.2;
-          ctx.strokeStyle = isStreamMatch ? '#00f2fe' : '#ffd700';
+
+          // Outer Brushed-Steel Flange Collar
+          const flangeGrad = ctx.createLinearGradient(-(wh.r + 5), -(wh.r + 5), wh.r + 5, wh.r + 5);
+          flangeGrad.addColorStop(0, '#e2e8f0');
+          flangeGrad.addColorStop(0.5, '#64748b');
+          flangeGrad.addColorStop(1, '#1e293b');
+          ctx.beginPath();
+          ctx.arc(0, 0, wh.r + 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = flangeGrad;
+          ctx.fill();
+          ctx.lineWidth = isCenterLock ? 2.8 : (isStreamMatch ? 2.6 : 2.0);
+          ctx.strokeStyle = isCenterLock ? '#10b981' : (isStreamMatch ? '#00f2fe' : '#ffd700');
           ctx.stroke();
 
           // Deep Dark Subterranean Kicker Cavity
           ctx.beginPath();
-          ctx.arc(wh.x, wh.y, wh.r, 0, Math.PI * 2);
+          ctx.arc(0, 1.5, wh.r, 0, Math.PI * 2);
           ctx.fillStyle = '#020617';
           ctx.fill();
           ctx.lineWidth = 2.0;
-          ctx.strokeStyle = wh.color;
-          ctx.shadowColor = isStreamMatch ? '#00f2fe' : wh.color;
-          ctx.shadowBlur = (isStreamMatch ? 14 : 8) + pulse * 6;
+          ctx.strokeStyle = isCenterLock ? '#10b981' : wh.color;
+          ctx.shadowColor = isCenterLock ? '#10b981' : (isStreamMatch ? '#00f2fe' : wh.color);
+          ctx.shadowBlur = (isCenterLock || isStreamMatch ? 14 : 8) + pulse * 6;
           ctx.stroke();
           ctx.shadowBlur = 0;
 
+          // Raised 3D Horseshoe Steel Deflector Hood Covering Top Half of Scoop
+          const hoodGrad = ctx.createLinearGradient(0, -(wh.r + 5), 0, 2);
+          hoodGrad.addColorStop(0, '#f8fafc');
+          hoodGrad.addColorStop(0.55, '#94a3b8');
+          hoodGrad.addColorStop(1, '#334155');
+          ctx.beginPath();
+          ctx.arc(0, 0, wh.r + 4, Math.PI * 1.08, Math.PI * 1.92);
+          ctx.arc(0, 0, wh.r * 0.55, Math.PI * 1.92, Math.PI * 1.08, true);
+          ctx.closePath();
+          ctx.fillStyle = hoodGrad;
+          ctx.fill();
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 1.1;
+          ctx.stroke();
+
+          // 3 Brass Rivets on Steel Scoop Hood
+          [-0.75, -0.5, -0.25].forEach(pf => {
+            const ra = Math.PI * (1 + pf);
+            ctx.beginPath();
+            ctx.arc(Math.cos(ra) * (wh.r + 1.5), Math.sin(ra) * (wh.r + 1.5), 1.3, 0, Math.PI * 2);
+            ctx.fillStyle = '#fef08a';
+            ctx.fill();
+          });
+
           ctx.font = '700 0.62rem "Silkscreen", monospace';
           ctx.fillStyle = '#ffffff';
-          ctx.fillText('[' + wh.cons + ']', wh.x, wh.y + 4);
+          ctx.fillText('[' + wh.cons + ']', 0, 5);
+
+          // Center Sanctuary Scoop [R] Lock Status Callout
+          if (!wh.isHyperspace && wh.cons === 'R') {
+            ctx.font = '700 0.36rem "Space Mono", monospace';
+            if (this.babelFrenzyTimer > 0) {
+              ctx.fillStyle = '#ffd700';
+              ctx.fillText('⚡FRENZY⚡', 0, wh.r + 13);
+            } else if (this.lockedBallsCount > 0) {
+              ctx.fillStyle = '#34d399';
+              ctx.fillText('LOCKED 1/2', 0, wh.r + 13);
+            } else if (this.lockLit) {
+              ctx.fillStyle = '#10b981';
+              ctx.fillText('● LOCK LIT', 0, wh.r + 13);
+            }
+          }
+
+          ctx.restore();
         }
 
         ctx.restore();
@@ -5062,15 +5558,26 @@
       renderPerimeterAndSlingshots(ctx) {
         ctx.save();
 
-        // 1. Sculpted 3D Golden Lion Slingshot Housings
+        // 1. Sculpted 3D Golden Lion of Ishtar Slingshot Housings
         for (const s of this.slingshots) {
-          // Triangular Acrylic Housing Fill
+          // Warm GI Backlight Under Slingshot Plastic
+          const lx = (s.x1 + s.x2 + s.bx) / 3;
+          const ly = (s.y1 + s.y2 + s.by) / 3;
+          const sGlow = ctx.createRadialGradient(lx, ly, 2, lx, ly, 36);
+          sGlow.addColorStop(0, s.flash > 0.1 ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 200, 75, 0.25)');
+          sGlow.addColorStop(1, 'transparent');
+          ctx.fillStyle = sGlow;
+          ctx.beginPath();
+          ctx.arc(lx, ly, 36, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Triangular Lapis & Gold Acrylic Housing Fill
           ctx.beginPath();
           ctx.moveTo(s.x1, s.y1);
           ctx.lineTo(s.x2, s.y2);
           ctx.lineTo(s.bx, s.by);
           ctx.closePath();
-          ctx.fillStyle = 'rgba(14, 30, 68, 0.9)';
+          ctx.fillStyle = 'rgba(12, 26, 62, 0.92)';
           ctx.fill();
 
           // Taut White Rubber Bumper Band & Gold Bevel Rim
@@ -5092,13 +5599,53 @@
             ctx.stroke();
           });
 
-          // Embossed Golden Lion Emblem Inside Slingshot
-          const lx = (s.x1 + s.x2 + s.bx) / 3;
-          const ly = (s.y1 + s.y2 + s.by) / 3;
-          ctx.textAlign = 'center';
-          ctx.font = '700 0.72rem serif';
-          ctx.fillStyle = '#ffd700';
-          ctx.fillText('🦁', lx, ly + 4);
+          // Custom-Drawn Babylonian Striding Lion of Ishtar Bas-Relief Sculpture Inside Slingshot!
+          ctx.save();
+          ctx.translate(lx, ly + 2);
+          const faceDir = lx < 208 ? 1 : -1; // Left lion faces right; Right lion faces left
+          ctx.scale(faceDir, 1);
+
+          // Stepped Golden Brick Pedestal Under Lion
+          ctx.fillStyle = '#b47e16';
+          ctx.fillRect(-11, 8, 22, 3.5);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(-9, 6.5, 18, 1.8);
+
+          // Sculpted Golden Lion Body, Radiant Mane, & S-Curved Tail
+          const lionGrad = ctx.createLinearGradient(-10, -10, 10, 8);
+          lionGrad.addColorStop(0, '#fef08a');
+          lionGrad.addColorStop(0.5, '#ffd700');
+          lionGrad.addColorStop(1, '#b45309');
+          ctx.fillStyle = s.flash > 0.1 ? '#ffffff' : lionGrad;
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 0.9;
+
+          // Muscular Striding Torso & Haunches
+          ctx.beginPath();
+          ctx.moveTo(-8, 6.5);   // Back paw
+          ctx.lineTo(-7, -2);    // Haunch
+          ctx.lineTo(2, -3);     // Back
+          ctx.lineTo(6, -7);     // Mane crest
+          ctx.lineTo(10, -4);    // Roaring snout
+          ctx.lineTo(8, 0);      // Jaw
+          ctx.lineTo(9, 6.5);    // Front striding paw
+          ctx.lineTo(5, 6.5);
+          ctx.lineTo(4, 2);      // Belly
+          ctx.lineTo(-4, 2);
+          ctx.lineTo(-5, 6.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Engraved Lion Mane Rays & Raised S-Tail
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 1.3;
+          ctx.beginPath();
+          ctx.moveTo(-7, -1);
+          ctx.quadraticCurveTo(-12, -6, -8, -9);
+          ctx.stroke();
+
+          ctx.restore();
         }
 
         // 2. Illuminated Red-and-Gold Striped Inlane Guide Bars (Matching Concept Art)
@@ -5132,7 +5679,7 @@
           ctx.stroke();
         }
 
-        // 3. Beveled 3D Brass & Gold Perimeter Walls
+        // 3. Beveled 3D Brass & Gold Perimeter Walls + Chrome Post Rivets
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
         ctx.lineWidth = 5.5;
         ctx.lineCap = 'round';
@@ -5151,6 +5698,96 @@
           ctx.lineTo(w.x2, w.y2);
           ctx.stroke();
         }
+
+        // 4. Heavy Enameled Babylonian Brass & Lapis Bottom Cabinet Apron (y = 676..800)
+        // Left Apron Wing (0..136)
+        const apronGradL = ctx.createLinearGradient(0, 676, 120, 800);
+        apronGradL.addColorStop(0, '#09193a');
+        apronGradL.addColorStop(0.6, '#050d21');
+        apronGradL.addColorStop(1, '#020612');
+        ctx.fillStyle = apronGradL;
+        ctx.beginPath();
+        ctx.moveTo(0, 676);
+        ctx.lineTo(54, 676);
+        ctx.lineTo(138, 746);
+        ctx.lineTo(138, 800);
+        ctx.lineTo(0, 800);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        // Inner Gold Filigree Frame & Instruction Card on Left Apron
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.55)';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(6, 684);
+        ctx.lineTo(50, 684);
+        ctx.lineTo(130, 750);
+        ctx.lineTo(130, 794);
+        ctx.lineTo(6, 794);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(15, 32, 72, 0.9)';
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.2;
+        ctx.fillRect(12, 746, 108, 40);
+        ctx.strokeRect(12, 746, 108, 40);
+        ctx.textAlign = 'center';
+        ctx.font = '700 0.36rem "Cinzel", serif';
+        ctx.fillStyle = '#ffd700';
+        ctx.fillText('ETEMENANKI // BABEL', 66, 758);
+        ctx.font = '700 0.31rem "Space Mono", monospace';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText('LOCK 2 VESSELS IN [R]', 66, 770);
+        ctx.fillStyle = '#34d399';
+        ctx.fillText('FOR 3-BALL FRENZY', 66, 780);
+
+        // Right Apron Wing (278..406)
+        const apronGradR = ctx.createLinearGradient(406, 676, 280, 800);
+        apronGradR.addColorStop(0, '#09193a');
+        apronGradR.addColorStop(0.6, '#050d21');
+        apronGradR.addColorStop(1, '#020612');
+        ctx.fillStyle = apronGradR;
+        ctx.beginPath();
+        ctx.moveTo(406, 676);
+        ctx.lineTo(362, 676);
+        ctx.lineTo(278, 746);
+        ctx.lineTo(278, 800);
+        ctx.lineTo(406, 800);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        // Inner Gold Filigree Frame & Instruction Card on Right Apron
+        ctx.strokeStyle = 'rgba(223, 177, 91, 0.55)';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(400, 684);
+        ctx.lineTo(366, 684);
+        ctx.lineTo(286, 750);
+        ctx.lineTo(286, 794);
+        ctx.lineTo(400, 794);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(15, 32, 72, 0.9)';
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.2;
+        ctx.fillRect(294, 746, 102, 40);
+        ctx.strokeRect(294, 746, 102, 40);
+        ctx.font = '700 0.36rem "Cinzel", serif';
+        ctx.fillStyle = '#ffd700';
+        ctx.fillText('FORMANT SYNTHESIS', 345, 758);
+        ctx.font = '700 0.31rem "Space Mono", monospace';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText('CHAIN CONSONANTS &', 345, 770);
+        ctx.fillStyle = '#00f2fe';
+        ctx.fillText('VOWELS TO SPEAK', 345, 780);
 
         // Left Outlane Kickback Indicator
         ctx.textAlign = 'center';
@@ -5258,16 +5895,31 @@
           ctx.restore();
         }
 
-        // Plunger Spring in Launch Chute
+        // Machined Chrome Shooter Housing & Coiled Steel Plunger Assembly (Bottom-Right Chute)
         const py = 748 + this.plungerCharge * 0.25;
+        // Outer Brushed Chrome Shooter Sleeve
+        const houseGrad = ctx.createLinearGradient(410, 742, 444, 742);
+        houseGrad.addColorStop(0, '#334155');
+        houseGrad.addColorStop(0.45, '#cbd5e1');
+        houseGrad.addColorStop(0.7, '#f8fafc');
+        houseGrad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = houseGrad;
+        ctx.fillRect(410, 774, 34, 26);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 1.4;
+        ctx.strokeRect(410, 774, 34, 26);
+
+        // Brass Plunger Strike Plate & Steel Rod
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(424, py + 4, 6, 780 - py);
         ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(417, py, 20, 6);
-        ctx.strokeStyle = '#dfb15b';
+        ctx.fillRect(416, py, 22, 6);
+        ctx.strokeStyle = '#fef08a';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
-        for (let y = py + 6; y < 784; y += 5) {
-          ctx.moveTo(418, y);
-          ctx.lineTo(436, y + 3);
+        for (let y = py + 6; y < 774; y += 4.5) {
+          ctx.moveTo(417, y);
+          ctx.lineTo(437, y + 2.5);
         }
         ctx.stroke();
 
@@ -5308,7 +5960,9 @@
           for (let i = 0; i < b.trail.length; i++) {
             const pt = b.trail[i];
             const ratio = (i + 1) / b.trail.length;
-            ctx.fillStyle = 'rgba(255, 215, 0, ' + (ratio * 0.22) + ')';
+            ctx.fillStyle = this.babelFrenzyTimer > 0
+              ? 'rgba(0, 242, 254, ' + (ratio * 0.28) + ')'
+              : 'rgba(255, 215, 0, ' + (ratio * 0.22) + ')';
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, b.radius * ratio * 0.85, 0, Math.PI * 2);
             ctx.fill();
@@ -5332,6 +5986,26 @@
         }
 
         if (elevatedOnly) {
+          // Subtle Tempered Pinball Cabinet Glass Reflection Streaks
+          ctx.save();
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.018)';
+          ctx.beginPath();
+          ctx.moveTo(0, 140);
+          ctx.lineTo(175, 0);
+          ctx.lineTo(235, 0);
+          ctx.lineTo(0, 190);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(0, 510);
+          ctx.lineTo(450, 150);
+          ctx.lineTo(450, 185);
+          ctx.lineTo(0, 545);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+
           ctx.textAlign = 'center';
           for (const f of this.floaters) {
             ctx.globalAlpha = Math.max(0, f.alpha);
