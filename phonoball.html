@@ -1688,138 +1688,448 @@
         if (el2) el2.textContent = this.lastF2 + ' Hz';
       }
 
-      playXYFormant(f1Freq, f2Freq, duration = 0.22, pitch = 132) {
+      playXYFormant(f1Freq, f2Freq, duration = 0.42, pitch = 128) {
         this.init();
         this.updateHUDFormants(f1Freq, f2Freq);
         if (!this.isSetup || this.isMuted) return;
         const now = this.ctx.currentTime;
+
+        // Glottal source with natural 5.6 Hz human vocal vibrato + spectral tilt
         const glottal = this.ctx.createOscillator();
         glottal.type = 'sawtooth';
-        glottal.frequency.setValueAtTime(pitch, now);
-        glottal.frequency.exponentialRampToValueAtTime(pitch * 0.95, now + duration);
+        glottal.frequency.setValueAtTime(pitch * 0.97, now);
+        glottal.frequency.linearRampToValueAtTime(pitch * 1.03, now + duration * 0.35);
+        glottal.frequency.exponentialRampToValueAtTime(pitch * 0.93, now + duration);
 
+        const vib = this.ctx.createOscillator();
+        vib.type = 'sine';
+        vib.frequency.setValueAtTime(5.6, now);
+        const vibGain = this.ctx.createGain();
+        vibGain.gain.setValueAtTime(3.6, now);
+        vib.connect(vibGain);
+        vibGain.connect(glottal.frequency);
+
+        const tilt = this.ctx.createBiquadFilter();
+        tilt.type = 'lowpass';
+        tilt.frequency.setValueAtTime(1950, now);
+
+        // Full-bodied sustained vocal plateau envelope (attack -> 280ms sustain -> release)
         const voiceEnv = this.ctx.createGain();
         voiceEnv.gain.setValueAtTime(0.01, now);
-        voiceEnv.gain.linearRampToValueAtTime(0.42, now + 0.02);
+        voiceEnv.gain.linearRampToValueAtTime(0.56, now + 0.032);
+        voiceEnv.gain.setValueAtTime(0.52, now + Math.max(0.05, duration - 0.11));
         voiceEnv.gain.exponentialRampToValueAtTime(0.008, now + duration);
 
         const f1Node = this.ctx.createBiquadFilter();
         f1Node.type = 'bandpass';
         f1Node.frequency.setValueAtTime(f1Freq, now);
-        f1Node.Q.setValueAtTime(5.5, now);
+        f1Node.Q.setValueAtTime(8.5, now);
 
         const f2Node = this.ctx.createBiquadFilter();
         f2Node.type = 'bandpass';
         f2Node.frequency.setValueAtTime(f2Freq, now);
-        f2Node.Q.setValueAtTime(6.5, now);
+        f2Node.Q.setValueAtTime(10.0, now);
         const f2G = this.ctx.createGain();
-        f2G.gain.value = 0.88;
+        f2G.gain.value = 0.92;
 
-        glottal.connect(f1Node);
-        glottal.connect(f2Node);
+        const f3Node = this.ctx.createBiquadFilter();
+        f3Node.type = 'bandpass';
+        f3Node.frequency.setValueAtTime(2500, now);
+        f3Node.Q.setValueAtTime(11.0, now);
+        const f3G = this.ctx.createGain();
+        f3G.gain.value = 0.45;
+
+        glottal.connect(tilt);
+        tilt.connect(f1Node);
+        tilt.connect(f2Node);
+        tilt.connect(f3Node);
         f1Node.connect(voiceEnv);
         f2Node.connect(f2G);
         f2G.connect(voiceEnv);
+        f3Node.connect(f3G);
+        f3G.connect(voiceEnv);
         voiceEnv.connect(this.masterGain);
 
         glottal.start(now);
+        vib.start(now);
         glottal.stop(now + duration);
+        vib.stop(now + duration);
       }
 
       speakPhonemeSequence(seq, isSacred = false) {
         if (!seq || seq.length === 0) return;
+        this.init();
+        if (!this.isSetup || this.isMuted) return;
+
         const useChoir = isSacred || seq.length >= 5;
         if (!useChoir && seq.length === 3 && CONSONANT_PROFILES[seq[0]] && VOWEL_FORMANTS[seq[1]] && CONSONANT_PROFILES[seq[2]]) {
           this.speakCVCWord(seq[0], seq[1], seq[2]);
           return;
         }
-        // Multi-phoneme continuous co-articulated speech synthesis with rising prosodic contour & harmonic choir
+
+        // Continuous Co-Articulated Multi-Phoneme Vocal Tract Utterance (~215ms per phoneme)
+        const now = this.ctx.currentTime;
+        const stepDur = 0.215;
+        const totalDur = Math.max(0.62, seq.length * stepDur + 0.14);
+
+        const glottal = this.ctx.createOscillator();
+        glottal.type = 'sawtooth';
+        glottal.frequency.setValueAtTime(124, now);
+
+        const choirOsc = this.ctx.createOscillator();
+        choirOsc.type = useChoir ? 'sawtooth' : 'triangle';
+        choirOsc.frequency.setValueAtTime(useChoir ? 124 * 1.498 : 248, now);
+
+        const vib = this.ctx.createOscillator();
+        vib.type = 'sine';
+        vib.frequency.setValueAtTime(5.6, now);
+        const vibG = this.ctx.createGain();
+        vibG.gain.setValueAtTime(3.8, now);
+        vib.connect(vibG);
+        vibG.connect(glottal.frequency);
+
+        const tilt = this.ctx.createBiquadFilter();
+        tilt.type = 'lowpass';
+        tilt.frequency.setValueAtTime(2050, now);
+
+        const f1 = this.ctx.createBiquadFilter();
+        f1.type = 'bandpass';
+        f1.Q.setValueAtTime(8.5, now);
+        const f1G = this.ctx.createGain();
+        f1G.gain.value = 1.0;
+
+        const f2 = this.ctx.createBiquadFilter();
+        f2.type = 'bandpass';
+        f2.Q.setValueAtTime(10.0, now);
+        const f2G = this.ctx.createGain();
+        f2G.gain.value = 0.92;
+
+        const f3 = this.ctx.createBiquadFilter();
+        f3.type = 'bandpass';
+        f3.Q.setValueAtTime(11.0, now);
+        const f3G = this.ctx.createGain();
+        f3G.gain.value = 0.52;
+
+        const env = this.ctx.createGain();
+        env.gain.setValueAtTime(0.01, now);
+
+        // Schedule continuous F1/F2/F3 vocal tract trajectory & consonant bursts across the whole word
         seq.forEach((ph, idx) => {
-          const delayMs = idx * 98;
-          setTimeout(() => {
-            if (VOWEL_FORMANTS[ph]) {
-              const contourPitch = 128 + Math.sin((idx / Math.max(1, seq.length - 1)) * Math.PI) * 24;
-              this.speakVowel(ph, 0.19, contourPitch, useChoir);
-            } else if (CONSONANT_PROFILES[ph]) {
-              this.speakConsonant(ph, 126 + idx * 4);
+          const t0 = now + idx * stepDur;
+          const tMid = t0 + stepDur * 0.45;
+          const tEnd = t0 + stepDur * 0.92;
+          const prosodyPitch = 124 + Math.sin((idx / Math.max(1, seq.length - 1)) * Math.PI) * 22 + idx * 3;
+
+          glottal.frequency.linearRampToValueAtTime(prosodyPitch, tMid);
+          choirOsc.frequency.linearRampToValueAtTime(useChoir ? prosodyPitch * 1.498 : prosodyPitch * 2, tMid);
+
+          if (VOWEL_FORMANTS[ph]) {
+            const vf = VOWEL_FORMANTS[ph];
+            if (idx === 0) {
+              f1.frequency.setValueAtTime(vf.f1, t0);
+              f2.frequency.setValueAtTime(vf.f2, t0);
+              f3.frequency.setValueAtTime(vf.f3, t0);
+            } else {
+              f1.frequency.exponentialRampToValueAtTime(vf.f1, t0 + 0.06);
+              f2.frequency.exponentialRampToValueAtTime(vf.f2, t0 + 0.06);
+              f3.frequency.exponentialRampToValueAtTime(vf.f3, t0 + 0.06);
             }
-          }, delayMs);
+            // Intrinsic diphthong movement on sustained vowels
+            const endF1 = ph === 'OH' ? 360 : (ph === 'EE' ? 260 : (ph === 'AA' ? 780 : vf.f1));
+            const endF2 = ph === 'OH' ? 760 : (ph === 'EE' ? 2430 : (ph === 'OO' ? 770 : vf.f2));
+            f1.frequency.linearRampToValueAtTime(endF1, tEnd);
+            f2.frequency.linearRampToValueAtTime(endF2, tEnd);
+            f3.frequency.setValueAtTime(vf.f3, tEnd);
+
+            env.gain.linearRampToValueAtTime(useChoir ? 0.62 : 0.56, t0 + 0.035);
+            env.gain.setValueAtTime(useChoir ? 0.58 : 0.52, tEnd);
+
+            setTimeout(() => this.updateHUDFormants(vf.f1, vf.f2), Math.round(idx * stepDur * 1000));
+          } else if (CONSONANT_PROFILES[ph]) {
+            const cp = CONSONANT_PROFILES[ph];
+            if (idx === 0) {
+              f1.frequency.setValueAtTime(cp.f1, t0);
+              f2.frequency.setValueAtTime(cp.f2, t0);
+              f3.frequency.setValueAtTime(cp.f3 || 2400, t0);
+            } else {
+              f1.frequency.exponentialRampToValueAtTime(cp.f1, t0 + 0.05);
+              f2.frequency.exponentialRampToValueAtTime(cp.f2, t0 + 0.05);
+              f3.frequency.exponentialRampToValueAtTime(cp.f3 || 2400, t0 + 0.05);
+            }
+            // Voiced consonants keep murmur; voiceless stops dip glottal envelope briefly for crisp burst
+            const cAmp = cp.voiced ? (cp.type === 'nasal' || cp.type === 'liquid' ? 0.44 : 0.30) : 0.06;
+            env.gain.linearRampToValueAtTime(cAmp, t0 + 0.025);
+            env.gain.setValueAtTime(cAmp, tMid);
+
+            setTimeout(() => {
+              this.updateHUDFormants(cp.f1, cp.f2);
+              this.triggerConsonantBurstOnly(ph);
+            }, Math.round(idx * stepDur * 1000));
+          }
         });
+
+        env.gain.exponentialRampToValueAtTime(0.008, now + totalDur);
+
+        glottal.connect(tilt);
+        choirOsc.connect(tilt);
+        tilt.connect(f1);
+        tilt.connect(f2);
+        tilt.connect(f3);
+        f1.connect(f1G);
+        f2.connect(f2G);
+        f3.connect(f3G);
+        f1G.connect(env);
+        f2G.connect(env);
+        f3G.connect(env);
+        env.connect(this.masterGain);
+
+        glottal.start(now);
+        choirOsc.start(now);
+        vib.start(now);
+        glottal.stop(now + totalDur);
+        choirOsc.stop(now + totalDur);
+        vib.stop(now + totalDur);
+
         setTimeout(() => {
           if (useChoir) this.playSacredChoirChord();
           else this.playWordChord();
-        }, seq.length * 98 + 55);
+        }, Math.round(totalDur * 1000) - 40);
       }
 
-      speakVowel(vowelKey, duration = 0.24, pitch = 130, isChoir = false) {
+      triggerConsonantBurstOnly(consKey) {
+        if (!this.isSetup || this.isMuted || !this.noiseBuffer) return;
+        const cp = CONSONANT_PROFILES[consKey];
+        if (!cp || cp.type === 'liquid') return;
+        const now = this.ctx.currentTime;
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = cp.type === 'fric' ? 'highpass' : 'bandpass';
+        filter.frequency.setValueAtTime(cp.burst, now);
+        filter.Q.setValueAtTime(cp.type === 'fric' ? 2.8 : 4.2, now);
+
+        const nGain = this.ctx.createGain();
+        const dur = cp.type === 'fric' ? 0.16 : (cp.type === 'nasal' ? 0.035 : (cp.voiced ? 0.06 : 0.10));
+        const amp = cp.type === 'fric' ? 0.26 : (cp.type === 'nasal' ? 0.05 : 0.32);
+        nGain.gain.setValueAtTime(amp, now);
+        nGain.gain.exponentialRampToValueAtTime(0.005, now + dur);
+
+        noise.connect(filter);
+        filter.connect(nGain);
+        nGain.connect(this.masterGain);
+        noise.start(now);
+        noise.stop(now + dur);
+      }
+
+      speakVowel(vowelKey, duration = 0.42, pitch = 128, isChoir = false) {
+        this.init();
         if (!this.isSetup || this.isMuted) return;
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
         this.updateHUDFormants(vf.f1, vf.f2);
 
+        const dur = Math.max(0.36, duration);
         const now = this.ctx.currentTime;
+
+        // 1. Rich Sawtooth Glottal Cord Source + 5.6 Hz Human Vocal Vibrato + Prosodic Inflection
         const glottal = this.ctx.createOscillator();
         glottal.type = 'sawtooth';
-        glottal.frequency.setValueAtTime(pitch, now);
-        glottal.frequency.exponentialRampToValueAtTime(pitch * 0.94, now + duration);
+        glottal.frequency.setValueAtTime(pitch * 0.96, now);
+        glottal.frequency.linearRampToValueAtTime(pitch * 1.04, now + dur * 0.35);
+        glottal.frequency.exponentialRampToValueAtTime(pitch * 0.92, now + dur);
+
+        const vib = this.ctx.createOscillator();
+        vib.type = 'sine';
+        vib.frequency.setValueAtTime(5.6, now);
+        const vibGain = this.ctx.createGain();
+        vibGain.gain.setValueAtTime(3.8, now);
+        vib.connect(vibGain);
+        vibGain.connect(glottal.frequency);
 
         const subOsc = this.ctx.createOscillator();
         subOsc.type = isChoir ? 'sawtooth' : 'triangle';
-        subOsc.frequency.setValueAtTime(isChoir ? pitch * 1.498 : pitch * 2, now); // Perfect 5th choir harmony when sacred/long!
+        subOsc.frequency.setValueAtTime(isChoir ? pitch * 1.498 : pitch * 0.5, now); // Warm sub-octave chest resonance or 5th choir!
 
+        const subGain = this.ctx.createGain();
+        subGain.gain.value = isChoir ? 0.48 : 0.28;
+
+        // Glottal Spectral Tilt (-12 dB/oct above 1950 Hz so formants sound warm and human)
+        const tilt = this.ctx.createBiquadFilter();
+        tilt.type = 'lowpass';
+        tilt.frequency.setValueAtTime(2050, now);
+
+        // Sustained ADSR Vocal Envelope (30ms attack -> 270ms full sustained vowel plateau -> 120ms release)
         const voiceEnv = this.ctx.createGain();
         voiceEnv.gain.setValueAtTime(0.01, now);
-        voiceEnv.gain.linearRampToValueAtTime(isChoir ? 0.54 : 0.45, now + 0.025);
-        voiceEnv.gain.exponentialRampToValueAtTime(0.008, now + duration);
+        voiceEnv.gain.linearRampToValueAtTime(isChoir ? 0.62 : 0.56, now + 0.032);
+        voiceEnv.gain.setValueAtTime(isChoir ? 0.56 : 0.50, now + dur - 0.11);
+        voiceEnv.gain.exponentialRampToValueAtTime(0.008, now + dur);
+
+        // Intrinsic Diphthong Formant Trajectories (so /oʊ/, /i/, /ɑ/, /u/ sound unmistakably vocal)
+        const endF1 = vowelKey === 'OH' ? 355 : (vowelKey === 'EE' ? 255 : (vowelKey === 'AA' ? 785 : (vowelKey === 'OO' ? 290 : vf.f1)));
+        const endF2 = vowelKey === 'OH' ? 750 : (vowelKey === 'EE' ? 2440 : (vowelKey === 'OO' ? 760 : (vowelKey === 'EH' ? 1840 : vf.f2)));
 
         const f1Node = this.ctx.createBiquadFilter();
         f1Node.type = 'bandpass';
         f1Node.frequency.setValueAtTime(vf.f1, now);
-        f1Node.Q.setValueAtTime(5.5, now);
+        f1Node.frequency.linearRampToValueAtTime(endF1, now + dur * 0.85);
+        f1Node.Q.setValueAtTime(8.5, now);
         const f1Gain = this.ctx.createGain();
         f1Gain.gain.value = 1.0;
 
         const f2Node = this.ctx.createBiquadFilter();
         f2Node.type = 'bandpass';
         f2Node.frequency.setValueAtTime(vf.f2, now);
-        f2Node.Q.setValueAtTime(6.5, now);
+        f2Node.frequency.linearRampToValueAtTime(endF2, now + dur * 0.85);
+        f2Node.Q.setValueAtTime(10.0, now);
         const f2Gain = this.ctx.createGain();
-        f2Gain.gain.value = 0.88;
+        f2Gain.gain.value = 0.92;
 
         const f3Node = this.ctx.createBiquadFilter();
         f3Node.type = 'bandpass';
         f3Node.frequency.setValueAtTime(vf.f3, now);
-        f3Node.Q.setValueAtTime(7.5, now);
+        f3Node.Q.setValueAtTime(11.0, now);
         const f3Gain = this.ctx.createGain();
-        f3Gain.gain.value = 0.50;
+        f3Gain.gain.value = 0.52;
 
-        glottal.connect(f1Node);
-        glottal.connect(f2Node);
-        glottal.connect(f3Node);
-        subOsc.connect(f1Node);
-        if (isChoir) subOsc.connect(f2Node);
+        // F4 Singer's Formant Cluster (3420 Hz) for vocal presence
+        const f4Node = this.ctx.createBiquadFilter();
+        f4Node.type = 'bandpass';
+        f4Node.frequency.setValueAtTime(3420, now);
+        f4Node.Q.setValueAtTime(12.0, now);
+        const f4Gain = this.ctx.createGain();
+        f4Gain.gain.value = 0.24;
+
+        glottal.connect(tilt);
+        subOsc.connect(subGain);
+        subGain.connect(tilt);
+
+        tilt.connect(f1Node);
+        tilt.connect(f2Node);
+        tilt.connect(f3Node);
+        tilt.connect(f4Node);
+
+        // Subtle aspirated vocal breath noise through F2 & F3
+        if (this.noiseBuffer) {
+          const breath = this.ctx.createBufferSource();
+          breath.buffer = this.noiseBuffer;
+          const bGain = this.ctx.createGain();
+          bGain.gain.setValueAtTime(0.035, now);
+          bGain.gain.exponentialRampToValueAtTime(0.004, now + dur);
+          breath.connect(bGain);
+          bGain.connect(f2Node);
+          bGain.connect(f3Node);
+          breath.start(now);
+          breath.stop(now + dur);
+        }
 
         f1Node.connect(f1Gain);
         f2Node.connect(f2Gain);
         f3Node.connect(f3Gain);
+        f4Node.connect(f4Gain);
         f1Gain.connect(voiceEnv);
         f2Gain.connect(voiceEnv);
         f3Gain.connect(voiceEnv);
+        f4Gain.connect(voiceEnv);
         voiceEnv.connect(this.masterGain);
 
         glottal.start(now);
         subOsc.start(now);
-        glottal.stop(now + duration);
-        subOsc.stop(now + duration);
+        vib.start(now);
+        glottal.stop(now + dur);
+        subOsc.stop(now + dur);
+        vib.stop(now + dur);
       }
 
-      speakConsonant(consKey, basePitch = 126) {
+      speakVowelGlide(fromVowelKey, toVowelKey, duration = 0.46, pitch = 130) {
+        this.init();
+        if (!this.isSetup || this.isMuted) return;
+        const vf1 = VOWEL_FORMANTS[fromVowelKey] || VOWEL_FORMANTS['AA'];
+        const vf2 = VOWEL_FORMANTS[toVowelKey] || VOWEL_FORMANTS['EE'];
+        this.updateHUDFormants(vf1.f1, vf1.f2);
+        setTimeout(() => this.updateHUDFormants((vf1.f1 + vf2.f1) * 0.5, (vf1.f2 + vf2.f2) * 0.5), 110);
+        setTimeout(() => this.updateHUDFormants(vf2.f1, vf2.f2), 230);
+
+        const now = this.ctx.currentTime;
+        const glottal = this.ctx.createOscillator();
+        glottal.type = 'sawtooth';
+        glottal.frequency.setValueAtTime(pitch * 0.96, now);
+        glottal.frequency.linearRampToValueAtTime(pitch * 1.08, now + duration * 0.55);
+        glottal.frequency.exponentialRampToValueAtTime(pitch * 0.94, now + duration);
+
+        const vib = this.ctx.createOscillator();
+        vib.type = 'sine';
+        vib.frequency.setValueAtTime(5.6, now);
+        const vibG = this.ctx.createGain();
+        vibG.gain.setValueAtTime(4.0, now);
+        vib.connect(vibG);
+        vibG.connect(glottal.frequency);
+
+        const tilt = this.ctx.createBiquadFilter();
+        tilt.type = 'lowpass';
+        tilt.frequency.setValueAtTime(2050, now);
+
+        const f1 = this.ctx.createBiquadFilter();
+        f1.type = 'bandpass';
+        f1.Q.setValueAtTime(8.5, now);
+        f1.frequency.setValueAtTime(vf1.f1, now);
+        f1.frequency.setValueAtTime(vf1.f1, now + 0.08);
+        f1.frequency.exponentialRampToValueAtTime(vf2.f1, now + duration * 0.72);
+
+        const f2 = this.ctx.createBiquadFilter();
+        f2.type = 'bandpass';
+        f2.Q.setValueAtTime(10.0, now);
+        f2.frequency.setValueAtTime(vf1.f2, now);
+        f2.frequency.setValueAtTime(vf1.f2, now + 0.08);
+        f2.frequency.exponentialRampToValueAtTime(vf2.f2, now + duration * 0.72);
+        const f2G = this.ctx.createGain();
+        f2G.gain.value = 0.92;
+
+        const f3 = this.ctx.createBiquadFilter();
+        f3.type = 'bandpass';
+        f3.Q.setValueAtTime(11.0, now);
+        f3.frequency.setValueAtTime(vf1.f3, now);
+        f3.frequency.exponentialRampToValueAtTime(vf2.f3, now + duration * 0.72);
+        const f3G = this.ctx.createGain();
+        f3G.gain.value = 0.50;
+
+        const env = this.ctx.createGain();
+        env.gain.setValueAtTime(0.01, now);
+        env.gain.linearRampToValueAtTime(0.58, now + 0.03);
+        env.gain.setValueAtTime(0.54, now + duration - 0.11);
+        env.gain.exponentialRampToValueAtTime(0.008, now + duration);
+
+        glottal.connect(tilt);
+        tilt.connect(f1);
+        tilt.connect(f2);
+        tilt.connect(f3);
+        f1.connect(env);
+        f2.connect(f2G);
+        f2G.connect(env);
+        f3.connect(f3G);
+        f3G.connect(env);
+        env.connect(this.masterGain);
+
+        glottal.start(now);
+        vib.start(now);
+        glottal.stop(now + duration);
+        vib.stop(now + duration);
+      }
+
+      speakConsonant(consKey, basePitch = 124, contextVowelKey = null) {
+        this.init();
         if (!this.isSetup || this.isMuted) return;
         const cp = CONSONANT_PROFILES[consKey] || CONSONANT_PROFILES['T'];
         this.updateHUDFormants(cp.f1, cp.f2);
 
         const now = this.ctx.currentTime;
+        // Co-articulate into the player's active vowel if present, or a warm neutral schwa (/ə/: F1=520, F2=1420, F3=2450)
+        // so every consonant sounds like an unmistakable spoken syllable ("BUH", "PUH", "MMMUH", "TUH", "DUH", "KUH", "SSSS")!
+        const releaseVowel = (contextVowelKey && VOWEL_FORMANTS[contextVowelKey])
+          ? VOWEL_FORMANTS[contextVowelKey]
+          : { f1: 520, f2: 1420, f3: 2450 };
 
-        // 1. Manner-specific noise / aspiration / frication
+        // 1. Manner-specific Noise Burst / Aspiration / Sibilant Frication
         if (this.noiseBuffer && cp.type !== 'liquid') {
           const noise = this.ctx.createBufferSource();
           noise.buffer = this.noiseBuffer;
@@ -1827,12 +2137,17 @@
           const filter = this.ctx.createBiquadFilter();
           filter.type = cp.type === 'fric' ? 'highpass' : 'bandpass';
           filter.frequency.setValueAtTime(cp.burst, now);
-          filter.Q.setValueAtTime(cp.type === 'fric' ? 2.5 : 3.8, now);
+          if (cp.type === 'fric') {
+            filter.frequency.linearRampToValueAtTime(cp.burst * 0.92, now + 0.24);
+          }
+          filter.Q.setValueAtTime(cp.type === 'fric' ? 3.0 : 4.2, now);
 
           const nGain = this.ctx.createGain();
-          const dur = cp.type === 'fric' ? 0.16 : (cp.type === 'nasal' ? 0.03 : (cp.voiced ? 0.055 : 0.095));
-          const amp = cp.type === 'fric' ? 0.28 : (cp.type === 'nasal' ? 0.05 : 0.35);
-          nGain.gain.setValueAtTime(amp, now);
+          const dur = cp.type === 'fric' ? 0.25 : (cp.type === 'nasal' ? 0.04 : (cp.voiced ? 0.065 : 0.11));
+          const amp = cp.type === 'fric' ? 0.30 : (cp.type === 'nasal' ? 0.05 : 0.36);
+          nGain.gain.setValueAtTime(0.01, now);
+          nGain.gain.linearRampToValueAtTime(amp, now + (cp.type === 'fric' ? 0.03 : 0.008));
+          nGain.gain.setValueAtTime(amp * 0.85, now + dur * 0.65);
           nGain.gain.exponentialRampToValueAtTime(0.005, now + dur);
 
           noise.connect(filter);
@@ -1842,103 +2157,167 @@
           noise.stop(now + dur);
         }
 
-        // 2. Voiced Formant Murmur / Nasal Anti-Formant / Liquid Glide
-        if (cp.voiced) {
-          const osc = this.ctx.createOscillator();
-          osc.type = 'sawtooth';
-          const dur = cp.type === 'nasal' || cp.type === 'liquid' ? 0.14 : 0.11;
-          osc.frequency.setValueAtTime(basePitch, now);
-          osc.frequency.exponentialRampToValueAtTime(basePitch * 0.89, now + dur);
+        // 2. Co-Articulated Voiced Formant Locus Transition + Syllabic Release (280ms..320ms)
+        const totalDur = (cp.type === 'nasal' || cp.type === 'liquid' || cp.type === 'fric') ? 0.31 : 0.28;
+        const voiceStartOffset = cp.voiced ? 0.0 : (cp.type === 'fric' ? 0.11 : 0.045); // VOT (Voice Onset Time) for voiceless P/T/K/S!
+        const glideStart = now + voiceStartOffset;
+        const transitionTime = (cp.type === 'nasal' || cp.type === 'liquid') ? 0.14 : 0.075;
 
-          const f1 = this.ctx.createBiquadFilter();
-          f1.type = 'bandpass';
-          f1.frequency.setValueAtTime(cp.f1, now);
-          f1.frequency.exponentialRampToValueAtTime(420, now + dur);
-          f1.Q.setValueAtTime(cp.type === 'nasal' ? 3.5 : 4.5, now);
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(basePitch * 1.03, glideStart);
+        osc.frequency.linearRampToValueAtTime(basePitch, glideStart + transitionTime);
+        osc.frequency.exponentialRampToValueAtTime(basePitch * 0.90, now + totalDur);
 
-          const f2 = this.ctx.createBiquadFilter();
-          f2.type = 'bandpass';
-          f2.frequency.setValueAtTime(cp.f2, now);
-          f2.Q.setValueAtTime(5.5, now);
+        const vib = this.ctx.createOscillator();
+        vib.type = 'sine';
+        vib.frequency.setValueAtTime(5.5, now);
+        const vibG = this.ctx.createGain();
+        vibG.gain.setValueAtTime(3.2, now);
+        vib.connect(vibG);
+        vibG.connect(osc.frequency);
 
-          const f3 = this.ctx.createBiquadFilter();
-          f3.type = cp.type === 'nasal' ? 'notch' : 'bandpass';
-          f3.frequency.setValueAtTime(cp.type === 'nasal' ? cp.burst : (cp.f3 || 2400), now);
-          f3.Q.setValueAtTime(4.5, now);
+        const tilt = this.ctx.createBiquadFilter();
+        tilt.type = 'lowpass';
+        tilt.frequency.setValueAtTime(1950, now);
 
-          const vGain = this.ctx.createGain();
-          vGain.gain.setValueAtTime(cp.type === 'nasal' ? 0.38 : 0.32, now);
-          vGain.gain.exponentialRampToValueAtTime(0.008, now + dur);
+        const f1 = this.ctx.createBiquadFilter();
+        f1.type = 'bandpass';
+        f1.frequency.setValueAtTime(cp.f1, glideStart);
+        f1.frequency.exponentialRampToValueAtTime(releaseVowel.f1, glideStart + transitionTime);
+        f1.Q.setValueAtTime(cp.type === 'nasal' ? 6.0 : 8.5, now);
 
-          osc.connect(f1);
-          osc.connect(f2);
-          osc.connect(f3);
-          f1.connect(vGain);
-          f2.connect(vGain);
-          f3.connect(vGain);
-          vGain.connect(this.masterGain);
+        const f2 = this.ctx.createBiquadFilter();
+        f2.type = 'bandpass';
+        f2.frequency.setValueAtTime(cp.f2, glideStart);
+        f2.frequency.exponentialRampToValueAtTime(releaseVowel.f2, glideStart + transitionTime);
+        f2.Q.setValueAtTime(9.5, now);
+        const f2G = this.ctx.createGain();
+        f2G.gain.value = 0.90;
 
-          osc.start(now);
-          osc.stop(now + dur);
+        const f3 = this.ctx.createBiquadFilter();
+        f3.type = 'bandpass';
+        f3.frequency.setValueAtTime(cp.f3 || 2400, glideStart);
+        f3.frequency.exponentialRampToValueAtTime(releaseVowel.f3 || 2450, glideStart + transitionTime);
+        f3.Q.setValueAtTime(10.0, now);
+        const f3G = this.ctx.createGain();
+        f3G.gain.value = 0.50;
+
+        const vGain = this.ctx.createGain();
+        vGain.gain.setValueAtTime(0.01, now);
+        if (voiceStartOffset > 0) {
+          vGain.gain.setValueAtTime(0.01, glideStart);
         }
+        vGain.gain.linearRampToValueAtTime(cp.type === 'nasal' ? 0.52 : 0.48, glideStart + 0.02);
+        vGain.gain.setValueAtTime(0.42, now + totalDur - 0.08);
+        vGain.gain.exponentialRampToValueAtTime(0.008, now + totalDur);
+
+        osc.connect(tilt);
+        tilt.connect(f1);
+        tilt.connect(f2);
+        tilt.connect(f3);
+        f1.connect(vGain);
+        f2.connect(f2G);
+        f2G.connect(vGain);
+        f3.connect(f3G);
+        f3G.connect(vGain);
+        vGain.connect(this.masterGain);
+
+        osc.start(glideStart);
+        vib.start(glideStart);
+        osc.stop(now + totalDur);
+        vib.stop(now + totalDur);
       }
 
       speakCVCWord(c1Key, vKey, c2Key) {
+        this.init();
         if (!this.isSetup || this.isMuted) return;
         const c1 = CONSONANT_PROFILES[c1Key] || CONSONANT_PROFILES['B'];
         const vf = VOWEL_FORMANTS[vKey] || VOWEL_FORMANTS['AA'];
         const c2 = CONSONANT_PROFILES[c2Key] || CONSONANT_PROFILES['T'];
 
         const now = this.ctx.currentTime;
-        const totalDur = 0.48;
+        const totalDur = 0.68;
 
-        this.speakConsonant(c1Key);
+        // Trigger initial consonant burst/frication only (so it blends seamlessly into the continuous vocal tract)
+        this.triggerConsonantBurstOnly(c1Key);
+        this.updateHUDFormants(c1.f1, c1.f2);
+        setTimeout(() => this.updateHUDFormants(vf.f1, vf.f2), 140);
+        setTimeout(() => this.updateHUDFormants(c2.f1, c2.f2), 460);
 
+        const vot = c1.voiced ? 0.01 : 0.045;
         const osc = this.ctx.createOscillator();
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(132, now + 0.03);
-        osc.frequency.linearRampToValueAtTime(148, now + 0.20);
-        osc.frequency.exponentialRampToValueAtTime(108, now + totalDur);
+        osc.frequency.setValueAtTime(126, now + vot);
+        osc.frequency.linearRampToValueAtTime(144, now + 0.28);
+        osc.frequency.exponentialRampToValueAtTime(112, now + totalDur);
+
+        const subOsc = this.ctx.createOscillator();
+        subOsc.type = 'triangle';
+        subOsc.frequency.setValueAtTime(63, now + vot);
+        subOsc.frequency.linearRampToValueAtTime(72, now + 0.28);
+        subOsc.frequency.exponentialRampToValueAtTime(56, now + totalDur);
+        const subG = this.ctx.createGain();
+        subG.gain.value = 0.26;
+
+        const vib = this.ctx.createOscillator();
+        vib.type = 'sine';
+        vib.frequency.setValueAtTime(5.6, now);
+        const vibG = this.ctx.createGain();
+        vibG.gain.setValueAtTime(3.8, now);
+        vib.connect(vibG);
+        vibG.connect(osc.frequency);
+
+        const tilt = this.ctx.createBiquadFilter();
+        tilt.type = 'lowpass';
+        tilt.frequency.setValueAtTime(2050, now);
+
+        const endF1 = vKey === 'OH' ? 360 : (vKey === 'EE' ? 260 : (vKey === 'AA' ? 780 : vf.f1));
+        const endF2 = vKey === 'OH' ? 760 : (vKey === 'EE' ? 2430 : (vKey === 'OO' ? 770 : vf.f2));
 
         const f1 = this.ctx.createBiquadFilter();
         f1.type = 'bandpass';
-        f1.Q.setValueAtTime(5.5, now);
-        f1.frequency.setValueAtTime(c1.f1, now + 0.03);
-        f1.frequency.exponentialRampToValueAtTime(vf.f1, now + 0.12);
-        f1.frequency.setValueAtTime(vf.f1, now + 0.30);
-        f1.frequency.exponentialRampToValueAtTime(c2.f1, now + 0.42);
+        f1.Q.setValueAtTime(8.5, now);
+        f1.frequency.setValueAtTime(c1.f1, now + vot);
+        f1.frequency.exponentialRampToValueAtTime(vf.f1, now + 0.13);
+        f1.frequency.linearRampToValueAtTime(endF1, now + 0.44);
+        f1.frequency.exponentialRampToValueAtTime(c2.f1, now + 0.58);
         const f1G = this.ctx.createGain();
         f1G.gain.value = 1.0;
 
         const f2 = this.ctx.createBiquadFilter();
         f2.type = 'bandpass';
-        f2.Q.setValueAtTime(6.5, now);
-        f2.frequency.setValueAtTime(c1.f2, now + 0.03);
-        f2.frequency.exponentialRampToValueAtTime(vf.f2, now + 0.12);
-        f2.frequency.setValueAtTime(vf.f2, now + 0.30);
-        f2.frequency.exponentialRampToValueAtTime(c2.f2, now + 0.42);
+        f2.Q.setValueAtTime(10.0, now);
+        f2.frequency.setValueAtTime(c1.f2, now + vot);
+        f2.frequency.exponentialRampToValueAtTime(vf.f2, now + 0.13);
+        f2.frequency.linearRampToValueAtTime(endF2, now + 0.44);
+        f2.frequency.exponentialRampToValueAtTime(c2.f2, now + 0.58);
         const f2G = this.ctx.createGain();
-        f2G.gain.value = 0.88;
+        f2G.gain.value = 0.92;
 
         const f3 = this.ctx.createBiquadFilter();
         f3.type = 'bandpass';
-        f3.Q.setValueAtTime(7.0, now);
-        f3.frequency.setValueAtTime(c1.f3 || 2400, now + 0.03);
-        f3.frequency.exponentialRampToValueAtTime(vf.f3, now + 0.12);
-        f3.frequency.setValueAtTime(vf.f3, now + 0.30);
-        f3.frequency.exponentialRampToValueAtTime(c2.f3 || 2400, now + 0.42);
+        f3.Q.setValueAtTime(11.0, now);
+        f3.frequency.setValueAtTime(c1.f3 || 2400, now + vot);
+        f3.frequency.exponentialRampToValueAtTime(vf.f3, now + 0.13);
+        f3.frequency.setValueAtTime(vf.f3, now + 0.44);
+        f3.frequency.exponentialRampToValueAtTime(c2.f3 || 2400, now + 0.58);
         const f3G = this.ctx.createGain();
-        f3G.gain.value = 0.48;
+        f3G.gain.value = 0.52;
 
         const env = this.ctx.createGain();
         env.gain.setValueAtTime(0.01, now);
-        env.gain.linearRampToValueAtTime(0.55, now + 0.08);
-        env.gain.setValueAtTime(0.50, now + 0.32);
+        env.gain.setValueAtTime(0.01, now + vot);
+        env.gain.linearRampToValueAtTime(0.60, now + vot + 0.05);
+        env.gain.setValueAtTime(0.56, now + 0.48);
         env.gain.exponentialRampToValueAtTime(0.008, now + totalDur);
 
-        osc.connect(f1);
-        osc.connect(f2);
-        osc.connect(f3);
+        osc.connect(tilt);
+        subOsc.connect(subG);
+        subG.connect(tilt);
+        tilt.connect(f1);
+        tilt.connect(f2);
+        tilt.connect(f3);
         f1.connect(f1G);
         f2.connect(f2G);
         f3.connect(f3G);
@@ -1947,15 +2326,21 @@
         f3G.connect(env);
         env.connect(this.masterGain);
 
-        osc.start(now + 0.02);
+        osc.start(now + vot);
+        subOsc.start(now + vot);
+        vib.start(now + vot);
         osc.stop(now + totalDur);
+        subOsc.stop(now + totalDur);
+        vib.stop(now + totalDur);
 
+        // Final coda consonant burst at syllable closure
         setTimeout(() => {
-          this.speakConsonant(c2Key);
-        }, 310);
+          this.triggerConsonantBurstOnly(c2Key);
+        }, 490);
+        // Play gentle celebratory chime AFTER the spoken word finishes so the voice is 100% clear!
         setTimeout(() => {
           this.playWordChord();
-        }, 430);
+        }, 640);
       }
 
       playFlipperClick(isUp = true) {
@@ -2134,41 +2519,41 @@
       }
 
       playBumperBoing(tier = 1) {
-        if (!this.isSetup) return;
+        if (!this.isSetup || this.isMuted) return;
         const now = this.ctx.currentTime;
-        const baseFreq = 260 + tier * 75;
+        // Deep sub-vocal mechanical bumper solenoid thud (below F1 so the sung vowel formant is 100% clear!)
         const osc = this.ctx.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq * 1.8, now);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq, now + 0.11);
+        osc.frequency.setValueAtTime(88 + tier * 8, now);
+        osc.frequency.exponentialRampToValueAtTime(38, now + 0.065);
 
         const g = this.ctx.createGain();
-        g.gain.setValueAtTime(0.32, now);
-        g.gain.exponentialRampToValueAtTime(0.008, now + 0.12);
+        g.gain.setValueAtTime(0.14, now);
+        g.gain.exponentialRampToValueAtTime(0.004, now + 0.065);
 
         osc.connect(g);
         g.connect(this.masterGain);
         osc.start(now);
-        osc.stop(now + 0.12);
+        osc.stop(now + 0.065);
       }
 
       playWormholeCapture() {
-        if (!this.isSetup) return;
+        if (!this.isSetup || this.isMuted) return;
         const now = this.ctx.currentTime;
-        [330, 440, 554, 660].forEach((freq, i) => {
+        [220, 330].forEach((freq, i) => {
           const osc = this.ctx.createOscillator();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + i * 0.07);
-          osc.frequency.exponentialRampToValueAtTime(freq * 1.25, now + i * 0.07 + 0.07);
+          osc.frequency.setValueAtTime(freq, now + i * 0.055);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.18, now + i * 0.055 + 0.055);
 
           const g = this.ctx.createGain();
-          g.gain.setValueAtTime(0.22, now + i * 0.07);
-          g.gain.exponentialRampToValueAtTime(0.005, now + i * 0.07 + 0.09);
+          g.gain.setValueAtTime(0.11, now + i * 0.055);
+          g.gain.exponentialRampToValueAtTime(0.004, now + i * 0.055 + 0.065);
 
           osc.connect(g);
           g.connect(this.masterGain);
-          osc.start(now + i * 0.07);
-          osc.stop(now + i * 0.07 + 0.09);
+          osc.start(now + i * 0.055);
+          osc.stop(now + i * 0.055 + 0.065);
         });
       }
 
@@ -2287,6 +2672,7 @@
 
         // Continuous Phoneme Stream (Supercat-style Greedy Prefix Engine) & Legacy C-V-C Sync
         this.phonemeStream = [];
+        this.stackedVowels = []; // Up to 2 stacked vowels in the current vowel slot [primaryLastTouched, secondaryStacked]
         this.utteranceTimer = 0;
         this.lastPhonemeTime = 0;
         this.lastPhonemeKey = null;
@@ -2573,6 +2959,7 @@
 
       clearCvcBuffer() {
         this.phonemeStream = [];
+        this.stackedVowels = [];
         this.lockedPrefixWord = null;
         this.utteranceTimer = 0;
         this.glottalGraceUsed = false;
@@ -2589,7 +2976,7 @@
         this.cvc = { c1: firstCons, v: firstVowel, c2: lastCons };
       }
 
-      matchesPrefix(stream, wordObj, exactVowelsOnly = false) {
+      matchesPrefix(stream, wordObj, exactVowelsOnly = false, usePrimaryVowelOnly = false) {
         const seq = wordObj.seq;
         if (!seq || stream.length === 0 || stream.length > seq.length) return false;
         for (let i = 0; i < stream.length; i++) {
@@ -2599,9 +2986,12 @@
             if (sPh !== wPh) return false;
           } else if (VOWEL_FORMANTS[wPh]) {
             if (!VOWEL_FORMANTS[sPh]) return false;
-            if (sPh === wPh) continue;
-            if (!exactVowelsOnly && seq.length === 3 && i === 1 && wordObj.v && wordObj.v.includes(sPh)) continue;
-            if (!exactVowelsOnly && VOWEL_NEIGHBORS[wPh] && VOWEL_NEIGHBORS[wPh].includes(sPh)) continue;
+            // Support Stacked Vowel Diphthong Chord on the active syllable vowel slot (i <= 1)
+            const hasStack = !usePrimaryVowelOnly && i <= 1 && this.stackedVowels && this.stackedVowels.length > 1 && this.stackedVowels[0] === sPh;
+            const vCandidates = hasStack ? this.stackedVowels : [sPh];
+            if (vCandidates.includes(wPh)) continue;
+            if (!exactVowelsOnly && seq.length === 3 && i === 1 && wordObj.v && vCandidates.some(v => wordObj.v.includes(v))) continue;
+            if (!exactVowelsOnly && VOWEL_NEIGHBORS[wPh] && vCandidates.some(v => VOWEL_NEIGHBORS[wPh].includes(v))) continue;
             return false;
           } else if (sPh !== wPh) {
             return false;
@@ -2614,12 +3004,16 @@
         if (!stream || stream.length === 0) return [];
         const matches = CVC_WORDS.filter(w => {
           if (!includeSubWords && w.isSubWord) return false;
-          return this.matchesPrefix(stream, w, false);
+          return this.matchesPrefix(stream, w, false, false);
         });
         matches.sort((a, b) => {
           if ((a.word === this.targetWord) !== (b.word === this.targetWord)) return a.word === this.targetWord ? -1 : 1;
-          const aExact = this.matchesPrefix(stream, a, true);
-          const bExact = this.matchesPrefix(stream, b, true);
+          // Prioritize the LAST-TOUCHED primary vowel first, then stacked vowel!
+          const aPrimaryExact = this.matchesPrefix(stream, a, true, true);
+          const bPrimaryExact = this.matchesPrefix(stream, b, true, true);
+          if (aPrimaryExact !== bPrimaryExact) return aPrimaryExact ? -1 : 1;
+          const aExact = this.matchesPrefix(stream, a, true, false);
+          const bExact = this.matchesPrefix(stream, b, true, false);
           if (aExact !== bExact) return aExact ? -1 : 1;
           if (b.seq.length !== a.seq.length) return b.seq.length - a.seq.length;
           return (b.pts || 0) - (a.pts || 0);
@@ -2634,7 +3028,8 @@
 
       registerConsonant(consKey, x, y) {
         const prosodyPitch = 124 + Math.min(8, this.phonemeStream.length) * 6;
-        this.synth.speakConsonant(consKey, prosodyPitch);
+        const activeVowel = [...this.phonemeStream].reverse().find(p => VOWEL_FORMANTS[p]) || null;
+        this.synth.speakConsonant(consKey, prosodyPitch, activeVowel);
         const cp = CONSONANT_PROFILES[consKey];
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = '[' + consKey + '] ' + (cp ? cp.group : '');
@@ -2643,8 +3038,14 @@
 
       registerVowel(vowelKey, x, y) {
         const vf = VOWEL_FORMANTS[vowelKey] || VOWEL_FORMANTS['AA'];
-        const prosodyPitch = 128 + this.bumperTier * 8 + Math.min(8, this.phonemeStream.length) * 7;
-        this.synth.speakVowel(vowelKey, 0.22, prosodyPitch, this.babelFrenzyTimer > 0);
+        const prosodyPitch = 126 + this.bumperTier * 6 + Math.min(8, this.phonemeStream.length) * 6;
+        const lastPh = this.phonemeStream.length > 0 ? this.phonemeStream[this.phonemeStream.length - 1] : null;
+        // If the previous phoneme in the active slot was already a different vowel, sing a smooth Diphthong Formant Glide!
+        if (lastPh && VOWEL_FORMANTS[lastPh] && lastPh !== vowelKey) {
+          this.synth.speakVowelGlide(lastPh, vowelKey, 0.46, prosodyPitch);
+        } else {
+          this.synth.speakVowel(vowelKey, 0.42, prosodyPitch, this.babelFrenzyTimer > 0);
+        }
         const labelEl = document.getElementById('phoneme-last-spoken');
         if (labelEl) labelEl.textContent = vf.ipa + ' (' + vowelKey + ')';
         this.pushPhonemeToStream(vowelKey, x, y);
@@ -2664,6 +3065,61 @@
         }
         this.lastPhonemeTime = now;
         this.lastPhonemeKey = ph;
+
+        // 1b. VOWEL SHIFT & DIPHTHONG STACKING RULE:
+        // When the ball touches a Top Rollover Lane (/i/, /ɑ/, /u/) and/or Attack Bumper (/ɪ/, /ɛ/, /ʌ/, /oʊ/)
+        // while the stream ALREADY ends in a vowel:
+        // -> Whichever vowel the ball touched LAST becomes your primary active vowel, AND it stacks with the previous vowel!
+        if (VOWEL_FORMANTS[ph] && s.length > 0 && VOWEL_FORMANTS[s[s.length - 1]]) {
+          if (this.findPrefixMatches([...s, ph], false).length === 0) {
+            const prevV = s[s.length - 1];
+            const nextV = this.cvcLocks.v ? prevV : ph;
+            const secondV = this.cvcLocks.v ? ph : prevV;
+            this.phonemeStream = [...s.slice(0, -1), nextV];
+            this.stackedVowels = (secondV && secondV !== nextV) ? [nextV, secondV] : [nextV];
+            this.utteranceTimer = 8500;
+            this.syncLegacyCvcFromStream();
+            this.updateHUD();
+            return;
+          }
+        }
+
+        // 1c. PRE-LOADED TOP-OF-TABLE VOWEL ABSORPTION RULE:
+        // When the ball hits Vowels at the top of the table first (so stream = [V]) and then drops down to hit an Onset Consonant [C1]:
+        // Unless [V, C1] completes the Target Word, slot [C1] in front of [V] ([C1, V]) so the top-of-table vowel is primed for C-V-C!
+        if (CONSONANT_PROFILES[ph] && s.length === 1 && VOWEL_FORMANTS[s[0]]) {
+          const vcMatches = this.findPrefixMatches([s[0], ph], false);
+          const isTargetVC = vcMatches.some(w => w.word === this.targetWord);
+          const cvMatches = this.findPrefixMatches([ph, s[0]], false);
+          if (!isTargetVC && cvMatches.length > 0) {
+            this.phonemeStream = [ph, s[0]];
+            this.utteranceTimer = 8500;
+            this.syncLegacyCvcFromStream();
+            const vDisp = (this.stackedVowels && this.stackedVowels.length > 1)
+              ? (VOWEL_FORMANTS[this.stackedVowels[0]].ipa + '+' + VOWEL_FORMANTS[this.stackedVowels[1]].ipa)
+              : VOWEL_FORMANTS[s[0]].ipa;
+            this.spawnFloatingText(x || 208, y || 415, '🔗 [' + ph + '] · ' + vDisp + ' PRIMED!', '#00f2fe', false);
+            this.updateHUD();
+            return;
+          }
+        }
+
+        // 1d. CONSONANT ONSET REPLACEMENT RULE:
+        // If stream only has a single Onset Consonant [C1] and you hit another Consonant [C1'] before any vowel,
+        // update [C1] to whichever consonant the ball touched last!
+        if (CONSONANT_PROFILES[ph] && s.length === 1 && CONSONANT_PROFILES[s[0]]) {
+          if (this.findPrefixMatches([s[0], ph], false).length === 0) {
+            this.phonemeStream = this.cvcLocks.c1 ? [s[0]] : [ph];
+            this.utteranceTimer = 8500;
+            this.syncLegacyCvcFromStream();
+            this.updateHUD();
+            return;
+          }
+        }
+
+        if (VOWEL_FORMANTS[ph] && (s.length === 0 || !VOWEL_FORMANTS[s[s.length - 1]])) {
+          this.stackedVowels = [ph];
+        }
 
         const cand = [...s, ph];
         const matches = this.findPrefixMatches(cand, false);
@@ -2820,6 +3276,7 @@
         const s = [...this.phonemeStream];
         const exact = this.findPrefixMatches(s, false).find(w => w.seq.length === s.length);
         this.phonemeStream = [];
+        this.stackedVowels = [];
         this.lockedPrefixWord = null;
         this.utteranceTimer = 0;
         this.glottalGraceUsed = false;
@@ -2836,12 +3293,13 @@
         if (!match) return;
         const streamUsed = this.phonemeStream.length > 0 ? [...this.phonemeStream] : match.seq;
         const isExactFormant = this.matchesPrefix(streamUsed, match, true);
+        const hasStackedBonus = this.stackedVowels && this.stackedVowels.length > 1;
         const isTarget = match.word === this.targetWord;
         const isSacred = !!match.sacred;
         const isLongMasterpiece = match.seq.length >= 5;
         const superMult = (this.superShotTimer > 0 ? 2 : 1) * (this.babelFrenzyTimer > 0 ? 2 : 1);
         const lengthBonus = match.seq.length > 3 ? Math.pow(match.seq.length / 3, 1.35) : 1.0;
-        const vowelAccuracyMult = isExactFormant ? 1.15 : 0.80;
+        const vowelAccuracyMult = (isExactFormant ? 1.15 : 0.85) * (hasStackedBonus ? 1.25 : 1.0);
 
         let pts = Math.round((match.pts * lengthBonus * vowelAccuracyMult * (isTarget ? 2 : 1) * superMult) * this.multiplier);
 
@@ -2917,6 +3375,7 @@
 
         // Reset stream (preserving locked onset C1 if pinned)
         this.phonemeStream = (this.cvcLocks.c1 && c1) ? [c1] : [];
+        this.stackedVowels = [];
         this.lockedPrefixWord = null;
         this.utteranceTimer = 0;
         this.glottalGraceUsed = false;
@@ -3546,7 +4005,8 @@
               rp.flash = 1.0;
               this.addScore(200 * this.multiplier);
               this.spawnParticles(rp.x, rp.y, '#f43f5e', 7);
-              if (this.canExtendStreamWith(rp.vowel)) {
+              const lastPh = this.phonemeStream[this.phonemeStream.length - 1];
+              if (this.phonemeStream.length <= 2 || VOWEL_FORMANTS[lastPh] || this.canExtendStreamWith(rp.vowel)) {
                 this.registerVowel(rp.vowel, rp.x, rp.y);
               }
             }
@@ -3566,7 +4026,7 @@
                 // Smart Stream Feed: Feeds whichever phoneme (vowel or consonant) extends the player's active stream!
                 if (this.phonemeStream.length > 0 && this.canExtendStreamWith(md.vowel)) {
                   this.registerVowel(md.vowel, md.x, md.y);
-                } else if (this.canExtendStreamWith(md.cons)) {
+                } else if (this.phonemeStream.length <= 1 || this.canExtendStreamWith(md.cons)) {
                   this.registerConsonant(md.cons, md.x, md.y);
                 }
               }
@@ -3597,11 +4057,12 @@
               this.addScore(150 * this.multiplier);
               const mx = (s.x1 + s.x2) / 2;
               const my = (s.y1 + s.y2) / 2;
-              // Smart Stream Assist: Slingshots seed an empty stream or extend an active valid prefix without breaking multi-syllable words!
-              if (this.canExtendStreamWith(s.cons)) {
+              // Slingshots seed or update [C1], absorb a pre-loaded top vowel into [C1, V], or extend an active valid prefix!
+              if (this.phonemeStream.length <= 1 || this.canExtendStreamWith(s.cons)) {
                 this.registerConsonant(s.cons, mx, my);
               } else {
-                this.synth.speakConsonant(s.cons);
+                const activeV = [...this.phonemeStream].reverse().find(p => VOWEL_FORMANTS[p]) || null;
+                this.synth.speakConsonant(s.cons, 126, activeV);
               }
               this.spawnParticles(mx, my, '#ffd700', 8);
             }
@@ -3629,11 +4090,13 @@
               const pts = (250 * this.bumperTier) * this.multiplier;
               this.addScore(pts);
               this.synth.playBumperBoing(this.bumperTier);
-              // Smart Vowel Cluster Assist: If already building a stream, only register bumper vowels that extend a valid word prefix!
-              if (this.canExtendStreamWith(bmp.vowel)) {
+              // Active Vowel Shift + Diphthong Stacking:
+              // Whichever bumper or rollover lane the ball touched last becomes your active vowel (and stacks with the previous vowel)!
+              const lastPh = this.phonemeStream[this.phonemeStream.length - 1];
+              if (this.phonemeStream.length <= 2 || VOWEL_FORMANTS[lastPh] || this.canExtendStreamWith(bmp.vowel)) {
                 this.registerVowel(bmp.vowel, bmp.x, bmp.y);
               } else {
-                this.synth.speakVowel(bmp.vowel, 0.16, 130 + this.bumperTier * 10);
+                this.synth.speakVowel(bmp.vowel, 0.38, 128 + this.bumperTier * 6);
               }
               this.spawnParticles(bmp.x, bmp.y, VOWEL_FORMANTS[bmp.vowel].color, 10);
 
@@ -3720,10 +4183,11 @@
             lane.lit = true;
             lane.flash = 1.0;
             this.addScore(600 * this.multiplier);
-            if (this.canExtendStreamWith(lane.vowel)) {
+            const lastPh = this.phonemeStream[this.phonemeStream.length - 1];
+            if (this.phonemeStream.length <= 2 || VOWEL_FORMANTS[lastPh] || this.canExtendStreamWith(lane.vowel)) {
               this.registerVowel(lane.vowel, lane.x, lane.y);
             } else {
-              this.synth.speakVowel(lane.vowel, 0.20, 140);
+              this.synth.speakVowel(lane.vowel, 0.42, 136);
             }
             this.fuel = 6.0;
 
@@ -4301,15 +4765,28 @@
         }
         if (tokensRow) {
           if (this.phonemeStream.length === 0) {
-            tokensRow.innerHTML = '<span style="font-size:0.46rem; color:#64748b; font-family:Space Mono,monospace;">HIT CONSONANTS & VOWELS TO SOUND OUT WORDS...</span>';
+            tokensRow.innerHTML = '<span style="font-size:0.46rem; color:#64748b; font-family:Space Mono,monospace;">HIT CONSONANTS & VOWELS (LAST VOWEL + STACKED)...</span>';
           } else {
-            tokensRow.innerHTML = this.phonemeStream.map((ph, idx) => {
+            const hasStack = this.stackedVowels && this.stackedVowels.length > 1;
+            const renderedTokens = this.phonemeStream.map((ph, idx) => {
               const isV = Boolean(VOWEL_FORMANTS[ph]);
-              const label = isV ? VOWEL_FORMANTS[ph].ipa : ph;
+              let label = isV ? VOWEL_FORMANTS[ph].ipa : ph;
+              if (isV && hasStack && idx <= 1 && this.stackedVowels[0] === ph) {
+                label += ' <span style="font-size:0.46rem; color:#fde047;">(+' + VOWEL_FORMANTS[this.stackedVowels[1]].ipa + ')</span>';
+              }
               const cls = 'phoneme-token ' + (isV ? 'vowel' : 'cons');
               const arrow = idx < this.phonemeStream.length - 1 ? '<span class="phoneme-arrow">→</span>' : '';
               return '<span class="' + cls + '">' + label + '</span>' + arrow;
-            }).join('');
+            });
+            if (this.phonemeStream.length === 1 && VOWEL_FORMANTS[this.phonemeStream[0]]) {
+              renderedTokens.unshift('<span class="phoneme-token cons" style="opacity:0.45;">[C₁?]</span><span class="phoneme-arrow">→</span>');
+              renderedTokens.push('<span class="phoneme-arrow">→</span><span class="phoneme-token cons" style="opacity:0.45;">[C₂?]</span>');
+            } else if (this.phonemeStream.length === 1 && CONSONANT_PROFILES[this.phonemeStream[0]]) {
+              renderedTokens.push('<span class="phoneme-arrow">→</span><span class="phoneme-token vowel" style="opacity:0.45;">/V?/</span><span class="phoneme-arrow">→</span><span class="phoneme-token cons" style="opacity:0.45;">[C₂?]</span>');
+            } else if (this.phonemeStream.length === 2 && CONSONANT_PROFILES[this.phonemeStream[0]] && VOWEL_FORMANTS[this.phonemeStream[1]]) {
+              renderedTokens.push('<span class="phoneme-arrow">→</span><span class="phoneme-token cons" style="opacity:0.55; border-style:dashed;">[C₂?]</span>');
+            }
+            tokensRow.innerHTML = renderedTokens.join('');
           }
         }
 
@@ -4509,6 +4986,23 @@
         const nextIdx = this.phonemeStream.length;
         const targetNextVowel = (tObj && tObj.seq[nextIdx] && VOWEL_FORMANTS[tObj.seq[nextIdx]]) ? tObj.seq[nextIdx] : null;
         const lastStreamVowel = [...this.phonemeStream].reverse().find(p => VOWEL_FORMANTS[p]);
+        const stackedSecondVowel = (this.stackedVowels && this.stackedVowels.length > 1) ? this.stackedVowels[1] : null;
+
+        // Draw Glowing Diphthong Stack Bridge between Stacked Vowel and Primary Last-Touched Vowel!
+        if (lastStreamVowel && stackedSecondVowel && VOWEL_FORMANTS[lastStreamVowel] && VOWEL_FORMANTS[stackedSecondVowel]) {
+          const p1 = toXY(VOWEL_FORMANTS[stackedSecondVowel].f1, VOWEL_FORMANTS[stackedSecondVowel].f2);
+          const p2 = toXY(VOWEL_FORMANTS[lastStreamVowel].f1, VOWEL_FORMANTS[lastStreamVowel].f2);
+          vctx.save();
+          vctx.strokeStyle = '#fde047';
+          vctx.lineWidth = 2.4;
+          vctx.shadowColor = '#fde047';
+          vctx.shadowBlur = 8;
+          vctx.beginPath();
+          vctx.moveTo(p1.x, p1.y);
+          vctx.lineTo(p2.x, p2.y);
+          vctx.stroke();
+          vctx.restore();
+        }
 
         // Plot all 7 Canonical IPA Vowel Nodes
         for (const [vKey, vf] of Object.entries(VOWEL_FORMANTS)) {
@@ -4516,19 +5010,20 @@
           const isValidNext = this.phonemeStream.length > 0 && this.canExtendStreamWith(vKey);
           const isTargetNext = targetNextVowel === vKey;
           const isLastSpoken = lastStreamVowel === vKey;
-          const r = (isTargetNext || isLastSpoken) ? 10.5 : (isValidNext ? 9.5 : 8.2);
+          const isStackedSecond = stackedSecondVowel === vKey;
+          const r = (isTargetNext || isLastSpoken) ? 10.5 : (isStackedSecond || isValidNext ? 9.6 : 8.2);
 
           vctx.beginPath();
           vctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
-          vctx.fillStyle = isLastSpoken ? vf.color : (isTargetNext ? 'rgba(255, 215, 0, 0.32)' : '#091428');
-          if (isTargetNext || isValidNext || isLastSpoken) {
-            vctx.shadowColor = isTargetNext ? '#ffd700' : vf.color;
+          vctx.fillStyle = isLastSpoken ? vf.color : (isStackedSecond ? 'rgba(253, 224, 71, 0.38)' : (isTargetNext ? 'rgba(255, 215, 0, 0.32)' : '#091428'));
+          if (isTargetNext || isValidNext || isLastSpoken || isStackedSecond) {
+            vctx.shadowColor = (isTargetNext || isStackedSecond) ? '#ffd700' : vf.color;
             vctx.shadowBlur = 9;
           }
           vctx.fill();
           vctx.shadowBlur = 0;
-          vctx.lineWidth = (isTargetNext || isValidNext) ? 2.0 : 1.3;
-          vctx.strokeStyle = isTargetNext ? '#ffd700' : vf.color;
+          vctx.lineWidth = (isTargetNext || isValidNext || isStackedSecond) ? 2.0 : 1.3;
+          vctx.strokeStyle = (isTargetNext || isStackedSecond) ? '#ffd700' : vf.color;
           vctx.stroke();
 
           vctx.textAlign = 'center';
@@ -4797,8 +5292,14 @@
 
         // 4. Lower-Playfield Peripheral Phoneme Sight Pill (x=208, y=698, right between flippers!)
         const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
+        const hasStack = this.stackedVowels && this.stackedVowels.length > 1;
         const streamDisp = this.phonemeStream.length > 0
-          ? this.phonemeStream.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('·')
+          ? this.phonemeStream.map((p, idx) => {
+              if (VOWEL_FORMANTS[p]) {
+                return VOWEL_FORMANTS[p].ipa + (hasStack && idx <= 1 && this.stackedVowels[0] === p ? '(+' + VOWEL_FORMANTS[this.stackedVowels[1]].ipa + ')' : '');
+              }
+              return p;
+            }).join('·') + (this.phonemeStream.length === 2 ? '·[?]' : '')
           : 'HIT TARGETS TO SPEAK';
         ctx.fillStyle = 'rgba(4, 9, 22, 0.88)';
         ctx.strokeStyle = this.lockedPrefixWord ? '#34d399' : 'rgba(223, 177, 91, 0.65)';
@@ -4808,7 +5309,7 @@
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = '700 0.48rem "Silkscreen", monospace';
+        ctx.font = '700 0.46rem "Silkscreen", monospace';
         ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : '#00f2fe';
         ctx.fillText(streamDisp.slice(-18), cx, 697);
 
@@ -4964,14 +5465,20 @@
         ctx.fillStyle = rk.color;
         ctx.fillText('TIER ' + rk.roman, cx, cy - 13);
 
+        const hasAstStack = this.stackedVowels && this.stackedVowels.length > 1;
         const streamStr = this.phonemeStream.length > 0
-          ? this.phonemeStream.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('-')
+          ? this.phonemeStream.map((p, idx) => {
+              if (VOWEL_FORMANTS[p]) {
+                return VOWEL_FORMANTS[p].ipa + (hasAstStack && idx <= 1 && this.stackedVowels[0] === p ? '+' + VOWEL_FORMANTS[this.stackedVowels[1]].ipa : '');
+              }
+              return p;
+            }).join('-') + (this.phonemeStream.length === 2 ? '-?' : '')
           : '· - · - ·';
-        ctx.font = '700 0.62rem "Silkscreen", monospace';
+        ctx.font = '700 0.56rem "Silkscreen", monospace';
         ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : '#ffffff';
         ctx.shadowColor = '#000000';
         ctx.shadowBlur = 4;
-        ctx.fillText(streamStr.slice(-11), cx, cy + 4);
+        ctx.fillText(streamStr.slice(-13), cx, cy + 4);
 
         ctx.font = '700 0.44rem "Space Mono", monospace';
         ctx.fillStyle = '#fde047';
