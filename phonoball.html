@@ -6,8 +6,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>3D PINBALL: TOWER OF BABEL (Space Cadet Formant Edition) | Evan Swope</title>
-  <meta name="description" content="A ground-up Space Cadet pinball tribute fused with a real-time Klatt Formant Speech Synthesizer, C-V-C phonetic word building, and the 7 Ziggurat Ranks of Babel.">
+  <title>3D PINBALL: TOWER OF BABEL (Etemenanki Formant Edition) | Evan Swope</title>
+  <meta name="description" content="An authentic Tower of Babel pinball machine fused with a real-time Klatt Formant Speech Synthesizer, phonetic word building, and the 7 Ziggurat Tiers of Etemenanki.">
   <meta name="robots" content="noindex, nofollow">
   
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
@@ -733,17 +733,17 @@
   <header class="game-header">
     <div class="header-nav-row">
       <a href="experiments.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> LAB EXPERIMENTS</a>
-      <div class="game-badge"><i class="fa-solid fa-satellite"></i> SPACE CADET GEOMETRY × KLATT FORMANT SYNTH</div>
+      <div class="game-badge"><i class="fa-solid fa-gopuram"></i> ETEMENANKI ARCHITECTURE × KLATT FORMANT SYNTH</div>
       <div style="display:flex;gap:0.35rem;">
         <button id="btn-mute" class="back-link" style="cursor:pointer;" title="Toggle Audio Mute [M]"><i class="fa-solid fa-volume-high"></i> AUDIO [M]</button>
         <button id="btn-nudge" class="back-link" style="cursor:pointer;" title="Nudge Table [X or Space]"><i class="fa-solid fa-bolt"></i> NUDGE [X]</button>
       </div>
     </div>
     <h1 class="game-title">3D PINBALL: TOWER OF BABEL</h1>
-    <p class="game-subtitle">Space Cadet Playfield Architecture • Real-Time Vocal Tract Synthesis • 7 Ziggurat Ranks</p>
+    <p class="game-subtitle">Babylonian Ziggurat Playfield • Real-Time Vocal Tract Synthesis • 7 Tiers of Etemenanki</p>
   </header>
 
-  <!-- Main Dual-Column Space Cadet Cabinet -->
+  <!-- Main Dual-Column Pinball Cabinet -->
   <main class="space-cadet-cabinet">
 
     <!-- Left Column: Playfield Canvas + Controls -->
@@ -754,24 +754,24 @@
         <!-- Start Overlay -->
         <div class="audio-overlay" id="audio-overlay">
           <i class="fa-solid fa-gopuram" style="font-size: 2.8rem; color: var(--gold-bright); margin-bottom: 0.6rem; filter: drop-shadow(0 0 18px rgba(255,215,0,0.8));"></i>
-          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.45rem; color: #fff;">CADET OF SHINAR</h2>
+          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.45rem; color: #fff;">ARCHITECT OF SHINAR</h2>
           <p class="overlay-intro">
-            Built on the classic <strong>3D Pinball: Space Cadet</strong> layout! Use <strong>4 Flippers</strong> to shoot perimeter <strong>Consonant Banks</strong> (<code>[B][P][M]</code>, <code>[T][D][N]</code>, <code>[K][G][S]</code>) and upper <strong>Vowel Bumpers &amp; Lanes</strong> (<code>/i/ /ɑ/ /u/ /ɛ/ /ɪ/ /oʊ/</code>) to synthesize spoken <strong>C-V-C Words</strong>, complete <strong>Missions</strong>, and ascend all <strong>7 Ranks of Babel</strong>!
+            Welcome to the <strong>Ziggurat of Etemenanki</strong>! Use <strong>4 Flippers</strong> to strike carved <strong>Cuneiform Consonant Tablets</strong> (<code>[B][P][M]</code>, <code>[T][D][N]</code>, <code>[K][G][S]</code>), <strong>Sanctuary Scoops</strong> (<code>[L][R][S]</code>), and upper <strong>Vowel Bumpers &amp; Arches</strong> (<code>/i/ /ɑ/ /u/ /ɛ/ /ɪ/ /oʊ/</code>) to synthesize spoken words, complete <strong>Royal Trials</strong>, and ascend all <strong>7 Tiers of Babel</strong>!
           </p>
           <button class="overlay-coin-btn" id="btn-start-audio">
-            <i class="fa-solid fa-play"></i> LAUNCH MISSION
+            <i class="fa-solid fa-play"></i> BEGIN ASCENSION
           </button>
         </div>
 
         <!-- Game Over Overlay -->
         <div class="audio-overlay hidden" id="game-over-overlay">
           <i class="fa-solid fa-crown" style="font-size: 2.6rem; color: var(--gold-bright); margin-bottom: 0.6rem;"></i>
-          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.5rem; color: #fff;">TRANSMISSION ENDED</h2>
+          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.5rem; color: #fff;">TOWER SEALED</h2>
           <div style="font-family: var(--font-display); font-size: 1.15rem; color: var(--gold-bright); margin: 0.5rem 0;" id="game-over-score">SCORE: 000,000</div>
           <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan-glow); margin-bottom: 0.3rem;" id="game-over-rank">RANK: MUDBRICK APPRENTICE</div>
           <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">WORDS SPOKEN: 0</div>
           <button class="overlay-coin-btn" id="btn-play-again">
-            <i class="fa-solid fa-rotate-right"></i> NEW CADET RUN
+            <i class="fa-solid fa-rotate-right"></i> NEW ASCENSION
           </button>
         </div>
 
@@ -800,19 +800,19 @@
       </div>
     </div>
 
-    <!-- Right Column: Space Cadet Command Deck -->
+    <!-- Right Column: Ziggurat Command Deck -->
     <aside class="command-sidebar">
 
       <!-- 1. Score & Vessel Status -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-gauge-high"></i> TELEMETRY</span>
+          <span><i class="fa-solid fa-scroll"></i> ROYAL CHRONICLE</span>
           <span id="high-score-label" style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;">HI: 000,000</span>
         </div>
         <div class="score-led-box" id="stat-score">000,000</div>
         <div class="score-sub-row">
           <div class="sub-stat-box">
-            <span class="sub-stat-label">BALL</span>
+            <span class="sub-stat-label">VESSEL</span>
             <span class="sub-stat-val" id="stat-ball">1 / 3</span>
           </div>
           <div class="sub-stat-box">
@@ -826,29 +826,29 @@
         </div>
       </div>
 
-      <!-- 2. Space Cadet Mission Teleprompter & Fuel -->
+      <!-- 2. Ziggurat Trial Tablet & Sacred Torch -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-terminal"></i> MISSION COMPUTER</span>
+          <span><i class="fa-solid fa-gopuram"></i> ROYAL TRIAL TABLET</span>
           <div style="display:flex;align-items:center;gap:0.35rem;">
-            <button id="btn-cycle-mission" style="background:rgba(16,185,129,0.18);border:1px solid #10b981;color:#a7f3d0;font-family:var(--font-mono);font-size:0.48rem;padding:0.1rem 0.35rem;border-radius:4px;cursor:pointer;" title="Cycle Mission Selection">CYCLE ↻</button>
+            <button id="btn-cycle-mission" style="background:rgba(16,185,129,0.18);border:1px solid #10b981;color:#a7f3d0;font-family:var(--font-mono);font-size:0.48rem;padding:0.1rem 0.35rem;border-radius:4px;cursor:pointer;" title="Cycle Trial Selection">CYCLE ↻</button>
             <span id="mission-status-badge" style="color:#34d399;font-family:var(--font-mono);font-size:0.55rem;">STANDBY</span>
           </div>
         </div>
         <div class="mission-dmd-box">
           <div class="dmd-header">
-            <span id="dmd-mission-name">SELECT MISSION</span>
+            <span id="dmd-mission-name">SELECT TRIAL</span>
             <span id="dmd-mission-progress">0 / 3</span>
           </div>
           <div class="dmd-main-text" id="dmd-instruction">
-            HIT [T]-[D]-[N] TARGETS TO SELECT, THEN SHOOT LAUNCH RAMP!
+            HIT [T]-[D]-[N] TABLETS TO SELECT, THEN SHOOT ASCENSION RAMP!
           </div>
           <div class="dmd-sub-text" id="dmd-reward">
             REWARD: +15,000 &amp; +2 RANK LIGHTS
           </div>
         </div>
         <div class="fuel-bar-row">
-          <span class="fuel-label">FUEL</span>
+          <span class="fuel-label">TORCH</span>
           <div class="fuel-segments" id="fuel-segments">
             <div class="fuel-seg lit"></div>
             <div class="fuel-seg lit"></div>
@@ -930,16 +930,16 @@
   <!-- Reference Guide Footer -->
   <section class="reference-footer">
     <div class="ref-col">
-      <h4><i class="fa-solid fa-bullseye"></i> 1. Space Cadet Layout</h4>
-      <p><strong>4 Flippers</strong> (2 lower + 2 upper midfield) surround an open central arena with the <strong>16-LED Mission Ring</strong> &amp; <strong>7-LED Rank Ring</strong>. Shoot the <strong>Left Launch Ramp</strong> to start missions &amp; claim promotions, or the <strong>Right Hyperspace Chute</strong> for jackpots &amp; Gravity Well!</p>
+      <h4><i class="fa-solid fa-gopuram"></i> 1. Ziggurat Playfield Layout</h4>
+      <p><strong>4 Flippers</strong> (2 lower + 2 upper midfield) surround an open central arena with the <strong>16-Jewel Trial Ring</strong> &amp; <strong>7-Star Tier Ring</strong>. Shoot the <strong>Left Ascension Ramp</strong> to start Royal Trials &amp; claim promotions, or the <strong>Right Ishtar Gate Chute</strong> for jackpots &amp; the Whirlwind of Marduk!</p>
     </div>
     <div class="ref-col">
       <h4><i class="fa-solid fa-microphone-lines"></i> 2. Vowel &amp; Consonant Zones</h4>
-      <p><strong>Consonants</strong> live on the perimeter: Left Drop Bank <code>[B][P][M]</code>, Mission Standups <code>[T][D][N]</code>, Right Drop Bank <code>[K][G][S]</code>, and 3 Wormhole Kickers <code>[L][R][S]</code>. <strong>Vowels</strong> live at the top: 3 Rollover Lanes <code>/i/ /ɑ/ /u/</code> &amp; 4 Attack Bumpers <code>/ɛ/ /ɪ/ /oʊ/ /ʌ/</code>.</p>
+      <p><strong>Consonants</strong> live on the perimeter: Left Labial Tablets <code>[B][P][M]</code>, Coronal Standups <code>[T][D][N]</code>, Right Velar Tablets <code>[K][G][S]</code>, and 3 Sanctuary Scoops <code>[L][R][S]</code>. <strong>Vowels</strong> live at the top: 3 Cardinal Rollover Arches <code>/i/ /ɑ/ /u/</code> &amp; 4 Interior Attack Bumpers <code>/ɛ/ /ɪ/ /oʊ/ /ʌ/</code> (last vowel touched is active + stacks with previous vowel!).</p>
     </div>
     <div class="ref-col">
-      <h4><i class="fa-solid fa-tower-observation"></i> 3. Missions &amp; Promotions</h4>
-      <p>Hit <code>[T][D][N]</code> to choose a mission, then shoot the <strong>Launch Ramp</strong>. Completing missions lights the <strong>Inner 7-Star Rank Circle</strong>. When all 7 Rank Lights are lit, shoot the <strong>Launch Ramp</strong> to ascend to the next Ziggurat Tier!</p>
+      <h4><i class="fa-solid fa-tower-observation"></i> 3. Royal Trials &amp; Ascension</h4>
+      <p>Hit <code>[T][D][N]</code> to choose a Royal Trial, then shoot the <strong>Ascension Ramp</strong>. Completing trials lights the <strong>Inner 7-Star Tier Circle</strong>. When all 7 Tier Stars are lit, shoot the <strong>Ascension Ramp</strong> to ascend to the next Ziggurat Tier!</p>
     </div>
   </section>
 
@@ -990,8 +990,8 @@
       {
         id: 'LAUNCH_TRAINING',
         name: 'ASCENSION RAMP',
-        scName: 'Launch Training',
-        desc: 'CLIMB THE LEFT LAUNCH RAMP 2 TIMES',
+        scName: 'Ascension Rite',
+        desc: 'CLIMB THE LEFT ASCENSION RAMP 2 TIMES',
         type: 'RAMP',
         goal: 2,
         lights: 3,
@@ -1001,7 +1001,7 @@
       {
         id: 'ORBITAL_SPINNER',
         name: 'WINGED BULL ORBIT',
-        scName: 'Orbital Velocity',
+        scName: 'Bull of Heaven',
         desc: 'SPIN THE RIGHT ORBIT BULL GATE 10 REVOLUTIONS',
         type: 'SPINNER',
         goal: 10,
@@ -1012,8 +1012,8 @@
       {
         id: 'SCIENCE_MISSION',
         name: 'CUNEIFORM TABLETS',
-        scName: 'Science Mission',
-        desc: 'HIT PERIMETER CONSONANT TARGETS 6 TIMES',
+        scName: 'Scribal Arts',
+        desc: 'HIT PERIMETER CONSONANT TABLETS 6 TIMES',
         type: 'TARGETS',
         goal: 6,
         lights: 3,
@@ -1023,8 +1023,8 @@
       {
         id: 'MINIMAL_PAIRS',
         name: 'ROYAL LEXICON',
-        scName: 'Xenolinguistics',
-        desc: 'SYNTHESIZE ANY 2 SPOKEN C-V-C WORDS',
+        scName: 'Royal Lexicon',
+        desc: 'SYNTHESIZE ANY 2 SPOKEN WORDS',
         type: 'WORDS',
         goal: 2,
         lights: 3,
@@ -1034,8 +1034,8 @@
       {
         id: 'STRAY_COMET',
         name: 'STAR OF ISHTAR',
-        scName: 'Stray Comet',
-        desc: 'SHOOT THE RIGHT HYPERSPACE CHUTE [S]',
+        scName: 'Star of Ishtar',
+        desc: 'SHOOT THE RIGHT ISHTAR GATE CHUTE [S]',
         type: 'HYPERSPACE',
         goal: 1,
         lights: 3,
@@ -1045,8 +1045,8 @@
       {
         id: 'SPACE_RADIATION',
         name: 'CONFOUNDING WINDS',
-        scName: 'Space Radiation',
-        desc: 'ENTER ANY WORMHOLE KICKER ([L], [R], OR [S]) 2 TIMES',
+        scName: 'Winds of Shinar',
+        desc: 'ENTER ANY SANCTUARY SCOOP ([L], [R], OR [S]) 2 TIMES',
         type: 'WORMHOLE',
         goal: 2,
         lights: 3,
@@ -1056,8 +1056,8 @@
       {
         id: 'ROYAL_INSCRIPTION',
         name: 'STELE OF HAMMURABI',
-        scName: 'Artifact Recovery',
-        desc: 'HIT 5 CONSONANT TABLETS OR WORMHOLES',
+        scName: 'Code of Law',
+        desc: 'HIT 5 CONSONANT TABLETS OR SANCTUARY SCOOPS',
         type: 'TARGETS',
         goal: 5,
         lights: 3,
@@ -1067,8 +1067,8 @@
       {
         id: 'BLACK_HOLE',
         name: 'WELL OF MARDUK',
-        scName: 'Black Hole',
-        desc: 'GRAVITY WELL ACTIVE! LOCK IN CENTER [R] WORMHOLE',
+        scName: 'Whirlwind of Marduk',
+        desc: 'WHIRLWIND ACTIVE! LOCK IN CENTER [R] SANCTUARY',
         type: 'CENTER_WORMHOLE',
         goal: 1,
         lights: 4,
@@ -1078,7 +1078,7 @@
       {
         id: 'COSMIC_SYMPHONY',
         name: 'CHORUS OF SHINAR',
-        scName: 'Resonance Test',
+        scName: 'Harmonic Choir',
         desc: 'TRIGGER 10 VOWEL BUMPERS OR TOP ARCHES',
         type: 'BUMPERS',
         goal: 10,
@@ -1089,8 +1089,8 @@
       {
         id: 'ALIEN_MENACE',
         name: 'TOWER OF TONGUES',
-        scName: 'Alien Menace',
-        desc: 'SPEAK 3 C-V-C WORDS TO UNLEASH BABEL MULTIBALL!',
+        scName: 'Confounding of Tongues',
+        desc: 'SPEAK 3 WORDS TO UNLEASH BABEL MULTIBALL!',
         type: 'WORDS',
         goal: 3,
         lights: 5,
@@ -1389,7 +1389,7 @@
       { c1: 'K', v: ['UH'],           c2: 'P', word: 'CUP',    pts: 1800 },
       { c1: 'K', v: ['OO'],           c2: 'P', word: 'COOP',   pts: 1900 },
       { c1: 'K', v: ['AA','EH','EE'], c2: 'M', word: 'CAME',   pts: 1800 },
-      { c1: 'K', v: ['OH','OO','UH'], c2: 'M', word: 'COMET',  pts: 3500, sacred: true },
+      { c1: 'K', v: ['OH','OO','UH'], c2: 'M', word: 'COMB',   pts: 2000 },
       { c1: 'K', v: ['IH'],           c2: 'T', word: 'KIT',    pts: 1700 },
       { c1: 'K', v: ['AA','EH'],      c2: 'T', word: 'CAT',    pts: 1800 },
       { c1: 'K', v: ['UH'],           c2: 'T', word: 'CUT',    pts: 1700 },
@@ -1601,8 +1601,8 @@
       { seq: ['K','OO','N','EE','IH','P','OH','R','M'],        c1: 'K', v: ['OO'], c2: 'M', word: 'CUNEIFORM',    pts: 21000, sacred: true },
       { seq: ['S','IH','N','AA','R'],                          c1: 'S', v: ['IH'], c2: 'R', word: 'SHINAR',       pts: 9000,  sacred: true },
       { seq: ['T','EH','M','P','UH','L'],                      c1: 'T', v: ['EH'], c2: 'L', word: 'TEMPLE',       pts: 9500,  sacred: true },
-      { seq: ['K','AA','D','EH','T'],                          c1: 'K', v: ['AA'], c2: 'T', word: 'CADET',        pts: 8000,  sacred: true },
-      { seq: ['S','P','EH','S','K','AA','D','EH','T'],         c1: 'S', v: ['EH'], c2: 'T', word: 'SPACECADET',   pts: 24000, sacred: true },
+      { seq: ['N','IH','M','R','AA','D'],                      c1: 'N', v: ['IH'], c2: 'D', word: 'NIMROD',       pts: 12000, sacred: true },
+      { seq: ['M','EH','S','OH','P','OH','T','EH','M','EE','AA'], c1: 'M', v: ['EH'], c2: 'M', word: 'MESOPOTAMIA', pts: 26000, sacred: true },
       { seq: ['P','IH','N','B','AA','L'],                      c1: 'P', v: ['IH'], c2: 'L', word: 'PINBALL',      pts: 11000, sacred: true },
       { seq: ['OH','R','B','IH','T'],                          c1: 'R', v: ['OH'], c2: 'T', word: 'ORBIT',        pts: 7500 },
       { seq: ['B','UH','M','P','EH','R'],                      c1: 'B', v: ['UH'], c2: 'R', word: 'BUMPER',       pts: 8500 },
@@ -2811,12 +2811,12 @@
         // 3 WORMHOLE KICKERS (LIQUIDS & SIBILANTS [L], [R], [S])
         // ---------------------------------------------------------------------
         this.wormholes = [
-          // Left Wormhole Kicker [L] — Positioned in Open Upper-Left Cove (66, 250)!
-          { id: 'LEFT',   x: 66,  y: 250, r: 13, cons: 'L', name: 'LUNAR WORMHOLE [L]', color: '#fde047', ejVx: 5.2,  ejVy: 4.4,  cooldown: 0, holdBall: null, holdTimer: 0 },
+          // Left Sanctuary Alcove [L] — Positioned in Open Upper-Left Cove (66, 250)!
+          { id: 'LEFT',   x: 66,  y: 250, r: 13, cons: 'L', name: 'SIN ALCOVE [L]', color: '#fde047', ejVx: 5.2,  ejVy: 4.4,  cooldown: 0, holdBall: null, holdTimer: 0 },
           // Center Sanctuary Kicker [R]
-          { id: 'CENTER', x: 292, y: 192, r: 13, cons: 'R', name: 'MARDUK WORMHOLE [R]', color: '#ec4899', ejVx: -4.8, ejVy: 5.5,  cooldown: 0, holdBall: null, holdTimer: 0 },
-          // Right Hyperspace Chute Kicker [S]
-          { id: 'RIGHT',  x: 356, y: 244, r: 14, cons: 'S', name: 'HYPERSPACE GATE [S]', color: '#00f2fe', ejVx: -5.5, ejVy: 5.0,  cooldown: 0, holdBall: null, holdTimer: 0, isHyperspace: true }
+          { id: 'CENTER', x: 292, y: 192, r: 13, cons: 'R', name: 'MARDUK SANCTUARY [R]', color: '#ec4899', ejVx: -4.8, ejVy: 5.5,  cooldown: 0, holdBall: null, holdTimer: 0 },
+          // Right Ishtar Gate Chute Kicker [S]
+          { id: 'RIGHT',  x: 356, y: 244, r: 14, cons: 'S', name: 'ISHTAR GATE [S]', color: '#00f2fe', ejVx: -5.5, ejVy: 5.0,  cooldown: 0, holdBall: null, holdTimer: 0, isHyperspace: true }
         ];
 
         // ---------------------------------------------------------------------
@@ -3410,7 +3410,7 @@
         const m = MISSIONS[this.selectedMissionIdx];
         this.missionGoal = m.goal;
         this.targetWord = m.targetWord || this.targetWord;
-        this.spawnFloatingText(208, 360, 'MISSION: ' + m.name, '#34d399', true);
+        this.spawnFloatingText(208, 360, 'TRIAL: ' + m.name, '#34d399', true);
         this.updateHUD();
       }
 
@@ -3423,7 +3423,7 @@
         if (m.id === 'BLACK_HOLE') {
           this.gravityWellTimer = 18000;
         }
-        this.showBanner('✦ MISSION ACTIVATED ✦', m.name, m.desc);
+        this.showBanner('✦ ROYAL TRIAL BEGUN ✦', m.name, m.desc);
         this.spawnShockwave(208, 445, '#10b981');
         this.updateHUD();
       }
@@ -3450,7 +3450,7 @@
         this.awardRankLights(m.lights);
         this.synth.playWordChord();
 
-        this.showBanner('★ MISSION ACCOMPLISHED ★', m.name, '+' + pts.toLocaleString() + ' PTS • +' + m.lights + ' RANK LIGHTS');
+        this.showBanner('★ ROYAL TRIAL COMPLETE ★', m.name, '+' + pts.toLocaleString() + ' PTS • +' + m.lights + ' TIER LIGHTS');
         this.spawnShockwave(208, 445, '#ffd700');
 
         // Every 3 missions completed or completing ALIEN_MENACE unleashes 3-Ball Babel Multiball!
@@ -3467,7 +3467,7 @@
         this.rankLights = Math.min(7, this.rankLights + count);
         if (this.rankLights >= 7 && this.rankIndex < ZIGGURAT_RANKS.length - 1) {
           this.promotionReady = true;
-          this.spawnFloatingText(208, 290, '★ SHOOT LAUNCH RAMP FOR PROMOTION! ★', '#ffd700', true);
+          this.spawnFloatingText(208, 290, '★ SHOOT ASCENSION RAMP FOR PROMOTION! ★', '#ffd700', true);
         }
         this.updateHUD();
       }
@@ -3619,7 +3619,7 @@
             if (this.fuel <= 0) {
               this.missionActive = false;
               this.missionProgress = 0;
-              this.spawnFloatingText(208, 445, '⛽ OUT OF FUEL • MISSION ABORTED', '#ef4444', true);
+              this.spawnFloatingText(208, 445, '🔥 TORCH EXTINGUISHED • TRIAL ABORTED', '#ef4444', true);
             }
             this.updateHUD();
           }
@@ -4285,16 +4285,16 @@
               if (this.hyperspaceLevel === 1) {
                 this.kickbackLit = true;
                 this.centerPostTimer = 14000;
-                this.spawnFloatingText(315, 235, 'HYPERSPACE LVL 1: FURNACE & KICKBACK LIT!', '#00f2fe', true);
+                this.spawnFloatingText(315, 235, 'ISHTAR GATE I: FURNACE & KICKBACK LIT!', '#00f2fe', true);
               } else if (this.hyperspaceLevel === 2) {
                 this.gravityWellTimer = 16000;
-                this.spawnFloatingText(315, 235, 'HYPERSPACE LVL 2: GRAVITY WELL!', '#a855f7', true);
+                this.spawnFloatingText(315, 235, 'ISHTAR GATE II: WHIRLWIND OF MARDUK!', '#a855f7', true);
               } else if (this.hyperspaceLevel === 3) {
                 this.addScore(20000 * this.multiplier);
                 this.awardRankLights(1);
-                this.spawnFloatingText(295, 235, '★ HYPERSPACE JACKPOT +20,000! ★', '#ffd700', true);
+                this.spawnFloatingText(295, 235, '★ ISHTAR GATE JACKPOT +20,000! ★', '#ffd700', true);
               } else if (this.hyperspaceLevel === 4) {
-                this.triggerMultiball(2, 'HYPERSPACE MULTIBALL!');
+                this.triggerMultiball(2, 'ISHTAR GATE MULTIBALL!');
               }
               if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'HYPERSPACE') {
                 this.advanceMission(1);
@@ -4734,20 +4734,20 @@
           setTxt('mission-status-badge', 'PROMOTION READY!');
           setTxt('dmd-mission-name', '★ ASCEND ZIGGURAT ★');
           setTxt('dmd-mission-progress', '7 / 7 LIT');
-          setTxt('dmd-instruction', 'SHOOT THE LEFT LAUNCH RAMP TO PROMOTE TO NEXT RANK!');
+          setTxt('dmd-instruction', 'SHOOT THE LEFT ASCENSION RAMP TO PROMOTE TO NEXT TIER!');
           setTxt('dmd-reward', 'UNLOCKS NEXT ZIGGURAT TIER & MULTIPLIER!');
         } else if (this.missionActive) {
           setTxt('mission-status-badge', 'IN PROGRESS');
           setTxt('dmd-mission-name', m.name);
           setTxt('dmd-mission-progress', this.missionProgress + ' / ' + this.missionGoal);
           setTxt('dmd-instruction', m.desc);
-          setTxt('dmd-reward', 'REWARD: +' + (m.pts * this.multiplier).toLocaleString() + ' & +' + m.lights + ' RANK LIGHTS');
+          setTxt('dmd-reward', 'REWARD: +' + (m.pts * this.multiplier).toLocaleString() + ' & +' + m.lights + ' TIER LIGHTS');
         } else {
           setTxt('mission-status-badge', 'STANDBY');
           setTxt('dmd-mission-name', 'READY: ' + m.name);
           setTxt('dmd-mission-progress', '0 / ' + m.goal);
-          setTxt('dmd-instruction', 'SHOOT LEFT LAUNCH RAMP TO START (' + m.desc + ')');
-          setTxt('dmd-reward', 'HIT [T]-[D]-[N] TO CHANGE MISSION');
+          setTxt('dmd-instruction', 'SHOOT LEFT ASCENSION RAMP TO START (' + m.desc + ')');
+          setTxt('dmd-reward', 'HIT [T]-[D]-[N] TABLETS TO CHANGE TRIAL');
         }
 
         const segs = document.querySelectorAll('#fuel-segments .fuel-seg');
@@ -5551,9 +5551,9 @@
         }
         ctx.font = '700 0.44rem "Space Mono", monospace';
         ctx.fillStyle = (this.promotionReady || isJackpotRamp) ? '#ffd700' : '#34d399';
-        ctx.fillText(this.promotionReady ? '★ PROMOTE ★' : (isJackpotRamp ? '★ JACKPOT ★' : 'LAUNCH RAMP'), 122, 282);
+        ctx.fillText(this.promotionReady ? '★ PROMOTE ★' : (isJackpotRamp ? '★ JACKPOT ★' : 'ASCEND RAMP'), 122, 282);
 
-        // 2. Right Hyperspace Chute Chevrons & 4 Hyperspace Level Gems
+        // 2. Right Ishtar Gate Chute Chevrons & 4 Ishtar Gate Level Gems
         for (let i = 0; i < 3; i++) {
           const y = 310 - i * 14;
           const isChaseR = (2 - i) === (chaseStep % 3);
@@ -5574,7 +5574,7 @@
           ctx.fill();
         }
         ctx.fillStyle = '#00f2fe';
-        ctx.fillText('HYPERSPACE', 356, 326);
+        ctx.fillText('ISHTAR GATE', 356, 326);
 
         // 3. 2 Mid-Field Golden Triangular Fan-Ribbed Deflector Wedges (Matching Concept Art!)
         if (this.midDeflectors) {
