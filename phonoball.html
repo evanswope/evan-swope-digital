@@ -730,17 +730,15 @@
 <body>
 
   <!-- Header -->
-  <header class="game-header">
-    <div class="header-nav-row">
-      <a href="experiments.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> LAB EXPERIMENTS</a>
-      <div class="game-badge"><i class="fa-solid fa-gopuram"></i> ETEMENANKI ARCHITECTURE × KLATT FORMANT SYNTH</div>
+  <header class="game-header" style="margin-bottom: 0.45rem;">
+    <div class="header-nav-row" style="margin-bottom: 0;">
+      <a href="experiments.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> BACK</a>
+      <h1 class="game-title" style="font-size: 1.35rem; margin: 0;">TOWER OF BABEL</h1>
       <div style="display:flex;gap:0.35rem;">
-        <button id="btn-mute" class="back-link" style="cursor:pointer;" title="Toggle Audio Mute [M]"><i class="fa-solid fa-volume-high"></i> AUDIO [M]</button>
-        <button id="btn-nudge" class="back-link" style="cursor:pointer;" title="Nudge Table [X or Space]"><i class="fa-solid fa-bolt"></i> NUDGE [X]</button>
+        <button id="btn-mute" class="back-link" style="cursor:pointer;" title="Toggle Audio [M]"><i class="fa-solid fa-volume-high"></i> [M]</button>
+        <button id="btn-nudge" class="back-link" style="cursor:pointer;" title="Nudge Table [X]"><i class="fa-solid fa-bolt"></i> NUDGE [X]</button>
       </div>
     </div>
-    <h1 class="game-title">3D PINBALL: TOWER OF BABEL</h1>
-    <p class="game-subtitle">Babylonian Ziggurat Playfield • Real-Time Vocal Tract Synthesis • 7 Tiers of Etemenanki</p>
   </header>
 
   <!-- Main Dual-Column Pinball Cabinet -->
@@ -753,49 +751,49 @@
 
         <!-- Start Overlay -->
         <div class="audio-overlay" id="audio-overlay">
-          <i class="fa-solid fa-gopuram" style="font-size: 2.8rem; color: var(--gold-bright); margin-bottom: 0.6rem; filter: drop-shadow(0 0 18px rgba(255,215,0,0.8));"></i>
-          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.45rem; color: #fff;">ARCHITECT OF SHINAR</h2>
-          <p class="overlay-intro">
-            Welcome to the <strong>Ziggurat of Etemenanki</strong>! Use <strong>4 Flippers</strong> to strike carved <strong>Cuneiform Consonant Tablets</strong> (<code>[B][P][M]</code>, <code>[T][D][N]</code>, <code>[K][G][S]</code>), <strong>Sanctuary Scoops</strong> (<code>[L][R][S]</code>), and upper <strong>Vowel Bumpers &amp; Arches</strong> (<code>/i/ /ɑ/ /u/ /ɛ/ /ɪ/ /oʊ/</code>) to synthesize spoken words, complete <strong>Royal Trials</strong>, and ascend all <strong>7 Tiers of Babel</strong>!
+          <i class="fa-solid fa-gopuram" style="font-size: 2.6rem; color: var(--gold-bright); margin-bottom: 0.5rem; filter: drop-shadow(0 0 18px rgba(255,215,0,0.8));"></i>
+          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.4rem; color: #fff;">TOWER OF BABEL</h2>
+          <p class="overlay-intro" style="max-width: 280px; margin: 0.5rem 0 1.2rem;">
+            Strike consonants and vowels to speak words and ascend the 7 tiers.
           </p>
           <button class="overlay-coin-btn" id="btn-start-audio">
-            <i class="fa-solid fa-play"></i> BEGIN ASCENSION
+            <i class="fa-solid fa-play"></i> PLAY
           </button>
         </div>
 
         <!-- Game Over Overlay -->
         <div class="audio-overlay hidden" id="game-over-overlay">
-          <i class="fa-solid fa-crown" style="font-size: 2.6rem; color: var(--gold-bright); margin-bottom: 0.6rem;"></i>
-          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.5rem; color: #fff;">TOWER SEALED</h2>
-          <div style="font-family: var(--font-display); font-size: 1.15rem; color: var(--gold-bright); margin: 0.5rem 0;" id="game-over-score">SCORE: 000,000</div>
-          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan-glow); margin-bottom: 0.3rem;" id="game-over-rank">RANK: MUDBRICK APPRENTICE</div>
-          <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.2rem;" id="game-over-words">WORDS SPOKEN: 0</div>
+          <i class="fa-solid fa-crown" style="font-size: 2.4rem; color: var(--gold-bright); margin-bottom: 0.5rem;"></i>
+          <h2 style="font-family: var(--font-artdeco); font-weight: 900; letter-spacing: 3px; font-size: 1.4rem; color: #fff;">TOWER SEALED</h2>
+          <div style="font-family: var(--font-display); font-size: 1.15rem; color: var(--gold-bright); margin: 0.45rem 0;" id="game-over-score">000,000</div>
+          <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--cyan-glow); margin-bottom: 0.25rem;" id="game-over-rank">TIER I: APPRENTICE</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.1rem;" id="game-over-words">0 WORDS</div>
           <button class="overlay-coin-btn" id="btn-play-again">
-            <i class="fa-solid fa-rotate-right"></i> NEW ASCENSION
+            <i class="fa-solid fa-rotate-right"></i> PLAY AGAIN
           </button>
         </div>
 
         <!-- Celebration Banner -->
         <div class="word-celebration-banner" id="word-banner">
-          <div class="banner-title" id="banner-title-text">✦ WORD SYNTHESIZED ✦</div>
+          <div class="banner-title" id="banner-title-text">✦ WORD SPOKEN ✦</div>
           <div class="banner-word" id="banner-word-text">BABEL</div>
-          <div class="banner-points" id="banner-points-text">+2,500 PTS</div>
+          <div class="banner-points" id="banner-points-text">+2,500</div>
         </div>
       </div>
 
       <!-- Bottom Arcade Controls -->
       <div class="cabinet-bottom-bar">
         <button class="arcade-btn" id="btn-left-flipper">
-          <span>LEFT FLIPPERS (2)</span>
-          <span class="key-hint">[A] or [←]</span>
+          <span>LEFT</span>
+          <span class="key-hint">[A / ←]</span>
         </button>
         <button class="arcade-btn launch-btn" id="btn-plunger">
-          <span>HOLD PLUNGER</span>
+          <span>LAUNCH</span>
           <span class="key-hint">[SPACE / ↓]</span>
         </button>
         <button class="arcade-btn" id="btn-right-flipper">
-          <span>RIGHT FLIPPERS (2)</span>
-          <span class="key-hint">[D] or [→]</span>
+          <span>RIGHT</span>
+          <span class="key-hint">[D / →]</span>
         </button>
       </div>
     </div>
@@ -803,20 +801,20 @@
     <!-- Right Column: Ziggurat Command Deck -->
     <aside class="command-sidebar">
 
-      <!-- 1. Score & Vessel Status -->
+      <!-- 1. Score -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-scroll"></i> ROYAL CHRONICLE</span>
+          <span>SCORE</span>
           <span id="high-score-label" style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;">HI: 000,000</span>
         </div>
         <div class="score-led-box" id="stat-score">000,000</div>
         <div class="score-sub-row">
           <div class="sub-stat-box">
-            <span class="sub-stat-label">VESSEL</span>
+            <span class="sub-stat-label">BALL</span>
             <span class="sub-stat-val" id="stat-ball">1 / 3</span>
           </div>
           <div class="sub-stat-box">
-            <span class="sub-stat-label">MULTIPLIER</span>
+            <span class="sub-stat-label">MULT</span>
             <span class="sub-stat-val" id="stat-multiplier" style="color:var(--gold-bright);">1X</span>
           </div>
           <div class="sub-stat-box">
@@ -826,25 +824,25 @@
         </div>
       </div>
 
-      <!-- 2. Ziggurat Trial Tablet & Sacred Torch -->
+      <!-- 2. Trial -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-gopuram"></i> ROYAL TRIAL TABLET</span>
+          <span>TRIAL</span>
           <div style="display:flex;align-items:center;gap:0.35rem;">
-            <button id="btn-cycle-mission" style="background:rgba(16,185,129,0.18);border:1px solid #10b981;color:#a7f3d0;font-family:var(--font-mono);font-size:0.48rem;padding:0.1rem 0.35rem;border-radius:4px;cursor:pointer;" title="Cycle Trial Selection">CYCLE ↻</button>
-            <span id="mission-status-badge" style="color:#34d399;font-family:var(--font-mono);font-size:0.55rem;">STANDBY</span>
+            <button id="btn-cycle-mission" style="background:rgba(16,185,129,0.18);border:1px solid #10b981;color:#a7f3d0;font-family:var(--font-mono);font-size:0.48rem;padding:0.08rem 0.32rem;border-radius:4px;cursor:pointer;" title="Cycle Trial">↻</button>
+            <span id="mission-status-badge" style="color:#34d399;font-family:var(--font-mono);font-size:0.52rem;">STANDBY</span>
           </div>
         </div>
         <div class="mission-dmd-box">
           <div class="dmd-header">
-            <span id="dmd-mission-name">SELECT TRIAL</span>
-            <span id="dmd-mission-progress">0 / 3</span>
+            <span id="dmd-mission-name">KILN FIRING</span>
+            <span id="dmd-mission-progress">0 / 8</span>
           </div>
-          <div class="dmd-main-text" id="dmd-instruction">
-            HIT [T]-[D]-[N] TABLETS TO SELECT, THEN SHOOT ASCENSION RAMP!
+          <div class="dmd-main-text" id="dmd-instruction" style="min-height:1.5rem;font-size:0.72rem;">
+            Shoot Left Ramp to start
           </div>
-          <div class="dmd-sub-text" id="dmd-reward">
-            REWARD: +15,000 &amp; +2 RANK LIGHTS
+          <div class="dmd-sub-text" id="dmd-reward" style="font-size:0.56rem;">
+            Hit 8 bumpers
           </div>
         </div>
         <div class="fuel-bar-row">
@@ -860,88 +858,66 @@
         </div>
       </div>
 
-      <!-- 3. Continuous Phoneme Stream & Formant Vowel Triangle -->
+      <!-- 3. Voice & Vowel Triangle -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-wave-square"></i> PHONEME STREAM &amp; TRIANGLE</span>
+          <span>VOICE</span>
           <div style="display:flex;align-items:center;gap:0.28rem;">
-            <span id="phoneme-last-spoken" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.52rem;">READY</span>
-            <button id="btn-speak-stream" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#6ee7b7;font-family:var(--font-mono);font-size:0.45rem;padding:0.08rem 0.3rem;border-radius:4px;cursor:pointer;" title="Cash In &amp; Speak Current Word [E]">SPEAK [E]</button>
-            <button id="btn-clear-cvc" style="background:rgba(244,63,94,0.16);border:1px solid rgba(244,63,94,0.5);color:#fda4af;font-family:var(--font-mono);font-size:0.45rem;padding:0.08rem 0.3rem;border-radius:4px;cursor:pointer;" title="Clear Phoneme Stream [C]">CLR</button>
+            <span id="phoneme-last-spoken" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.52rem;"></span>
+            <button id="btn-speak-stream" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#6ee7b7;font-family:var(--font-mono);font-size:0.45rem;padding:0.08rem 0.3rem;border-radius:4px;cursor:pointer;" title="Speak Word [E]">SPEAK [E]</button>
+            <button id="btn-clear-cvc" style="background:rgba(244,63,94,0.16);border:1px solid rgba(244,63,94,0.5);color:#fda4af;font-family:var(--font-mono);font-size:0.45rem;padding:0.08rem 0.3rem;border-radius:4px;cursor:pointer;" title="Clear [C]">CLR</button>
           </div>
         </div>
         <div class="utterance-stream-box" id="utterance-stream-box">
           <div class="stream-tokens-row" id="stream-tokens-row">
-            <span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);">Chain phonemes (e.g. D-ɪ-S-ɑ-S-oʊ-S-i-ɛ-T or S-u-P-ɛ-R-K-ɑ-T)...</span>
+            <span style="font-family:var(--font-mono);font-size:0.52rem;color:var(--text-muted);">—</span>
           </div>
           <div class="stream-prefix-status" id="stream-prefix-status">
-            <span id="stream-locked-word">NO ACTIVE STREAM</span>
+            <span id="stream-locked-word"></span>
             <span id="stream-timer-label" style="color:var(--gold-primary);"></span>
           </div>
         </div>
         <!-- Interactive F1 x F2 Formant Vowel Triangle -->
         <div class="vowel-triangle-wrap">
-          <canvas id="vowel-triangle-canvas" width="268" height="118" title="Interactive IPA Formant Vowel Triangle (Click/Drag to synthesize F1 × F2 vowel!)"></canvas>
+          <canvas id="vowel-triangle-canvas" width="268" height="114" title="Click or drag to hear vowels"></canvas>
         </div>
-        <div class="target-word-banner" id="target-word-box" style="cursor:pointer;" title="Click to hear Bonus Word spoken!">
-          <span style="color:var(--text-muted);">TARGET WORD <i class="fa-solid fa-volume-low" style="color:var(--gold-primary);"></i>:</span>
-          <span class="target-word-highlight" id="stat-target-word">SUPERCAT</span>
-        </div>
-        <div class="cvc-hint-strip" id="cvc-hint-strip">
-          NEXT: HIT ANY PHONEME TO BEGIN STREAM
-        </div>
-        <div class="formant-bars">
-          <span>F₁ (JAW): <strong id="val-f1">500 Hz</strong></span>
-          <span>F₂ (TONGUE): <strong id="val-f2">1500 Hz</strong></span>
+        <div class="target-word-banner" id="target-word-box" style="cursor:pointer;" title="Click to hear Target Word">
+          <span style="color:var(--text-muted);font-size:0.56rem;">TARGET <i class="fa-solid fa-volume-low" style="color:var(--gold-primary);"></i></span>
+          <span class="target-word-highlight" id="stat-target-word" style="font-size:0.78rem;">SUPERCAT</span>
+          <span id="cvc-hint-strip" style="font-family:var(--font-mono);font-size:0.52rem;color:#38bdf8;"></span>
         </div>
       </div>
 
-      <!-- 4. The 7 Ziggurat Ranks (Space Cadet Promotions) -->
+      <!-- 4. Tiers -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-layer-group"></i> ZIGGURAT RANKS</span>
-          <span id="rank-lights-count" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.55rem;">0/7 LIT</span>
+          <span>TIERS</span>
+          <span id="rank-lights-count" style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.55rem;">0 / 7 ★</span>
         </div>
         <div class="ranks-ladder" id="ranks-ladder">
-          <div class="rank-row" data-rank="7"><span class="rank-tier-badge">VII</span><span>ARCHITECT OF HEAVEN</span><span>5X</span></div>
-          <div class="rank-row" data-rank="6"><span class="rank-tier-badge">VI</span><span>HIGH PRIEST OF MARDUK</span><span>4X</span></div>
-          <div class="rank-row" data-rank="5"><span class="rank-tier-badge">V</span><span>ASTROLOGER OF SIN</span><span>3X</span></div>
-          <div class="rank-row" data-rank="4"><span class="rank-tier-badge">IV</span><span>GATEKEEPER OF ISHTAR</span><span>2X</span></div>
-          <div class="rank-row" data-rank="3"><span class="rank-tier-badge">III</span><span>CUNEIFORM SCRIBE</span><span>2X</span></div>
+          <div class="rank-row" data-rank="7"><span class="rank-tier-badge">VII</span><span>ARCHITECT</span><span>5X</span></div>
+          <div class="rank-row" data-rank="6"><span class="rank-tier-badge">VI</span><span>HIGH PRIEST</span><span>4X</span></div>
+          <div class="rank-row" data-rank="5"><span class="rank-tier-badge">V</span><span>ASTROLOGER</span><span>3X</span></div>
+          <div class="rank-row" data-rank="4"><span class="rank-tier-badge">IV</span><span>GATEKEEPER</span><span>2X</span></div>
+          <div class="rank-row" data-rank="3"><span class="rank-tier-badge">III</span><span>SCRIBE</span><span>2X</span></div>
           <div class="rank-row" data-rank="2"><span class="rank-tier-badge">II</span><span>KILN STOKER</span><span>1X</span></div>
-          <div class="rank-row unlocked current" data-rank="1"><span class="rank-tier-badge">I</span><span>MUDBRICK APPRENTICE</span><span>1X</span></div>
+          <div class="rank-row unlocked current" data-rank="1"><span class="rank-tier-badge">I</span><span>APPRENTICE</span><span>1X</span></div>
         </div>
       </div>
 
-      <!-- 5. Inscribed Lexicon -->
+      <!-- 5. Words -->
       <div class="sc-panel">
         <div class="sc-panel-title">
-          <span><i class="fa-solid fa-scroll"></i> TABLET LEXICON</span>
-          <span id="words-count-badge" style="color:var(--cyan-glow);font-family:var(--font-mono);font-size:0.55rem;">0 SPOKEN</span>
+          <span>WORDS</span>
+          <span id="words-count-badge" style="color:var(--cyan-glow);font-family:var(--font-mono);font-size:0.55rem;">0</span>
         </div>
         <div class="words-tag-container" id="discovered-words-list">
-          <span style="font-size:0.62rem;color:var(--text-muted);font-family:var(--font-mono);">Chain [Consonant] → [Vowel] → [Consonant] to speak words!</span>
+          <span style="font-size:0.55rem;color:var(--text-muted);font-family:var(--font-mono);">—</span>
         </div>
       </div>
 
     </aside>
   </main>
-
-  <!-- Reference Guide Footer -->
-  <section class="reference-footer">
-    <div class="ref-col">
-      <h4><i class="fa-solid fa-gopuram"></i> 1. Ziggurat Playfield Layout</h4>
-      <p><strong>4 Flippers</strong> (2 lower + 2 upper midfield) surround an open central arena with the <strong>16-Jewel Trial Ring</strong> &amp; <strong>7-Star Tier Ring</strong>. Shoot the <strong>Left Ascension Ramp</strong> to start Royal Trials &amp; claim promotions, or the <strong>Right Ishtar Gate Chute</strong> for jackpots &amp; the Whirlwind of Marduk!</p>
-    </div>
-    <div class="ref-col">
-      <h4><i class="fa-solid fa-microphone-lines"></i> 2. Vowel &amp; Consonant Zones</h4>
-      <p><strong>Consonants</strong> live on the perimeter: Left Labial Tablets <code>[B][P][M]</code>, Coronal Standups <code>[T][D][N]</code>, Right Velar Tablets <code>[K][G][S]</code>, and 3 Sanctuary Scoops <code>[L][R][S]</code>. <strong>Vowels</strong> live at the top: 3 Cardinal Rollover Arches <code>/i/ /ɑ/ /u/</code> &amp; 4 Interior Attack Bumpers <code>/ɛ/ /ɪ/ /oʊ/ /ʌ/</code> (last vowel touched is active + stacks with previous vowel!).</p>
-    </div>
-    <div class="ref-col">
-      <h4><i class="fa-solid fa-tower-observation"></i> 3. Royal Trials &amp; Ascension</h4>
-      <p>Hit <code>[T][D][N]</code> to choose a Royal Trial, then shoot the <strong>Ascension Ramp</strong>. Completing trials lights the <strong>Inner 7-Star Tier Circle</strong>. When all 7 Tier Stars are lit, shoot the <strong>Ascension Ramp</strong> to ascend to the next Ziggurat Tier!</p>
-    </div>
-  </section>
 
 
   <script>
@@ -952,24 +928,24 @@
     // 1. ZIGGURAT RANKS (SPACE CADET'S PROMOTION LADDER)
     // =========================================================================
     const ZIGGURAT_RANKS = [
-      { rank: 1, roman: 'I',   title: 'MUDBRICK APPRENTICE', subtitle: 'Foundation Kilns of Shinar', mult: 1, color: '#f97316' },
-      { rank: 2, roman: 'II',  title: 'KILN STOKER',         subtitle: 'Bitumen Furnace Conduit',    mult: 1, color: '#f59e0b' },
-      { rank: 3, roman: 'III', title: 'CUNEIFORM SCRIBE',    subtitle: 'Processional Way of Lions',  mult: 2, color: '#38bdf8' },
-      { rank: 4, roman: 'IV',  title: 'GATEKEEPER OF ISHTAR',subtitle: 'Glazed Lapis Sanctuary',     mult: 2, color: '#10b981' },
-      { rank: 5, roman: 'V',   title: 'ASTROLOGER OF SIN',   subtitle: 'Terrace of the Moon',        mult: 3, color: '#a855f7' },
-      { rank: 6, roman: 'VI',  title: 'HIGH PRIEST OF MARDUK',subtitle: 'Sanctuary of Etemenanki',   mult: 4, color: '#ec4899' },
-      { rank: 7, roman: 'VII', title: 'ARCHITECT OF HEAVEN', subtitle: 'The Confounding of Tongues', mult: 5, color: '#ffd700' }
+      { rank: 1, roman: 'I',   title: 'APPRENTICE',  subtitle: 'Tier I',   mult: 1, color: '#f97316' },
+      { rank: 2, roman: 'II',  title: 'KILN STOKER', subtitle: 'Tier II',  mult: 1, color: '#f59e0b' },
+      { rank: 3, roman: 'III', title: 'SCRIBE',      subtitle: 'Tier III', mult: 2, color: '#38bdf8' },
+      { rank: 4, roman: 'IV',  title: 'GATEKEEPER',  subtitle: 'Tier IV',  mult: 2, color: '#10b981' },
+      { rank: 5, roman: 'V',   title: 'ASTROLOGER',  subtitle: 'Tier V',   mult: 3, color: '#a855f7' },
+      { rank: 6, roman: 'VI',  title: 'HIGH PRIEST', subtitle: 'Tier VI',  mult: 4, color: '#ec4899' },
+      { rank: 7, roman: 'VII', title: 'ARCHITECT',   subtitle: 'Tier VII', mult: 5, color: '#ffd700' }
     ];
 
     // =========================================================================
-    // 2. SPACE CADET MISSIONS (12 BABEL TRIALS + WIZARD MULTIBALL)
+    // 2. BABEL TRIALS (12 TRIALS + MULTIBALL)
     // =========================================================================
     const MISSIONS = [
       {
         id: 'TARGET_PRACTICE',
         name: 'KILN FIRING',
-        scName: 'Target Practice',
-        desc: 'HIT ATTACK BUMPERS 8 TIMES',
+        scName: 'Kiln Firing',
+        desc: 'Hit 8 bumpers',
         type: 'BUMPERS',
         goal: 8,
         lights: 2,
@@ -979,8 +955,8 @@
       {
         id: 'REENTRY_TRAINING',
         name: 'VOWEL TRIAD',
-        scName: 'Re-Entry Training',
-        desc: 'PASS TOP VOWEL LANES (/i/ /ɑ/ /u/) 3 TIMES',
+        scName: 'Vowel Triad',
+        desc: 'Pass 3 top vowel lanes',
         type: 'TOP_LANES',
         goal: 3,
         lights: 2,
@@ -991,7 +967,7 @@
         id: 'LAUNCH_TRAINING',
         name: 'ASCENSION RAMP',
         scName: 'Ascension Rite',
-        desc: 'CLIMB THE LEFT ASCENSION RAMP 2 TIMES',
+        desc: 'Climb Left Ramp 2x',
         type: 'RAMP',
         goal: 2,
         lights: 3,
@@ -1000,9 +976,9 @@
       },
       {
         id: 'ORBITAL_SPINNER',
-        name: 'WINGED BULL ORBIT',
+        name: 'BULL ORBIT',
         scName: 'Bull of Heaven',
-        desc: 'SPIN THE RIGHT ORBIT BULL GATE 10 REVOLUTIONS',
+        desc: 'Spin Right Orbit 10x',
         type: 'SPINNER',
         goal: 10,
         lights: 3,
@@ -1011,9 +987,9 @@
       },
       {
         id: 'SCIENCE_MISSION',
-        name: 'CUNEIFORM TABLETS',
+        name: 'CLAY TABLETS',
         scName: 'Scribal Arts',
-        desc: 'HIT PERIMETER CONSONANT TABLETS 6 TIMES',
+        desc: 'Hit 6 consonant tablets',
         type: 'TARGETS',
         goal: 6,
         lights: 3,
@@ -1024,7 +1000,7 @@
         id: 'MINIMAL_PAIRS',
         name: 'ROYAL LEXICON',
         scName: 'Royal Lexicon',
-        desc: 'SYNTHESIZE ANY 2 SPOKEN WORDS',
+        desc: 'Speak 2 words',
         type: 'WORDS',
         goal: 2,
         lights: 3,
@@ -1033,9 +1009,9 @@
       },
       {
         id: 'STRAY_COMET',
-        name: 'STAR OF ISHTAR',
+        name: 'ISHTAR GATE',
         scName: 'Star of Ishtar',
-        desc: 'SHOOT THE RIGHT ISHTAR GATE CHUTE [S]',
+        desc: 'Enter Right Gate [S]',
         type: 'HYPERSPACE',
         goal: 1,
         lights: 3,
@@ -1044,9 +1020,9 @@
       },
       {
         id: 'SPACE_RADIATION',
-        name: 'CONFOUNDING WINDS',
+        name: 'WINDS OF SHINAR',
         scName: 'Winds of Shinar',
-        desc: 'ENTER ANY SANCTUARY SCOOP ([L], [R], OR [S]) 2 TIMES',
+        desc: 'Enter any scoop [L/R/S] 2x',
         type: 'WORMHOLE',
         goal: 2,
         lights: 3,
@@ -1055,9 +1031,9 @@
       },
       {
         id: 'ROYAL_INSCRIPTION',
-        name: 'STELE OF HAMMURABI',
+        name: 'CODE OF LAW',
         scName: 'Code of Law',
-        desc: 'HIT 5 CONSONANT TABLETS OR SANCTUARY SCOOPS',
+        desc: 'Hit 5 consonant targets',
         type: 'TARGETS',
         goal: 5,
         lights: 3,
@@ -1068,7 +1044,7 @@
         id: 'BLACK_HOLE',
         name: 'WELL OF MARDUK',
         scName: 'Whirlwind of Marduk',
-        desc: 'WHIRLWIND ACTIVE! LOCK IN CENTER [R] SANCTUARY',
+        desc: 'Enter Center Scoop [R]',
         type: 'CENTER_WORMHOLE',
         goal: 1,
         lights: 4,
@@ -1079,7 +1055,7 @@
         id: 'COSMIC_SYMPHONY',
         name: 'CHORUS OF SHINAR',
         scName: 'Harmonic Choir',
-        desc: 'TRIGGER 10 VOWEL BUMPERS OR TOP ARCHES',
+        desc: 'Hit 10 vowel bumpers/lanes',
         type: 'BUMPERS',
         goal: 10,
         lights: 4,
@@ -1090,7 +1066,7 @@
         id: 'ALIEN_MENACE',
         name: 'TOWER OF TONGUES',
         scName: 'Confounding of Tongues',
-        desc: 'SPEAK 3 WORDS TO UNLEASH BABEL MULTIBALL!',
+        desc: 'Speak 3 words for Multiball',
         type: 'WORDS',
         goal: 3,
         lights: 5,
@@ -3423,7 +3399,7 @@
         if (m.id === 'BLACK_HOLE') {
           this.gravityWellTimer = 18000;
         }
-        this.showBanner('✦ ROYAL TRIAL BEGUN ✦', m.name, m.desc);
+        this.showBanner('✦ TRIAL STARTED ✦', m.name, m.desc);
         this.spawnShockwave(208, 445, '#10b981');
         this.updateHUD();
       }
@@ -3450,7 +3426,7 @@
         this.awardRankLights(m.lights);
         this.synth.playWordChord();
 
-        this.showBanner('★ ROYAL TRIAL COMPLETE ★', m.name, '+' + pts.toLocaleString() + ' PTS • +' + m.lights + ' TIER LIGHTS');
+        this.showBanner('★ TRIAL COMPLETE ★', m.name, '+' + pts.toLocaleString() + ' • +' + m.lights + ' ★');
         this.spawnShockwave(208, 445, '#ffd700');
 
         // Every 3 missions completed or completing ALIEN_MENACE unleashes 3-Ball Babel Multiball!
@@ -3467,7 +3443,7 @@
         this.rankLights = Math.min(7, this.rankLights + count);
         if (this.rankLights >= 7 && this.rankIndex < ZIGGURAT_RANKS.length - 1) {
           this.promotionReady = true;
-          this.spawnFloatingText(208, 290, '★ SHOOT ASCENSION RAMP FOR PROMOTION! ★', '#ffd700', true);
+          this.spawnFloatingText(208, 290, '★ RAMP: PROMOTE! ★', '#ffd700', true);
         }
         this.updateHUD();
       }
@@ -3619,7 +3595,7 @@
             if (this.fuel <= 0) {
               this.missionActive = false;
               this.missionProgress = 0;
-              this.spawnFloatingText(208, 445, '🔥 TORCH EXTINGUISHED • TRIAL ABORTED', '#ef4444', true);
+              this.spawnFloatingText(208, 445, 'TRIAL FAILED', '#ef4444', true);
             }
             this.updateHUD();
           }
@@ -4285,16 +4261,16 @@
               if (this.hyperspaceLevel === 1) {
                 this.kickbackLit = true;
                 this.centerPostTimer = 14000;
-                this.spawnFloatingText(315, 235, 'ISHTAR GATE I: FURNACE & KICKBACK LIT!', '#00f2fe', true);
+                this.spawnFloatingText(315, 235, 'FURNACE & KICKBACK LIT', '#00f2fe', true);
               } else if (this.hyperspaceLevel === 2) {
                 this.gravityWellTimer = 16000;
-                this.spawnFloatingText(315, 235, 'ISHTAR GATE II: WHIRLWIND OF MARDUK!', '#a855f7', true);
+                this.spawnFloatingText(315, 235, 'WHIRLWIND ACTIVE', '#a855f7', true);
               } else if (this.hyperspaceLevel === 3) {
                 this.addScore(20000 * this.multiplier);
                 this.awardRankLights(1);
-                this.spawnFloatingText(295, 235, '★ ISHTAR GATE JACKPOT +20,000! ★', '#ffd700', true);
+                this.spawnFloatingText(295, 235, '★ JACKPOT +20,000 ★', '#ffd700', true);
               } else if (this.hyperspaceLevel === 4) {
-                this.triggerMultiball(2, 'ISHTAR GATE MULTIBALL!');
+                this.triggerMultiball(2, 'MULTIBALL!');
               }
               if (this.missionActive && MISSIONS[this.selectedMissionIdx].type === 'HYPERSPACE') {
                 this.advanceMission(1);
@@ -4731,23 +4707,23 @@
 
         const m = MISSIONS[this.selectedMissionIdx];
         if (this.promotionReady) {
-          setTxt('mission-status-badge', 'PROMOTION READY!');
-          setTxt('dmd-mission-name', '★ ASCEND ZIGGURAT ★');
-          setTxt('dmd-mission-progress', '7 / 7 LIT');
-          setTxt('dmd-instruction', 'SHOOT THE LEFT ASCENSION RAMP TO PROMOTE TO NEXT TIER!');
-          setTxt('dmd-reward', 'UNLOCKS NEXT ZIGGURAT TIER & MULTIPLIER!');
+          setTxt('mission-status-badge', 'READY');
+          setTxt('dmd-mission-name', '★ ASCEND TIER ★');
+          setTxt('dmd-mission-progress', '7 / 7 ★');
+          setTxt('dmd-instruction', 'Shoot Left Ramp to promote');
+          setTxt('dmd-reward', 'Unlocks next tier & multiplier');
         } else if (this.missionActive) {
-          setTxt('mission-status-badge', 'IN PROGRESS');
+          setTxt('mission-status-badge', 'ACTIVE');
           setTxt('dmd-mission-name', m.name);
           setTxt('dmd-mission-progress', this.missionProgress + ' / ' + this.missionGoal);
           setTxt('dmd-instruction', m.desc);
-          setTxt('dmd-reward', 'REWARD: +' + (m.pts * this.multiplier).toLocaleString() + ' & +' + m.lights + ' TIER LIGHTS');
+          setTxt('dmd-reward', '+' + (m.pts * this.multiplier).toLocaleString() + ' • +' + m.lights + ' ★');
         } else {
           setTxt('mission-status-badge', 'STANDBY');
-          setTxt('dmd-mission-name', 'READY: ' + m.name);
+          setTxt('dmd-mission-name', m.name);
           setTxt('dmd-mission-progress', '0 / ' + m.goal);
-          setTxt('dmd-instruction', 'SHOOT LEFT ASCENSION RAMP TO START (' + m.desc + ')');
-          setTxt('dmd-reward', 'HIT [T]-[D]-[N] TABLETS TO CHANGE TRIAL');
+          setTxt('dmd-instruction', 'Shoot Left Ramp to start');
+          setTxt('dmd-reward', m.desc + ' (+' + m.lights + ' ★)');
         }
 
         const segs = document.querySelectorAll('#fuel-segments .fuel-seg');
@@ -4765,7 +4741,7 @@
         }
         if (tokensRow) {
           if (this.phonemeStream.length === 0) {
-            tokensRow.innerHTML = '<span style="font-size:0.46rem; color:#64748b; font-family:Space Mono,monospace;">HIT CONSONANTS & VOWELS (LAST VOWEL + STACKED)...</span>';
+            tokensRow.innerHTML = '<span style="font-size:0.5rem; color:#64748b; font-family:Space Mono,monospace;">—</span>';
           } else {
             const hasStack = this.stackedVowels && this.stackedVowels.length > 1;
             const renderedTokens = this.phonemeStream.map((ph, idx) => {
@@ -4791,46 +4767,33 @@
         }
 
         if (this.lockedPrefixWord) {
-          const extMatches = this.findPrefixMatches(this.phonemeStream, true).filter(w => w.seq.length > this.phonemeStream.length);
-          const extHint = extMatches.slice(0, 2).map(w => w.word).join('/');
-          setTxt('stream-locked-word', '✓ "' + this.lockedPrefixWord.word + '" LOCKED — EXTEND TO ' + (extHint || 'LONGER WORD') + '!');
+          setTxt('stream-locked-word', '✓ ' + this.lockedPrefixWord.word);
         } else if (this.phonemeStream.length > 0) {
           const prefMatches = this.findPrefixMatches(this.phonemeStream, true);
-          const topWords = prefMatches.slice(0, 3).map(w => w.word).join(', ');
-          setTxt('stream-locked-word', 'BUILDING: ' + (topWords || 'UTTERANCE'));
+          const topWords = prefMatches.slice(0, 2).map(w => w.word).join(', ');
+          setTxt('stream-locked-word', topWords);
         } else {
-          setTxt('stream-locked-word', 'STREAM IDLE');
+          setTxt('stream-locked-word', '');
         }
 
-        setTxt('stream-timer-label', this.utteranceTimer > 0 ? ((this.utteranceTimer / 1000).toFixed(1) + 's') : 'READY');
+        setTxt('stream-timer-label', this.utteranceTimer > 0 ? ((this.utteranceTimer / 1000).toFixed(1) + 's') : '');
 
-        // Live Next-Shot Word Completion Hints in Sidebar
+        // Compact Phoneme Recipe next to Target Word
         const hintEl = document.getElementById('cvc-hint-strip');
         if (hintEl) {
           const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
-          if (this.phonemeStream.length === 0) {
-            const seqStr = tObj ? tObj.seq.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('-') : '';
-            hintEl.textContent = 'TARGET "' + this.targetWord + '": ' + seqStr;
-          } else {
-            const prefMatches = this.findPrefixMatches(this.phonemeStream, true).filter(w => w.seq.length > this.phonemeStream.length);
-            const idx = this.phonemeStream.length;
-            const nextSteps = prefMatches.slice(0, 3).map(w => {
-              const nextPh = w.seq[idx];
-              const disp = VOWEL_FORMANTS[nextPh] ? VOWEL_FORMANTS[nextPh].ipa : '[' + nextPh + ']';
-              return disp + '→' + w.word;
-            }).join(' • ');
-            hintEl.textContent = nextSteps ? ('NEXT: ' + nextSteps) : 'PRESS [E] OR WAIT TO SPEAK LOCKED WORD!';
-          }
+          const seqStr = tObj ? tObj.seq.map(p => VOWEL_FORMANTS[p] ? VOWEL_FORMANTS[p].ipa : p).join('·') : '';
+          hintEl.textContent = seqStr;
         }
 
-        setTxt('rank-lights-count', this.rankLights + '/7 LIT');
+        setTxt('rank-lights-count', this.rankLights + ' / 7 ★');
         document.querySelectorAll('#ranks-ladder .rank-row').forEach(row => {
           const r = Number(row.getAttribute('data-rank'));
           row.classList.toggle('unlocked', r <= this.rankIndex + 1);
           row.classList.toggle('current', r === this.rankIndex + 1);
         });
 
-        setTxt('words-count-badge', this.discoveredWords.size + ' / ' + CVC_WORDS.length + ' SPOKEN');
+        setTxt('words-count-badge', String(this.discoveredWords.size));
         const listEl = document.getElementById('discovered-words-list');
         if (listEl && this.discoveredWords.size > 0) {
           listEl.innerHTML = Array.from(this.discoveredWords).map(w => {
@@ -4947,13 +4910,13 @@
 
         // Axis Labels
         vctx.font = '700 7.5px "Space Mono", monospace';
-        vctx.fillStyle = 'rgba(148, 163, 184, 0.75)';
+        vctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
         vctx.textAlign = 'left';
-        vctx.fillText('← FRONT (HIGH F2)', 5, 10);
+        vctx.fillText('FRONT', 5, 10);
         vctx.textAlign = 'right';
-        vctx.fillText('BACK (LOW F2) →', w - 5, 10);
+        vctx.fillText('BACK', w - 5, 10);
         vctx.textAlign = 'left';
-        vctx.fillText('OPEN (HIGH F1) ↓', 5, h - 4);
+        vctx.fillText('OPEN', 5, h - 4);
 
         // Live Co-Articulation Formant Trajectory Trail
         const trail = (this.synth && this.synth.formantTrail) ? this.synth.formantTrail : [];
@@ -5290,35 +5253,6 @@
         ctx.fillStyle = postActive ? '#fef08a' : '#78716c';
         ctx.fillText(postActive ? 'FURNACE ON' : 'FURNACE', cx, 766);
 
-        // 4. Lower-Playfield Peripheral Phoneme Sight Pill (x=208, y=698, right between flippers!)
-        const tObj = CVC_WORDS.find(w => w.word === this.targetWord);
-        const hasStack = this.stackedVowels && this.stackedVowels.length > 1;
-        const streamDisp = this.phonemeStream.length > 0
-          ? this.phonemeStream.map((p, idx) => {
-              if (VOWEL_FORMANTS[p]) {
-                return VOWEL_FORMANTS[p].ipa + (hasStack && idx <= 1 && this.stackedVowels[0] === p ? '(+' + VOWEL_FORMANTS[this.stackedVowels[1]].ipa + ')' : '');
-              }
-              return p;
-            }).join('·') + (this.phonemeStream.length === 2 ? '·[?]' : '')
-          : 'HIT TARGETS TO SPEAK';
-        ctx.fillStyle = 'rgba(4, 9, 22, 0.88)';
-        ctx.strokeStyle = this.lockedPrefixWord ? '#34d399' : 'rgba(223, 177, 91, 0.65)';
-        ctx.lineWidth = 1.3;
-        ctx.beginPath();
-        ctx.roundRect(cx - 58, 686, 116, 24, 6);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.font = '700 0.46rem "Silkscreen", monospace';
-        ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : '#00f2fe';
-        ctx.fillText(streamDisp.slice(-18), cx, 697);
-
-        const nextIdx = this.phonemeStream.length;
-        const nextGoalPh = (tObj && tObj.seq[nextIdx]) ? (VOWEL_FORMANTS[tObj.seq[nextIdx]] ? VOWEL_FORMANTS[tObj.seq[nextIdx]].ipa : '[' + tObj.seq[nextIdx] + ']') : '';
-        ctx.font = '700 0.35rem "Space Mono", monospace';
-        ctx.fillStyle = '#fde047';
-        ctx.fillText('GOAL: ' + this.targetWord + (nextGoalPh ? ' (NEXT: ' + nextGoalPh + ')' : ''), cx, 706);
-
         ctx.restore();
       }
 
@@ -5463,7 +5397,7 @@
         ctx.textAlign = 'center';
         ctx.font = '700 0.52rem "Cinzel", serif';
         ctx.fillStyle = rk.color;
-        ctx.fillText('TIER ' + rk.roman, cx, cy - 13);
+        ctx.fillText('TIER ' + rk.roman, cx, cy - 6);
 
         const hasAstStack = this.stackedVowels && this.stackedVowels.length > 1;
         const streamStr = this.phonemeStream.length > 0
@@ -5472,17 +5406,13 @@
                 return VOWEL_FORMANTS[p].ipa + (hasAstStack && idx <= 1 && this.stackedVowels[0] === p ? '+' + VOWEL_FORMANTS[this.stackedVowels[1]].ipa : '');
               }
               return p;
-            }).join('-') + (this.phonemeStream.length === 2 ? '-?' : '')
-          : '· - · - ·';
-        ctx.font = '700 0.56rem "Silkscreen", monospace';
-        ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : '#ffffff';
+            }).join('·')
+          : (this.lockedPrefixWord ? ('✓ ' + this.lockedPrefixWord.word) : this.targetWord);
+        ctx.font = '700 0.54rem "Silkscreen", monospace';
+        ctx.fillStyle = this.lockedPrefixWord ? '#34d399' : (this.phonemeStream.length > 0 ? '#ffffff' : '#fde047');
         ctx.shadowColor = '#000000';
         ctx.shadowBlur = 4;
-        ctx.fillText(streamStr.slice(-13), cx, cy + 4);
-
-        ctx.font = '700 0.44rem "Space Mono", monospace';
-        ctx.fillStyle = '#fde047';
-        ctx.fillText(this.lockedPrefixWord ? ('✓ ' + this.lockedPrefixWord.word) : ('WORD: ' + this.targetWord), cx, cy + 18);
+        ctx.fillText(streamStr.slice(-12), cx, cy + 11);
         ctx.shadowBlur = 0;
 
         ctx.restore();
@@ -6240,17 +6170,12 @@
         ctx.fillStyle = 'rgba(15, 32, 72, 0.9)';
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 1.2;
-        ctx.fillRect(12, 746, 108, 40);
-        ctx.strokeRect(12, 746, 108, 40);
+        ctx.fillRect(16, 754, 96, 26);
+        ctx.strokeRect(16, 754, 96, 26);
         ctx.textAlign = 'center';
-        ctx.font = '700 0.36rem "Cinzel", serif';
+        ctx.font = '700 0.42rem "Cinzel", serif';
         ctx.fillStyle = '#ffd700';
-        ctx.fillText('ETEMENANKI // BABEL', 66, 758);
-        ctx.font = '700 0.31rem "Space Mono", monospace';
-        ctx.fillStyle = '#cbd5e1';
-        ctx.fillText('LOCK 2 VESSELS IN [R]', 66, 770);
-        ctx.fillStyle = '#34d399';
-        ctx.fillText('FOR 3-BALL FRENZY', 66, 780);
+        ctx.fillText('✦ ETEMENANKI ✦', 64, 770);
 
         // Right Apron Wing (278..406)
         const apronGradR = ctx.createLinearGradient(406, 676, 280, 800);
@@ -6270,7 +6195,7 @@
         ctx.lineWidth = 2.4;
         ctx.stroke();
 
-        // Inner Gold Filigree Frame & Instruction Card on Right Apron
+        // Inner Gold Filigree Frame & Brass Plate on Right Apron
         ctx.strokeStyle = 'rgba(223, 177, 91, 0.55)';
         ctx.lineWidth = 1.1;
         ctx.beginPath();
@@ -6285,16 +6210,11 @@
         ctx.fillStyle = 'rgba(15, 32, 72, 0.9)';
         ctx.strokeStyle = '#dfb15b';
         ctx.lineWidth = 1.2;
-        ctx.fillRect(294, 746, 102, 40);
-        ctx.strokeRect(294, 746, 102, 40);
-        ctx.font = '700 0.36rem "Cinzel", serif';
+        ctx.fillRect(298, 754, 96, 26);
+        ctx.strokeRect(298, 754, 96, 26);
+        ctx.font = '700 0.42rem "Cinzel", serif';
         ctx.fillStyle = '#ffd700';
-        ctx.fillText('FORMANT SYNTHESIS', 345, 758);
-        ctx.font = '700 0.31rem "Space Mono", monospace';
-        ctx.fillStyle = '#cbd5e1';
-        ctx.fillText('CHAIN CONSONANTS &', 345, 770);
-        ctx.fillStyle = '#00f2fe';
-        ctx.fillText('VOWELS TO SPEAK', 345, 780);
+        ctx.fillText('✦ SHINAR ✦', 346, 770);
 
         // Left Outlane Kickback Indicator
         ctx.textAlign = 'center';
