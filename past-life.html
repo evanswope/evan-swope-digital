@@ -1425,7 +1425,7 @@
       <div class="eyebrow"><a href="/">← EVANSWOPE.COM</a> // THE ORACLE OF BYGONE AGES</div>
       <h1>Past Life <span>Oracle</span></h1>
       <p class="subtitle" id="heroSubtitle">
-        Gaze into the scrying glass to divine your historical reflection across 8,000 forgotten portraits, vintage daguerreotypes, and bygone spirits.
+        Gaze into the scrying glass to divine your historical reflection across 8,023 forgotten portraits, vintage daguerreotypes, and bygone spirits.
       </p>
     </div>
     <div class="status-pill">
@@ -1489,7 +1489,7 @@
       <!-- PERMANENT MASTER ACTION BUTTON -->
       <div class="master-action-container">
         <button type="button" class="divine-master-btn is-dormant" id="masterDivineBtn" disabled>
-          <span class="master-btn-text" id="masterBtnText">✦ CONSULT THE ORACLE</span>
+          <span class="master-btn-text" id="masterBtnText">CONSULT THE ORACLE</span>
           <span class="master-btn-hint" id="masterBtnHint">Offer a portrait to awaken the glass</span>
         </button>
       </div>
@@ -1497,7 +1497,7 @@
       <!-- SECONDARY ACTION: RANDOM SOUL FROM THE VEIL -->
       <div class="secondary-action-row" style="margin-bottom: 4px;">
         <button type="button" class="veil-random-btn" id="randomTestBtn">
-          ✦ Summon Random Soul
+          Summon Random Soul
         </button>
       </div>
 
@@ -1517,7 +1517,7 @@
         <!-- ASTRAL SCRYING STAGE: 3D CRANIAL CELESTIAL MASK PROJECTION -->
         <div class="astral-scrying-stage" id="astralScryingStage" style="display:none;">
           <div class="astral-stage-header">
-            <span class="astral-stage-tag">✦ 3D CRANIAL CELESTIAL PROJECTION ✦</span>
+            <span class="astral-stage-tag">3D CRANIAL CELESTIAL PROJECTION</span>
             <div class="astral-stage-sub" id="astralStageSub">Extrapolating 478 dimensional coordinates into the zodiacal sphere...</div>
           </div>
           <div class="astral-stage-orb-wrap">
@@ -1530,7 +1530,7 @@
             </div>
           </div>
           <div class="astral-stage-footer">
-            <div class="astral-stage-status" id="astralStageStatus">✦ MAPPING 478 CELESTIAL NODES... ✦</div>
+            <div class="astral-stage-status" id="astralStageStatus">MAPPING 478 CELESTIAL NODES...</div>
             <div class="astral-stage-sign" id="astralStageSign"></div>
           </div>
         </div>
@@ -1574,13 +1574,13 @@
 
           <!-- KARMIC VICES & PECULIARITIES (BADGES) -->
           <div class="karmic-traits-section" id="karmicTraitsSection" style="display:none;">
-            <div class="karmic-section-label">✦ PAST LIFE PECULIARITIES ✦</div>
+            <div class="karmic-section-label">PAST LIFE PECULIARITIES</div>
             <div class="karmic-badges-wrap" id="karmicBadgesWrap"></div>
           </div>
 
           <!-- MORTAL ATTRIBUTES & ALCHEMICAL GAUGES (PROGRESS BARS) -->
           <div class="mortal-bars-section" id="mortalBarsSection" style="display:none;">
-            <div class="karmic-section-label">✦ HUMOURS &amp; TEMPERAMENT ✦</div>
+            <div class="karmic-section-label">HUMOURS &amp; TEMPERAMENT</div>
             <div class="mortal-bars-grid" id="mortalBarsGrid"></div>
           </div>
 
@@ -2498,10 +2498,10 @@
 
           // Update stage status text
           if (progress < 0.35) {
-            if (astralStageStatus) astralStageStatus.textContent = '✦ EXTRAPOLATING 478 CELESTIAL NODES... ✦';
+            if (astralStageStatus) astralStageStatus.textContent = 'EXTRAPOLATING 478 CELESTIAL NODES...';
             if (astralStageSign) astralStageSign.textContent = 'Seeking Astral Resonance...';
           } else {
-            if (astralStageStatus) astralStageStatus.innerHTML = `✦ ASTRAL ALIGNMENT CONFIRMED: <strong>${constellation.glyph} ${constellation.name.toUpperCase()}</strong> ✦`;
+            if (astralStageStatus) astralStageStatus.innerHTML = `ASTRAL ALIGNMENT CONFIRMED: <strong>${constellation.glyph} ${constellation.name.toUpperCase()}</strong>`;
             if (astralStageSign) astralStageSign.innerHTML = `<span style="color:var(--gold);">${constellation.myth}</span>`;
           }
 
@@ -2866,7 +2866,7 @@
           const badgeEl = document.createElement('span');
           badgeEl.className = 'karmic-badge';
           badgeEl.style.animationDelay = `${bIdx * 75}ms`;
-          badgeEl.textContent = `✦ ${b}`;
+          badgeEl.textContent = b;
           karmicBadgesWrap.appendChild(badgeEl);
         });
       }
@@ -3119,7 +3119,7 @@
     let stagedWebcamCanvas = null;
     let stagedUserCanvas = null;
 
-    function awakenMasterButton(btnText = '✦ CONSULT THE ORACLE', hint = 'Gaze into the astral veil') {
+    function awakenMasterButton(btnText = 'CONSULT THE ORACLE', hint = 'Gaze into the astral veil') {
       masterDivineBtn.classList.remove('is-dormant', 'is-scrying');
       masterDivineBtn.classList.add('is-awakened');
       masterDivineBtn.disabled = false;
@@ -3131,7 +3131,7 @@
       masterDivineBtn.classList.remove('is-awakened', 'is-scrying');
       masterDivineBtn.classList.add('is-dormant');
       masterDivineBtn.disabled = true;
-      masterBtnText.textContent = '✦ CONSULT THE ORACLE';
+      masterBtnText.textContent = 'CONSULT THE ORACLE';
       masterBtnHint.textContent = hint;
     }
 
@@ -3139,7 +3139,7 @@
       masterDivineBtn.classList.remove('is-awakened', 'is-dormant');
       masterDivineBtn.classList.add('is-scrying');
       masterDivineBtn.disabled = true;
-      masterBtnText.textContent = '✦ PARTING THE VEIL...';
+      masterBtnText.textContent = 'PARTING THE VEIL...';
       masterBtnHint.textContent = 'Consulting eight thousand souls';
     }
 
@@ -3185,7 +3185,7 @@
 
         stagedUserCanvas = null;
         detConfLabel.textContent = 'LIVE MIRROR ACTIVE';
-        awakenMasterButton('✦ CONSULT THE ORACLE', 'Click to snap your reflection & divine');
+        awakenMasterButton('CONSULT THE ORACLE', 'Click to snap your reflection & divine');
       } catch (err) {
         console.warn('Webcam access error:', err);
         detConfLabel.textContent = 'MIRROR VEILED';
@@ -3236,7 +3236,7 @@
       if (unfreezeWebcamBtn) unfreezeWebcamBtn.style.display = 'none';
 
       detConfLabel.textContent = 'LIVE MIRROR ACTIVE';
-      awakenMasterButton('✦ CONSULT THE ORACLE', 'Click to snap your reflection & divine');
+      awakenMasterButton('CONSULT THE ORACLE', 'Click to snap your reflection & divine');
     }
 
     function setMode(mode) {
@@ -3261,9 +3261,9 @@
           }
           detConfLabel.textContent = 'VISAGE OFFERED • READY';
           if (stagedUserCanvas === currentActiveSqCanvas && currentMatchCandidates.length > 0) {
-            awakenMasterButton('✦ DIVINE ANOTHER VISION', 'Cycle to your next closest historical soul');
+            awakenMasterButton('DIVINE ANOTHER VISION', 'Cycle to your next closest historical soul');
           } else {
-            awakenMasterButton('✦ CONSULT THE ORACLE', 'Gaze into the astral veil');
+            awakenMasterButton('CONSULT THE ORACLE', 'Gaze into the astral veil');
           }
         } else {
           stagedUserCanvas = null;
@@ -3376,7 +3376,7 @@
           displayCanvasInBall(sq);
           fileButtonText.textContent = '↺ Change Portrait File';
           detConfLabel.textContent = 'VISAGE OFFERED • READY';
-          awakenMasterButton('✦ CONSULT THE ORACLE', 'Gaze into the astral veil');
+          awakenMasterButton('CONSULT THE ORACLE', 'Gaze into the astral veil');
         };
         img.src = ev.target.result;
       };
@@ -3404,18 +3404,18 @@
           renderConstellationFrame(stagedUserCanvas, activeFaceLandmarks, activeConstellation, 1.0);
         }
         selectMatchForReveal(currentMatchCandidates[nextIdx], nextIdx, currentMatchCandidates);
-        awakenMasterButton('✦ DIVINE ANOTHER VISION', `Viewing kindred spirit #${nextIdx + 1} of ${currentMatchCandidates.length}`);
+        awakenMasterButton('DIVINE ANOTHER VISION', `Viewing kindred spirit #${nextIdx + 1} of ${currentMatchCandidates.length}`);
         return;
       }
 
       scryingMasterButton();
       try {
         await processUserCanvas(stagedUserCanvas);
-        awakenMasterButton('✦ DIVINE ANOTHER VISION', 'Cycle to your next closest historical soul');
+        awakenMasterButton('DIVINE ANOTHER VISION', 'Cycle to your next closest historical soul');
       } catch (err) {
         console.error('Divination error:', err);
         alert('The veil clouded unexpectedly: ' + err.message);
-        awakenMasterButton('✦ RETRY DIVINATION', 'Click to consult the veil again');
+        awakenMasterButton('RETRY DIVINATION', 'Click to consult the veil again');
       }
     });
 

@@ -1,19 +1,37 @@
-# Evan Swope - Digital Portfolio & Creative Direction
+# Evan Swope - Creative Director & Marketing Director
 
-> Creative Direction, Brand Strategy, & Apparel B2B Distribution Leadership based in Seattle, WA.
+> Creative Direction, Brand Positioning, B2B Wholesale Growth, & Creative Tech based in Seattle, WA.
 
-## Executive Summary
-Evan Swope is a seasoned Creative Director and Brand Strategist who combines artistic vision (University of Washington BFA in Digital Art & Experimental Media / BA in Communication) with rigorous operational discipline and bottom-line margin tracking. His work spans brand launches, spatial lead generation systems, Odoo ERP migrations, and multi-channel marketing campaigns.
+## Overview
+Evan Swope is a Seattle-based Creative Director and Marketing & Social Director (University of Washington BFA in Digital Art & Experimental Media / BA in Communication). He leads brand positioning, studio production, B2B wholesale distribution, and creative technology projects—combining a human, conversational creative voice with practical margin and operations work.
 
-## Key Case Studies & Achievements
-- **Apparel B2B & Distribution (`Jan 2025 - Present`)**: Built a spatial lead generation system and automated inbound buyer funnels via MailerLite. Conducted deep COGS analysis to build a distributor SKU catalog with >60% profit margins while migrating fragmented inventory into Odoo ERP. Grew active accounts by 300% (from 2 to 8) in six months and signed the first national retail partner.
-- **Brand Launch & D2C Scaling (`May 2019 - Jan 2025`)**: Scaled e-commerce and retail presence across premium national partners.
-- **B2B Rebrand & Brand Architecture (`Sept 2018 - May 2019` & `June 2012 - Sept 2018`)**: Engineered cohesive brand identity systems across physical and digital customer touchpoints.
+## Experience & Key Results
+- **Crushworthy — Marketing & Social Director (`Jan 2026 - Present`, Seattle, WA)**:
+  - Grew active wholesale accounts by 350% (from 2 to 9 stores) in six months through cold in-person territory outreach, custom buyer sample packs, and B2B/B2B2C channels.
+  - Negotiated and signed the brand's first national distribution agreement after running a COGS analysis to build a distributor catalog of SKUs maintaining a >60% profit margin.
+  - Automated the B2B inbound buyer funnel in MailerLite for lead capture and digital line sheets.
+  - Migrated fragmented inventory into Odoo ERP for wholesale fulfillment, margin tracking, and corporate disbursements.
+  - Built the new e-commerce website and organic social media presence across TikTok, Instagram, X, and Bluesky.
+- **Marx Companies — Creative Director (`Jan 2025 - Present`, Seattle, WA)**:
+  - Led brand positioning and creative strategy for specialty food products, contributing to $13.3M in total revenue growth (33% increase) from 2023–2025.
+  - Generated $10.4M in specialty beef program revenue growth (48% increase over two years) by launching 6 white-label brands and positioning 5 new beef programs (including Irish Nature Beef, Ocean Beef, and Pure Black Wagyu) across five clear differentiation axes (feed, origin, age, breed, price).
+  - Revitalized slower categories with targeted campaigns, driving a 166% sales increase in Venison and a 50% increase in Veal over two years.
+  - Co-managed a cross-functional team alongside the marketing manager and CEO, mentoring designers and photographers in Adobe Creative Suite, studio lighting, and post-production.
+- **Marx Companies — Senior Designer & Videographer (`May 2019 - Jan 2025`, Seattle, WA)**:
+  - Led print, web, and social design across vendor and internal brands, including the 2024 rebrand and relaunch of Marx Foodservice.
+  - Increased usable test kitchen studio photo/video output 5x (from ~40 to over 200 final shots per shoot) by restructuring shoots into a two-day raw-prep + live-cooking workflow.
+  - Drove a 30% increase in email engagement, a 25% increase in click-through rates, and an 80% reduction in email load times.
+- **Avanti Markets — Designer & Videographer (`Sept 2018 - May 2019`, Renton, WA)**:
+  - Created 2–3 new retail brands per month for quick-service SaaS clients, including 3D location mockups, POS vinyl, tradeshow print, video/audio branding, and UX/UI design.
+- **University of Washington — Web Information Specialist (`June 2012 - Sept 2018`, Seattle, WA)**:
+  - Taught 20–30 undergraduates per quarter in credit-bearing digital media courses and managed 3–5 student media interns per quarter.
 
-## Philosophy & Core Approach
-Creative Direction is a process practiced across stand-up comedy, drag performance, videography, and executive leadership: talking to customers like human beings while maintaining airtight margin and inventory tracking.
+## Interactive AI Lab & Creative Tech (`https://evanswope.com/experiments.html`)
+- **Past Life Oracle (`https://evanswope.com/past-life.html`)**: Matches a live webcam or uploaded portrait against 8,023 public-domain historical portraits, vintage mugshots, and daguerreotypes in real time using a 478-point MediaPipe 3D facial mesh and 512D ArcFace embeddings.
+- **Camera Collage (`https://evanswope.com/experiments.html#camera-collage`)**: A 4-pass contour-locked computer vision collage engine that reconstructs portraits from 3,333 unfiltered personal camera roll photos (7,933 segmented objects) using contrast-aware perceptual error weighting.
+- **Waveshaper Synth, ASCII Portrait, Checked Out (`https://evanswope.com/checked-out.html`), & TopoArp**: Browser-based audio synthesis, WebGL/Canvas visualizers, and arcade game experiments.
 
 ## Contact & Links
+- Website: https://evanswope.com/
 - Email: evanlswope@gmail.com
 - LinkedIn: https://www.linkedin.com/in/theswope/
-- Portfolio: https://evanswopedigital.com/
