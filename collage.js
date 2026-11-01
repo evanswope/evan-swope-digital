@@ -150,155 +150,147 @@ document.addEventListener('DOMContentLoaded', () => {
       slider: {
         ref: 'assets/images/collage_heavy_ref.jpg',
         art: 'assets/images/collage_heavy_art.jpg',
-        caption: 'Interactive Comparison Slider: Vintage drag theatrical portrait vs. 10,735-piece monochrome memory reconstruction.',
-        stat: '10,735 Pieces'
+        caption: 'Interactive Comparison Slider: 2000×2000 vintage drag portrait vs. 3,870-piece 4-Pass 3-Phase Contour-Locked collage.',
+        stat: '3,870 Pieces'
       },
       details: {
         src: 'assets/images/details/detail_heavy.jpg',
-        caption: 'Strange Details Closeup: Glossy lips and sculpted chin revealing a velvet living room armchair, cyan speedometer, and dive bar fixtures.',
+        caption: 'Strange Details Closeup: 4-Pass identifiable cutouts (40–90px) locking into winged eyeliner, lips, and bouffant curls.',
         stat: '5 Objects Revealed',
         hotspots: [
           {
-            id: 'heavy-armchair',
+            id: 'heavy-terrier',
             num: 1,
-            x: 52,
-            y: 68,
-            title: 'Vintage Velvet Armchair',
-            desc: 'A brown living room armchair nestled directly into the dark shadow and crease beneath the lower lip.'
+            x: 31,
+            y: 50,
+            title: 'Boston Terrier Chomping a Ball',
+            desc: 'Locked right into the dark inner corner of the left eye crease: a black-and-white dog mid-chomp on a bright orange ball.'
           },
           {
-            id: 'heavy-gauge',
+            id: 'heavy-tiger',
             num: 2,
-            x: 15,
-            y: 65,
-            title: 'Glowing "00" Speedometer',
-            desc: 'An illuminated cyan vehicle instrument cluster dial on the left jawline providing cool midtone contrast.'
+            x: 62,
+            y: 57,
+            title: 'Roaring Cartoon White Tiger',
+            desc: 'Perched directly along the right eye\'s lower lash contour: a white tiger sticker with a wide-open red mouth.'
           },
           {
-            id: 'heavy-toilet',
+            id: 'heavy-tuggin',
             num: 3,
-            x: 28,
-            y: 20,
-            title: 'Porcelain Toilet Fixture',
-            desc: 'Another dive bar plumbing fixture surfacing unexpectedly in the pale theatrical foundation highlight.'
+            x: 65,
+            y: 4,
+            title: '"Dry Tuggin\'!" Speech Bubble',
+            desc: 'Upside-down at the crown of the bouffant hair: an out-of-context comic speech bubble providing high-key paper highlight.'
           },
           {
-            id: 'heavy-puppy',
+            id: 'heavy-tp',
             num: 4,
-            x: 32,
-            y: 52,
-            title: 'Sleeping Puppy Photo',
-            desc: 'A beloved family dog curled up asleep on a rug, forming the soft luma transition below the lower lip.'
+            x: 75,
+            y: 38,
+            title: 'Full Roll of Toilet Paper',
+            desc: 'Nested into the right temple and hair wave: a pristine roll of bathroom tissue supplying smooth grayscale midtones.'
           },
           {
-            id: 'heavy-exit',
+            id: 'heavy-burger',
             num: 5,
-            x: 88,
-            y: 54,
-            title: 'Red Emergency Exit Sign',
-            desc: 'A high-contrast red warning sign adding punch to the right shadow contour, filtered by chiaroscuro luma matching.'
+            x: 55,
+            y: 90,
+            title: 'Plastic Cheeseburger & Street Sign',
+            desc: 'Anchoring the deep shadow beneath the choker: a neon toy burger tucked beside a black-and-white "ONE WAY" arrow.'
           }
         ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_heavy_bw_gestalt_blur_test.jpg',
-        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. Preserves dramatic chiaroscuro and bouffant curls from 20 feet away.',
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and 4-Pass 3-Phase collage at σ=15. Preserves dramatic chiaroscuro and facial structure from 20 feet away.',
         stat: 'σ = 15 Passed'
       },
       evolution: [
-        { src: 'assets/images/evolution/evo_heavy_0.jpg', badge: 'PHASE 1 / 14', title: 'Pass 1A: Gigantic Foundation Placement (≥ 180px)', stat: '≥180px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_1.jpg', badge: 'PHASE 2 / 14', title: 'Pass 1B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_heavy_2.jpg', badge: 'PHASE 3 / 14', title: 'Pass 2A: Torso & Bouffant Hair Masses (≥ 110px)', stat: '≥110px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_3.jpg', badge: 'PHASE 4 / 14', title: 'Pass 2B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_heavy_4.jpg', badge: 'PHASE 5 / 14', title: 'Pass 3A: Large Anatomical Masses (≥ 65px)', stat: '≥65px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_5.jpg', badge: 'PHASE 6 / 14', title: 'Pass 3B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_heavy_6.jpg', badge: 'PHASE 7 / 14', title: 'Pass 4A: Medium Makeup & Glove Placement (≥ 35px)', stat: '≥35px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_7.jpg', badge: 'PHASE 8 / 14', title: 'Pass 4B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_heavy_8.jpg', badge: 'PHASE 9 / 14', title: 'Pass 5A: Small Feature Placement (≥ 18px)', stat: '≥18px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_9.jpg', badge: 'PHASE 10 / 14', title: 'Pass 5B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_heavy_10.jpg', badge: 'PHASE 11 / 14', title: 'Pass 6A: Micro Eyelash & Brow Geometry (≥ 8px)', stat: '≥8px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_11.jpg', badge: 'PHASE 12 / 14', title: 'Pass 6B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_heavy_12.jpg', badge: 'PHASE 13 / 14', title: 'Pass 7A: Nano Polish Placement (≥ 3px)', stat: '≥3px Tier' },
-        { src: 'assets/images/evolution/evo_heavy_13.jpg', badge: 'PHASE 14 / 14', title: 'Pass 7B: Final 10,735-Piece Chiaroscuro Convergence', stat: '10,735 Pieces' }
+        { src: 'assets/images/evolution/evo_heavy_0.jpg', badge: 'PHASE 1 / 12', title: 'Pass 1A: 100% Void-Sealed XL Substrate (650–1050px)', stat: '100% Coverage' },
+        { src: 'assets/images/evolution/evo_heavy_1.jpg', badge: 'PHASE 2 / 12', title: 'Pass 1B: Macro Heatmap Discrepancy Fix (380–600px)', stat: 'Mean ΔE 45.1' },
+        { src: 'assets/images/evolution/evo_heavy_2.jpg', badge: 'PHASE 3 / 12', title: 'Pass 1C: Major Silhouette & Volume Lock (300–500px)', stat: 'Silhouette Lock' },
+        { src: 'assets/images/evolution/evo_heavy_3.jpg', badge: 'PHASE 4 / 12', title: 'Pass 2A: Large Structural Volumes (200–350px)', stat: '200–350px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_4.jpg', badge: 'PHASE 5 / 12', title: 'Pass 2B: Structural Discrepancy Correction (150–260px)', stat: 'Mean ΔE 36.9' },
+        { src: 'assets/images/evolution/evo_heavy_5.jpg', badge: 'PHASE 6 / 12', title: 'Pass 2C: Head, Jaw & Shoulder Boundary Lock (130–220px)', stat: 'Anatomy Lock' },
+        { src: 'assets/images/evolution/evo_heavy_6.jpg', badge: 'PHASE 7 / 12', title: 'Pass 3A: Med-Large Gradient Flow Planes (100–180px)', stat: '100–180px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_7.jpg', badge: 'PHASE 8 / 12', title: 'Pass 3B: Contrast-Weighted Error Fix (76–130px)', stat: 'Mean ΔE 30.0' },
+        { src: 'assets/images/evolution/evo_heavy_8.jpg', badge: 'PHASE 9 / 12', title: 'Pass 3C: Cheekbone, Brow & Nose Bridge Lock (65–115px)', stat: 'Feature Planes' },
+        { src: 'assets/images/evolution/evo_heavy_9.jpg', badge: 'PHASE 10 / 12', title: 'Pass 4A: Identifiable Feature Lattice (48–90px)', stat: '48–90px Tier' },
+        { src: 'assets/images/evolution/evo_heavy_10.jpg', badge: 'PHASE 11 / 12', title: 'Pass 4B: High-Contrast Hotspot Seal (40–70px)', stat: 'Hotspot Seal' },
+        { src: 'assets/images/evolution/evo_heavy_11.jpg', badge: 'PHASE 12 / 12', title: 'Pass 4C: Eyelid, Lash & Lip Tangent Lock (40–68px)', stat: '3,870 Pieces' }
       ]
     },
 
     wedding: {
       name: 'Wedding Groom & Floral Tie',
-      aspectRatio: '1024 / 682',
+      aspectRatio: '3003 / 2000',
       slider: {
         ref: 'assets/images/collage_wedding_ref.jpg',
         art: 'assets/images/collage_wedding_art.jpg',
-        caption: 'Interactive Comparison Slider: Intimate wedding portrait vs. 6,348-piece full-color optical collage.',
-        stat: '6,348 Pieces'
+        caption: 'Interactive Comparison Slider: 3003×2000 wedding portrait vs. 4,259-piece 4-Pass collage with large, recognizable cutouts.',
+        stat: '4,259 Pieces'
       },
       details: {
         src: 'assets/images/details/detail_wedding.jpg',
-        caption: 'Strange Details Closeup: Tie knot and collar revealing red wine bottle labels, guest portraits, and lapel pin.',
+        caption: 'Strange Details Closeup: Groom portrait & floral tie built from pizza boxes, retro stickers, and unhinged bumper stickers.',
         stat: '5 Objects Revealed',
         hotspots: [
           {
-            id: 'wed-wine',
+            id: 'wed-pizza',
             num: 1,
-            x: 78,
-            y: 18,
-            title: 'Burgundy Wine Bottle Labels',
-            desc: 'Vintage red wine labels with rich typography ("NU", "RED", "latte") woven directly into the floral tie knot.'
+            x: 40,
+            y: 13,
+            title: '"Trattoria Pizzeria" Box',
+            desc: 'Stamped dead-center on the groom\'s forehead: a warm terracotta-red Italian pizza box logo matching his skin luma.'
           },
           {
-            id: 'wed-book',
+            id: 'wed-twink',
             num: 2,
-            x: 32,
-            y: 22,
-            title: '"Craft & Soul" Book Cover',
-            desc: 'Muted olive book packaging forming the left fold and shadow contour of the groom\'s dress shirt collar.'
+            x: 52,
+            y: 11,
+            title: 'Cursive "twink" Sticker',
+            desc: 'Blending seamlessly into the strawberry-blond hairline above his right brow: retro pink-and-orange script lettering.'
           },
           {
-            id: 'wed-guests',
+            id: 'wed-dental',
             num: 3,
-            x: 50,
-            y: 38,
-            title: 'Party Guest Snapshots',
-            desc: 'Dozens of miniature smiling portraits of wedding guests and friends tucked inside the shadows of the neckline.'
+            x: 45,
+            y: 82,
+            title: '"Dental Implants" & Novelty Boxes',
+            desc: 'Woven along the burgundy floral silk tie: bold crimson medical and novelty packaging typography acting as floral motifs.'
           },
           {
-            id: 'wed-hands',
+            id: 'wed-drag',
             num: 4,
-            x: 80,
-            y: 35,
-            title: 'Friend\'s Adjusting Hands',
-            desc: 'The groom\'s best friend adjusting the tie knot, rendered from peach skin-tone cutouts of other party guests.'
+            x: 88,
+            y: 78,
+            title: 'Drag Performer in Sunglasses',
+            desc: 'Tucked into the burgundy pocket square folds: a full miniature portrait in hot pink and dark shades.'
           },
           {
-            id: 'wed-pin',
+            id: 'wed-bumper',
             num: 5,
-            x: 22,
-            y: 72,
-            title: 'Jeweled Bee Lapel Pin',
-            desc: 'A gold and emerald brooch pin sparkling on the sage jacket lapel, surrounded by garden foliage cutouts.'
+            x: 92,
+            y: 88,
+            title: '"My Life Is Worthless..." Sticker',
+            desc: 'Camouflaged on the sage tweed jacket lapel: an unhinged bumper sticker ("My life is WORTHLESS, I will KILL US both") matching the wool weave.'
           }
         ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_wedding_gestalt_blur_test.jpg',
-        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. Sage jacket, peach skin luma, and burgundy floral tie snap into focus.',
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and 4-Pass collage at σ=15. Warm skin tones, sage tweed, and burgundy tie snap into focus.',
         stat: 'σ = 15 Passed'
       },
       evolution: [
-        { src: 'assets/images/evolution/evo_wedding_0.jpg', badge: 'PHASE 1 / 14', title: 'Pass 1A: Foundation Placement (≥ 180px)', stat: '≥180px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_1.jpg', badge: 'PHASE 2 / 14', title: 'Pass 1B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_wedding_2.jpg', badge: 'PHASE 3 / 14', title: 'Pass 2A: Suit Jacket & Background Placement (≥ 110px)', stat: '≥110px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_3.jpg', badge: 'PHASE 4 / 14', title: 'Pass 2B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_wedding_4.jpg', badge: 'PHASE 5 / 14', title: 'Pass 3A: Large Anatomical Masses (≥ 65px)', stat: '≥65px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_5.jpg', badge: 'PHASE 6 / 14', title: 'Pass 3B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_wedding_6.jpg', badge: 'PHASE 7 / 14', title: 'Pass 4A: Medium Floral Tie & Hands (≥ 35px)', stat: '≥35px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_7.jpg', badge: 'PHASE 8 / 14', title: 'Pass 4B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_wedding_8.jpg', badge: 'PHASE 9 / 14', title: 'Pass 5A: Small Facial Geometry (≥ 18px)', stat: '≥18px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_9.jpg', badge: 'PHASE 10 / 14', title: 'Pass 5B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_wedding_10.jpg', badge: 'PHASE 11 / 14', title: 'Pass 6A: Micro Edge & Fabric Placement (≥ 8px)', stat: '≥8px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_11.jpg', badge: 'PHASE 12 / 14', title: 'Pass 6B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_wedding_12.jpg', badge: 'PHASE 13 / 14', title: 'Pass 7A: Nano Polish & Bee Pin Placement (≥ 3px)', stat: '≥3px Tier' },
-        { src: 'assets/images/evolution/evo_wedding_13.jpg', badge: 'PHASE 14 / 14', title: 'Pass 7B: Final 6,348-Piece Convergence', stat: '6,348 Pieces' }
+        { src: 'assets/images/evolution/evo_wedding_0.jpg', badge: 'PHASE 1 / 8', title: 'Pass 1A: 100% Void-Sealed XL Substrate (650–1050px)', stat: '100% Coverage' },
+        { src: 'assets/images/evolution/evo_wedding_1.jpg', badge: 'PHASE 2 / 8', title: 'Pass 1B: Contrast-Weighted XL Error Fix (380–600px)', stat: 'Macro Fix' },
+        { src: 'assets/images/evolution/evo_wedding_2.jpg', badge: 'PHASE 3 / 8', title: 'Pass 2A: Suit Jacket & Hallway Volumes (200–350px)', stat: '200–350px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_3.jpg', badge: 'PHASE 4 / 8', title: 'Pass 2B: Structural Heatmap Correction (150–260px)', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_4.jpg', badge: 'PHASE 5 / 8', title: 'Pass 3A: Med-Large Facial & Lapel Planes (100–180px)', stat: '100–180px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_5.jpg', badge: 'PHASE 6 / 8', title: 'Pass 3B: High-Contrast Discrepancy Fix (76–130px)', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_wedding_6.jpg', badge: 'PHASE 7 / 8', title: 'Pass 4A: Identifiable Tie, Hands & Smile (48–90px)', stat: '48–90px Tier' },
+        { src: 'assets/images/evolution/evo_wedding_7.jpg', badge: 'PHASE 8 / 8', title: 'Pass 4B: Final 4,259-Piece Identifiable Convergence (40–70px)', stat: '4,259 Pieces' }
       ]
     },
 
@@ -308,76 +300,70 @@ document.addEventListener('DOMContentLoaded', () => {
       slider: {
         ref: 'assets/images/collage_crushworthy_ref.jpg',
         art: 'assets/images/collage_crushworthy_art.jpg',
-        caption: 'Interactive Comparison Slider: High-key pop fashion portrait vs. 7,635-piece vibrant memory collage.',
-        stat: '7,635 Pieces'
+        caption: 'Interactive Comparison Slider: 2000×2000 pop fashion editorial vs. 3,384-piece contrast-weighted 4-Pass collage.',
+        stat: '3,384 Pieces'
       },
       details: {
         src: 'assets/images/details/detail_crushworthy.jpg',
-        caption: 'Strange Details Closeup: Model portrait revealing a real city parking citation, cassette tape hair, and concert wristbands.',
+        caption: 'Strange Details Closeup: Shaggy bangs and neon bandana built from shirtless friends, traffic signs, QR codes, and designer tags.',
         stat: '5 Objects Revealed',
         hotspots: [
           {
-            id: 'crush-parking',
+            id: 'crush-flex',
             num: 1,
-            x: 20,
-            y: 78,
-            title: '"LOT S12064" Parking Ticket',
-            desc: 'An actual city parking violation citation with red "PARKING" header forming the sterile white photography cyclorama.'
+            x: 62,
+            y: 23,
+            title: 'Shirtless Friend Flexing in the Bangs',
+            desc: 'Hidden inside the dark brown shaggy hair: a candid photo of a shirtless friend flexing his biceps, matched for warm chestnut shadows.'
           },
           {
-            id: 'crush-tapes',
+            id: 'crush-nobike',
             num: 2,
-            x: 55,
-            y: 15,
-            title: 'Cassette Tapes & Radio Dials',
-            desc: 'Black plastic vintage audio gear and tuner knobs forming the dense dark silhouette of the shaggy bangs.'
-          },
-          {
-            id: 'crush-wristbands',
-            num: 3,
-            x: 50,
-            y: 76,
-            title: 'Neon Concert Wristbands',
-            desc: 'Saturated magenta festival wristbands and pink paper confetti forming the crisp folds of the bandana.'
-          },
-          {
-            id: 'crush-anime',
-            num: 4,
-            x: 48,
+            x: 64,
             y: 52,
-            title: 'Anime Doodles & Stickers',
-            desc: 'Bright cartoon eye doodles and neon decals adding specular pop to the sunglasses and cheek contour.'
+            title: '"No Bicycles" Traffic Symbol',
+            desc: 'Placed directly on the right model\'s cheekbone: a crimson-and-white municipal "No Bicycles" circle acting as blush.'
           },
           {
-            id: 'crush-receipts',
+            id: 'crush-qr',
+            num: 3,
+            x: 54,
+            y: 36,
+            title: 'High-Contrast QR Code Sticker',
+            desc: 'Bridging the inner eyebrow and nose shadow: a sharp black-and-white QR code cutout locking in the eye socket geometry.'
+          },
+          {
+            id: 'crush-noparking',
+            num: 4,
+            x: 85,
+            y: 30,
+            title: 'Upside-Down "NO PARKING" Sign',
+            desc: 'Framing the right ear and jawline against the white backdrop: a red-bordered city street parking restriction sign.'
+          },
+          {
+            id: 'crush-valentino',
             num: 5,
-            x: 22,
-            y: 24,
-            title: 'Cyclorama Paper Receipts',
-            desc: 'Overlapping torn grocery receipts and bill stubs providing the textured white backdrop around the models.'
+            x: 40,
+            y: 85,
+            title: '"VALENTINO" Label & Pink Cross',
+            desc: 'Anchoring the hot-pink doodle bandana folds: a white Valentino garment tag perched right above a jewel-encrusted pink cross.'
           }
         ]
       },
       blur_test: {
         src: 'assets/images/pyramidal_crushworthy_gestalt_blur_test.jpg',
-        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and collage at σ=15. High-key white backdrop and saturated neon foregrounds pop.',
+        caption: 'Gestalt Low-Frequency Blur Test (σ=15): Side-by-side reference and 4-Pass collage at σ=15. Calm white cyclorama and saturated neon foregrounds match seamlessly.',
         stat: 'σ = 15 Passed'
       },
       evolution: [
-        { src: 'assets/images/evolution/evo_crushworthy_0.jpg', badge: 'PHASE 1 / 14', title: 'Pass 1A: Studio White & Body Foundation (≥ 180px)', stat: '≥180px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_1.jpg', badge: 'PHASE 2 / 14', title: 'Pass 1B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_crushworthy_2.jpg', badge: 'PHASE 3 / 14', title: 'Pass 2A: Torso & Studio Wall Placement (≥ 110px)', stat: '≥110px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_3.jpg', badge: 'PHASE 4 / 14', title: 'Pass 2B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_crushworthy_4.jpg', badge: 'PHASE 5 / 14', title: 'Pass 3A: Large Dual-Portrait Masses (≥ 65px)', stat: '≥65px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_5.jpg', badge: 'PHASE 6 / 14', title: 'Pass 3B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_crushworthy_6.jpg', badge: 'PHASE 7 / 14', title: 'Pass 4A: Medium Neon Mullet & Bandana (≥ 35px)', stat: '≥35px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_7.jpg', badge: 'PHASE 8 / 14', title: 'Pass 4B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_crushworthy_8.jpg', badge: 'PHASE 9 / 14', title: 'Pass 5A: Small Facial Features & Cowboy Tee (≥ 18px)', stat: '≥18px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_9.jpg', badge: 'PHASE 10 / 14', title: 'Pass 5B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_crushworthy_10.jpg', badge: 'PHASE 11 / 14', title: 'Pass 6A: Micro Texture & Doodle Placement (≥ 8px)', stat: '≥8px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_11.jpg', badge: 'PHASE 12 / 14', title: 'Pass 6B: Heatmap Discrepancy Correction', stat: 'Residual Fix' },
-        { src: 'assets/images/evolution/evo_crushworthy_12.jpg', badge: 'PHASE 13 / 14', title: 'Pass 7A: Nano Polish Placement (≥ 3px)', stat: '≥3px Tier' },
-        { src: 'assets/images/evolution/evo_crushworthy_13.jpg', badge: 'PHASE 14 / 14', title: 'Pass 7B: Final 7,635-Piece Convergence', stat: '7,635 Pieces' }
+        { src: 'assets/images/evolution/evo_crushworthy_0.jpg', badge: 'PHASE 1 / 8', title: 'Pass 1A: 100% Void-Sealed Cyclorama & Foundation (650–1050px)', stat: '100% Coverage' },
+        { src: 'assets/images/evolution/evo_crushworthy_1.jpg', badge: 'PHASE 2 / 8', title: 'Pass 1B: Contrast-Weighted XL Error Fix (380–600px)', stat: 'Macro Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_2.jpg', badge: 'PHASE 3 / 8', title: 'Pass 2A: Dual-Portrait Torso & Hair Masses (200–350px)', stat: '200–350px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_3.jpg', badge: 'PHASE 4 / 8', title: 'Pass 2B: Foreground Discrepancy Correction (150–260px)', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_4.jpg', badge: 'PHASE 5 / 8', title: 'Pass 3A: Med-Large Shag Mullet & Bandana Planes (100–180px)', stat: '100–180px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_5.jpg', badge: 'PHASE 6 / 8', title: 'Pass 3B: High-Saliency Feature Correction (76–130px)', stat: 'Residual Fix' },
+        { src: 'assets/images/evolution/evo_crushworthy_6.jpg', badge: 'PHASE 7 / 8', title: 'Pass 4A: Identifiable Eyes, Bangs & Cowboy Tee (48–90px)', stat: '48–90px Tier' },
+        { src: 'assets/images/evolution/evo_crushworthy_7.jpg', badge: 'PHASE 8 / 8', title: 'Pass 4B: Final 3,384-Piece Identifiable Convergence (40–70px)', stat: '3,384 Pieces' }
       ]
     }
   };

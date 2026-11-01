@@ -763,7 +763,7 @@
                 <svg class="synth-scribble-outline" preserveAspectRatio="none"><rect rx="10" style="filter: url(#scribble-filter);"></rect></svg>
                 
                 <div class="card-header" style="text-align: center; margin-bottom: 1.25rem;">
-                  <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">EXPERIMENTAL COMPUTER VISION · 14-PHASE PYRAMIDAL CV</span>
+                  <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #00f2fe; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">EXPERIMENTAL COMPUTER VISION · 4-PASS CONTOUR-LOCKED CV</span>
                   <h2 class="card-title" style="color: #fff; font-size: clamp(1.8rem, 3.5vw, 2.5rem); margin: 0.25rem 0 0.25rem 0; font-weight: 900;">Camera Collage</h2>
                   <div style="font-family: 'Permanent Marker', cursive, var(--font-mono); font-size: 1.15rem; color: #ff7eb3; transform: rotate(-1deg); margin-bottom: 0.75rem;">Using Memories to Rebuild Memories (Embarrassing)</div>
                   <p class="card-desc" style="font-size: 0.85rem; line-height: 1.55; max-width: 720px; margin: 0 auto; color: #cbd5e1;">
@@ -883,94 +883,100 @@
                   <p>I handed Antigravity <strong>3,333 completely uncurated photos</strong> straight from my camera roll. No PR scrub. No deleting unflattering angles, accidental pocket bursts, or weird lighting so I look like an auteur. The computer vision pipeline sliced through my personal archive and indexed <strong>7,933 distinct segmented objects</strong>—a forensic time capsule of my existence. Cursed memes saved at 2 AM, dive bar bathroom graffiti, accidental close-ups of thumbs, Puget Sound ferry decks, friends laughing mid-sentence, dog snouts, torn grocery receipts from midnight Safeway runs, yellow supermarket clearance meat stickers, bumper stickers (<em>"SUBARU"</em>, <em>"My life is WORTHLESS, I will KILL US both"</em>), and late-night selfies where the smoky eyeliner was maybe a little too ambitious.</p>
                   <p>Then I instituted a strict <strong>Zero Exclusion Rule</strong>: nothing gets filtered out for politeness or vanity. If an object was cut out, it was thrown into the hopper. The placement algorithm has zero human decency; it only knows CIELAB color math. If the shadow under someone's cheekbone matches the exact luminance of a half-eaten burrito, congratulations: that cheekbone is now a burrito. Don't look too close! Or do. That's kinda the whole point, isn't it, you little voyeur?</p>
 
-                  <h3 style="color: #ff7eb3;"><i class="fa-solid fa-microchip" style="margin-right: 0.5rem;"></i>The Engine: Two-Phase Pyramidal Optical Feedback</h3>
-                  <p><em>(Or: How to stop an RTX 4060 GPU from generating expensive confetti.)</em></p>
-                  <p>If you blindly throw 10,000 tiny cutouts at a blank canvas, your computer vision model hasn't made art—it’s generated high-frequency visual static. Traditional mosaic tools fail because they don’t understand scale hierarchy; they just sprinkle small images everywhere and pray your optic nerve forgives them.</p>
-                  <p>To solve this, I engineered a hierarchical <strong>7-tier pyramid engine</strong> running on an RTX 4060 GPU. The engine operates like a master oil painter building up an underpainting: massive foundational masses first, microscopic cosmetic surgery last. At every single scale tier, the engine runs a relentless, self-critical <strong>Two-Phase Feedback Loop</strong>:</p>
+                  <h3 style="color: #ff7eb3;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right: 0.5rem;"></i>The "Expensive Confetti" Crisis: Fidelity vs. Recognizability</h3>
+                  <p><em>(Or: How I accidentally built the world's most over-engineered inkjet printer.)</em></p>
+                  <p>Here’s the catch with building a collage out of your own camera roll: <strong>there’s a two-part story happening.</strong> Story one is the reference photo you're recreating from six feet away. Story two is the bizarre, embarrassing little artifacts you discover when you press your face against the screen and zoom in.</p>
+                  <p>In my first version of the engine, I let a 7-pass (and then 5-pass) pyramid run all the way down to microscopic <code>3px–25px</code> fragments, dumping <strong>7,000 to 10,700 tiny shards</strong> onto a <code>1000px</code> canvas. Mathematically, the computer was thrilled—pixel error (&Delta;E) plummeted! From across the room, the portraits looked eerily photographic. <strong>Until you zoomed in.</strong></p>
+                  <p>Instead of discovering funny Easter eggs from my life, zooming in just revealed <em>pointillist mush</em>. Dumping 3,500 microscopic 24-pixel shards across someone's face meant every cutout was pulverized into unrecognizable digital confetti. I had melted 7,933 memories into generic pixel dust. So I panicked and swung way too far in the opposite direction: I tried forcing a uniform "chunky" collage with only ~200–400 giant pieces, and even experimented with synthetic paper-doll focal masks. Total disaster. My drag persona <strong>Heavy</strong> looked like a haunted ransom note—overlapping white scraps cast "dirty-face" drop-shadow grids across her forehead, unpainted black holes peeked through her wig, and stamping 80-pixel blobs over 8-pixel winged eyeliner completely obliterated her face.</p>
+
+                  <h3 style="color: #00f2fe;"><i class="fa-solid fa-microchip" style="margin-right: 0.5rem;"></i>The 4-Part Fix: Saving the Cutouts Without Ruining the Faces</h3>
+                  <p><em>(Or: Teaching an RTX 4060 GPU when to try hard and when to chill out.)</em></p>
+                  <p>To get both <strong>macro portrait fidelity</strong> and <strong>chunky, unmistakable cutout recognizability in zoom</strong>, we threw out the micro-confetti passes and engineered a high-resolution, contrast-aware <strong>4-Pass Pyramid</strong>:</p>
                   <ul>
-                    <li><strong style="color: #00f2fe;">Phase A (Structural Staging):</strong> The engine computes local spatial gradient tangents and optical luminance across the reference. Using dense non-maximum suppression, it lays down massive anchor cutouts—car doors, sofa cushions, bus windows—to establish the gross anatomy of the subject without worrying about fine detail yet.</li>
-                    <li><strong style="color: #ff7eb3;">Phase B (Heatmap Discrepancy Correction):</strong> Instead of immediately shrinking the cutout size and moving on, the engine pauses and computes a real-time &Delta;E error heatmap in CIELAB color space. It looks at what it just placed, spots every pocket where the color drifted or the contrast blew out, and immediately slaps down emergency corrective patches at that <em>exact same scale tier</em> before daring to advance.</li>
+                    <li><strong style="color: #00f2fe;">1. Upscaling to 2000px &amp; 100% Pass 1A Slab Sealing:</strong> First, we blew the canvas up to <strong>4 to 6 Megapixels</strong> (<code>2000px</code> on the short side—4&times; the pixel area) so downsampling wouldn't murder the interior details of each cutout. Second, we noticed Pass 1 was originally leaving 22% of the canvas as unpainted black void—which tricked later passes into wasting thousands of pieces panicking over empty holes instead of sculpting faces. By bumping Pass 1A up to gigantic <code>650–1050px</code> slabs with deterministic void-sealing, every portrait starts with <strong>100.000% paper coverage (0 void pixels)</strong> before error correction even begins.</li>
+                    <li><strong style="color: #ff7eb3;">2. Killing Pass 5 (The Anti-Confetti Cap at 40–90px):</strong> We chopped the pyramid down to <strong>4 passes</strong>, stopping at a minimum cutout size of <code>40–90px</code> instead of descending into micro-dust. A <code>70px</code> cutout has <strong>4.5&times; the surface area</strong> of a <code>32px</code> speck. Axing that final pass eliminated <strong>3,000 to 6,800 pieces of confetti</strong> per portrait while costing barely ~1.2 points of &Delta;E. Now, when you zoom in, every single piece is still a legible object—a pizza box, a QR code, a dog snout, or a shirtless friend.</li>
+                    <li><strong style="color: #00f2fe;">3. Contrast-Aware Perceptual Error Weighting:</strong> Why was the algorithm still trying to paste tiny corrective scraps onto calm studio walls and smooth cheeks? Because raw math treats a minor color drift on a blank wall the same as a missing eyeball. Using a Sobel gradient and local standard deviation saliency map <em>S(x,y)</em>, we attenuated error sensitivity in low-contrast zones by <strong>82%</strong>. Translation: we told the engine to leave the big, clean background receipts alone and save 100% of its corrective energy for high-contrast drama (eyes, smiles, floral ties, and neon bandanas).</li>
+                    <li><strong style="color: #ff7eb3;">4. 3-Phase "Contour Lock" (Phase C):</strong> For high-contrast monochrome drama like <strong>Heavy B&amp;W</strong>, stopping at 4 passes kept the cutouts super recognizable, but left her facial features slightly soft because grid points (Phase A) and global color patches (Phase B) don't naturally trace eyelids or lip lines. So we upgraded Heavy to a <strong>4-Pass, 3-Phase architecture (12 phases total)</strong>—adding <strong>Phase C: Contour &amp; Feature Lock</strong>, which extracts high-gradient anatomical ridges and snaps identifiable <code>40–68px</code> cutouts directly along the tangent curves of the eyes, lashes, nose bridge, and lips.</li>
                   </ul>
-                  <p>By forcing the algorithm to fix its own architectural mistakes before moving to finer detail passes, peak discrepancy outliers (P90 error) plummet by over 70%. In <strong>13 to 20 seconds of raw GPU compute</strong>, a pile of random personal detritus snaps into an unmistakable, lifelike human portrait.</p>
 
-                  <h3 style="color: #00f2fe;"><i class="fa-solid fa-eye" style="margin-right: 0.5rem;"></i>The Secret: The Gestalt Blur Test</h3>
-                  <p><em>(Or: The 2 AM Dive Bar Squint Test.)</em></p>
-                  <p>In human visual neuroscience, your Fusiform Face Area (FFA) and object-recognition pathways don’t decode faces by counting skin pores; they read <strong>Low Spatial Frequency (LSF)</strong> chiaroscuro first. Before your conscious eye detects a single sharp boundary, your visual cortex has already cataloged the broad masses: the deep shadow cavity of an eye socket, the glowing crest of a forehead, or the silhouetted wedge of a cat's ear.</p>
-                  <p>If that low-frequency foundation is broken, you can paste a million razor-sharp micro-cutouts on the canvas and it will still look like visual mush. This is what I call the <strong>Gestalt Blur Test</strong>—or the dive bar test. If you take off your glasses, or squint at someone across a dimly lit room, or run a heavy Gaussian blur (&sigma; &isin; {1, 3, 7, 15, 30}) over the canvas, does it still instantly read as the subject?</p>
-                  <p>Every collage in this engine was subjected to this exact benchmark. If the &sigma;=15 blurred collage doesn't match the blurred reference like a mirror image, the run is rejected. The individual pieces can be pure absurdity (a parking ticket, a dive bar toilet rim, a cat's paw), but as long as their collective Gestalt luminance curve matches the reference, your brain fills in the rest of the magic.</p>
+                  <h3 style="color: #ff7eb3;"><i class="fa-solid fa-brain" style="margin-right: 0.5rem;"></i>Wait—Why Did the Error Rate Go Up When the Face Looked Better?!</h3>
+                  <p><em>(Or: The Perceptual vs. Pixel-Error Paradox, and why math is a terrible art critic.)</em></p>
+                  <p>When we ran Phase 4C on Heavy's face, something wild happened: her eyes, winged liner, and dark lips suddenly snapped into razor-sharp focus—yet the mathematical pixel error (&Delta;E) ticked <em>up</em> slightly from <code>28.19</code> to <code>29.74</code>. How does a higher error rate look dramatically better to a human being?</p>
+                  <p>Welcome to the <strong>Perceptual vs. Pixel-Error Paradox</strong>. The CIELAB &Delta;E formula evaluates every individual pixel in total isolation—it has zero concept of an eye, a lip, or a contour. To pure pixel math, a <strong>blurry, muddy gray smudge</strong> that averages out black eyeliner and pale skin gets a gold star for "low error." Meanwhile, a <strong>crisp, razor-sharp black cutout</strong> rotated along the eyelid brings the portrait to life, but if its paper edge overlaps adjacent pale skin by even 2 pixels, &Delta;E throws a tantrum.</p>
+                  <p>Your brain’s Fusiform Face Area (FFA) doesn’t process faces like a flatbed scanner averaging pixel values. It reads <strong>Contrast Primacy</strong> (sharp luminance polarity between dark lashes and bright sclera), <strong>Gestalt Good Continuation</strong> (cutouts chained along the natural curve of the jaw and brow), and <strong>Low Spatial Frequency (LSF)</strong> chiaroscuro—which we verify on every single portrait using our <strong>&sigma;=15 Dive Bar Squint / Gestalt Blur Test</strong>. Lower pixel error gives you a mathematical blur; structural contour locking gives you an unmistakable portrait built out of real, recognizable trash.</p>
 
-                  <h3 style="color: #ff7eb3;"><i class="fa-solid fa-layer-group" style="margin-right: 0.5rem;"></i>The 5 Milestones: Anatomy of the Absurd</h3>
-                  <p><em>(Five distinct visual torture tests, five radically different solutions.)</em></p>
-                  <p><strong style="color: #00f2fe;">1. Heavy (Theatrical Drag in Vintage Black-and-White Chiaroscuro):</strong> 10,735 pieces composited across 14 phases in 20.2 seconds. A tribute to vintage Seattle nightlife and stage drama. The razor-sharp cat-eye wings, dramatic arched brows, and glossy lips aren't black ink—they're micro-sliced columns of newspaper obituary text, vintage camera lenses, and candid faces. Her voluminous, sculpted bouffant hair is constructed out of King County Metro bus flanks, velvet living room armchairs, and nocturnal streetscapes. Her overexposed white satin gloves? Layer upon layer of overlapping supermarket receipts.</p>
-                  <p><strong style="color: #00f2fe;">2. Wedding Groom (Friend Getting His Tie Tied):</strong> 6,348 pieces composited in 13.1 seconds. Capturing a close friend having his burgundy floral tie straightened moments before walking down the aisle. The emotional resonance here is literal: the groom's serene, contemplative face is assembled out of dozens of miniature candid portraits of close friends from years of house parties and late-night hangs. His tie is intricately woven from red wine bottle labels, menus, and fabric shreds, pinned by an amber-and-metal bee brooch on a sage linen lapel.</p>
-                  <p><strong style="color: #00f2fe;">3. Crushworthy Pop Models (Dual Studio Portrait):</strong> 7,635 pieces in 13.2 seconds. An ultra-clean, punchy dual fashion editorial. The pristine white studio backdrop looks seamless from six feet away—until you zoom in and discover it’s constructed entirely from torn envelopes, Safeway paper, and actual unpaid Seattle parking violation notices. Against that bureaucratic white void, chartreuse mullet tips (tennis ball felt and neon highlighter) and hot-pink bandana graphics snap with razor-sharp vector-grade boundary alignment.</p>
-                  <p><strong style="color: #00f2fe;">4. Black Cat &amp; Whiskers:</strong> 1,338 pieces composited in 3.95 seconds. The ultimate computer vision torture test: how do you render sub-millimeter white whiskers across pitch-black fur without turning them into chunky gray pixel blocks? The engine solved this with <em>Tangent-Aligned Filament Chaining</em>—hunting down extreme aspect-ratio paper slivers (up to 14:1) and specular reflections from dive bar toilet porcelain, stringing them along the whisker vector like beads on a wire.</p>
-                  <p><strong style="color: #00f2fe;">5. Tomato Still Life:</strong> 1,218 pieces in 4.24 seconds. A luscious, glossy heirloom tomato resting on a kitchen table. The deep, translucent red flesh and the watery locule seed cavities look appetizing right up until you inspect the DNA: the fibrous tomato pulp is rendered from marbling in raw butcher-shop pork ribs, and the seeds are neon yellow supermarket clearance discount tags (<em>"MANAGER'S SPECIAL"</em>). It’s juicy, photographic, and delightfully cursed.</p>
+                  <h3 style="color: #00f2fe;"><i class="fa-solid fa-layer-group" style="margin-right: 0.5rem;"></i>The 5 Milestones: Anatomy of the Absurd</h3>
+                  <p><em>(Five distinct visual torture tests, zero censored cutouts.)</em></p>
+                  <p><strong style="color: #00f2fe;">1. Heavy (B&amp;W Drag in 4-Pass, 3-Phase Contour Lock):</strong> <strong>3,870 identifiable pieces</strong> (down from 10,735 confetti shards!) composited across 12 phases at <code>2000&times;2000</code> in 19.1 seconds. By locking <code>40–68px</code> cutouts along her anatomical feature ridges in Phase C, her dramatic winged eyeliner is anchored by a black-and-white Boston Terrier chomping an orange ball (left eye) and a roaring cartoon white tiger sticker (right eye). Up in her sculpted bouffant curls? A full roll of toilet paper, an upside-down comic bubble yelling <em>"Dry tuggin'!"</em>, and Seattle <em>"Pay 8am–8pm"</em> parking signs.</p>
+                  <p><strong style="color: #00f2fe;">2. Wedding Groom (Friend Getting His Tie Tied):</strong> <strong>4,259 pieces</strong> composited across 8 contrast-weighted phases at <code>3003&times;2000</code> (6 Megapixels). Capturing a close friend having his burgundy floral tie straightened moments before walking down the aisle. Because we eliminated the micro-confetti pass, zooming into his serene forehead reveals a warm terracotta <em>"Trattoria Pizzeria"</em> box and a cursive <em>"twink"</em> sticker tucked into his strawberry-blond hairline. His floral silk tie is woven from bold red <em>"DENTAL IMPLANTS"</em> and <em>"DENTAL SPERM"</em> packaging, while his sage tweed jacket lapel conceals both a jeweled honeybee brooch and an unhinged bumper sticker (<em>"My life is WORTHLESS, I will KILL US both"</em>).</p>
+                  <p><strong style="color: #00f2fe;">3. Crushworthy Pop Models (Dual Studio Editorial):</strong> <strong>3,384 pieces</strong> (over 40% fewer cutouts than the 5-pass run!) at <code>2000&times;2000</code>. Contrast-aware error weighting attenuates flat-zone corrections by 82%, letting huge torn envelopes and real unpaid parking tickets (<em>"LOT S12064"</em>) breathe across the white cyclorama without clutter. Meanwhile, high-saliency focus packs the models with recognizable gold: a shirtless friend flexing his biceps inside the dark brown shaggy bangs, a red municipal <em>"No Bicycles"</em> sign for cheekbone blush, a QR code across the nose bridge, and a white <em>"VALENTINO"</em> garment tag sitting atop a sparkly pink cross in the bandana.</p>
+                  <p><strong style="color: #00f2fe;">4. Black Cat &amp; Whiskers:</strong> <strong>1,338 pieces</strong> composited in 3.95 seconds. The ultimate computer vision filament test: how do you render sub-millimeter white whiskers across pitch-black fur without turning them into chunky gray blocks? The engine solved this with <em>Tangent-Aligned Filament Chaining</em>—hunting down extreme aspect-ratio paper slivers (up to 14:1) from Safeway receipts and pairing them with dive bar toilet porcelain highlights on the cheek.</p>
+                  <p><strong style="color: #00f2fe;">5. Tomato Still Life:</strong> <strong>1,218 pieces</strong> in 4.24 seconds. A luscious, glossy heirloom tomato resting on a dark table. The deep, translucent red flesh and watery locule seed cavities look mouthwatering right up until you inspect the DNA: the fibrous tomato pulp is rendered from marbled butcher-shop pork ribs, and the seeds are neon yellow supermarket meat markdown stickers (<em>"REDUCED"</em>, <em>"Best Meat In Town"</em>). Juicy, photographic, and delightfully cursed.</p>
 
-                  <h3 style="color: #00f2fe;"><i class="fa-solid fa-chart-line" style="margin-right: 0.5rem;"></i>The Receipts: Quantitative Convergence Metrics</h3>
-                  <p>Cold hard math proving this isn’t just smoke and mirrors. Across every subject, optical discrepancy dropped between <strong>-33% and -62%</strong>, converging from raw chaos into photorealistic coherence in under twenty seconds:</p>
+                  <h3 style="color: #ff7eb3;"><i class="fa-solid fa-chart-line" style="margin-right: 0.5rem;"></i>The Receipts: Quantitative Convergence Metrics</h3>
+                  <p>Cold hard math from the updated high-resolution pipeline. By combining <strong>100% Pass 1A void-sealing</strong>, <strong>contrast-aware saliency weighting</strong>, and a <strong>4-Pass identifiable size floor (40–90px)</strong>, the engine preserves 4.5&times; larger, recognizable camera-roll objects while driving optical error down by <strong>-34% to -57%</strong>:</p>
                   <table>
                     <thead>
                       <tr>
                         <th>Subject</th>
                         <th>Resolution</th>
+                        <th>Architecture</th>
                         <th>Cutouts</th>
                         <th>Initial &Delta;E</th>
                         <th>Final &Delta;E</th>
-                        <th>Error Reduction</th>
-                        <th>GPU Time</th>
+                        <th>Error Drop</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
+                        <td><strong>Heavy (B&amp;W Drag)</strong></td>
+                        <td>2000&times;2000</td>
+                        <td>4-Pass &times; 3-Phase (Contour Lock)</td>
+                        <td>3,870</td>
+                        <td>67.93</td>
+                        <td>29.74</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-56.2%</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Wedding Groom &amp; Tie</strong></td>
+                        <td>3003&times;2000</td>
+                        <td>4-Pass &times; 2-Phase (Contrast-Aware)</td>
+                        <td>4,259</td>
+                        <td>60.69</td>
+                        <td>27.56</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-54.6%</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Crushworthy Models</strong></td>
+                        <td>2000&times;2000</td>
+                        <td>4-Pass &times; 2-Phase (Contrast-Aware)</td>
+                        <td>3,384</td>
+                        <td>69.61</td>
+                        <td>29.58</td>
+                        <td style="color:#ff7eb3; font-weight:700;">-57.5%</td>
+                      </tr>
+                      <tr>
                         <td><strong>Black Cat &amp; Whiskers</strong></td>
                         <td>750&times;1000</td>
+                        <td>5-Pass (Filament Chaining)</td>
                         <td>1,338</td>
                         <td>41.82</td>
                         <td>27.52</td>
                         <td style="color:#ff7eb3; font-weight:700;">-34.2%</td>
-                        <td>3.95 s</td>
                       </tr>
                       <tr>
                         <td><strong>Tomato Still Life</strong></td>
                         <td>1000&times;1000</td>
+                        <td>5-Pass (Optical Pyramid)</td>
                         <td>1,218</td>
                         <td>88.88</td>
                         <td>41.56</td>
                         <td style="color:#ff7eb3; font-weight:700;">-53.2%</td>
-                        <td>4.24 s</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Heavy (B&amp;W Drag)</strong></td>
-                        <td>1000&times;1000</td>
-                        <td>10,735</td>
-                        <td>49.28</td>
-                        <td>32.94</td>
-                        <td style="color:#ff7eb3; font-weight:700;">-33.1%</td>
-                        <td>20.2 s</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Wedding Groom &amp; Tie</strong></td>
-                        <td>1024&times;682</td>
-                        <td>6,348</td>
-                        <td>60.69</td>
-                        <td>27.78</td>
-                        <td style="color:#ff7eb3; font-weight:700;">-54.2%</td>
-                        <td>13.1 s</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Crushworthy Pop Models</strong></td>
-                        <td>1024&times;1024</td>
-                        <td>7,635</td>
-                        <td>69.61</td>
-                        <td>26.09</td>
-                        <td style="color:#ff7eb3; font-weight:700;">-62.5%</td>
-                        <td>13.2 s</td>
                       </tr>
                     </tbody>
                   </table>
                   <p style="margin-top: 1rem; font-size: 0.8rem; color: #94a3b8; font-style: italic;">
-                    Memory is messy, embarrassing, and granular. Computer vision doesn’t have to sanitize it.
+                    Memory is messy, embarrassing, and granular. Computer vision doesn’t have to turn it into beige confetti.
                   </p>
                 </div>
 
