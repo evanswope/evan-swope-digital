@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target.closest('a[href]')) return;
       card.classList.toggle('is-flipped');
       const isFlipped = card.classList.contains('is-flipped');
-      card.setAttribute('aria-expanded', isFlipped);
+      card.setAttribute('aria-expanded', isFlipped); const flipAllSpan = document.querySelector('#btn-flip-all-resume span'); if (flipAllSpan) { const allResumeFlipped = Array.from(document.querySelectorAll('#resume .project-card-container')).every(c => c.classList.contains('is-flipped')); flipAllSpan.textContent = allResumeFlipped ? 'Unflip All Roles' : 'Flip All Roles'; }
     };
 
     card.addEventListener('click', toggleFlip);
@@ -164,6 +164,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --------------------------------------------------------------------------
   // 3. SMART STICKY NAVBAR (Elegant Auto-Hide on Scroll Down)
+  const flipAllResumeBtn = document.getElementById('btn-flip-all-resume');
+  if (flipAllResumeBtn) {
+    flipAllResumeBtn.addEventListener('click', () => {
+      const resumeCards = document.querySelectorAll('#resume .project-card-container');
+      const anyUnflipped = Array.from(resumeCards).some(c => !c.classList.contains('is-flipped'));
+      resumeCards.forEach(c => {
+        c.classList.toggle('is-flipped', anyUnflipped);
+        c.setAttribute('aria-expanded', anyUnflipped);
+      });
+      const labelSpan = flipAllResumeBtn.querySelector('span');
+      if (labelSpan) labelSpan.textContent = anyUnflipped ? 'Unflip All Roles' : 'Flip All Roles';
+    });
+  }
   // --------------------------------------------------------------------------
   const header = document.querySelector('.site-header');
   if (header) {
