@@ -15,50 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       details: {
         src: 'assets/images/details/detail_cat.jpg',
-        caption: 'Strange Details Closeup: High-impact focus region on the muzzle and cheek revealing bizarre personal artifacts.',
-        stat: '5 Objects Revealed',
-        hotspots: [
-          {
-            id: 'cat-toilet',
-            num: 1,
-            x: 12,
-            y: 65,
-            title: 'Porcelain Toilet Bowl',
-            desc: 'Camera roll #1,402: A photo of a dive bar bathroom. Selected by the CIELAB matching algorithm to form the peach-beige specular highlight on the cat\'s left cheek.'
-          },
-          {
-            id: 'cat-whiskers',
-            num: 2,
-            x: 28,
-            y: 50,
-            title: 'Safeway Receipt Whiskers',
-            desc: 'Tangent-chained slivers of torn paper receipts (up to 14:1 aspect ratio) curving into white whisker filaments across the muzzle.'
-          },
-          {
-            id: 'cat-sperm',
-            num: 3,
-            x: 48,
-            y: 74,
-            title: '"Dental Sperm" Box',
-            desc: 'An unedited camera-roll mystery packaging photo with high-contrast red typography, placed directly beneath the cat\'s nose where red chroma was demanded.'
-          },
-          {
-            id: 'cat-selfie',
-            num: 4,
-            x: 10,
-            y: 28,
-            title: 'Late-Night Flash Selfies',
-            desc: 'Overexposed party selfies and anime stickers composited into the cat\'s cheek fur highlights and whisker base.'
-          },
-          {
-            id: 'cat-circuit',
-            num: 5,
-            x: 82,
-            y: 64,
-            title: 'Circuit Board & Barcodes',
-            desc: 'Dense green-grey electronic components and grocery barcode cutouts forming the right whisker pad silhouette.'
-          }
-        ]
+        caption: 'Detail Crop: Unobstructed closeup of the muzzle and whisker cutouts.',
+        stat: 'Macro Crop'
       },
       blur_test: {
         src: 'assets/images/pyramidal_blackcat_gestalt_blur_test.jpg',
@@ -85,50 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       details: {
         src: 'assets/images/details/detail_tomato.jpg',
-        caption: 'Strange Details Closeup: Sliced locule seed cavity revealing yellow discount grocery tags, rib bones, and specular desk glints.',
-        stat: '5 Objects Revealed',
-        hotspots: [
-          {
-            id: 'tom-reduced',
-            num: 1,
-            x: 74,
-            y: 18,
-            title: '"REDUCED" Markdown Sticker',
-            desc: 'A bright red supermarket meat counter clearance sticker serving as the firm outer pericarp tomato wall.'
-          },
-          {
-            id: 'tom-meattag',
-            num: 2,
-            x: 64,
-            y: 10,
-            title: '"Best Meat In Town" Tag',
-            desc: 'Neon yellow butcher markdown stickers with bold type masquerading as yellow seed gelatin inside the locule.'
-          },
-          {
-            id: 'tom-glint',
-            num: 3,
-            x: 52,
-            y: 32,
-            title: 'Sunset Postcard Glint',
-            desc: 'A glossy wooden desk postcard with a glowing white circle dot placed precisely on the tomato\'s primary specular reflection.'
-          },
-          {
-            id: 'tom-ribs',
-            num: 4,
-            x: 40,
-            y: 78,
-            title: 'Raw Marbled Pork Ribs',
-            desc: 'Striated butcher shop rib cuts and marbled pork meat providing the dark red muscle and fibrous pulp gradients.'
-          },
-          {
-            id: 'tom-puppet',
-            num: 5,
-            x: 24,
-            y: 38,
-            title: 'Eyelash Puppet Caricature',
-            desc: 'A surreal cartoon caricature with giant mascara eyelashes and a side-eye grin nestled into the tomato pulp.'
-          }
-        ]
+        caption: 'Detail Crop: Unobstructed closeup of the sliced tomato cavity cutouts.',
+        stat: 'Macro Crop'
       },
       blur_test: {
         src: 'assets/images/pyramidal_tomato_gestalt_blur_test.jpg',
@@ -155,50 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       details: {
         src: 'assets/images/details/detail_heavy.jpg',
-        caption: 'Strange Details Closeup: 4-Pass identifiable cutouts (40–90px) locking into winged eyeliner, lips, and bouffant curls.',
-        stat: '5 Objects Revealed',
-        hotspots: [
-          {
-            id: 'heavy-terrier',
-            num: 1,
-            x: 31,
-            y: 50,
-            title: 'Boston Terrier Chomping a Ball',
-            desc: 'Locked right into the dark inner corner of the left eye crease: a black-and-white dog mid-chomp on a bright orange ball.'
-          },
-          {
-            id: 'heavy-tiger',
-            num: 2,
-            x: 62,
-            y: 57,
-            title: 'Roaring Cartoon White Tiger',
-            desc: 'Perched directly along the right eye\'s lower lash contour: a white tiger sticker with a wide-open red mouth.'
-          },
-          {
-            id: 'heavy-tuggin',
-            num: 3,
-            x: 65,
-            y: 4,
-            title: '"Dry Tuggin\'!" Speech Bubble',
-            desc: 'Upside-down at the crown of the bouffant hair: an out-of-context comic speech bubble providing high-key paper highlight.'
-          },
-          {
-            id: 'heavy-tp',
-            num: 4,
-            x: 75,
-            y: 38,
-            title: 'Full Roll of Toilet Paper',
-            desc: 'Nested into the right temple and hair wave: a pristine roll of bathroom tissue supplying smooth grayscale midtones.'
-          },
-          {
-            id: 'heavy-burger',
-            num: 5,
-            x: 55,
-            y: 90,
-            title: 'Plastic Cheeseburger & Street Sign',
-            desc: 'Anchoring the deep shadow beneath the choker: a neon toy burger tucked beside a black-and-white "ONE WAY" arrow.'
-          }
-        ]
+        caption: 'Detail Crop: Unobstructed closeup of the 4-Pass 3-Phase face and eyeliner cutouts.',
+        stat: 'Macro Crop'
       },
       blur_test: {
         src: 'assets/images/pyramidal_heavy_bw_gestalt_blur_test.jpg',
@@ -232,50 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       details: {
         src: 'assets/images/details/detail_wedding.jpg',
-        caption: 'Strange Details Closeup: Groom portrait & floral tie built from pizza boxes, retro stickers, and unhinged bumper stickers.',
-        stat: '5 Objects Revealed',
-        hotspots: [
-          {
-            id: 'wed-pizza',
-            num: 1,
-            x: 40,
-            y: 13,
-            title: '"Trattoria Pizzeria" Box',
-            desc: 'Stamped dead-center on the groom\'s forehead: a warm terracotta-red Italian pizza box logo matching his skin luma.'
-          },
-          {
-            id: 'wed-twink',
-            num: 2,
-            x: 52,
-            y: 11,
-            title: 'Cursive "twink" Sticker',
-            desc: 'Blending seamlessly into the strawberry-blond hairline above his right brow: retro pink-and-orange script lettering.'
-          },
-          {
-            id: 'wed-dental',
-            num: 3,
-            x: 45,
-            y: 82,
-            title: '"Dental Implants" & Novelty Boxes',
-            desc: 'Woven along the burgundy floral silk tie: bold crimson medical and novelty packaging typography acting as floral motifs.'
-          },
-          {
-            id: 'wed-drag',
-            num: 4,
-            x: 88,
-            y: 78,
-            title: 'Drag Performer in Sunglasses',
-            desc: 'Tucked into the burgundy pocket square folds: a full miniature portrait in hot pink and dark shades.'
-          },
-          {
-            id: 'wed-bumper',
-            num: 5,
-            x: 92,
-            y: 88,
-            title: '"My Life Is Worthless..." Sticker',
-            desc: 'Camouflaged on the sage tweed jacket lapel: an unhinged bumper sticker ("My life is WORTHLESS, I will KILL US both") matching the wool weave.'
-          }
-        ]
+        caption: 'Detail Crop: Unobstructed closeup of the groom, floral tie, and lapel cutouts.',
+        stat: 'Macro Crop'
       },
       blur_test: {
         src: 'assets/images/pyramidal_wedding_gestalt_blur_test.jpg',
@@ -305,50 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       details: {
         src: 'assets/images/details/detail_crushworthy.jpg',
-        caption: 'Strange Details Closeup: Shaggy bangs and neon bandana built from shirtless friends, traffic signs, QR codes, and designer tags.',
-        stat: '5 Objects Revealed',
-        hotspots: [
-          {
-            id: 'crush-flex',
-            num: 1,
-            x: 62,
-            y: 23,
-            title: 'Shirtless Friend Flexing in the Bangs',
-            desc: 'Hidden inside the dark brown shaggy hair: a candid photo of a shirtless friend flexing his biceps, matched for warm chestnut shadows.'
-          },
-          {
-            id: 'crush-nobike',
-            num: 2,
-            x: 64,
-            y: 52,
-            title: '"No Bicycles" Traffic Symbol',
-            desc: 'Placed directly on the right model\'s cheekbone: a crimson-and-white municipal "No Bicycles" circle acting as blush.'
-          },
-          {
-            id: 'crush-qr',
-            num: 3,
-            x: 54,
-            y: 36,
-            title: 'High-Contrast QR Code Sticker',
-            desc: 'Bridging the inner eyebrow and nose shadow: a sharp black-and-white QR code cutout locking in the eye socket geometry.'
-          },
-          {
-            id: 'crush-noparking',
-            num: 4,
-            x: 85,
-            y: 30,
-            title: 'Upside-Down "NO PARKING" Sign',
-            desc: 'Framing the right ear and jawline against the white backdrop: a red-bordered city street parking restriction sign.'
-          },
-          {
-            id: 'crush-valentino',
-            num: 5,
-            x: 40,
-            y: 85,
-            title: '"VALENTINO" Label & Pink Cross',
-            desc: 'Anchoring the hot-pink doodle bandana folds: a white Valentino garment tag perched right above a jewel-encrusted pink cross.'
-          }
-        ]
+        caption: 'Detail Crop: Unobstructed closeup of the bangs, cheek, and bandana cutouts.',
+        stat: 'Macro Crop'
       },
       blur_test: {
         src: 'assets/images/pyramidal_crushworthy_gestalt_blur_test.jpg',
@@ -387,16 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Details View Elements
   const detailsContainer = document.getElementById('collage-details-container');
   const detailsImg = document.getElementById('collage-details-img');
-  const hotspotsOverlay = document.getElementById('collage-hotspots-overlay');
-  const objectsTray = document.getElementById('collage-objects-tray');
-  const objectsChipList = document.getElementById('objects-chip-list');
-  const btnToggleHotspots = document.getElementById('btn-toggle-hotspots');
-  const calloutCard = document.getElementById('object-callout-card');
-  const calloutCardNum = document.getElementById('callout-card-num');
-  const calloutCardTitle = document.getElementById('callout-card-title');
-  const calloutCardDesc = document.getElementById('callout-card-desc');
-  let hotspotsVisible = true;
-  let activeHotspotId = null;
 
   // Evolution Controller Elements
   const evoController = document.getElementById('collage-evolution-controller');
@@ -422,115 +202,15 @@ document.addEventListener('DOMContentLoaded', () => {
     steps.forEach(step => preloadImage(step.src));
   }
 
-  // Render Details Closeup with Interactive Hotspot Pins and Discovery Tray
+  // Render clean unobstructed Details Closeup
   function renderDetailsView(subjectKey) {
     const subjectData = collageDataset[subjectKey];
     if (!subjectData || !subjectData.details) return;
 
     if (detailsImg) {
       detailsImg.src = subjectData.details.src;
-      detailsImg.alt = `${subjectData.name} - Strange Details Closeup`;
+      detailsImg.alt = `${subjectData.name} - Details Closeup`;
     }
-
-    if (!hotspotsOverlay || !objectsChipList) return;
-    hotspotsOverlay.innerHTML = '';
-    objectsChipList.innerHTML = '';
-
-    const hotspots = subjectData.details.hotspots || [];
-
-    hotspots.forEach((spot) => {
-      // 1. Create Hotspot Pin Button directly on image
-      const pin = document.createElement('button');
-      pin.className = 'collage-hotspot-pin';
-      pin.id = `pin-${spot.id}`;
-      pin.style.left = `${spot.x}%`;
-      pin.style.top = `${spot.y}%`;
-      pin.setAttribute('data-hotspot-id', spot.id);
-      pin.setAttribute('aria-label', `Object ${spot.num}: ${spot.title}`);
-      pin.innerHTML = `
-        <span>${spot.num}</span>
-        <div class="collage-hotspot-tooltip">${spot.title}</div>
-      `;
-
-      pin.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectHotspot(spot.id);
-      });
-
-      pin.addEventListener('mouseenter', () => {
-        selectHotspot(spot.id);
-      });
-
-      hotspotsOverlay.appendChild(pin);
-
-      // 2. Create Chip in Discovery Tray
-      const chip = document.createElement('button');
-      chip.className = 'object-chip';
-      chip.id = `chip-${spot.id}`;
-      chip.setAttribute('data-hotspot-id', spot.id);
-      chip.innerHTML = `
-        <span class="object-chip-num">${spot.num}</span>
-        <span>${spot.title}</span>
-      `;
-
-      chip.addEventListener('click', () => {
-        selectHotspot(spot.id);
-      });
-
-      objectsChipList.appendChild(chip);
-    });
-
-    if (hotspots.length > 0) {
-      selectHotspot(hotspots[0].id);
-    }
-  }
-
-  function selectHotspot(hotspotId) {
-    activeHotspotId = hotspotId;
-    const subjectData = collageDataset[currentSubject];
-    if (!subjectData || !subjectData.details) return;
-
-    const spot = subjectData.details.hotspots.find(h => h.id === hotspotId);
-    if (!spot) return;
-
-    // Update pin active states
-    document.querySelectorAll('.collage-hotspot-pin').forEach(pin => {
-      if (pin.dataset.hotspotId === hotspotId) {
-        pin.classList.add('is-active');
-      } else {
-        pin.classList.remove('is-active');
-      }
-    });
-
-    // Update chip active states
-    document.querySelectorAll('.object-chip').forEach(chip => {
-      if (chip.dataset.hotspotId === hotspotId) {
-        chip.classList.add('is-active');
-      } else {
-        chip.classList.remove('is-active');
-      }
-    });
-
-    // Update Callout Card
-    if (calloutCardNum) calloutCardNum.textContent = spot.num;
-    if (calloutCardTitle) calloutCardTitle.textContent = spot.title;
-    if (calloutCardDesc) calloutCardDesc.textContent = spot.desc;
-    if (captionStatEl) captionStatEl.textContent = `Object #${spot.num} Identified`;
-  }
-
-  if (btnToggleHotspots) {
-    btnToggleHotspots.addEventListener('click', () => {
-      hotspotsVisible = !hotspotsVisible;
-      if (hotspotsOverlay) {
-        if (hotspotsVisible) {
-          hotspotsOverlay.classList.remove('is-hidden');
-          btnToggleHotspots.innerHTML = '<i class="fa-solid fa-eye"></i> <span>Hide Callouts</span>';
-        } else {
-          hotspotsOverlay.classList.add('is-hidden');
-          btnToggleHotspots.innerHTML = '<i class="fa-solid fa-eye-slash"></i> <span>Show Callouts</span>';
-        }
-      }
-    });
   }
 
   // Initialize interactive comparison slider dragging
@@ -668,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (imgEl) imgEl.style.display = 'none';
       if (evoController) evoController.style.display = 'none';
       if (detailsContainer) detailsContainer.style.display = 'none';
-      if (objectsTray) objectsTray.style.display = 'none';
       if (sliderEl) {
         sliderEl.style.display = 'flex';
         sliderEl.style.setProperty('--slider-aspect', subjectData.aspectRatio || '1 / 1');
@@ -690,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (imgEl) imgEl.style.display = 'none';
       if (evoController) evoController.style.display = 'none';
       if (detailsContainer) detailsContainer.style.display = 'flex';
-      if (objectsTray) objectsTray.style.display = 'flex';
 
       renderDetailsView(currentSubject);
 
@@ -700,7 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (currentMode === 'evolution') {
       if (sliderEl) sliderEl.style.display = 'none';
       if (detailsContainer) detailsContainer.style.display = 'none';
-      if (objectsTray) objectsTray.style.display = 'none';
       if (imgEl) imgEl.style.display = 'block';
       if (evoController) evoController.style.display = 'flex';
 
@@ -717,7 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sliderEl) sliderEl.style.display = 'none';
       if (evoController) evoController.style.display = 'none';
       if (detailsContainer) detailsContainer.style.display = 'none';
-      if (objectsTray) objectsTray.style.display = 'none';
       if (imgEl) {
         imgEl.style.display = 'block';
         const modeData = subjectData[currentMode] || subjectData.blur_test;
