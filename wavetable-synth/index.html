@@ -201,24 +201,6 @@
       </defs>
     </svg>
     <script>
-      // Swipe Logic for Iframe
-      let touchStartX = 0;
-      let touchEndX = 0;
-      document.addEventListener('touchstart', e => {
-        if (e.target.tagName.toLowerCase() === 'input') return;
-        touchStartX = e.changedTouches[0].screenX;
-      }, {passive: true});
-      document.addEventListener('touchend', e => {
-        if (e.target.tagName.toLowerCase() === 'input') return;
-        touchEndX = e.changedTouches[0].screenX;
-        const threshold = 50;
-        if (touchEndX < touchStartX - threshold) {
-          window.parent.postMessage({ type: 'swipe', direction: 'left' }, '*');
-        } else if (touchEndX > touchStartX + threshold) {
-          window.parent.postMessage({ type: 'swipe', direction: 'right' }, '*');
-        }
-      }, {passive: true});
-
       // Power light logic
       document.addEventListener("DOMContentLoaded", () => {
         const initBtn = document.getElementById('initAudioBtn');
