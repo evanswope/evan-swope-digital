@@ -1726,7 +1726,7 @@ document.addEventListener('DOMContentLoaded', () => {
       addLog(`> Fixed! Arriving at the date...`, "log-system");
       state.phase = "DATING_GENERATING";
       const packageMsg = `I want to go to ${state.datingLocation}. I am wearing ${state.datingOutfit} and I brought you ${state.datingGift}.`;
-      callDatingMaster(packageMsg);
+      callDatingMaster('init_date', packageMsg);
     } else {
       addLog(`> ${state.obstacleTarget} (${state.obstacleCount}/3)`, "log-user");
     }
@@ -1823,7 +1823,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function finishDating(forceLoss = false, customWinPrompt = null) {
     state.phase = "DATING_GENERATING";
-    const won = forceLoss ? false : (state.datingScore >= 2);
+    const won = !forceLoss;
     
     let finalPrompt = won 
       ? (customWinPrompt || `A wildly colorful, cinematic, dramatic romantic fantasy scene showing ${state.selectedCustomer.desc} happily on a wedding date alongside the grocer. The grocer looks like: ${state.playerDescription || 'a grocery clerk'}. Epic lighting, beautiful masterpiece.`)
@@ -2007,6 +2007,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       else if (state.phase === "HAND_OVER_ITEM") {
         if (val.toLowerCase() === 'give') {
+          gameInput.disabled = true;
           appraiseItem(state.pendingItemUrl, state.pendingItemPrompt);
         } else {
           setPersistentPrompt("Press ENTER or type 'GIVE' to hand it over.", "log-system");
@@ -2095,6 +2096,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (state.phase === "DATING_PREP_VENUE") {
           state.weddingVenue = val;
+          state.datingVenue = val;
           callDatingMaster('init_altar', `We are hosting the ceremony at ${val}`);
         }
         else if (state.phase === "DATING_ALTAR_CHAT") {

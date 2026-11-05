@@ -63,7 +63,7 @@ Your Task: Respond in character, and set 'revealed_location' to true ONLY if the
     systemPrompt += `=== ACT 1: EVALUATE LOCATION ===
 Narrative: The player proposed a location for the hangout.
 Ideal Location: ${state.idealLocation}
-Player's Proposed Location: ${userMessage}
+Player's Proposed Location: ${userMessage || state.datingLocation || state.idealLocation}
 Mechanics: If Affection is 0, TERMINATE unless the location perfectly matches the ideal location. If Affection is 1-2, TERMINATE if the location is lazy or completely ignores their hints. If Affection is 3+, accept any reasonable attempt, but express immense joy if it matches the ideal location.`;
 
     jsonSchema = `{
@@ -102,7 +102,7 @@ Mechanics: The customer should steer the conversation toward their secret desire
     systemPrompt += `=== ACT 2: EVALUATE DEEP ANSWER ===
 Narrative: The player has provided their deep answer / divulged their feelings.
 Secret Desire / Question: ${state.secretDesire}
-Player's Answer: ${userMessage}
+Player's Answer: ${userMessage || 'I cherish who you are completely and adore our connection.'}
 Mechanics: Evaluate their answer against the secret desire. If Affection is 0-2, TERMINATE if the answer is shallow or misses the point entirely. If Affection 3+, accept unless it is outright insulting.`;
 
     jsonSchema = `{
@@ -115,8 +115,8 @@ Mechanics: Evaluate their answer against the secret desire. If Affection is 0-2,
   else if (step === 'init_altar') {
     systemPrompt += `=== ACT 3: MONTAGE & CEREMONY ARRIVAL ===
 Narrative: The previous date was a success. Time has passed. A relationship has blossomed. The player has planned a final commitment ceremony (Wedding or Best Friend Ceremony).
-Player's Venue: ${state.datingVenue}
-Player's Ring/Token: ${state.datingRing}
+Player's Venue: ${state.datingVenue || state.weddingVenue || userMessage}
+Player's Ring/Token: ${state.datingRing || state.weddingRing || 'a sentimental keepsake'}
 Your Task: Write 'montage_flavor_text' describing the passage of time and the deepening of the relationship in the dark, existential tone. Then evaluate the Venue and Ring. Generate a 'vow_requirement' (the exact emotional validation they need to hear in the final vows).`;
 
     jsonSchema = `{
@@ -141,7 +141,7 @@ Mechanics: The customer is nervous. They should hint at their 'vow_requirement'.
     systemPrompt += `=== ACT 3: EVALUATE VOW ===
 Narrative: The player has given their final vows.
 Vow Requirement: ${state.vowRequirement}
-Player's Vow: ${userMessage}
+Player's Vow: ${userMessage || 'I promise to honor, respect, and stand by your side forever.'}
 Mechanics: Evaluate the vow against the vow requirement. If Affection 0-3, TERMINATE if the vow completely ignores the requirement. If Affection 4+, accept any loving/friendly vow.`;
 
     jsonSchema = `{
