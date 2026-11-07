@@ -3010,11 +3010,11 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 
 .lab-card-subheader {
   font-family: 'Permanent Marker', cursive, var(--font-mono);
-  font-size: clamp(1.1rem, 2.4vw, 2.75rem) !important;
-  line-height: 1.2;
+  font-size: clamp(1.4rem, 3.5vw, 2.4rem) !important;
+  line-height: 1.15;
   color: #ff7eb3;
-  margin-top: 2rem;
-  margin-bottom: 1.25rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0.85rem;
   transform: rotate(-1deg);
   display: inline-block;
 }
@@ -3146,22 +3146,149 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   transform: scale(1.3);
 }
 
+/* Sorta Game Board Mockup */
+.sorta-mockup-board {
+  background: radial-gradient(circle at 20% 15%, rgba(255, 126, 179, 0.16), transparent 55%), #080a12;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  font-family: 'Space Mono', monospace;
+  box-sizing: border-box;
+}
+
+.sorta-mockup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.sorta-mockup-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45rem;
+}
+
+.sorta-mockup-tile {
+  background: #171e35;
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 0.72rem;
+  border-radius: 6px;
+  padding: 0.8rem 0.2rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.2s ease;
+}
+
+.sorta-mockup-tile.is-selected {
+  background: #ff7eb3;
+  color: #090b12;
+  font-weight: 800;
+  border-color: #ff7eb3;
+  box-shadow: 0 0 12px rgba(255, 126, 179, 0.4);
+}
+
+.sorta-mockup-log {
+  background: #060811;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-left: 3px solid #ff7eb3;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.65rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
 /* Mobile Responsive */
 @media (max-width: 900px) {
-  .lab-card-content .lab-media-subbadge {
-    position: static;
-    display: inline-block;
-    margin-bottom: 0.5rem;
+  .lab-teaser-section {
+    padding: 2.5rem 0 1.5rem 0;
+  }
+  .lab-carousel-container {
+    padding: 0 0.85rem;
   }
   .lab-feature-card {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: 0.75rem;
+    padding: 1rem 1.15rem;
+    border-radius: 16px;
+  }
+  .lab-card-media-wrapper {
+    gap: 0.4rem;
+  }
+  .lab-card-media {
+    aspect-ratio: 16 / 9;
+    max-height: 175px;
+    border-radius: 10px;
+  }
+  .lab-card-subheader {
+    font-size: clamp(1.35rem, 5.5vw, 1.85rem) !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.35rem !important;
+    line-height: 1.15;
+  }
+  .lab-card-premise {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    margin-bottom: 0.45rem;
+  }
+  .lab-tech-tags {
+    margin-top: 0.2rem;
+    margin-bottom: 0.65rem;
+    gap: 0.35rem;
+  }
+  .lab-tech-pill {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.55rem;
+  }
+  .lab-card-action {
+    gap: 0.4rem !important;
+  }
+  .lab-cta-btn {
+    padding: 0.65rem 1.35rem;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+  }
+  .lab-cta-subtext {
+    font-size: 0.7rem;
+    line-height: 1.3;
   }
   .lab-carousel-btn {
     display: none;
   }
-  .lab-carousel-container {
-    padding: 0 1rem;
+  .lab-carousel-dots {
+    margin-top: 0.85rem;
+    gap: 0.45rem;
+  }
+  .lab-dot {
+    width: 8px;
+    height: 8px;
+  }
+  .sorta-mockup-board {
+    padding: 0.45rem 0.65rem;
+  }
+  .sorta-mockup-header {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.58rem;
+  }
+  .sorta-mockup-grid {
+    gap: 0.22rem;
+  }
+  .sorta-mockup-tile {
+    font-size: 0.58rem;
+    padding: 0.32rem 0.1rem;
+    border-radius: 4px;
+  }
+  .sorta-mockup-log {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.52rem;
+    line-height: 1.25;
+    border-radius: 4px;
   }
 }
