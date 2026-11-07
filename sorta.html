@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorta | Evan Swope AI Lab</title>
+  <meta name="description" content="Sorta — 12 devious 4x4 word-categorization puzzles originally engineered by Evan Swope to break an LLM's tokenizer. Solve the board and read Gemini's post-game salt log.">
+  <link rel="icon" type="image/png" href="assets/images/favicon2.png">
+  <link rel="apple-touch-icon" href="assets/images/favicon2.png">
+  <link rel="canonical" href="https://evanswope.com/sorta.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://evanswope.com/sorta.html">
+  <meta property="og:title" content="Sorta | Word Categorization &amp; Tokenizer Torture">
+  <meta property="og:description" content="Four groups of four. Sorta. 12 word puzzles written to stump an AI—complete with Gemini's post-game complaints.">
+  <meta property="og:image" content="https://evanswope.com/assets/images/og-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://evanswope.com/sorta.html">
+  <meta name="twitter:title" content="Sorta | Evan Swope AI Lab">
+  <meta name="twitter:description" content="Four groups of four. Sorta. 12 word puzzles written to stump an AI—complete with Gemini's post-game complaints.">
+  <meta name="twitter:image" content="https://evanswope.com/assets/images/og-preview.png?v=3">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=2">
+
+  <style>
+    :root {
+      --sorta-bg: #080a12;
+      --sorta-surface: #0f1424;
+      --sorta-tile: #171e35;
+      --sorta-tile-hover: #1f2947;
+      --sorta-border: rgba(255, 255, 255, 0.11);
+      --sorta-pink: #ff7eb3;
+      --sorta-cyan: #00f2fe;
+      --sorta-yellow: #facc15;
+      --sorta-green: #34d399;
+      --sorta-blue: #38bdf8;
+      --sorta-purple: #c084fc;
+    }
+
+    html, body.sorta-page {
+      background: var(--sorta-bg) !important;
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(255, 126, 179, 0.09) 0%, transparent 45%),
+        radial-gradient(circle at 82% 18%, rgba(0, 242, 254, 0.08) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px !important;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sorta-main {
+      flex: 1;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 6.2rem 1rem 3rem;
+    }
+
+    /* Top Title & Utility Bar */
+    .sorta-hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+    }
+
+    .sorta-brand-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .sorta-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.1rem, 6vw, 2.85rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #ffffff;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .sorta-tagline {
+      font-family: 'Permanent Marker', cursive;
+      font-size: clamp(1rem, 3.2vw, 1.28rem);
+      color: var(--sorta-pink);
+      transform: rotate(-2deg);
+      display: inline-block;
+      margin: 0;
+    }
+
+    .sorta-utils {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .sorta-stats-chip {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: #94a3b8;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--sorta-border);
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .sorta-icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--sorta-border);
+      color: #cbd5e1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.18s ease;
+    }
+
+    .sorta-icon-btn:hover {
+      border-color: var(--sorta-cyan);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .sorta-icon-btn.is-muted {
+      color: #64748b;
+    }
+
+    /* 12-Board Selector Strip */
+    .sorta-puzzle-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.38rem;
+      margin-bottom: 0.95rem;
+    }
+
+    @media (min-width: 640px) {
+      .sorta-puzzle-strip {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+      }
+    }
+
+    .sorta-pill {
+      background: rgba(15, 20, 36, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.36rem 0.2rem;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.22rem;
+      transition: all 0.16s ease;
+    }
+
+    .sorta-pill:hover {
+      border-color: var(--sorta-cyan);
+      color: #f8fafc;
+      transform: translateY(-1px);
+    }
+
+    .sorta-pill.is-won {
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .sorta-pill.is-lost {
+      border-color: rgba(148, 163, 184, 0.35);
+      color: #cbd5e1;
+    }
+
+    .sorta-pill.active {
+      background: rgba(255, 126, 179, 0.18);
+      border-color: var(--sorta-pink);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(255, 126, 179, 0.3);
+    }
+
+    .sorta-pill-check {
+      font-size: 0.6rem;
+      color: #34d399;
+    }
+
+    .sorta-pill-seen {
+      font-size: 0.58rem;
+      color: #94a3b8;
+    }
+
+    .sorta-pill-boss {
+      font-size: 0.6rem;
+      color: #f43f5e;
+    }
+
+    /* Main Game Stage Card */
+    .sorta-stage {
+      position: relative;
+      background: linear-gradient(170deg, rgba(15, 20, 36, 0.94) 0%, rgba(10, 13, 24, 0.97) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.05rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    .sorta-stage-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .sorta-board-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--sorta-cyan);
+      text-transform: uppercase;
+    }
+
+    .sorta-board-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+
+    .sorta-board-sub.is-stumper {
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
+    .sorta-board-sub.is-half {
+      color: #c084fc;
+      font-weight: 700;
+    }
+
+    .sorta-board-sub.is-boss {
+      color: #fb7185;
+      font-weight: 700;
+    }
+
+    /* Floating Toast */
+    .sorta-toast {
+      position: fixed;
+      top: 86px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      background: #f8fafc;
+      color: #090b12;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 500;
+      white-space: nowrap;
+    }
+
+    .sorta-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Solved Category Banners */
+    .sorta-solved-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sorta-solved-stack:empty {
+      margin-bottom: 0;
+    }
+
+    .sorta-solved-banner {
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      text-align: center;
+      color: #090d16;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .sorta-solved-banner.tier-yellow {
+      background: linear-gradient(135deg, #fde047 0%, #facc15 100%);
+    }
+
+    .sorta-solved-banner.tier-green {
+      background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+    }
+
+    .sorta-solved-banner.tier-blue {
+      background: linear-gradient(135deg, #67e8f9 0%, #38bdf8 100%);
+    }
+
+    .sorta-solved-banner.tier-purple {
+      background: linear-gradient(135deg, #e879f9 0%, #c084fc 50%, #ff7eb3 100%);
+    }
+
+    .sorta-solved-banner.pop-in {
+      animation: sortaPopIn 0.34s cubic-bezier(0.22, 1.28, 0.36, 1);
+    }
+
+    .sorta-solved-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: clamp(0.82rem, 2.5vw, 0.98rem);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: 0.15rem;
+    }
+
+    .sorta-solved-words {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(0.75rem, 2.2vw, 0.86rem);
+      letter-spacing: 0.02em;
+    }
+
+    .sorta-solved-gloss {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      opacity: 0.78;
+      margin-top: 0.2rem;
+    }
+
+    /* 4x4 Tile Grid */
+    .sorta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.5rem;
+      transition: opacity 0.13s ease, transform 0.13s ease;
+    }
+
+    .sorta-grid.shuffling {
+      opacity: 0.35;
+      transform: scale(0.985);
+    }
+
+    .sorta-tile {
+      position: relative;
+      height: 74px;
+      background: var(--sorta-tile);
+      border: 1.5px solid rgba(255, 255, 255, 0.11);
+      border-bottom-width: 3px;
+      border-radius: 10px;
+      color: #f1f5f9;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 0.3rem 0.28rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.14s ease, transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease, color 0.14s ease;
+    }
+
+    .sorta-tile:hover:not(.selected) {
+      background: var(--sorta-tile-hover);
+      border-color: rgba(0, 242, 254, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .sorta-tile.selected {
+      background: linear-gradient(145deg, #ff7eb3 0%, #f472b6 100%);
+      color: #090b12;
+      border-color: #ffffff;
+      box-shadow: 0 6px 20px rgba(255, 126, 179, 0.42);
+      transform: translateY(-2px);
+    }
+
+    .sorta-tile-text {
+      display: block;
+      width: 100%;
+      line-height: 1.12;
+    }
+
+    /* Responsive Auto-Fitted Font Classes by Word Length */
+    .sorta-tile.tile-short { font-size: clamp(0.88rem, 3.3vw, 1.12rem); }
+    .sorta-tile.tile-med { font-size: clamp(0.76rem, 2.8vw, 1rem); }
+    .sorta-tile.tile-long { font-size: clamp(0.66rem, 2.35vw, 0.9rem); letter-spacing: 0; }
+    .sorta-tile.tile-xlong { font-size: clamp(0.55rem, 1.95vw, 0.78rem); letter-spacing: -0.02em; }
+    .sorta-tile.tile-phrase { font-size: clamp(0.74rem, 2.6vw, 0.96rem); }
+    .sorta-tile.tile-phrase-long { font-size: clamp(0.64rem, 2.2vw, 0.86rem); letter-spacing: 0; }
+
+    @media (max-width: 480px) {
+      .sorta-main {
+        padding: 5.4rem 0.65rem 2.5rem;
+      }
+      .sorta-stage {
+        padding: 0.75rem;
+      }
+      .sorta-grid {
+        gap: 0.38rem;
+      }
+      .sorta-tile {
+        height: 64px;
+        border-radius: 8px;
+        padding: 0.2rem 0.18rem;
+      }
+    }
+
+    .sorta-tile.hop {
+      animation: sortaHop 0.26s ease;
+    }
+
+    .sorta-tile.shake {
+      animation: sortaShake 0.42s ease;
+    }
+
+    @keyframes sortaHop {
+      0%, 100% { transform: translateY(-2px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes sortaShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    @keyframes sortaPopIn {
+      0% { opacity: 0; transform: scale(0.93); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Mistakes Row & Controls */
+    .sorta-mistakes-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+    }
+
+    .sorta-pips {
+      display: inline-flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .sorta-pip {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--sorta-cyan);
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.55);
+      transition: all 0.25s ease;
+    }
+
+    .sorta-pip.spent {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+      transform: scale(0.7);
+    }
+
+    .sorta-controls-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .sorta-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 0.62rem 1.15rem;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      background: transparent;
+      color: #f8fafc;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.18s ease;
+    }
+
+    .sorta-btn:hover:not(:disabled) {
+      border-color: var(--sorta-cyan);
+      color: var(--sorta-cyan);
+      transform: translateY(-1px);
+    }
+
+    .sorta-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .sorta-btn.primary {
+      background: linear-gradient(135deg, #ff7eb3 0%, #00f2fe 100%);
+      border-color: transparent;
+      color: #090b12;
+      font-weight: 800;
+      box-shadow: 0 4px 18px rgba(255, 126, 179, 0.35);
+    }
+
+    .sorta-btn.primary:hover:not(:disabled) {
+      color: #000;
+      box-shadow: 0 6px 24px rgba(255, 126, 179, 0.55);
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .sorta-btn.primary:disabled {
+      background: rgba(255, 255, 255, 0.08);
+      color: #64748b;
+      box-shadow: none;
+    }
+
+    /* Post-Game Summary & Gemini Salt Log */
+    .sorta-postgame {
+      margin-top: 1.1rem;
+      padding-top: 1.05rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .sorta-postgame.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sorta-pg-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.95rem;
+    }
+
+    .sorta-pg-kicker {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .sorta-pg-kicker.is-flawless { color: #fde047; }
+    .sorta-pg-kicker.is-won { color: #34d399; }
+    .sorta-pg-kicker.is-lost { color: #fb7185; }
+
+    .sorta-pg-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .sorta-emoji-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(7, 9, 18, 0.85);
+      padding: 0.5rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sorta-emoji-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .sorta-emoji-cell {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .sorta-emoji-cell.tier-yellow { background: #facc15; }
+    .sorta-emoji-cell.tier-green { background: #34d399; }
+    .sorta-emoji-cell.tier-blue { background: #38bdf8; }
+    .sorta-emoji-cell.tier-purple { background: #c084fc; }
+
+    /* Gemini Salt Log Terminal */
+    .sorta-gemini-terminal {
+      background: #060811;
+      border: 1px solid rgba(0, 242, 254, 0.28);
+      border-left: 3px solid var(--sorta-pink);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85);
+    }
+
+    .sorta-gemini-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 0.85rem;
+      background: rgba(15, 23, 42, 0.92);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sorta-gemini-file {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--sorta-pink);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .sorta-gemini-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .sorta-gemini-badge.outcome-survived {
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      color: var(--sorta-cyan);
+    }
+
+    .sorta-gemini-badge.outcome-half-stumped {
+      background: rgba(192, 132, 252, 0.15);
+      border: 1px solid rgba(192, 132, 252, 0.45);
+      color: #d8b4fe;
+    }
+
+    .sorta-gemini-badge.outcome-stumped,
+    .sorta-gemini-badge.outcome-wiped-out {
+      background: rgba(244, 63, 94, 0.16);
+      border: 1px solid rgba(244, 63, 94, 0.5);
+      color: #fda4af;
+    }
+
+    .sorta-gemini-body {
+      padding: 0.85rem 0.95rem;
+    }
+
+    .sorta-gemini-rant {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin: 0 0 0.7rem 0;
+    }
+
+    .sorta-gemini-verdict {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--sorta-cyan);
+      padding-top: 0.55rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.12);
+    }
+
+    .sorta-pg-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .sorta-pg-actions-left {
+      display: flex;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    /* Help / Backstory Modal */
+    .sorta-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 12, 0.84);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1200;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    .sorta-modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    .sorta-modal-backdrop.open {
+      opacity: 1;
+    }
+
+    .sorta-modal-card {
+      background: #0f1424;
+      border: 1px solid rgba(255, 126, 179, 0.4);
+      border-radius: 14px;
+      max-width: 500px;
+      width: 100%;
+      padding: 1.5rem;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    }
+
+    .sorta-modal-close {
+      position: absolute;
+      top: 0.9rem;
+      right: 0.9rem;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .sorta-modal-close:hover {
+      color: #fff;
+    }
+
+    .sorta-modal-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .sorta-modal-card p,
+    .sorta-modal-card li {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .sorta-modal-card ul {
+      margin: 0.75rem 0 1rem 1.1rem;
+      list-style: disc;
+    }
+
+    .sorta-tier-legend {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      margin-top: 0.85rem;
+    }
+
+    .sorta-legend-pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.22rem 0.55rem;
+      border-radius: 5px;
+      color: #090b12;
+    }
+
+    .sorta-legend-pill.y { background: #facc15; }
+    .sorta-legend-pill.g { background: #34d399; }
+    .sorta-legend-pill.b { background: #38bdf8; }
+    .sorta-legend-pill.p { background: #c084fc; }
+  </style>
+</head>
+<body class="lens-hybrid sorta-page">
+
+  <!-- Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo">
+        <span class="logo-text">EVAN SWOPE</span>
+        <span class="logo-subtext">CREATIVE + STRATEGY</span>
+      </a>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="nav-links">
+        <a href="index.html#work" class="nav-link">Work</a>
+        <a href="index.html#resume" class="nav-link">Experience</a>
+        <a href="index.html#about" class="nav-link">About</a>
+        <div class="nav-dropdown">
+          <a href="#" class="nav-link dropdown-toggle">AI Lab <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
+          <div class="dropdown-menu">
+            <a href="experiments.html" class="dropdown-item">Audio / Visual</a>
+            <a href="checked-out.html" class="dropdown-item">Checked Out</a>
+            <a href="past-life.html" class="dropdown-item">Past Lives</a>
+            <a href="sorta.html" class="dropdown-item" style="color:#ff7eb3;">Sorta</a>
+          </div>
+        </div>
+        <a href="index.html#contact" class="nav-link btn-contact">Let's Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+    <nav class="mobile-nav-links">
+      <a href="index.html#work" class="mobile-nav-link">Work</a>
+      <a href="index.html#resume" class="mobile-nav-link">Experience</a>
+      <a href="index.html#about" class="mobile-nav-link">About</a>
+      <a href="experiments.html" class="mobile-nav-link">AI Lab: Audio/Visual</a>
+      <a href="checked-out.html" class="mobile-nav-link">AI Lab: Checked Out</a>
+      <a href="past-life.html" class="mobile-nav-link">AI Lab: Past Lives</a>
+      <a href="sorta.html" class="mobile-nav-link" style="color:#ff7eb3;">AI Lab: Sorta</a>
+      <a href="index.html#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
+    </nav>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="sorta-toast" class="sorta-toast" role="status" aria-live="polite"></div>
+
+  <main class="sorta-main">
+    <!-- Title + Controls Strip -->
+    <div class="sorta-hero">
+      <div class="sorta-brand-group">
+        <h1 class="sorta-title">Sorta</h1>
+        <p class="sorta-tagline">Four groups of four. Sorta.</p>
+      </div>
+      <div class="sorta-utils">
+        <span id="sorta-stats-summary" class="sorta-stats-chip">0/12 SORTED</span>
+        <button id="btn-sorta-audio" class="sorta-icon-btn" type="button" title="Toggle synth clicks" aria-label="Toggle synth clicks">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button id="btn-sorta-help" class="sorta-icon-btn" type="button" title="How to play &amp; backstory" aria-label="How to play">
+          <i class="fa-solid fa-question"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 12-Puzzle Selector -->
+    <nav id="sorta-puzzle-strip" class="sorta-puzzle-strip" aria-label="Select puzzle board"></nav>
+
+    <!-- Game Stage -->
+    <section class="sorta-stage" aria-label="Sorta game board">
+      <div class="sorta-stage-topbar">
+        <span id="sorta-board-badge" class="sorta-board-badge">BOARD #01 OF 12</span>
+        <span id="sorta-board-subtitle" class="sorta-board-sub">Group 16 tiles into 4 categories of 4.</span>
+      </div>
+
+      <!-- Solved Banners -->
+      <div id="sorta-solved-stack" class="sorta-solved-stack"></div>
+
+      <!-- 4x4 Remaining Tiles -->
+      <div id="sorta-grid" class="sorta-grid"></div>
+
+      <!-- Mistakes Remaining -->
+      <div id="sorta-mistakes-row" class="sorta-mistakes-row">
+        <span>Mistakes remaining:</span>
+        <span id="sorta-mistakes-pips" class="sorta-pips" aria-label="Mistakes remaining"></span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div id="sorta-controls-row" class="sorta-controls-row">
+        <button id="btn-sorta-shuffle" class="sorta-btn" type="button">
+          <i class="fa-solid fa-shuffle"></i> Shuffle
+        </button>
+        <button id="btn-sorta-deselect" class="sorta-btn" type="button" disabled>
+          Deselect All
+        </button>
+        <button id="btn-sorta-submit" class="sorta-btn primary" type="button" disabled>
+          Submit
+        </button>
+      </div>
+
+      <!-- Post-Game Reveal + Gemini Salt Log -->
+      <div id="sorta-postgame" class="sorta-postgame" hidden>
+        <div class="sorta-pg-top">
+          <div>
+            <div id="sorta-postgame-headline" class="sorta-pg-kicker">SORTED</div>
+            <h2 id="sorta-postgame-title" class="sorta-pg-title">#01: "Poop Deck"</h2>
+          </div>
+          <div id="sorta-emoji-grid" class="sorta-emoji-grid" title="Your guess history"></div>
+        </div>
+
+        <div class="sorta-gemini-terminal">
+          <div class="sorta-gemini-topbar">
+            <span class="sorta-gemini-file">
+              <i class="fa-solid fa-terminal"></i> gemini_salt_log.txt
+            </span>
+            <span id="sorta-gemini-badge" class="sorta-gemini-badge">GEMINI: SURVIVED</span>
+          </div>
+          <div class="sorta-gemini-body">
+            <p id="sorta-gemini-rant" class="sorta-gemini-rant"></p>
+            <div id="sorta-gemini-comparison" class="sorta-gemini-verdict"></div>
+          </div>
+        </div>
+
+        <div class="sorta-pg-actions">
+          <div class="sorta-pg-actions-left">
+            <button id="btn-sorta-share" class="sorta-btn primary" type="button">
+              <i class="fa-solid fa-share-nodes"></i> Share Grid
+            </button>
+            <button id="btn-sorta-next" class="sorta-btn" type="button">
+              <span>Next Board</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+          <button id="btn-sorta-reset" class="sorta-btn" type="button" title="Clear and replay this board">
+            <i class="fa-solid fa-rotate-left"></i> Replay
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- How to Play & Origin Story Modal -->
+  <div id="sorta-help-modal" class="sorta-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="sorta-help-heading">
+    <div class="sorta-modal-card">
+      <button id="btn-close-sorta-help" class="sorta-modal-close" type="button" aria-label="Close modal">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h2 id="sorta-help-heading">HOW TO PLAY SORTA</h2>
+      <p>
+        These 12 puzzles started as an experiment to break an LLM’s tokenizer—using 5-way decoys, missing letters, homophones, and juvenile smokescreens until the AI hallucinated fake spelling rules. Now they’re your problem.
+      </p>
+      <ul>
+        <li>Select <strong>4 tiles</strong> that share a hidden common thread and hit <strong>Submit</strong>.</li>
+        <li>Watch out for decoys—several boards open with fake categories right across Row 1, yet every board has <strong>only one valid 4×4 solution</strong>.</li>
+        <li>You get <strong>4 mistakes</strong> before the answer key unlocks. Clear (or blow up) a board to read Gemini’s post-game salt log.</li>
+      </ul>
+      <p style="font-size:0.72rem; color:#94a3b8;">Category difficulty from most literal to most unhinged:</p>
+      <div class="sorta-tier-legend">
+        <span class="sorta-legend-pill y">YELLOW · Straight</span>
+        <span class="sorta-legend-pill g">GREEN · Lateral</span>
+        <span class="sorta-legend-pill b">BLUE · Tricky</span>
+        <span class="sorta-legend-pill p">PURPLE · Token Torture</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" style="padding: 1rem 0.5rem !important; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.06);">
+    <p class="footer-text" style="color:#64748b; font-size:0.78rem;">Copyright &copy; 2026 Evan Swope Digital LLC.</p>
+  </footer>
+
+  <script>
+    // Mobile menu & smart header logic
+    (function () {
+      const toggle = document.getElementById('mobile-menu-toggle');
+      const close = document.getElementById('mobile-menu-close');
+      const overlay = document.getElementById('mobile-nav-overlay');
+      if (toggle && close && overlay) {
+        toggle.addEventListener('click', () => overlay.classList.add('is-active'));
+        close.addEventListener('click', () => overlay.classList.remove('is-active'));
+        overlay.querySelectorAll('.mobile-nav-link').forEach((link) => {
+          link.addEventListener('click', () => overlay.classList.remove('is-active'));
+        });
+      }
+    })();
+  </script>
+  <script src="sorta.js?v=3"></script>
+</body>
+</html>

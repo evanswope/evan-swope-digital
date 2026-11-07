@@ -29,7 +29,7 @@ Evan Swope is a Seattle-based Creative Director and Marketing & Social Director 
 ## Interactive AI Lab & Creative Tech (`https://evanswope.com/experiments.html`)
 - **Past Life Oracle (`https://evanswope.com/past-life.html`)**: Matches a live webcam or uploaded portrait against 8,023 public-domain historical portraits, vintage mugshots, and daguerreotypes in real time using a 478-point MediaPipe 3D facial mesh and 512D ArcFace embeddings.
 - **Camera Collage (`https://evanswope.com/experiments.html#camera-collage`)**: A 4-pass contour-locked computer vision collage engine that reconstructs portraits from 3,333 unfiltered personal camera roll photos (7,933 segmented objects) using contrast-aware perceptual error weighting.
-- **Waveshaper Synth, ASCII Portrait, Checked Out (`https://evanswope.com/checked-out.html`), & TopoArp**: Browser-based audio synthesis, WebGL/Canvas visualizers, and arcade game experiments.
+- **Waveshaper Synth, ASCII Portrait, Checked Out (`https://evanswope.com/checked-out.html`), Sorta (`https://evanswope.com/sorta.html`), & TopoArp**: Browser-based audio synthesis, WebGL/Canvas visualizers, original wordplay categorization puzzles engineered to test LLM tokenizers, and arcade game experiments.
 
 ## Contact & Links
 - Website: https://evanswope.com/
