@@ -686,9 +686,7 @@
     els.postgameHeadline = document.getElementById('sorta-postgame-headline');
     els.postgameTitle = document.getElementById('sorta-postgame-title');
     els.postgameEmojiGrid = document.getElementById('sorta-emoji-grid');
-    els.geminiBadge = document.getElementById('sorta-gemini-badge');
     els.geminiRant = document.getElementById('sorta-gemini-rant');
-    els.geminiComparison = document.getElementById('sorta-gemini-comparison');
     els.btnShare = document.getElementById('btn-sorta-share');
     els.btnNext = document.getElementById('btn-sorta-next');
     els.btnReset = document.getElementById('btn-sorta-reset');
@@ -777,22 +775,14 @@
   function renderBoardHeader(puzzle, state) {
     const numStr = String(puzzle.id).padStart(2, '0');
     const finished = state.status !== 'playing';
-    // Keep puzzle nickname hidden while solving so it never hints at a category
-    if (finished) {
-      els.boardBadge.textContent = `BOARD #${numStr} // "${puzzle.title.toUpperCase()}"`;
-    } else {
-      els.boardBadge.textContent = `BOARD #${numStr} OF ${SORTA_PUZZLES.length}`;
-    }
+    els.boardBadge.textContent = `BOARD #${numStr} OF ${SORTA_PUZZLES.length}`;
 
-    if (puzzle.id === 12) {
-      els.boardSub.innerHTML = '<i class="fa-solid fa-skull"></i> FINAL BOSS — THE BOARD THAT BROKE GEMINI';
-      els.boardSub.className = 'sorta-board-sub is-boss';
-    } else if (puzzle.geminiOutcome === 'stumped') {
-      els.boardSub.innerHTML = '<i class="fa-solid fa-robot"></i> CERTIFIED LLM STUMPER';
+    if (finished) {
+      els.boardSub.textContent = '';
+      els.boardSub.className = 'sorta-board-sub';
+    } else if (puzzle.geminiOutcome === 'stumped' || puzzle.geminiOutcome === 'wiped-out') {
+      els.boardSub.textContent = 'Stumped Gemini.';
       els.boardSub.className = 'sorta-board-sub is-stumper';
-    } else if (puzzle.geminiOutcome === 'half-stumped') {
-      els.boardSub.innerHTML = '<i class="fa-solid fa-bolt"></i> LLM PARTIAL SHORT-CIRCUIT';
-      els.boardSub.className = 'sorta-board-sub is-half';
     } else {
       els.boardSub.textContent = 'Group 16 tiles into 4 categories of 4.';
       els.boardSub.className = 'sorta-board-sub';
@@ -887,24 +877,16 @@
     els.postgame.hidden = false;
     requestAnimationFrame(() => els.postgame.classList.add('visible'));
 
-    const numStr = String(puzzle.id).padStart(2, '0');
     const won = state.status === 'won';
+    els.postgameTitle.textContent = puzzle.title;
 
-    if (won && state.mistakes === 0) {
-      els.postgameHeadline.textContent = 'FLAWLESS SORT // ZERO MISTAKES';
-      els.postgameHeadline.className = 'sorta-pg-kicker is-flawless';
-    } else if (won && state.mistakes === 3) {
-      els.postgameHeadline.textContent = 'PHEW // SURVIVED ON LAST LIFE';
-      els.postgameHeadline.className = 'sorta-pg-kicker is-won';
-    } else if (won) {
-      els.postgameHeadline.textContent = `SORTED // ${MAX_MISTAKES - state.mistakes} ${MAX_MISTAKES - state.mistakes === 1 ? 'LIFE' : 'LIVES'} SPARED`;
-      els.postgameHeadline.className = 'sorta-pg-kicker is-won';
+    if (won) {
+      const m = state.mistakes || 0;
+      els.postgameHeadline.textContent =
+        m === 0 ? 'Solved · 0 mistakes' : `Solved · ${m} ${m === 1 ? 'mistake' : 'mistakes'}`;
     } else {
-      els.postgameHeadline.textContent = 'OUT OF LIVES // ANSWER KEY UNLOCKED';
-      els.postgameHeadline.className = 'sorta-pg-kicker is-lost';
+      els.postgameHeadline.textContent = 'Out of lives';
     }
-
-    els.postgameTitle.textContent = `#${numStr}: "${puzzle.title}"`;
 
     // Visual guess matrix
     els.postgameEmojiGrid.innerHTML = '';
@@ -921,31 +903,17 @@
       els.postgameEmojiGrid.appendChild(row);
     });
 
-    // Gemini Salt Log
-    els.geminiBadge.textContent = puzzle.geminiBadge;
-    els.geminiBadge.className = `sorta-gemini-badge outcome-${puzzle.geminiOutcome}`;
-    els.geminiRant.textContent = `"${puzzle.geminiRant}"`;
-
-    // Dynamic Human vs. LLM comparison footer
-    if (won && (puzzle.geminiOutcome === 'stumped' || puzzle.geminiOutcome === 'wiped-out')) {
-      els.geminiComparison.textContent =
-        'VERDICT: Human 1, Tokenizer 0. You beat a board that genuinely broke Gemini.';
-    } else if (won && puzzle.geminiOutcome === 'half-stumped') {
-      els.geminiComparison.textContent =
-        'VERDICT: Clean human solve. Gemini only got here by rhyming and missed the alphabet cipher.';
-    } else if (won && state.mistakes === 0) {
-      els.geminiComparison.textContent =
-        'VERDICT: Zero red herrings eaten. High-perplexity human brain confirmed.';
-    } else if (won) {
-      els.geminiComparison.textContent =
-        `VERDICT: Both you and Gemini survived—though Gemini complained considerably louder.`;
-    } else if (puzzle.geminiOutcome === 'stumped' || puzzle.geminiOutcome === 'wiped-out') {
-      els.geminiComparison.textContent =
-        'VERDICT: Mutual destruction. At least you didn’t try to spell "Crumb" without a B.';
-    } else {
-      els.geminiComparison.textContent =
-        'VERDICT: Constructor trap claimed another victim. Hit Replay anytime for revenge.';
-    }
+    // Single inline Gemini note (no extra chip or verdict footer)
+    const labelText =
+      puzzle.geminiOutcome === 'stumped' || puzzle.geminiOutcome === 'wiped-out'
+        ? 'Gemini (stumped):'
+        : 'Gemini:';
+    els.geminiRant.innerHTML = '';
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'sorta-gemini-label';
+    labelSpan.textContent = labelText;
+    els.geminiRant.appendChild(labelSpan);
+    els.geminiRant.appendChild(document.createTextNode(` "${puzzle.geminiRant}"`));
 
     // Next puzzle button target
     const nextUnsolved =
@@ -955,7 +923,7 @@
 
     if (nextUnsolved) {
       const nextNum = String(nextUnsolved.id).padStart(2, '0');
-      els.btnNext.innerHTML = `<span>BOARD #${nextNum}</span> <i class="fa-solid fa-arrow-right"></i>`;
+      els.btnNext.innerHTML = `<span>Board #${nextNum}</span> <i class="fa-solid fa-arrow-right"></i>`;
       els.btnNext.onclick = () => {
         selectPuzzle(nextUnsolved.id);
         window.scrollTo({ top: 0, behavior: 'smooth' });

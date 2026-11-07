@@ -3195,9 +3195,8 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 }
 
 .sorta-mockup-log {
-  background: #060811;
-  border: 1px solid rgba(0, 242, 254, 0.3);
-  border-left: 3px solid #ff7eb3;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   font-size: 0.65rem;
