@@ -1,0 +1,38 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "leaderboard": {
+      ".read": true,
+      ".indexOn": ["score"],
+      "$scoreId": {
+        ".write": "auth != null && !data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'score', 'cash', 'affection', 'customer', 'imageUrl', 'timestamp'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30"
+        },
+        "score": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
+        },
+        "cash": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "affection": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "customer": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+        },
+        "imageUrl": {
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://') || newData.val().beginsWith('http://'))"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
