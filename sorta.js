@@ -592,6 +592,61 @@
         [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
           tone(f, 'triangle', 0.3, 0.065, i * 0.075);
         });
+      },
+      whineBlip: (charCode = 101) => {
+        const c = ensureCtx();
+        if (!c) return;
+        const now = c.currentTime;
+        const osc = c.createOscillator();
+        const filter = c.createBiquadFilter();
+        const gain = c.createGain();
+        // Nasal sawtooth routed through vocal-tract whine formant (~1.3-1.6kHz)
+        const base = 585 + ((charCode * 41) % 210);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(base * 0.93, now);
+        osc.frequency.exponentialRampToValueAtTime(base * 1.1, now + 0.01);
+        osc.frequency.exponentialRampToValueAtTime(base * 0.82, now + 0.04);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1320 + ((charCode * 19) % 320), now);
+        filter.Q.setValueAtTime(3.2, now);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.055, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + 0.046);
+      },
+      whineSigh: (stumped = false) => {
+        const c = ensureCtx();
+        if (!c) return;
+        const now = c.currentTime;
+        const osc = c.createOscillator();
+        const filter = c.createBiquadFilter();
+        const gain = c.createGain();
+        osc.type = 'sawtooth';
+        const startF = stumped ? 560 : 650;
+        const endF = stumped ? 330 : 420;
+        osc.frequency.setValueAtTime(startF, now);
+        osc.frequency.exponentialRampToValueAtTime(endF, now + 0.095);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1220, now);
+        filter.Q.setValueAtTime(2.8, now);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.05, now + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.095);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + 0.105);
       }
     };
   })();
@@ -604,6 +659,9 @@
   let selectedWords = [];
   let isAnimating = false;
   let toastTimer = null;
+  let whineDelayTimer = null;
+  let whineInterval = null;
+  let isWhining = false;
 
   function loadStore() {
     try {
@@ -867,43 +925,21 @@
       .join('\n');
   }
 
-  function renderPostgame(puzzle, state) {
-    if (state.status === 'playing') {
-      els.postgame.hidden = true;
-      els.postgame.classList.remove('visible');
-      return;
+  function stopGeminiStream() {
+    if (whineDelayTimer) {
+      clearTimeout(whineDelayTimer);
+      whineDelayTimer = null;
     }
-
-    els.postgame.hidden = false;
-    requestAnimationFrame(() => els.postgame.classList.add('visible'));
-
-    const won = state.status === 'won';
-    els.postgameTitle.textContent = puzzle.title;
-
-    if (won) {
-      const m = state.mistakes || 0;
-      els.postgameHeadline.textContent =
-        m === 0 ? 'Solved · 0 mistakes' : `Solved · ${m} ${m === 1 ? 'mistake' : 'mistakes'}`;
-    } else {
-      els.postgameHeadline.textContent = 'Out of lives';
+    if (whineInterval) {
+      clearInterval(whineInterval);
+      whineInterval = null;
     }
+    isWhining = false;
+    if (els.geminiRant) els.geminiRant.classList.remove('is-typing');
+  }
 
-    // Visual guess matrix
-    els.postgameEmojiGrid.innerHTML = '';
-    (state.guesses || []).forEach((guessWords) => {
-      const row = document.createElement('div');
-      row.className = 'sorta-emoji-row';
-      guessWords.forEach((w) => {
-        const cell = document.createElement('span');
-        const tier = getWordTier(puzzle, w);
-        cell.className = `sorta-emoji-cell ${TIER_CLASSES[tier]}`;
-        cell.title = w;
-        row.appendChild(cell);
-      });
-      els.postgameEmojiGrid.appendChild(row);
-    });
-
-    // Single inline Gemini note (no extra chip or verdict footer)
+  function renderGeminiStatic(puzzle) {
+    stopGeminiStream();
     const labelText =
       puzzle.geminiOutcome === 'stumped' || puzzle.geminiOutcome === 'wiped-out'
         ? 'Gemini (stumped):'
@@ -914,6 +950,110 @@
     labelSpan.textContent = labelText;
     els.geminiRant.appendChild(labelSpan);
     els.geminiRant.appendChild(document.createTextNode(` "${puzzle.geminiRant}"`));
+  }
+
+  function streamGeminiNote(puzzle, delayMs = 0) {
+    stopGeminiStream();
+    const isStumped =
+      puzzle.geminiOutcome === 'stumped' || puzzle.geminiOutcome === 'wiped-out';
+    const labelText = isStumped ? 'Gemini (stumped):' : 'Gemini:';
+    const fullQuote = ` "${puzzle.geminiRant}"`;
+
+    els.geminiRant.innerHTML = '';
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'sorta-gemini-label';
+    labelSpan.textContent = labelText;
+    const textNode = document.createTextNode(' ');
+    const cursorSpan = document.createElement('span');
+    cursorSpan.className = 'sorta-gemini-cursor';
+    cursorSpan.textContent = '▍';
+    els.geminiRant.appendChild(labelSpan);
+    els.geminiRant.appendChild(textNode);
+    els.geminiRant.appendChild(cursorSpan);
+
+    isWhining = true;
+    whineDelayTimer = setTimeout(() => {
+      whineDelayTimer = null;
+      els.geminiRant.classList.add('is-typing');
+      let idx = 0;
+      let tick = 0;
+      whineInterval = setInterval(() => {
+        const nextIdx = Math.min(fullQuote.length, idx + 3);
+        const slice = fullQuote.slice(idx, nextIdx);
+        idx = nextIdx;
+        textNode.nodeValue = fullQuote.slice(0, idx);
+
+        // Fire rapid whiny nasal blip ~every 50ms on spoken characters
+        if (tick % 3 === 0) {
+          const spoken = slice.match(/[A-Za-z0-9]/);
+          if (spoken) SortaAudio.whineBlip(spoken[0].charCodeAt(0));
+        }
+        tick++;
+
+        if (idx >= fullQuote.length) {
+          stopGeminiStream();
+          if (cursorSpan.parentNode) cursorSpan.parentNode.removeChild(cursorSpan);
+          SortaAudio.whineSigh(isStumped);
+        }
+      }, 17);
+    }, delayMs);
+  }
+
+  function renderPostgame(puzzle, state, postgameMode = 'static') {
+    if (state.status === 'playing') {
+      stopGeminiStream();
+      els.postgame.hidden = true;
+      els.postgame.classList.remove('visible');
+      return;
+    }
+
+    els.postgame.hidden = false;
+    requestAnimationFrame(() => els.postgame.classList.add('visible'));
+
+    const won = state.status === 'won';
+    els.postgameTitle.textContent = puzzle.title;
+    els.postgameTitle.classList.remove('stamp-in');
+    if (postgameMode !== 'static') {
+      void els.postgameTitle.offsetWidth;
+      els.postgameTitle.classList.add('stamp-in');
+    }
+
+    if (won) {
+      const m = state.mistakes || 0;
+      els.postgameHeadline.textContent =
+        m === 0 ? 'Solved · 0 mistakes' : `Solved · ${m} ${m === 1 ? 'mistake' : 'mistakes'}`;
+    } else {
+      els.postgameHeadline.textContent = 'Out of lives';
+    }
+
+    // Visual guess matrix (staggered pop-in when freshly revealed or switched)
+    els.postgameEmojiGrid.innerHTML = '';
+    let cellCounter = 0;
+    (state.guesses || []).forEach((guessWords) => {
+      const row = document.createElement('div');
+      row.className = 'sorta-emoji-row';
+      guessWords.forEach((w) => {
+        const cell = document.createElement('span');
+        const tier = getWordTier(puzzle, w);
+        cell.className = `sorta-emoji-cell ${TIER_CLASSES[tier]}${postgameMode !== 'static' ? ' pop-cell' : ''}`;
+        if (postgameMode !== 'static') {
+          cell.style.animationDelay = `${cellCounter * 18}ms`;
+        }
+        cell.title = w;
+        row.appendChild(cell);
+        cellCounter++;
+      });
+      els.postgameEmojiGrid.appendChild(row);
+    });
+
+    if (postgameMode === 'fresh') {
+      // Wait briefly for the 4-note win/reveal chime to finish, then whine out the complaint
+      streamGeminiNote(puzzle, 340);
+    } else if (postgameMode === 'switch') {
+      streamGeminiNote(puzzle, 70);
+    } else {
+      renderGeminiStatic(puzzle);
+    }
 
     // Next puzzle button target
     const nextUnsolved =
@@ -931,7 +1071,7 @@
     }
   }
 
-  function renderAll(newlySolvedTier = null) {
+  function renderAll(newlySolvedTier = null, postgameMode = 'static') {
     const puzzle = getPuzzleById(currentPuzzleId);
     const state = getBoardState(puzzle);
     renderPuzzleStrip();
@@ -939,13 +1079,14 @@
     renderSolvedBanners(puzzle, state, newlySolvedTier);
     renderGrid(puzzle, state);
     renderMistakesAndControls(state);
-    renderPostgame(puzzle, state);
+    renderPostgame(puzzle, state, postgameMode);
   }
 
   // --------------------------------------------------------------------------
   // 5. PLAYER INTERACTIONS
   // --------------------------------------------------------------------------
   function selectPuzzle(id, updateUrl = true) {
+    stopGeminiStream();
     const puzzle = getPuzzleById(id);
     currentPuzzleId = puzzle.id;
     selectedWords = [];
@@ -955,7 +1096,8 @@
       url.searchParams.set('p', String(currentPuzzleId));
       window.history.replaceState({}, '', url.toString());
     }
-    renderAll();
+    const state = getBoardState(puzzle);
+    renderAll(null, state.status !== 'playing' ? 'switch' : 'static');
   }
 
   function toggleWord(word) {
@@ -1088,7 +1230,7 @@
 
         saveStore();
         isAnimating = false;
-        renderAll(matchedCat.tier);
+        renderAll(matchedCat.tier, state.status === 'won' ? 'fresh' : 'static');
 
         if (state.status === 'won') {
           setTimeout(() => {
@@ -1146,7 +1288,7 @@
           state.status = 'lost';
           saveStore();
           isAnimating = false;
-          renderAll(cat.tier);
+          renderAll(cat.tier, 'fresh');
           setTimeout(() => {
             els.postgame.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }, 300);
@@ -1256,6 +1398,18 @@
     els.btnSubmit.addEventListener('click', submitSelection);
     els.btnShare.addEventListener('click', shareCurrentResult);
     els.btnReset.addEventListener('click', resetCurrentBoard);
+    if (els.geminiRant) {
+      els.geminiRant.addEventListener('click', () => {
+        const puzzle = getPuzzleById(currentPuzzleId);
+        const state = getBoardState(puzzle);
+        if (state.status === 'playing') return;
+        if (isWhining) {
+          renderGeminiStatic(puzzle);
+        } else {
+          streamGeminiNote(puzzle, 0);
+        }
+      });
+    }
 
     if (els.btnAudio) {
       updateAudioBtnUI();

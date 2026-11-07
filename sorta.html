@@ -307,31 +307,67 @@
     }
 
     .sorta-solved-banner {
+      position: relative;
+      overflow: hidden;
       border-radius: 10px;
       padding: 0.75rem 0.9rem;
       text-align: center;
       color: #090d16;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.42);
     }
 
     .sorta-solved-banner.tier-yellow {
-      background: linear-gradient(135deg, #fde047 0%, #facc15 100%);
+      background: linear-gradient(128deg, #fef08a 0%, #facc15 52%, #fb923c 100%);
     }
 
     .sorta-solved-banner.tier-green {
-      background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+      background: linear-gradient(128deg, #d9f99d 0%, #34d399 52%, #2dd4bf 100%);
     }
 
     .sorta-solved-banner.tier-blue {
-      background: linear-gradient(135deg, #67e8f9 0%, #38bdf8 100%);
+      background: linear-gradient(128deg, #a5f3fc 0%, #38bdf8 50%, #818cf8 100%);
     }
 
     .sorta-solved-banner.tier-purple {
-      background: linear-gradient(135deg, #e879f9 0%, #c084fc 50%, #ff7eb3 100%);
+      background: linear-gradient(120deg, #fae8ff 0%, #e879f9 26%, #c084fc 52%, #ff7eb3 78%, #67e8f9 100%);
+      background-size: 185% 185%;
+      animation: sortaPurpleDrift 6s ease-in-out infinite;
+      box-shadow: 0 6px 24px rgba(217, 70, 239, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.68);
+    }
+
+    .sorta-solved-banner.tier-purple::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 28%,
+        rgba(255, 255, 255, 0.32) 48%,
+        transparent 68%
+      );
+      transform: translateX(-120%);
+      animation: sortaPurpleSheen 5.5s ease-in-out infinite;
+      pointer-events: none;
     }
 
     .sorta-solved-banner.pop-in {
       animation: sortaPopIn 0.34s cubic-bezier(0.22, 1.28, 0.36, 1);
+    }
+
+    .sorta-solved-banner.tier-purple.pop-in {
+      animation:
+        sortaPopIn 0.34s cubic-bezier(0.22, 1.28, 0.36, 1),
+        sortaPurpleDrift 6s ease-in-out 0.34s infinite;
+    }
+
+    @keyframes sortaPurpleDrift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes sortaPurpleSheen {
+      0%, 58% { transform: translateX(-120%); }
+      100% { transform: translateX(130%); }
     }
 
     .sorta-solved-name {
@@ -616,6 +652,15 @@
       gap: 3px;
     }
 
+    .sorta-pg-title.stamp-in {
+      animation: sortaStampIn 0.34s cubic-bezier(0.22, 1.4, 0.36, 1);
+    }
+
+    @keyframes sortaStampIn {
+      0% { opacity: 0; transform: scale(0.88) rotate(-4deg); }
+      100% { opacity: 1; transform: scale(1) rotate(-1deg); }
+    }
+
     .sorta-emoji-cell {
       width: 13px;
       height: 13px;
@@ -623,10 +668,22 @@
       display: inline-block;
     }
 
-    .sorta-emoji-cell.tier-yellow { background: #facc15; }
-    .sorta-emoji-cell.tier-green { background: #34d399; }
-    .sorta-emoji-cell.tier-blue { background: #38bdf8; }
-    .sorta-emoji-cell.tier-purple { background: #c084fc; }
+    .sorta-emoji-cell.pop-cell {
+      animation: sortaCellPop 0.24s cubic-bezier(0.22, 1.45, 0.36, 1) backwards;
+    }
+
+    @keyframes sortaCellPop {
+      0% { opacity: 0; transform: scale(0.35); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .sorta-emoji-cell.tier-yellow { background: linear-gradient(135deg, #fef08a 0%, #fb923c 100%); }
+    .sorta-emoji-cell.tier-green { background: linear-gradient(135deg, #d9f99d 0%, #2dd4bf 100%); }
+    .sorta-emoji-cell.tier-blue { background: linear-gradient(135deg, #a5f3fc 0%, #818cf8 100%); }
+    .sorta-emoji-cell.tier-purple {
+      background: linear-gradient(135deg, #f5d0fe 0%, #c084fc 48%, #ff7eb3 100%);
+      box-shadow: 0 0 6px rgba(232, 121, 249, 0.45);
+    }
 
     .sorta-gemini-note {
       background: rgba(255, 255, 255, 0.035);
@@ -638,6 +695,36 @@
       font-size: 0.78rem;
       line-height: 1.55;
       color: #cbd5e1;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.12s ease;
+    }
+
+    .sorta-gemini-note:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sorta-gemini-note.is-typing {
+      border-color: rgba(255, 126, 179, 0.32);
+      animation: sortaWhineJitter 0.14s ease-in-out infinite;
+    }
+
+    @keyframes sortaWhineJitter {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-0.8px); }
+    }
+
+    .sorta-gemini-cursor {
+      display: inline-block;
+      color: var(--sorta-pink);
+      font-weight: 700;
+      margin-left: 2px;
+      animation: sortaCursorBlink 0.45s steps(2, start) infinite;
+    }
+
+    @keyframes sortaCursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
 
     .sorta-gemini-label {
@@ -717,8 +804,8 @@
     }
 
     .sorta-modal-card h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.35rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 1.25rem;
       margin-bottom: 0.75rem;
       color: #fff;
     }
@@ -752,10 +839,21 @@
       color: #090b12;
     }
 
-    .sorta-legend-pill.y { background: #facc15; }
-    .sorta-legend-pill.g { background: #34d399; }
-    .sorta-legend-pill.b { background: #38bdf8; }
-    .sorta-legend-pill.p { background: #c084fc; }
+    .sorta-legend-pill.y { background: linear-gradient(128deg, #fef08a 0%, #facc15 52%, #fb923c 100%); }
+    .sorta-legend-pill.g { background: linear-gradient(128deg, #d9f99d 0%, #34d399 52%, #2dd4bf 100%); }
+    .sorta-legend-pill.b { background: linear-gradient(128deg, #a5f3fc 0%, #38bdf8 50%, #818cf8 100%); }
+    .sorta-legend-pill.p {
+      background: linear-gradient(120deg, #fae8ff 0%, #e879f9 30%, #c084fc 58%, #ff7eb3 85%, #67e8f9 100%);
+      box-shadow: 0 2px 12px rgba(217, 70, 239, 0.35);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sorta-solved-banner.tier-purple,
+      .sorta-solved-banner.tier-purple::after,
+      .sorta-gemini-note.is-typing {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body class="lens-hybrid sorta-page">
@@ -869,7 +967,7 @@
           <div id="sorta-emoji-grid" class="sorta-emoji-grid" title="Your guess history"></div>
         </div>
 
-        <p id="sorta-gemini-rant" class="sorta-gemini-note"></p>
+        <p id="sorta-gemini-rant" class="sorta-gemini-note" title="Tap to replay"></p>
 
         <div class="sorta-pg-actions">
           <button id="btn-sorta-share" class="sorta-btn primary" type="button">
@@ -892,21 +990,21 @@
       <button id="btn-close-sorta-help" class="sorta-modal-close" type="button" aria-label="Close modal">
         <i class="fa-solid fa-xmark"></i>
       </button>
-      <h2 id="sorta-help-heading">HOW TO PLAY SORTA</h2>
+      <h2 id="sorta-help-heading">HOW TO PLAY</h2>
       <p>
-        These 12 puzzles started as an experiment to break an LLM’s tokenizer—using 5-way decoys, missing letters, homophones, and juvenile smokescreens until the AI hallucinated fake spelling rules. Now they’re your problem.
+        These 12 puzzles were an experiment to break an LLM. Now they’re your problem.
       </p>
       <ul>
-        <li>Select <strong>4 tiles</strong> that share a hidden common thread and hit <strong>Submit</strong>.</li>
-        <li>Watch out for decoys—several boards open with fake categories right across Row 1, yet every board has <strong>only one valid 4×4 solution</strong>.</li>
-        <li>You get <strong>4 mistakes</strong> before the answer key unlocks. Clear (or blow up) a board to read Gemini’s post-game salt log.</li>
+        <li>Select <strong>4 tiles</strong> that share a common thread and hit <strong>Submit</strong>.</li>
+        <li>Several boards open with fake categories right across Row 1, yet every board has <strong>only one valid 4×4 solution</strong>.</li>
+        <li>You get <strong>4 mistakes</strong> before the answer key unlocks. Win (or lose) a board to read Gemini’s salty postmortem.</li>
       </ul>
       <p style="font-size:0.72rem; color:#94a3b8;">Category difficulty from most literal to most unhinged:</p>
       <div class="sorta-tier-legend">
-        <span class="sorta-legend-pill y">YELLOW · Straight</span>
-        <span class="sorta-legend-pill g">GREEN · Lateral</span>
-        <span class="sorta-legend-pill b">BLUE · Tricky</span>
-        <span class="sorta-legend-pill p">PURPLE · Token Torture</span>
+        <span class="sorta-legend-pill y">YELLOW · Meh</span>
+        <span class="sorta-legend-pill g">GREEN · Eh</span>
+        <span class="sorta-legend-pill b">BLUE · Heh</span>
+        <span class="sorta-legend-pill p">PURPLE · Stupid</span>
       </div>
     </div>
   </div>
@@ -930,6 +1028,6 @@
       }
     })();
   </script>
-  <script src="sorta.js?v=4"></script>
+  <script src="sorta.js?v=5"></script>
 </body>
 </html>
