@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Amulet · 3D Sound Sculpture</title>
-  <meta name="description" content="Ear-guided 3D musical sculptor: carve a single analog drone into an arpeggio and magnetically fuse voices back together." />
+  <title>Amulet · 3D Gemstone Sound Sculpture</title>
+  <meta name="description" content="Place cut gemstones along different facets of a crystalline core to build a singing sound sculpture." />
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
   <link rel="apple-touch-icon" href="assets/images/favicon2.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,19 +12,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --background: #070b13;
-      --foreground: #f8fafc;
-      --card: #0f172a;
+      --bg: #070a13;
+      --card: #0f1626;
       --border: #1e293b;
-      --muted-foreground: #94a3b8;
-      --secondary: #1e293b;
-      --secondary-foreground: #f1f5f9;
-      --primary: #f59e0b;
-      --primary-foreground: #070b13;
+      --gold: #f59e0b;
     }
     body {
-      background-color: var(--background);
-      color: var(--foreground);
+      background-color: var(--bg);
+      color: #f8fafc;
       -webkit-font-smoothing: antialiased;
       overscroll-behavior: none;
     }
@@ -34,134 +29,103 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
     }
+    /* Hide scrollbar for gem tray */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="p-2 sm:p-4 min-h-screen flex flex-col justify-between">
-  <div class="max-w-4xl mx-auto w-full flex flex-col gap-2.5 sm:gap-3">
-    <!-- Top Header & Transport -->
-    <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 sm:p-4 shadow-sm flex flex-col gap-2.5">
+<body class="p-2 sm:p-4 min-h-screen flex flex-col justify-between max-w-4xl mx-auto w-full">
+  <div class="flex flex-col gap-2.5 sm:gap-3 w-full">
+    <!-- Header & Transport -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 sm:p-4 shadow-sm flex flex-col gap-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <span id="phaseBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-[var(--secondary)] text-[var(--secondary-foreground)]">
-            Act I · Carving Voices (1 → 8)
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            Gemstone Sculptor
           </span>
-          <h1 id="phaseTitle" class="text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
-            Sustained Tone — Turn by Ear
+          <h1 class="text-sm sm:text-base font-bold text-white">
+            Singing Crystal Amulet
           </h1>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-          <button id="playToggleBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:opacity-90 active:scale-95 transition">
+          <button id="playToggleBtn" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:opacity-90 active:scale-95 transition">
             Tap to Wake Sound ♪
           </button>
-          <button id="quickEvenBtn" type="button" class="px-2 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] active:scale-95 transition" title="Skip to 8-voice magnetic welding">
-            Quick 8 ⏭
+          <button id="tempoBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[#070a13] text-slate-300 hover:text-white active:scale-95 transition">
+            108 BPM
           </button>
-          <button id="resetBtn" type="button" class="px-2 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] hover:opacity-80 active:scale-95 transition">
-            Reset
+          <button id="autoBuildBtn" type="button" class="px-2 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[#070a13] text-slate-300 hover:text-white active:scale-95 transition" title="Auto-assemble cluster">
+            Cluster ✦
+          </button>
+          <button id="clearBtn" type="button" class="px-2 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[#070a13] text-slate-400 hover:text-white active:scale-95 transition">
+            Clear
           </button>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border)]">
-        <p id="statusText" class="text-xs sm:text-sm text-[var(--muted-foreground)] leading-snug">
-          <strong class="text-[var(--foreground)]">Turn the stone with your ears.</strong> Find where acoustic beating slows into unison, then tap <strong class="text-[var(--foreground)]">Cleave</strong>.
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-[var(--border)] text-xs text-slate-400">
+        <p id="instructionText" class="leading-relaxed">
+          <strong class="text-amber-400">1. Tap a cut gem below</strong> &rarr; <strong class="text-white">2. Tap a glowing gold socket</strong> on the pedestal to snap it flush.
         </p>
-        <div class="flex items-center gap-2 shrink-0">
-          <button id="actionBtn" type="button" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90 active:scale-95 transition shadow-sm">
-            Cleave
-          </button>
-          <div id="stepPill" class="text-xs font-mono font-medium px-2 py-1 rounded-md bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)]">
-            1 / 8
-          </div>
-        </div>
-      </div>
-
-      <!-- Act II Magnetic Detent Selector (Appears during 8 -> 4 -> 2 -> 1) -->
-      <div id="detentBar" class="hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-2.5 border-t border-[var(--border)] bg-amber-500/5 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 p-2.5 sm:p-3 rounded-b-xl">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-          <span class="text-[11px] font-semibold text-amber-500 uppercase tracking-wide">Magnetic Detent:</span>
-          <div class="grid grid-cols-2 sm:flex sm:items-center gap-1 w-full sm:w-auto" id="detentBtnGroup">
-            <button type="button" data-detent="0" class="detent-btn px-2 py-1 rounded text-xs font-semibold bg-amber-500 text-black shadow-sm text-center transition">
-              0° Lock
-            </button>
-            <button type="button" data-detent="1" class="detent-btn px-2 py-1 rounded text-xs font-medium bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)] text-center transition">
-              90° Cross
-            </button>
-            <button type="button" data-detent="2" class="detent-btn px-2 py-1 rounded text-xs font-medium bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)] text-center transition">
-              180° Invert
-            </button>
-            <button type="button" data-detent="3" class="detent-btn px-2 py-1 rounded text-xs font-medium bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)] text-center transition">
-              270° Crunch
-            </button>
-          </div>
-        </div>
-        <div class="text-[11px] text-[var(--muted-foreground)] font-mono">
-          Drag joint or tap buttons (100% Flush)
+        <div class="flex items-center gap-2 shrink-0 font-mono text-[11px]">
+          <span id="gemCountBadge" class="px-2 py-0.5 rounded bg-[#070a13] border border-[var(--border)] text-amber-300">
+            Gems: 1 / 8
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Main 3D Viewport -->
-    <div class="relative bg-[var(--card)] border border-[var(--border)] rounded-xl p-2 sm:p-3 shadow-sm">
+    <!-- 3D Viewport -->
+    <div class="relative bg-[var(--card)] border border-[var(--border)] rounded-xl p-2 sm:p-3 shadow-lg">
       <div class="relative w-full flex justify-center">
-        <div class="relative w-full max-w-[780px] aspect-[780/540] rounded-lg overflow-hidden bg-[#070b13]">
-          <canvas id="glCanvas" width="780" height="540" class="absolute inset-0 w-full h-full"></canvas>
-          <canvas id="hudCanvas" width="780" height="540" class="absolute inset-0 w-full h-full cursor-grab"></canvas>
+        <div class="relative w-full max-w-[780px] aspect-[780/510] rounded-lg overflow-hidden bg-[#05070f] border border-slate-900 shadow-inner">
+          <canvas id="glCanvas" width="780" height="510" class="absolute inset-0 w-full h-full"></canvas>
+          <canvas id="hudCanvas" width="780" height="510" class="absolute inset-0 w-full h-full cursor-grab"></canvas>
 
-          <!-- Transition Modal (8 Voices Carved -> Magnetic Welding) -->
-          <div id="pivotModal" class="hidden absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-20">
-            <div class="max-w-md bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-2xl text-center flex flex-col gap-3">
-              <div class="text-xs font-semibold uppercase tracking-widest text-amber-400">
-                8 Arpeggio Voices Carved
-              </div>
-              <h2 class="text-base sm:text-lg font-semibold text-[var(--foreground)]">
-                Magnetic Facet Assembly (8 → 4 → 2 → 1)
-              </h2>
-              <p class="text-xs sm:text-sm text-[var(--muted-foreground)] leading-relaxed">
-                Pieces now <strong class="text-[var(--foreground)]">magnetically snap 100% flush</strong> along their cut faces. Tap or drag through the <strong class="text-[var(--foreground)]">4 rotary detents (0°, 90°, 180°, 270°)</strong> to dial in clean harmonic lock vs. wild overdrive on each effect!
-              </p>
-              <div class="pt-1 flex justify-center">
-                <button id="enterAct2Btn" type="button" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90 active:scale-95 transition">
-                  Begin Magnetic Welding →
-                </button>
-              </div>
+          <!-- Top-center active gem / socket toast -->
+          <div id="selectionToast" class="pointer-events-none absolute top-3 inset-x-0 flex justify-center z-10 transition-opacity duration-200">
+            <div class="bg-slate-900/90 border border-amber-500/40 rounded-full px-3.5 py-1 text-xs text-amber-300 shadow-xl backdrop-blur-md flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span id="toastMsg">Drag to spin crystal · Tap a gem to place</span>
             </div>
           </div>
 
-          <!-- Completed Singing Amulet Plaque -->
-          <div id="finaleCard" class="hidden pointer-events-none absolute inset-x-2 sm:inset-x-4 bottom-2 sm:bottom-4 flex justify-center z-10">
-            <div class="pointer-events-auto w-full max-w-xl bg-[#0f172a]/95 border border-amber-400/40 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-100">
-              <div class="flex flex-col gap-0.5 text-center sm:text-left">
-                <div class="text-[11px] font-semibold uppercase tracking-widest text-amber-300">
-                  Singing Harmonic Amulet
-                </div>
-                <div id="amuletTitle" class="text-sm sm:text-base font-bold text-white">
-                  Fused 8-Voice Resonator
-                </div>
-                <div id="amuletRecipe" class="text-[11px] text-slate-300 leading-snug"></div>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <button id="tempoNudgeBtn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-600 bg-slate-800 text-slate-100 active:scale-95 transition">
-                  108 BPM
-                </button>
-                <button id="forgeAnotherBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-400 text-slate-950 hover:bg-amber-300 active:scale-95 transition">
-                  Carve New
-                </button>
-              </div>
+          <!-- Selected Attached Gem Action Bar -->
+          <div id="gemActionBar" class="hidden absolute bottom-3 inset-x-3 flex justify-center z-10">
+            <div class="bg-slate-900/95 border border-slate-700 rounded-xl px-3 py-1.5 shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs">
+              <span id="selectedGemLabel" class="font-semibold text-white">Sapphire</span>
+              <button id="twistGemBtn" type="button" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 active:scale-95 transition">
+                ↻ Rotate Joint (60°)
+              </button>
+              <button id="detachGemBtn" type="button" class="px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 active:scale-95 transition">
+                Detach
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Telemetry Footer -->
-      <div class="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs text-[var(--muted-foreground)]">
-        <div id="footerTraits" class="flex flex-wrap items-center gap-2">
-          <span>Mode: Sustained Analog Drone</span>
+      <!-- Gem Selection Tray Carousel -->
+      <div class="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1">
+          <span>Cut Gemstones (Tap to Select &amp; Place)</span>
+          <span class="text-slate-500">Left/Right placement controls stereo pan</span>
         </div>
-        <div id="footerGroove" class="font-mono text-[11px] sm:text-xs text-[var(--foreground)]">
-          Meter: Sustained
+
+        <div id="gemTray" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1">
+          <!-- Populated by JS -->
         </div>
+      </div>
+    </div>
+
+    <!-- Acoustic Status Footer -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+      <div id="footerVoiceList" class="flex flex-wrap items-center gap-2">
+        <span>Active Voices: <strong class="text-amber-400">Keystone Core (A2 Drone)</strong></span>
+      </div>
+      <div id="footerMeter" class="font-mono text-slate-300">
+        Meter: 3/4 Waltz
       </div>
     </div>
   </div>
@@ -174,102 +138,126 @@
       const W = glCanvas.width;
       const H = glCanvas.height;
 
-      const phaseBadge = document.getElementById('phaseBadge');
-      const phaseTitle = document.getElementById('phaseTitle');
-      const statusText = document.getElementById('statusText');
-      const actionBtn = document.getElementById('actionBtn');
-      const stepPill = document.getElementById('stepPill');
       const playToggleBtn = document.getElementById('playToggleBtn');
-      const quickEvenBtn = document.getElementById('quickEvenBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const detentBar = document.getElementById('detentBar');
-      const detentBtnGroup = document.getElementById('detentBtnGroup');
-      const pivotModal = document.getElementById('pivotModal');
-      const enterAct2Btn = document.getElementById('enterAct2Btn');
-      const finaleCard = document.getElementById('finaleCard');
-      const amuletTitle = document.getElementById('amuletTitle');
-      const amuletRecipe = document.getElementById('amuletRecipe');
-      const tempoNudgeBtn = document.getElementById('tempoNudgeBtn');
-      const forgeAnotherBtn = document.getElementById('forgeAnotherBtn');
-      const footerTraits = document.getElementById('footerTraits');
-      const footerGroove = document.getElementById('footerGroove');
+      const tempoBtn = document.getElementById('tempoBtn');
+      const autoBuildBtn = document.getElementById('autoBuildBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const gemTray = document.getElementById('gemTray');
+      const instructionText = document.getElementById('instructionText');
+      const gemCountBadge = document.getElementById('gemCountBadge');
+      const toastMsg = document.getElementById('toastMsg');
+      const gemActionBar = document.getElementById('gemActionBar');
+      const selectedGemLabel = document.getElementById('selectedGemLabel');
+      const twistGemBtn = document.getElementById('twistGemBtn');
+      const detachGemBtn = document.getElementById('detachGemBtn');
+      const footerVoiceList = document.getElementById('footerVoiceList');
+      const footerMeter = document.getElementById('footerMeter');
 
-      // Musical Pitch Map (A-Lydian)
-      const SCALE_PITCHES = [
-        { note: 'A3',  semi: 0,  label: 'Root (Deep Pluck)' },
-        { note: 'E4',  semi: 7,  label: 'Fifth (Warm Sustain)' },
-        { note: 'G#4', semi: 11, label: 'Maj7 (Lydian Shimmer)' },
-        { note: 'B4',  semi: 14, label: 'Ninth (Bell Pluck)' },
-        { note: 'C#5', semi: 16, label: 'Third (Portamento Glide)' },
-        { note: 'E5',  semi: 19, label: 'High Octave (Triplet)' },
-        { note: 'F#5', semi: 21, label: 'Sixth (Double Ratchet)' },
-        { note: 'G#5', semi: 23, label: 'Peak Overstone (Sparkle)' }
+      // =========================================================================
+      // 1. GEMSTONE CATALOG & MUSICAL IDENTITY
+      // =========================================================================
+      const GEM_SPECS = [
+        {
+          id: 'ruby',
+          name: 'Ruby',
+          cut: 'Octahedron',
+          color: [0.92, 0.14, 0.28], // Crimson
+          note: 'A3', freq: 220.0,
+          desc: 'Analog Bass Pluck',
+          timbre: 'saw_pluck',
+          ratchets: 1
+        },
+        {
+          id: 'sapphire',
+          name: 'Sapphire',
+          cut: 'Hexagonal Prism',
+          color: [0.15, 0.45, 0.98], // Cobalt
+          note: 'E4', freq: 329.63,
+          desc: 'Glassy 3/4 Waltz Bell',
+          timbre: 'bell_delay',
+          ratchets: 1
+        },
+        {
+          id: 'emerald',
+          name: 'Emerald',
+          cut: 'Baguette Cut',
+          color: [0.04, 0.72, 0.42], // Emerald
+          note: 'G#4', freq: 415.30,
+          desc: 'Velvet Lowpass Glide',
+          timbre: 'velvet_glide',
+          ratchets: 1
+        },
+        {
+          id: 'topaz',
+          name: 'Topaz',
+          cut: 'Trilliant Cut',
+          color: [0.95, 0.62, 0.08], // Amber
+          note: 'B4', freq: 493.88,
+          desc: 'Warm Tape Saturation',
+          timbre: 'drive_pluck',
+          ratchets: 1
+        },
+        {
+          id: 'amethyst',
+          name: 'Amethyst',
+          cut: 'Rhombic Shard',
+          color: [0.65, 0.28, 0.95], // Violet
+          note: 'C#5', freq: 554.37,
+          desc: 'Cathedral Chorus Shimmer',
+          timbre: 'shimmer_chorus',
+          ratchets: 1
+        },
+        {
+          id: 'tourmaline',
+          name: 'Tourmaline',
+          cut: 'Bicone Diamond',
+          color: [0.92, 0.25, 0.68], // Rose
+          note: 'E5', freq: 659.25,
+          desc: 'Double Ratchet',
+          timbre: 'ratchet_double',
+          ratchets: 2
+        },
+        {
+          id: 'aquamarine',
+          name: 'Aquamarine',
+          cut: 'Needle Spire',
+          color: [0.08, 0.78, 0.88], // Cyan
+          note: 'G#5', freq: 830.61,
+          desc: 'Overtone Sparkle Lead',
+          timbre: 'sparkle_lead',
+          ratchets: 1
+        }
       ];
 
-      const WELD_FX_QUEUE = [
-        { id: 'chorus',  name: 'Stereo Chorus',   desc: ['Silky Ensemble', 'Lush Spread', 'Drifting Phase', 'Dizzy Swirl'] },
-        { id: 'pan',     name: 'Stereo Panning',  desc: ['Centered Orbit', 'Wide Ping-Pong', 'Hard Left/Right', 'Binaural Jump'] },
-        { id: 'distort', name: 'Analog Drive',    desc: ['Warm Tape Glow', 'Harmonic Edge', 'Fuzzy Wavefold', 'Raw Tube Grind'] },
-        { id: 'crush',   name: 'Bitcrusher',      desc: ['12-Bit Studio', '8-Bit Arcade', '5-Bit Lo-Fi', '3-Bit Crunch'] },
-        { id: 'delay',   name: '3/4 Tape Delay',  desc: ['Locked Waltz Echo', 'Dotted 8th Dub', 'Syncopated Bounce', 'Runaway Slapback'] },
-        { id: 'filter',  name: 'Resonant Filter', desc: ['Velvet Lowpass', 'Singing Peak', 'Acid Notch', 'Vocal Formant'] },
-        { id: 'reverb',  name: 'Cathedral Reverb',desc: ['Cathedral Bloom', 'Cavernous Tail', 'Shimmer Space', 'Infinite Void'] }
-      ];
-
-      const DETENTS = [
-        { deg: 0,   rad: 0,             name: 'Harmonic Lock',   sub: '100% Flush · Studio Pure' },
-        { deg: 90,  rad: Math.PI * 0.5, name: 'Cross-Pulse',     sub: 'Syncopated Offset' },
-        { deg: 180, rad: Math.PI,       name: 'Inverted Grit',   sub: 'Phase Flip · Overdrive' },
-        { deg: 270, rad: Math.PI * 1.5, name: 'Sub-Crunch',      sub: 'Asymmetrical Lo-Fi' }
-      ];
-
+      // =========================================================================
+      // 2. WEB AUDIO SYNTHESIZER
+      // =========================================================================
       let audioCtx = null;
       let audioRunning = false;
       let masterGain = null;
-      let droneNodes = null;
       let reverbBus = null;
       let delayBus = null;
+      let droneNodes = null;
 
       let bpm = 108;
-      const tempoPresets = [92, 108, 128];
+      const tempoPresets = [92, 108, 124];
       let tempoIdx = 1;
-      let waltzSkew = 0.0;
       let stepCounter = 0;
       let lastScheduledTime = 0;
       let lastPlayedFreq = 220;
 
-      let activeLitVoice = -1;
+      let activeLitGemId = null;
       let activeLitIntensity = 0;
-      const visualTriggers = [];
-
-      function makeDistortionCurve(k) {
-        const n = 512, curve = new Float32Array(n);
-        const factor = 1 + k * 24;
-        for (let i = 0; i < n; i++) {
-          const x = (i * 2) / n - 1;
-          curve[i] = Math.tanh(factor * x) / Math.tanh(factor);
-        }
-        return curve;
-      }
-
-      function makeBitcrushCurve(steps) {
-        const n = 1024, curve = new Float32Array(n);
-        const s = Math.max(2, steps);
-        for (let i = 0; i < n; i++) {
-          const x = (i * 2) / n - 1;
-          curve[i] = Math.round(x * s) / s;
-        }
-        return curve;
-      }
+      const visualQueue = [];
 
       function buildImpulseResponse(ac) {
-        const len = Math.floor(ac.sampleRate * 2.5);
+        const len = Math.floor(ac.sampleRate * 2.4);
         const buf = ac.createBuffer(2, len, ac.sampleRate);
         for (let ch = 0; ch < 2; ch++) {
           const d = buf.getChannelData(ch);
           for (let i = 0; i < len; i++) {
             const t = i / len;
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.3) * (i < 280 ? i / 280 : 1);
+            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.2) * (i < 200 ? i / 200 : 1);
           }
         }
         return buf;
@@ -287,7 +275,7 @@
         audioCtx = new AC();
 
         masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.72;
+        masterGain.gain.value = 0.75;
 
         const comp = audioCtx.createDynamicsCompressor();
         comp.threshold.value = -12;
@@ -295,21 +283,23 @@
         masterGain.connect(comp);
         comp.connect(audioCtx.destination);
 
+        // Cathedral Reverb
         const conv = audioCtx.createConvolver();
         conv.buffer = buildImpulseResponse(audioCtx);
         const revOut = audioCtx.createGain();
-        revOut.gain.value = 0.78;
+        revOut.gain.value = 0.75;
         conv.connect(revOut);
         revOut.connect(masterGain);
         reverbBus = { input: conv };
 
+        // 3/4 Tape Delay Bus
         const dNode = audioCtx.createDelay(2.0);
         dNode.delayTime.value = (60 / bpm) * 0.75;
         const dFb = audioCtx.createGain();
-        dFb.gain.value = 0.42;
+        dFb.gain.value = 0.44;
         const dTone = audioCtx.createBiquadFilter();
         dTone.type = 'lowpass';
-        dTone.frequency.value = 1750;
+        dTone.frequency.value = 1850;
         const dOut = audioCtx.createGain();
         dOut.gain.value = 0.65;
 
@@ -318,56 +308,33 @@
         dFb.connect(dNode);
         dTone.connect(dOut);
         dOut.connect(masterGain);
-        delayBus = { input: dNode, delayNode: dNode, fbGain: dFb };
+        delayBus = { input: dNode, delayNode: dNode };
 
-        const dOsc1 = audioCtx.createOscillator();
-        const dOsc2 = audioCtx.createOscillator();
-        const dSub  = audioCtx.createOscillator();
-        dOsc1.type = 'sawtooth';
-        dOsc2.type = 'triangle';
-        dSub.type  = 'sine';
+        // Central Keystone Drone (Fundamental A2 = 110 Hz)
+        const kOsc1 = audioCtx.createOscillator();
+        const kOsc2 = audioCtx.createOscillator();
+        kOsc1.type = 'triangle';
+        kOsc2.type = 'sine';
+        kOsc1.frequency.value = 110.0;
+        kOsc2.frequency.value = 110.4;
 
-        dOsc1.frequency.value = 220.0;
-        dOsc2.frequency.value = 220.0;
-        dSub.frequency.value  = 110.0;
+        const kFilt = audioCtx.createBiquadFilter();
+        kFilt.type = 'lowpass';
+        kFilt.frequency.value = 380;
+        kFilt.Q.value = 2.5;
 
-        const dFilt = audioCtx.createBiquadFilter();
-        dFilt.type = 'lowpass';
-        dFilt.frequency.value = 650;
-        dFilt.Q.value = 3.0;
+        const kGain = audioCtx.createGain();
+        kGain.gain.value = 0.22;
 
-        const lfo = audioCtx.createOscillator();
-        const lfoGain = audioCtx.createGain();
-        lfo.type = 'sine';
-        lfo.frequency.value = (bpm / 60) * 1.5;
-        lfoGain.gain.value = 140;
-        lfo.connect(lfoGain);
-        lfoGain.connect(dFilt.frequency);
+        kOsc1.connect(kFilt);
+        kOsc2.connect(kFilt);
+        kFilt.connect(kGain);
+        kGain.connect(masterGain);
 
-        const droneGain = audioCtx.createGain();
-        droneGain.gain.value = 0.0001;
+        kOsc1.start();
+        kOsc2.start();
+        droneNodes = { kOsc1, kOsc2, kFilt, kGain };
 
-        const subGain = audioCtx.createGain();
-        subGain.gain.value = 0.4;
-
-        dOsc1.connect(dFilt);
-        dOsc2.connect(dFilt);
-        dSub.connect(subGain);
-        subGain.connect(dFilt);
-        dFilt.connect(droneGain);
-        droneGain.connect(masterGain);
-
-        const droneRev = audioCtx.createGain();
-        droneRev.gain.value = 0.22;
-        droneGain.connect(droneRev);
-        droneRev.connect(reverbBus.input);
-
-        dOsc1.start();
-        dOsc2.start();
-        dSub.start();
-        lfo.start();
-
-        droneNodes = { dOsc1, dOsc2, dSub, dFilt, lfo, lfoGain, droneGain };
         audioRunning = true;
         lastScheduledTime = audioCtx.currentTime + 0.05;
         updatePlayButtonUI();
@@ -376,10 +343,10 @@
       function updatePlayButtonUI() {
         if (!audioCtx || !audioRunning) {
           playToggleBtn.textContent = 'Sound: Paused';
-          playToggleBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:opacity-90 active:scale-95 transition';
+          playToggleBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:opacity-90 active:scale-95 transition';
         } else {
           playToggleBtn.textContent = 'Sound: Live ♪';
-          playToggleBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:opacity-90 active:scale-95 transition';
+          playToggleBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:opacity-90 active:scale-95 transition';
         }
       }
 
@@ -388,154 +355,135 @@
         else {
           audioRunning = !audioRunning;
           if (!audioRunning && droneNodes) {
-            droneNodes.droneGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
+            droneNodes.kGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
+          } else if (audioRunning && droneNodes) {
+            droneNodes.kGain.gain.setTargetAtTime(0.22, audioCtx.currentTime, 0.05);
           }
           updatePlayButtonUI();
         }
       });
 
-      function triggerSnapClick(freq = 980) {
+      // Subtle crystalline magnetic click when snapping a gem to a facet
+      function triggerFacetSnapChime(pitch = 1174) {
         if (!audioCtx || !audioRunning) return;
         const t0 = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, t0);
-        osc.frequency.exponentialRampToValueAtTime(140, t0 + 0.035);
-        g.gain.setValueAtTime(0.18, t0);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.035);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(pitch, t0);
+        osc.frequency.exponentialRampToValueAtTime(pitch * 1.5, t0 + 0.04);
+        g.gain.setValueAtTime(0.25, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
         osc.connect(g);
         g.connect(masterGain);
+        if (reverbBus) g.connect(reverbBus.input);
         osc.start(t0);
-        osc.stop(t0 + 0.04);
+        osc.stop(t0 + 0.14);
       }
 
-      function triggerAnalogPluck(voice, when, fxOverride = null) {
+      function triggerGemVoice(gemInstance, when) {
         if (!audioCtx || !audioRunning) return;
-
-        const fx = fxOverride || voice.fx;
-        const ratchets = voice.ratchets || 1;
+        const spec = gemInstance.spec;
+        const ratchets = spec.ratchets || 1;
         const stepDur = 60 / bpm / 2;
 
+        // Position-based pitch shift: Upper gems play +1 octave higher; lower gems play root
+        const yPos = gemInstance.worldPos[1];
+        const octaveMul = yPos > 0.4 ? 2.0 : (yPos < -0.3 ? 0.5 : 1.0);
+        const baseFreq = spec.freq * octaveMul;
+
+        // Position-based spatial stereo panning: Left gems pan Left, Right gems pan Right!
+        const panVal = Math.max(-0.85, Math.min(0.85, gemInstance.worldPos[0] * 0.65));
+
         for (let r = 0; r < ratchets; r++) {
-          const t0 = when + (r * stepDur * 0.75) / ratchets;
-          const gateDur = (voice.sustain || 1.35) / Math.sqrt(ratchets);
-          const vel = r === 0 ? 1.0 : 0.65;
+          const t0 = when + (r * stepDur * 0.72) / ratchets;
+          const gateDur = (1.25) / Math.sqrt(ratchets);
 
           const osc1 = audioCtx.createOscillator();
           const osc2 = audioCtx.createOscillator();
-          osc1.type = 'sawtooth';
-          osc2.type = 'triangle';
-
-          const targetFreq = voice.freq;
-          if (voice.portamento > 0.05 && r === 0 && lastPlayedFreq > 40) {
-            osc1.frequency.setValueAtTime(lastPlayedFreq, t0);
-            osc1.frequency.exponentialRampToValueAtTime(targetFreq, t0 + voice.portamento * 0.12);
-            osc2.frequency.setValueAtTime(lastPlayedFreq * 0.996, t0);
-            osc2.frequency.exponentialRampToValueAtTime(targetFreq * 0.996, t0 + voice.portamento * 0.12);
-          } else {
-            osc1.frequency.setValueAtTime(targetFreq, t0);
-            osc2.frequency.setValueAtTime(targetFreq * 0.996, t0);
-          }
-
+          const env = audioCtx.createGain();
           const filt = audioCtx.createBiquadFilter();
           filt.type = 'lowpass';
-          const peakCutoff = fx.filterAmt > 0
-            ? (fx.detentIdx === 0 ? 2800 : fx.detentIdx === 2 ? 4200 : 2100)
-            : 2400;
-          filt.Q.value = fx.filterAmt > 0 ? 2.2 + fx.detentIdx * 2.5 : 1.8;
-          filt.frequency.setValueAtTime(peakCutoff, t0);
-          filt.frequency.exponentialRampToValueAtTime(380, t0 + Math.min(0.48, gateDur * 0.45));
 
-          const env = audioCtx.createGain();
-          const basePeak = 0.14 * vel;
+          if (spec.timbre === 'saw_pluck') {
+            osc1.type = 'sawtooth';
+            osc2.type = 'triangle';
+            filt.frequency.setValueAtTime(3200, t0);
+            filt.frequency.exponentialRampToValueAtTime(380, t0 + 0.35);
+          } else if (spec.timbre === 'bell_delay') {
+            osc1.type = 'triangle';
+            osc2.type = 'sine';
+            filt.frequency.setValueAtTime(4500, t0);
+            filt.frequency.exponentialRampToValueAtTime(750, t0 + 0.65);
+          } else if (spec.timbre === 'velvet_glide') {
+            osc1.type = 'sine';
+            osc2.type = 'triangle';
+            filt.frequency.setValueAtTime(1800, t0);
+            filt.frequency.exponentialRampToValueAtTime(340, t0 + 0.45);
+            if (lastPlayedFreq > 50) {
+              osc1.frequency.setValueAtTime(lastPlayedFreq, t0);
+              osc1.frequency.exponentialRampToValueAtTime(baseFreq, t0 + 0.14);
+            }
+          } else if (spec.timbre === 'drive_pluck') {
+            osc1.type = 'sawtooth';
+            osc2.type = 'square';
+            filt.frequency.setValueAtTime(2600, t0);
+            filt.frequency.exponentialRampToValueAtTime(420, t0 + 0.38);
+          } else if (spec.timbre === 'shimmer_chorus') {
+            osc1.type = 'sawtooth';
+            osc2.type = 'sawtooth';
+            osc2.detune.value = 14;
+            filt.frequency.setValueAtTime(3800, t0);
+            filt.frequency.exponentialRampToValueAtTime(800, t0 + 0.7);
+          } else {
+            osc1.type = 'triangle';
+            osc2.type = 'sine';
+            filt.frequency.setValueAtTime(5200, t0);
+            filt.frequency.exponentialRampToValueAtTime(950, t0 + 0.3);
+          }
+
+          if (spec.timbre !== 'velvet_glide' || lastPlayedFreq <= 50) {
+            osc1.frequency.setValueAtTime(baseFreq, t0);
+            osc2.frequency.setValueAtTime(baseFreq * 1.003, t0);
+          }
+
+          const peakAmp = 0.14 * (r === 0 ? 1.0 : 0.65);
           env.gain.setValueAtTime(0.0001, t0);
-          env.gain.linearRampToValueAtTime(basePeak, t0 + 0.008);
-          env.gain.exponentialRampToValueAtTime(basePeak * 0.38, t0 + 0.16);
+          env.gain.linearRampToValueAtTime(peakAmp, t0 + 0.008);
+          env.gain.exponentialRampToValueAtTime(peakAmp * 0.35, t0 + 0.14);
           env.gain.exponentialRampToValueAtTime(0.0001, t0 + gateDur);
 
           osc1.connect(filt);
           osc2.connect(filt);
           filt.connect(env);
 
-          let tailNode = env;
+          let tail = env;
 
-          if (fx.crush > 0) {
-            const ws = audioCtx.createWaveShaper();
-            const steps = [14, 9, 6, 3][fx.detentIdx] || 10;
-            ws.curve = makeBitcrushCurve(steps);
-            tailNode.connect(ws);
-            tailNode = ws;
-          }
-
-          if (fx.distort > 0) {
-            const dist = audioCtx.createWaveShaper();
-            const amt = [0.3, 0.55, 0.82, 0.95][fx.detentIdx] || 0.4;
-            dist.curve = makeDistortionCurve(amt);
-            tailNode.connect(dist);
-            tailNode = dist;
-          }
-
-          if (fx.chorus > 0) {
-            const chMerge = audioCtx.createGain();
-            tailNode.connect(chMerge);
-            const cDelay = audioCtx.createDelay(0.08);
-            cDelay.delayTime.value = 0.016 + fx.detentIdx * 0.006;
-            const cLfo = audioCtx.createOscillator();
-            const cDepth = audioCtx.createGain();
-            cLfo.frequency.value = 1.3 + fx.detentIdx * 1.8;
-            cDepth.gain.value = 0.003 + fx.detentIdx * 0.004;
-            cLfo.connect(cDepth);
-            cDepth.connect(cDelay.delayTime);
-            tailNode.connect(cDelay);
-            cDelay.connect(chMerge);
-            cLfo.start(t0);
-            cLfo.stop(t0 + gateDur + 0.1);
-            tailNode = chMerge;
-          }
-
+          // Stereo Panner
           if (audioCtx.createStereoPanner) {
             const panner = audioCtx.createStereoPanner();
-            const panVal = fx.pan > 0
-              ? (fx.detentIdx === 0 ? Math.sin(t0 * 2.2) * 0.35 : (voice.voiceId % 2 === 0 ? -0.7 : 0.7))
-              : (voice.voiceId % 2 === 0 ? -0.15 : 0.15);
             panner.pan.setValueAtTime(panVal, t0);
-            tailNode.connect(panner);
-            tailNode = panner;
+            tail.connect(panner);
+            tail = panner;
           }
 
-          tailNode.connect(masterGain);
+          tail.connect(masterGain);
 
-          let dSend = null, rSend = null;
-          if (fx.delay > 0 && delayBus) {
-            dSend = audioCtx.createGain();
-            dSend.gain.value = 0.35 + fx.detentIdx * 0.12;
-            const baseStep = 60 / bpm;
-            const dTime = fx.detentIdx === 0 ? baseStep * 0.75 : baseStep * (0.5 + fx.detentIdx * 0.16);
-            delayBus.delayNode.delayTime.setTargetAtTime(dTime, t0, 0.04);
-            delayBus.fbGain.gain.setTargetAtTime(0.38 + fx.detentIdx * 0.14, t0, 0.04);
-            tailNode.connect(dSend);
+          // Delay send (especially for sapphire & topaz)
+          if (delayBus && (spec.timbre === 'bell_delay' || spec.timbre === 'drive_pluck')) {
+            const dSend = audioCtx.createGain();
+            dSend.gain.value = 0.42;
+            tail.connect(dSend);
             dSend.connect(delayBus.input);
           }
 
-          const revAmt = fx.reverb > 0 ? 0.22 + fx.detentIdx * 0.18 : 0.08;
+          // Reverb send
           if (reverbBus) {
-            rSend = audioCtx.createGain();
-            rSend.gain.value = revAmt;
-            tailNode.connect(rSend);
+            const rSend = audioCtx.createGain();
+            rSend.gain.value = spec.timbre === 'shimmer_chorus' ? 0.48 : 0.18;
+            tail.connect(rSend);
             rSend.connect(reverbBus.input);
           }
-
-          const finalTail = tailNode;
-          osc1.onended = () => {
-            setTimeout(() => {
-              try {
-                finalTail.disconnect();
-                if (dSend) dSend.disconnect();
-                if (rSend) rSend.disconnect();
-              } catch (_) {}
-            }, 120);
-          };
 
           osc1.start(t0);
           osc2.start(t0);
@@ -543,15 +491,16 @@
           osc2.stop(t0 + gateDur + 0.05);
         }
 
-        lastPlayedFreq = voice.freq;
+        lastPlayedFreq = baseFreq;
       }
 
-      // 3D Math Utilities
+      // =========================================================================
+      // 3. 3D MATH & CLEAN FACETED GEM MESHES
+      // =========================================================================
       const v3 = {
         add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
         sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
         scale: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
-        lerp: (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t],
         dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
         cross: (a, b) => [
           a[1] * b[2] - a[2] * b[1],
@@ -588,7 +537,6 @@
           const k1 = 2 * dUV, k2 = s * s - dUU, k3 = 2 * s;
           return [ux * k1 + v[0] * k2 + cx * k3, uy * k1 + v[1] * k2 + cy * k3, uz * k1 + v[2] * k2 + cz * k3];
         },
-        rotateVecInv: (q, v) => quat.rotateVec([-q[0], -q[1], -q[2], q[3]], v),
         rotationBetween: (from, to) => {
           const f = v3.norm(from), t = v3.norm(to);
           const d = v3.dot(f, t);
@@ -653,298 +601,221 @@
         return { x: (cx / cw * 0.5 + 0.5) * W, y: (0.5 - cy / cw * 0.5) * H };
       }
 
-      function createIcosphere(sub = 3) {
-        const t = (1 + Math.sqrt(5)) / 2;
-        let verts = [
-          [-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],
-          [0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]
-        ].map(v => v3.norm(v));
-        let faces = [
-          [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
-          [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
-        ];
-        for (let s = 0; s < sub; s++) {
-          const mc = new Map();
-          const mid = (a, b) => {
-            const k = a < b ? `${a}_${b}` : `${b}_${a}`;
-            if (mc.has(k)) return mc.get(k);
-            const idx = verts.length;
-            verts.push(v3.norm(v3.add(verts[a], verts[b])));
-            mc.set(k, idx);
-            return idx;
-          };
-          const nf = [];
-          for (const [a, b, c] of faces) {
-            const ab = mid(a, b), bc = mid(b, c), ca = mid(c, a);
-            nf.push([a, ab, ca], [b, bc, ab], [c, ca, bc], [ab, bc, ca]);
-          }
-          faces = nf;
+      // Helper to push flat-shaded triangles with exact face normals
+      function pushTri(arr, v0, v1, v2, col, isBezel = 0) {
+        const fn = v3.norm(v3.cross(v3.sub(v1, v0), v3.sub(v2, v0)));
+        for (const v of [v0, v1, v2]) {
+          arr.push(v[0], v[1], v[2], fn[0], fn[1], fn[2], col[0], col[1], col[2], isBezel);
         }
-        return {
-          vertices: verts.map(u => ({ pos: v3.scale(u, 1.05), prim: [...u], voiceId: 0 })),
-          faces
-        };
       }
 
-      function clipMeshByPlane(mesh, rawNormal) {
-        const n = v3.norm(rawNormal);
-        const verts = mesh.vertices;
-        const dists = verts.map(v => {
-          let d = v3.dot(n, v.pos);
-          if (Math.abs(d) < 1e-5) d = d >= 0 ? 1e-5 : -1e-5;
-          return d;
+      function pushQuad(arr, v0, v1, v2, v3, col, isBezel = 0) {
+        pushTri(arr, v0, v1, v2, col, isBezel);
+        pushTri(arr, v0, v2, v3, col, isBezel);
+      }
+
+      // =========================================================================
+      // 4. GEM PROCEDURAL GEOMETRY GENERATORS
+      // =========================================================================
+      // Central Keystone Pedestal (Hexagonal Column with 7 Mounting Sockets)
+      function buildKeystoneMesh() {
+        const arr = [];
+        const col = [0.18, 0.22, 0.32]; // Deep smoky obsidian
+        const gold = [1.0, 0.78, 0.22];
+        const rTop = 0.82, rBot = 1.05, h = 0.85;
+
+        const topV = [], botV = [];
+        for (let i = 0; i < 6; i++) {
+          const a = (i * Math.PI) / 3;
+          topV.push([rTop * Math.cos(a), h * 0.5, rTop * Math.sin(a)]);
+          botV.push([rBot * Math.cos(a), -h * 0.5, rBot * Math.sin(a)]);
+        }
+
+        // Top socket facet (Face 0: Up)
+        const topCenter = [0, h * 0.5, 0];
+        for (let i = 0; i < 6; i++) {
+          pushTri(arr, topCenter, topV[i], topV[(i + 1) % 6], col);
+        }
+
+        // Bottom face
+        const botCenter = [0, -h * 0.5, 0];
+        for (let i = 0; i < 6; i++) {
+          pushTri(arr, botCenter, botV[(i + 1) % 6], botV[i], col);
+        }
+
+        // 6 Side facets (Faces 1..6)
+        for (let i = 0; i < 6; i++) {
+          pushQuad(arr, botV[i], botV[(i + 1) % 6], topV[(i + 1) % 6], topV[i], col);
+        }
+
+        // Gold rim accents
+        for (let i = 0; i < 6; i++) {
+          const t1 = topV[i], t2 = topV[(i + 1) % 6];
+          const mid = v3.scale(v3.add(t1, t2), 0.5);
+          pushTri(arr, mid, t1, t2, gold, 1);
+        }
+
+        // Define the 7 mounting socket facets on the Keystone
+        const sockets = [];
+        // Socket 0: Top Crown
+        sockets.push({
+          id: 0,
+          label: 'Crown (Top)',
+          normal: [0, 1, 0],
+          center: [0, h * 0.5, 0]
         });
+        // Sockets 1..6: The 6 hexagonal sides
+        for (let i = 0; i < 6; i++) {
+          const a = ((i + 0.5) * Math.PI) / 3;
+          const sn = v3.norm([Math.cos(a), 0.15, Math.sin(a)]);
+          const sc = [Math.cos(a) * (rTop + rBot) * 0.5, 0, Math.sin(a) * (rTop + rBot) * 0.5];
+          sockets.push({
+            id: i + 1,
+            label: `Side ${i + 1}`,
+            normal: sn,
+            center: sc
+          });
+        }
 
-        const pV = [], nV = [], pM = new Map(), nM = new Map(), pE = new Map(), nE = new Map();
-        const pF = [], nF = [], segs = [];
+        return { vertexData: new Float32Array(arr), vertCount: arr.length / 10, sockets };
+      }
 
-        const getO = (i, isP) => {
-          const m = isP ? pM : nM, a = isP ? pV : nV;
-          if (m.has(i)) return m.get(i);
-          const s = verts[i], ni = a.length;
-          a.push({ pos: [...s.pos], prim: [...s.prim], voiceId: s.voiceId });
-          m.set(i, ni);
-          return ni;
-        };
+      // Generate distinct faceted gem geometries
+      function buildGemMesh(spec) {
+        const arr = [];
+        const col = spec.color;
+        const gold = [1.0, 0.78, 0.22];
 
-        const getC = (iA, iB, isP) => {
-          const c = isP ? pE : nE, a = isP ? pV : nV;
-          const k = iA < iB ? `${iA}_${iB}` : `${iB}_${iA}`;
-          if (c.has(k)) return c.get(k);
-          const t = dists[iA] / (dists[iA] - dists[iB]);
-          const pos = v3.lerp(verts[iA].pos, verts[iB].pos, t);
-          const prim = v3.lerp(verts[iA].prim, verts[iB].prim, t);
-          const ni = a.length;
-          a.push({ pos, prim, voiceId: verts[iA].voiceId });
-          c.set(k, ni);
-          return ni;
-        };
+        // Sockets on this gem where future gems can also chain/attach!
+        const sockets = [];
 
-        for (const [i0, i1, i2] of mesh.faces) {
-          const s0 = dists[i0] >= 0, s1 = dists[i1] >= 0, s2 = dists[i2] >= 0;
-          const cnt = (s0 ? 1 : 0) + (s1 ? 1 : 0) + (s2 ? 1 : 0);
-          if (cnt === 3) pF.push([getO(i0, true), getO(i1, true), getO(i2, true)]);
-          else if (cnt === 0) nF.push([getO(i0, false), getO(i1, false), getO(i2, false)]);
-          else {
-            let iA = i0, iB = i1, iC = i2, aP = s0;
-            if (s1 === s2 && s0 !== s1) { iA = i0; iB = i1; iC = i2; aP = s0; }
-            else if (s0 === s2 && s1 !== s0) { iA = i1; iB = i2; iC = i0; aP = s1; }
-            else { iA = i2; iB = i0; iC = i1; aP = s2; }
-            const abP = getC(iA, iB, true), caP = getC(iC, iA, true);
-            const abN = getC(iA, iB, false), caN = getC(iC, iA, false);
-            if (aP) {
-              pF.push([getO(iA, true), abP, caP]);
-              nF.push([abN, getO(iB, false), getO(iC, false)], [abN, getO(iC, false), caN]);
-              segs.push({ p1: abP, p2: caP, n1: abN, n2: caN });
-            } else {
-              nF.push([getO(iA, false), abN, caN]);
-              pF.push([abP, getO(iB, true), getO(iC, true)], [abP, getO(iC, true), caP]);
-              segs.push({ p1: caP, p2: abP, n1: caN, n2: abN });
-            }
+        if (spec.cut === 'Octahedron') { // Ruby
+          const top = [0, 0.78, 0], bot = [0, -0.78, 0];
+          const ring = [[0.68, 0, 0], [0, 0, 0.68], [-0.68, 0, 0], [0, 0, -0.68]];
+          for (let i = 0; i < 4; i++) {
+            pushTri(arr, top, ring[i], ring[(i + 1) % 4], col);
+            pushTri(arr, bot, ring[(i + 1) % 4], ring[i], col);
           }
-        }
-        if (pV.length < 4 || nV.length < 4 || segs.length < 3) return null;
-
-        let capCenter = [0, 0, 0];
-        const capBoundaryPts = [];
-        for (const sg of segs) {
-          capCenter = v3.add(capCenter, pV[sg.p1].pos);
-          capBoundaryPts.push([...pV[sg.p1].pos]);
-        }
-        capCenter = v3.scale(capCenter, 1 / segs.length);
-
-        const ciP = pV.length; pV.push({ pos: [...capCenter], prim: [0, 0, 0], voiceId: 0 });
-        const ciN = nV.length; nV.push({ pos: [...capCenter], prim: [0, 0, 0], voiceId: 0 });
-
-        for (const sg of segs) {
-          pF.push([ciP, sg.p2, sg.p1]);
-          nF.push([ciN, sg.n1, sg.n2]);
-        }
-
-        return {
-          posMesh: { vertices: pV, faces: pF },
-          negMesh: { vertices: nV, faces: nF },
-          facetNormalPos: v3.scale(n, -1),
-          facetNormalNeg: [...n],
-          facetCenter: capCenter,
-          boundaryPoints: capBoundaryPts
-        };
-      }
-
-      function emptyFX() {
-        return {
-          chorus: 0, pan: 0, distort: 0, crush: 0, delay: 0, filterAmt: 0, reverb: 0, detentIdx: 0
-        };
-      }
-
-      function getInvisibleAxisAlignment(piece, ringRad) {
-        const worldN = [-Math.sin(ringRad), Math.cos(ringRad), 0];
-        const localN = v3.norm(quat.rotateVecInv(piece.quat, worldN));
-        const maxAxis = Math.max(Math.abs(localN[0]), Math.abs(localN[1]), Math.abs(localN[2]));
-        const normAlign = Math.max(0, Math.min(1, (maxAxis - 0.58) / 0.42));
-        return { normAlign, weirdness: 1 - normAlign, localN };
-      }
-
-      let voiceIndexCounter = 0;
-
-      function buildMusicalPiece(mesh, generation, quatInit, facetData = null) {
-        const vSlot = voiceIndexCounter % SCALE_PITCHES.length;
-        voiceIndexCounter++;
-
-        const pDef = SCALE_PITCHES[vSlot];
-        const freq = 220 * Math.pow(2, pDef.semi / 12);
-
-        let ratchets = 1;
-        let portamento = 0;
-        if (vSlot === 4) portamento = 0.85;
-        if (vSlot === 5) ratchets = 3;
-        if (vSlot === 6) ratchets = 2;
-
-        const voiceObj = {
-          voiceId: vSlot,
-          note: pDef.note,
-          label: pDef.label,
-          freq,
-          ratchets,
-          portamento,
-          sustain: 1.35,
-          fx: emptyFX()
-        };
-
-        return {
-          id: Math.random().toString(36).slice(2, 9),
-          mesh,
-          generation,
-          displayName: `${pDef.note} · ${pDef.label}`,
-          voices: [voiceObj],
-          facetNormal: facetData ? facetData.normal : [0, 1, 0],
-          facetCenter: facetData ? facetData.center : [0, 0, 0],
-          boundaryPoints: facetData ? facetData.boundary : [],
-          appliedFXLog: [],
-          quat: quatInit ? [...quatInit] : quat.identity(),
-          pos: [0, 0, 0],
-          targetPos: [0, 0, 0],
-          scale: 1.0,
-          targetScale: 1.0,
-          glBuffer: null,
-          vertCount: 0,
-          dirtyGPU: true
-        };
-      }
-
-      function getSnappedTransform(pieceA, pieceB, detentRad) {
-        const normAWorld = quat.rotateVec(pieceA.quat, pieceA.facetNormal);
-        const centerAWorld = v3.add(pieceA.pos, quat.rotateVec(pieceA.quat, pieceA.facetCenter));
-
-        const targetNormB = v3.scale(normAWorld, -1);
-        const qAlign = quat.rotationBetween(pieceB.facetNormal, targetNormB);
-        const qTwist = quat.fromAxisAngle(targetNormB, detentRad);
-        const finalQB = quat.norm(quat.mul(qTwist, qAlign));
-
-        const centerBOffset = quat.rotateVec(finalQB, pieceB.facetCenter);
-        const finalPB = v3.sub(centerAWorld, centerBOffset);
-
-        return { posB: finalPB, quatB: finalQB, seamCenter: centerAWorld, seamNormal: normAWorld };
-      }
-
-      function weldSnappedPieces(pieceA, pieceB, currentDetentIdx, fxDef) {
-        const snap = getSnappedTransform(pieceA, pieceB, DETENTS[currentDetentIdx].rad);
-        const verts = [], faces = [];
-
-        for (const v of pieceA.mesh.vertices) {
-          const wp = v3.add(pieceA.pos, quat.rotateVec(pieceA.quat, v.pos));
-          verts.push({ pos: wp, prim: [...v.prim], voiceId: v.voiceId });
-        }
-        for (const [a, b, c] of pieceA.mesh.faces) faces.push([a, b, c]);
-
-        const baseB = verts.length;
-        for (const v of pieceB.mesh.vertices) {
-          const wp = v3.add(snap.posB, quat.rotateVec(snap.quatB, v.pos));
-          verts.push({ pos: wp, prim: [...v.prim], voiceId: v.voiceId });
-        }
-        for (const [a, b, c] of pieceB.mesh.faces) faces.push([baseB + a, baseB + b, baseB + c]);
-
-        const seamPts = pieceA.boundaryPoints.length ? pieceA.boundaryPoints : [snap.seamCenter];
-        const bDirs = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
-        const bTris = [[0,2,4],[4,2,1],[1,2,5],[5,2,0],[4,3,0],[1,3,4],[5,3,1],[0,3,5]];
-        for (let i = 0; i < seamPts.length; i += 2) {
-          const spLocal = seamPts[i];
-          const spWorld = v3.add(pieceA.pos, quat.rotateVec(pieceA.quat, spLocal));
-          const r = 0.058, bi = verts.length;
-          for (const d of bDirs) {
-            const bp = [spWorld[0] + d[0] * r, spWorld[1] + d[1] * r, spWorld[2] + d[2] * r];
-            verts.push({ pos: bp, prim: [5, 5, 5], voiceId: -1 });
+          // Mount facet is bottom apex
+          sockets.push({ id: 0, label: 'Apex', normal: [0, 1, 0], center: top });
+        } else if (spec.cut === 'Hexagonal Prism') { // Sapphire
+          const h = 0.95, r = 0.48;
+          const top = [0, h * 0.5 + 0.35, 0];
+          const tR = [], bR = [];
+          for (let i = 0; i < 6; i++) {
+            const a = (i * Math.PI) / 3;
+            tR.push([r * Math.cos(a), h * 0.5, r * Math.sin(a)]);
+            bR.push([r * Math.cos(a), -h * 0.5, r * Math.sin(a)]);
           }
-          for (const [a, b, c] of bTris) faces.push([bi + a, bi + b, bi + c]);
+          // Pointed crystal cap
+          for (let i = 0; i < 6; i++) pushTri(arr, top, tR[i], tR[(i + 1) % 6], col);
+          // Sides
+          for (let i = 0; i < 6; i++) pushQuad(arr, bR[i], bR[(i + 1) % 6], tR[(i + 1) % 6], tR[i], col);
+          // Flat bottom
+          const bC = [0, -h * 0.5, 0];
+          for (let i = 0; i < 6; i++) pushTri(arr, bC, bR[(i + 1) % 6], bR[i], col);
+
+          sockets.push({ id: 0, label: 'Tip', normal: [0, 1, 0], center: top });
+        } else if (spec.cut === 'Baguette Cut') { // Emerald
+          const w = 0.68, l = 0.42, h = 0.88;
+          // Step-cut beveled box
+          const p = [
+            [-w, -h*0.5, -l], [w, -h*0.5, -l], [w, -h*0.5, l], [-w, -h*0.5, l],
+            [-w*0.8, h*0.5, -l*0.8], [w*0.8, h*0.5, -l*0.8], [w*0.8, h*0.5, l*0.8], [-w*0.8, h*0.5, l*0.8]
+          ];
+          pushQuad(arr, p[0], p[1], p[2], p[3], col); // bottom
+          pushQuad(arr, p[4], p[7], p[6], p[5], col); // top
+          pushQuad(arr, p[0], p[4], p[5], p[1], col);
+          pushQuad(arr, p[1], p[5], p[6], p[2], col);
+          pushQuad(arr, p[2], p[6], p[7], p[3], col);
+          pushQuad(arr, p[3], p[7], p[4], p[0], col);
+
+          sockets.push({ id: 0, label: 'Crown', normal: [0, 1, 0], center: [0, h*0.5, 0] });
+        } else if (spec.cut === 'Trilliant Cut') { // Topaz
+          const h = 0.65, r = 0.72;
+          const top = [0, h * 0.5, 0], bot = [0, -h * 0.5, 0];
+          const tr = [];
+          for (let i = 0; i < 3; i++) {
+            const a = (i * Math.PI * 2) / 3 - Math.PI / 2;
+            tr.push([r * Math.cos(a), 0, r * Math.sin(a)]);
+          }
+          for (let i = 0; i < 3; i++) {
+            pushTri(arr, top, tr[i], tr[(i + 1) % 3], col);
+            pushTri(arr, bot, tr[(i + 1) % 3], tr[i], col);
+          }
+          sockets.push({ id: 0, label: 'Apex', normal: [0, 1, 0], center: top });
+        } else if (spec.cut === 'Needle Spire') { // Aquamarine
+          const h = 1.35, r = 0.32;
+          const tip = [0, h, 0], base = [0, 0, 0];
+          const ring = [];
+          for (let i = 0; i < 6; i++) {
+            const a = (i * Math.PI) / 3;
+            ring.push([r * Math.cos(a), 0.12, r * Math.sin(a)]);
+          }
+          for (let i = 0; i < 6; i++) {
+            pushTri(arr, tip, ring[i], ring[(i + 1) % 6], col);
+            pushTri(arr, base, ring[(i + 1) % 6], ring[i], col);
+          }
+          sockets.push({ id: 0, label: 'Spire Tip', normal: [0, 1, 0], center: tip });
+        } else { // Tourmaline / Amethyst
+          const top = [0, 0.85, 0], bot = [0, -0.85, 0];
+          const ring = [];
+          const r = 0.55;
+          for (let i = 0; i < 8; i++) {
+            const a = (i * Math.PI) / 4;
+            ring.push([r * Math.cos(a), 0, r * Math.sin(a)]);
+          }
+          for (let i = 0; i < 8; i++) {
+            pushTri(arr, top, ring[i], ring[(i + 1) % 8], col);
+            pushTri(arr, bot, ring[(i + 1) % 8], ring[i], col);
+          }
+          sockets.push({ id: 0, label: 'Point', normal: [0, 1, 0], center: top });
         }
 
-        let c = [0, 0, 0];
-        for (const v of verts) c = v3.add(c, v.pos);
-        c = v3.scale(c, 1 / verts.length);
-
-        const shrink = 0.84;
-        for (const v of verts) v.pos = v3.scale(v3.sub(v.pos, c), shrink);
-
-        const combinedVoices = [...pieceA.voices, ...pieceB.voices];
-        for (const vc of combinedVoices) {
-          vc.fx[fxDef.id] = 1.0;
-          vc.fx.detentIdx = currentDetentIdx;
-        }
-
-        const flavor = fxDef.desc[currentDetentIdx];
-        const compoundName = `${pieceA.displayName.split(' · ')[0]} + ${pieceB.displayName.split(' · ')[0]}`;
+        // Gold mount bezel at the base of every gem
+        const bZ = 0.04;
+        pushTri(arr, [0, -bZ, 0], [0.18, 0, 0], [0, 0, 0.18], gold, 1);
 
         return {
-          id: Math.random().toString(36).slice(2, 9),
-          mesh: { vertices: verts, faces },
-          generation: 3,
-          displayName: compoundName,
-          voices: combinedVoices,
-          facetNormal: [0, 1, 0],
-          facetCenter: [0, 0, 0],
-          boundaryPoints: [],
-          appliedFXLog: [...pieceA.appliedFXLog, `${fxDef.name} (${flavor})`],
-          quat: quat.identity(),
-          pos: [0, 0.25, 0],
-          targetPos: [0, 0.25, 0],
-          scale: 1.0,
-          targetScale: 1.0,
-          glBuffer: null,
-          vertCount: 0,
-          dirtyGPU: true
+          vertexData: new Float32Array(arr),
+          vertCount: arr.length / 10,
+          mountNormal: [0, -1, 0], // Every gem mounts flush from its bottom normal
+          sockets
         };
       }
 
-      // WebGL Shader Setup
+      // =========================================================================
+      // 5. WEBGL SHADER (Facet Glints + Jewel Colors + Gold Bezels)
+      // =========================================================================
       const gl = glCanvas.getContext('webgl', { antialias: true, alpha: false });
 
       const VS_SRC = `
         attribute vec3 aPos;
         attribute vec3 aNormal;
-        attribute vec3 aPrim;
-        attribute float aVoiceId;
+        attribute vec3 aColor;
+        attribute float aIsBezel;
 
         uniform mat4 uModel;
         uniform mat4 uViewProj;
-        uniform float uTime;
-        uniform float uActiveVoice;
-        uniform float uVoicePulse;
+        uniform float uActiveIntensity;
 
         varying vec3 vWorldPos;
         varying vec3 vNormal;
-        varying vec3 vPrim;
-        varying float vVoiceGlow;
+        varying vec3 vColor;
+        varying float vIsBezel;
+        varying float vGlow;
 
         void main() {
-          float isGold = step(3.0, aPrim.x);
-          float isPlaying = (1.0 - isGold) * step(abs(aVoiceId - uActiveVoice), 0.25) * uVoicePulse;
-          float wave = sin(uTime * 2.5 + aPrim.x * 3.0 + aPrim.y * 3.5);
-          vec3 displaced = aPos + aNormal * (wave * 0.008 * (1.0 - isGold) + isPlaying * 0.035);
-          vec4 wp = uModel * vec4(displaced, 1.0);
+          vec3 p = aPos;
+          if (uActiveIntensity > 0.01) {
+            p += aNormal * (uActiveIntensity * 0.035);
+          }
+          vec4 wp = uModel * vec4(p, 1.0);
           vWorldPos = wp.xyz;
           vNormal = normalize((uModel * vec4(aNormal, 0.0)).xyz);
-          vPrim = aPrim;
-          vVoiceGlow = isPlaying;
+          vColor = aColor;
+          vIsBezel = aIsBezel;
+          vGlow = uActiveIntensity;
           gl_Position = uViewProj * wp;
         }
       `;
@@ -954,46 +825,40 @@
 
         varying vec3 vWorldPos;
         varying vec3 vNormal;
-        varying vec3 vPrim;
-        varying float vVoiceGlow;
+        varying vec3 vColor;
+        varying float vIsBezel;
+        varying float vGlow;
 
         uniform vec3 uCamPos;
-        uniform float uTime;
 
         void main() {
           vec3 N = normalize(vNormal);
           vec3 V = normalize(uCamPos - vWorldPos);
-          vec3 L1 = normalize(vec3(0.62, 0.82, 0.70));
-          vec3 L2 = normalize(vec3(-0.75, -0.32, 0.55));
+
+          vec3 L1 = normalize(vec3(0.55, 0.85, 0.65));
+          vec3 L2 = normalize(vec3(-0.7, -0.2, 0.6));
           float diff1 = max(0.0, dot(N, L1));
           float diff2 = max(0.0, dot(N, L2)) * 0.35;
-          vec3 H1 = normalize(L1 + V);
 
-          if (vPrim.x > 3.0) {
-            float specG = pow(max(0.0, dot(N, H1)), 64.0);
-            float rimG = pow(1.0 - max(0.0, dot(N, V)), 2.5);
-            vec3 gold = vec3(1.0, 0.78, 0.22) * (0.42 + diff1 * 0.8 + diff2)
-                      + vec3(1.0, 0.96, 0.82) * specG * 1.2
-                      + vec3(1.0, 0.85, 0.35) * rimG * 0.35;
+          vec3 H1 = normalize(L1 + V);
+          float spec = pow(max(0.0, dot(N, H1)), 72.0);
+          float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.8);
+
+          if (vIsBezel > 0.5) {
+            // Gold Bezel Shader
+            vec3 gold = vec3(1.0, 0.80, 0.25) * (0.45 + diff1 * 0.8 + diff2)
+                      + vec3(1.0, 0.98, 0.85) * spec * 1.4;
             gl_FragColor = vec4(gold, 1.0);
             return;
           }
 
-          float yMix = smoothstep(-0.6, 0.6, vPrim.y);
-          vec3 warmCol = mix(vec3(0.78, 0.35, 0.20), vec3(0.92, 0.65, 0.25), smoothstep(-0.6, 0.6, vPrim.z));
-          vec3 coolCol = mix(vec3(0.12, 0.62, 0.85), vec3(0.58, 0.38, 0.92), smoothstep(-0.6, 0.6, vPrim.x));
-          vec3 albedo = mix(warmCol, coolCol, yMix);
+          // Crystalline Faceted Gem Shader
+          vec3 gem = vColor * (0.32 + diff1 * 0.75 + diff2)
+                   + vec3(1.0, 1.0, 1.0) * spec * 0.95
+                   + vColor * fresnel * 0.45
+                   + vec3(1.0, 0.95, 0.7) * vGlow * 0.85;
 
-          float spec = pow(max(0.0, dot(N, H1)), 52.0) * 0.85;
-          float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.6);
-          vec3 irid = 0.5 + 0.5 * cos(6.28318 * (fresnel * 0.6 + vec3(0.0, 0.33, 0.67) + uTime * 0.04));
-
-          vec3 col = albedo * (0.28 + diff1 * 0.72 + diff2)
-                   + vec3(1.0, 0.97, 0.92) * spec
-                   + irid * fresnel * 0.35
-                   + vec3(1.0, 0.88, 0.45) * vVoiceGlow * 0.78;
-
-          gl_FragColor = vec4(col, 1.0);
+          gl_FragColor = vec4(gem, 1.0);
         }
       `;
 
@@ -1013,417 +878,234 @@
       const loc = {
         aPos: gl.getAttribLocation(prog, 'aPos'),
         aNormal: gl.getAttribLocation(prog, 'aNormal'),
-        aPrim: gl.getAttribLocation(prog, 'aPrim'),
-        aVoiceId: gl.getAttribLocation(prog, 'aVoiceId'),
+        aColor: gl.getAttribLocation(prog, 'aColor'),
+        aIsBezel: gl.getAttribLocation(prog, 'aIsBezel'),
         uModel: gl.getUniformLocation(prog, 'uModel'),
         uViewProj: gl.getUniformLocation(prog, 'uViewProj'),
         uCamPos: gl.getUniformLocation(prog, 'uCamPos'),
-        uTime: gl.getUniformLocation(prog, 'uTime'),
-        uActiveVoice: gl.getUniformLocation(prog, 'uActiveVoice'),
-        uVoicePulse: gl.getUniformLocation(prog, 'uVoicePulse')
+        uActiveIntensity: gl.getUniformLocation(prog, 'uActiveIntensity')
       };
 
-      function uploadPieceBuffer(piece) {
-        const verts = piece.mesh.vertices, faces = piece.mesh.faces;
-        const sN = verts.map(() => [0, 0, 0]);
-        for (const [i0, i1, i2] of faces) {
-          const fn = v3.norm(v3.cross(v3.sub(verts[i1].pos, verts[i0].pos), v3.sub(verts[i2].pos, verts[i0].pos)));
-          sN[i0] = v3.add(sN[i0], fn); sN[i1] = v3.add(sN[i1], fn); sN[i2] = v3.add(sN[i2], fn);
-        }
-        for (let i = 0; i < sN.length; i++) sN[i] = v3.norm(sN[i]);
+      // =========================================================================
+      // 6. SCULPTURE STATE & GEM PLACEMENT ENGINE
+      // =========================================================================
+      const keystoneMesh = buildKeystoneMesh();
+      const keystoneBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, keystoneBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, keystoneMesh.vertexData, gl.STATIC_DRAW);
 
-        const data = new Float32Array(faces.length * 3 * 10);
-        let ptr = 0;
-        for (let f = 0; f < faces.length; f++) {
-          for (let k = 0; k < 3; k++) {
-            const vi = faces[f][k], v = verts[vi], n = sN[vi];
-            data[ptr++] = v.pos[0];  data[ptr++] = v.pos[1];  data[ptr++] = v.pos[2];
-            data[ptr++] = n[0];      data[ptr++] = n[1];      data[ptr++] = n[2];
-            data[ptr++] = v.prim[0]; data[ptr++] = v.prim[1]; data[ptr++] = v.prim[2];
-            data[ptr++] = v.voiceId;
-          }
-        }
-
-        if (!piece.glBuffer) piece.glBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, piece.glBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
-        piece.vertCount = faces.length * 3;
-        piece.dirtyGPU = false;
+      // Pre-compile gem models
+      const gemModels = {};
+      for (const spec of GEM_SPECS) {
+        const m = buildGemMesh(spec);
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, m.vertexData, gl.STATIC_DRAW);
+        gemModels[spec.id] = { ...m, buffer: buf };
       }
 
-      let phase = 'act1';
-      let pieces = [];
-      let activePieceId = null;
-      let ringAngle = 0;
+      // Placed gem instances on the crystal sculpture
+      let placedGems = [];
+      let selectedTrayGemId = null;
+      let selectedPlacedGemIndex = -1;
 
-      let weldStepIdx = 0;
-      let leftStageId = null;
-      let rightStageId = null;
-      let currentDetentIdx = 0;
-      let detentAngleSmooth = 0;
+      // Sculpture base orientation (drag to inspect in 3D!)
+      let clusterQuat = quat.identity();
 
       let currentViewProj = mat4Perspective(Math.PI / 4.2, W / H, 0.1, 30);
 
-      function getPiece(id) {
-        return pieces.find(p => p.id === id) || null;
-      }
-
-      function getAllPlayableVoices() {
+      // Get all available mounting sockets across the entire cluster
+      function getActiveSockets() {
         const list = [];
-        const currentFXDef = WELD_FX_QUEUE[Math.min(weldStepIdx, WELD_FX_QUEUE.length - 1)];
-
-        for (const p of pieces) {
-          const onAct2Stage = phase === 'act2' && (p.id === leftStageId || p.id === rightStageId);
-          for (const vc of p.voices) {
-            if (onAct2Stage && currentFXDef) {
-              const preview = { ...vc.fx };
-              preview[currentFXDef.id] = 1.0;
-              preview.detentIdx = currentDetentIdx;
-              list.push({ voice: vc, previewFX: preview });
-            } else {
-              list.push({ voice: vc, previewFX: null });
-            }
+        // 1. Keystone sockets
+        for (const s of keystoneMesh.sockets) {
+          const isOccupied = placedGems.some(g => g.parentType === 'keystone' && g.socketId === s.id);
+          if (!isOccupied) {
+            list.push({
+              parentType: 'keystone',
+              socketId: s.id,
+              worldNormal: quat.rotateVec(clusterQuat, s.normal),
+              worldCenter: quat.rotateVec(clusterQuat, s.center),
+              label: s.label
+            });
           }
         }
         return list;
       }
 
-      function stepSequencer() {
-        if (!audioCtx || !audioRunning || !droneNodes) return;
-        const nowAudio = audioCtx.currentTime;
+      function attachGemToSocket(gemSpec, socket) {
+        const model = gemModels[gemSpec.id];
+        // Rotate gem so its mount normal [0, -1, 0] faces opposite the socket normal
+        const targetNorm = v3.scale(socket.worldNormal, 1);
+        const qAlign = quat.rotationBetween([0, -1, 0], targetNorm);
 
-        if (pieces.length === 1 && phase === 'act1') {
-          const mono = pieces[0];
-          const { normAlign, weirdness } = getInvisibleAxisAlignment(mono, ringAngle);
+        // Position gem centered on the socket with slight offset
+        const pos = v3.add(socket.worldCenter, v3.scale(socket.worldNormal, 0.38));
 
-          droneNodes.droneGain.gain.setTargetAtTime(0.25, nowAudio, 0.08);
-          const beatHz = Math.pow(weirdness, 1.2) * 6.5;
-          droneNodes.dOsc1.frequency.setTargetAtTime(220, nowAudio, 0.04);
-          droneNodes.dOsc2.frequency.setTargetAtTime(220 + beatHz, nowAudio, 0.04);
-          const waltzHz = (bpm / 60) * 1.5 * (1 + weirdness * 0.6);
-          droneNodes.lfo.frequency.setTargetAtTime(waltzHz, nowAudio, 0.06);
-          droneNodes.dFilt.frequency.setTargetAtTime(560 + normAlign * 540, nowAudio, 0.06);
+        const instance = {
+          id: Math.random().toString(36).slice(2, 8),
+          spec: gemSpec,
+          parentType: socket.parentType,
+          socketId: socket.socketId,
+          twistDeg: 0,
+          localNormal: socket.worldNormal,
+          worldPos: pos,
+          quat: qAlign,
+          scale: 0.95
+        };
 
-          lastScheduledTime = nowAudio + 0.06;
-          return;
+        placedGems.push(instance);
+        triggerFacetSnapChime(gemSpec.freq);
+        selectedTrayGemId = null;
+        updateUI();
+      }
+
+      function twistPlacedGem(idx) {
+        if (idx < 0 || idx >= placedGems.length) return;
+        const g = placedGems[idx];
+        g.twistDeg = (g.twistDeg + 60) % 360;
+        const qTwist = quat.fromAxisAngle(g.localNormal, Math.PI / 3);
+        g.quat = quat.norm(quat.mul(qTwist, g.quat));
+        triggerFacetSnapChime(g.spec.freq * 1.25);
+      }
+
+      function detachPlacedGem(idx) {
+        if (idx < 0 || idx >= placedGems.length) return;
+        placedGems.splice(idx, 1);
+        selectedPlacedGemIndex = -1;
+        gemActionBar.classList.add('hidden');
+        updateUI();
+      }
+
+      function autoCluster() {
+        placedGems = [];
+        const sockets = getActiveSockets();
+        const available = [...GEM_SPECS];
+        for (let i = 0; i < Math.min(sockets.length, available.length); i++) {
+          attachGemToSocket(available[i], sockets[i]);
         }
+      }
 
-        droneNodes.droneGain.gain.setTargetAtTime(0.0001, nowAudio, 0.06);
-        const allVoices = getAllPlayableVoices();
-        if (!allVoices.length) return;
+      // Sequencer loop: step through all placed gems in 3/4 waltz time
+      function stepSequencer() {
+        if (!audioCtx || !audioRunning) return;
+        const nowAudio = audioCtx.currentTime;
 
         if (lastScheduledTime < nowAudio - 0.1) lastScheduledTime = nowAudio + 0.02;
 
         while (lastScheduledTime < nowAudio + 0.12) {
-          const beatInBar = stepCounter % 3;
-          const idx = stepCounter % allVoices.length;
-          const item = allVoices[idx];
-
-          triggerAnalogPluck(item.voice, lastScheduledTime, item.previewFX);
-          visualTriggers.push({ time: lastScheduledTime, voiceId: item.voice.voiceId });
+          if (placedGems.length > 0) {
+            const idx = stepCounter % placedGems.length;
+            const gem = placedGems[idx];
+            triggerGemVoice(gem, lastScheduledTime);
+            visualQueue.push({ time: lastScheduledTime, gemId: gem.id });
+          }
 
           const baseStepSec = (60 / bpm) * 0.5;
-          let mult = 1.0;
-          if (beatInBar === 0) mult = 1.0 + waltzSkew * 0.55;
-          else if (beatInBar === 1) mult = 1.0 - waltzSkew * 0.35;
-          else mult = 1.0 - waltzSkew * 0.20;
-
-          lastScheduledTime += Math.max(0.11, baseStepSec * mult);
+          lastScheduledTime += baseStepSec;
           stepCounter++;
         }
       }
 
-      function layoutAct1() {
-        const act = getPiece(activePieceId);
-        const others = pieces.filter(p => p.id !== activePieceId);
-        if (act) {
-          act.targetPos = [0, 0.18, 0];
-          act.targetScale = 1.1;
-        }
-        others.forEach((p, i) => {
-          const c = others.length;
-          const t = c === 1 ? 0 : (i / (c - 1)) * 2 - 1;
-          p.targetPos = [t * Math.min(2.75, c * 0.45), -1.62 + Math.abs(t) * 0.14, -0.25];
-          p.targetScale = 0.34;
-        });
-      }
+      // =========================================================================
+      // 7. USER INTERFACE & GEM TRAY
+      // =========================================================================
+      function renderGemTray() {
+        gemTray.innerHTML = '';
+        for (const spec of GEM_SPECS) {
+          const isPlaced = placedGems.some(g => g.spec.id === spec.id);
+          const isSelected = selectedTrayGemId === spec.id;
 
-      function refreshAct2Stage() {
-        const lP = getPiece(leftStageId);
-        const rP = getPiece(rightStageId);
-        if (lP && rP) {
-          lP.targetPos = [-0.62, 0.32, 0];
-          lP.targetScale = 1.0;
-          rP.targetScale = 1.0;
-          const snap = getSnappedTransform(lP, rP, detentAngleSmooth);
-          rP.targetPos = [...snap.posB];
-          rP.quat = [...snap.quatB];
-        }
-        const tray = pieces.filter(p => p.id !== leftStageId && p.id !== rightStageId);
-        tray.forEach((p, i) => {
-          const c = tray.length;
-          const t = c === 1 ? 0 : (i / (c - 1)) * 2 - 1;
-          p.targetPos = [t * Math.min(2.85, c * 0.50), -1.72, 0.25];
-          p.targetScale = 0.33;
-        });
-        updateHUD();
-      }
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = `flex flex-col items-center gap-1 p-2 rounded-xl border text-left shrink-0 transition select-none active:scale-95 ${
+            isPlaced
+              ? 'bg-slate-900/40 border-slate-800 opacity-40 cursor-not-allowed'
+              : isSelected
+              ? 'bg-amber-500/20 border-amber-400 text-amber-300 ring-2 ring-amber-400/50'
+              : 'bg-slate-900 border-slate-700 hover:border-slate-500 text-slate-200'
+          }`;
 
-      function initGame() {
-        phase = 'act1';
-        weldStepIdx = 0;
-        voiceIndexCounter = 0;
-        waltzSkew = 0;
-        stepCounter = 0;
-        currentDetentIdx = 0;
-        detentAngleSmooth = 0;
-        visualTriggers.length = 0;
+          const rgb = spec.color.map(c => Math.round(c * 255)).join(',');
+          card.innerHTML = `
+            <div class="flex items-center gap-1.5 w-full">
+              <span class="w-3 h-3 rounded-full shrink-0 shadow-sm" style="background-color: rgb(${rgb})"></span>
+              <span class="font-bold text-xs truncate text-white">${spec.name}</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate w-24">${spec.desc}</div>
+            <div class="text-[10px] font-mono text-amber-400/90 font-semibold">${spec.note}</div>
+          `;
 
-        pivotModal.classList.add('hidden');
-        finaleCard.classList.add('hidden');
-        detentBar.classList.add('hidden');
-        actionBtn.classList.remove('hidden');
-
-        for (const p of pieces) if (p.glBuffer) gl.deleteBuffer(p.glBuffer);
-
-        const mesh = createIcosphere(3);
-        const mono = buildMusicalPiece(mesh, 0, quat.identity(), null);
-        mono.pos = [0, 0.18, 0];
-        mono.scale = 1.1;
-
-        pieces = [mono];
-        activePieceId = mono.id;
-        leftStageId = null;
-        rightStageId = null;
-        layoutAct1();
-        updateHUD();
-      }
-
-      function performCleave() {
-        initAudioEngine();
-        const act = getPiece(activePieceId);
-        if (!act || act.generation >= 3) return;
-
-        const cutInfo = getInvisibleAxisAlignment(act, ringAngle);
-        const res = clipMeshByPlane(act.mesh, cutInfo.localN);
-        if (!res) return;
-
-        const nextGen = act.generation + 1;
-        if (act.generation === 0) {
-          waltzSkew = cutInfo.weirdness > 0.32 ? cutInfo.weirdness * 0.6 : 0.0;
-        }
-
-        const worldN = [-Math.sin(ringAngle), Math.cos(ringAngle), 0];
-        const hPos = buildMusicalPiece(res.posMesh, nextGen, act.quat, {
-          normal: res.facetNormalPos, center: res.facetCenter, boundary: res.boundaryPoints
-        });
-        const hNeg = buildMusicalPiece(res.negMesh, nextGen, act.quat, {
-          normal: res.facetNormalNeg, center: res.facetCenter, boundary: res.boundaryPoints
-        });
-
-        hPos.pos = v3.add(act.pos, v3.scale(worldN, 0.22));
-        hNeg.pos = v3.add(act.pos, v3.scale(worldN, -0.22));
-        hPos.scale = act.scale * 0.88;
-        hNeg.scale = act.scale * 0.88;
-
-        if (act.glBuffer) gl.deleteBuffer(act.glBuffer);
-        pieces.splice(pieces.indexOf(act), 1, hPos, hNeg);
-
-        const nextCut = pieces.find(p => p.generation < 3);
-        if (nextCut) {
-          activePieceId = nextCut.id;
-          layoutAct1();
-          updateHUD();
-        } else {
-          activePieceId = null;
-          phase = 'pivot';
-          actionBtn.classList.add('hidden');
-          pieces.forEach((p, i) => {
-            p.targetPos = [((i % 4) - 1.5) * 1.38, i < 4 ? 0.58 : -0.62, 0];
-            p.targetScale = 0.52;
-          });
-          updateHUD();
-          setTimeout(() => {
-            if (phase === 'pivot') pivotModal.classList.remove('hidden');
-          }, 850);
-        }
-      }
-
-      function enterAct2() {
-        pivotModal.classList.add('hidden');
-        actionBtn.classList.remove('hidden');
-        detentBar.classList.remove('hidden');
-        phase = 'act2';
-        weldStepIdx = 0;
-        currentDetentIdx = 0;
-        detentAngleSmooth = 0;
-
-        leftStageId = pieces[0].id;
-        rightStageId = pieces[pieces.length - 1].id;
-        updateDetentButtons();
-        refreshAct2Stage();
-      }
-
-      function setDetent(idx) {
-        currentDetentIdx = idx;
-        detentAngleSmooth = DETENTS[idx].rad;
-        triggerSnapClick(780 + idx * 160);
-        updateDetentButtons();
-        refreshAct2Stage();
-      }
-
-      function updateDetentButtons() {
-        const btns = detentBtnGroup.querySelectorAll('.detent-btn');
-        btns.forEach((b, i) => {
-          if (i === currentDetentIdx) {
-            b.className = 'detent-btn px-2 py-1 rounded text-xs font-semibold bg-amber-500 text-black shadow-sm text-center transition';
-          } else {
-            b.className = 'detent-btn px-2 py-1 rounded text-xs font-medium bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)] text-center transition';
+          if (!isPlaced) {
+            card.addEventListener('click', () => {
+              initAudioEngine();
+              if (selectedTrayGemId === spec.id) {
+                selectedTrayGemId = null;
+                toastMsg.textContent = 'Drag to spin crystal · Tap a gem to place';
+              } else {
+                selectedTrayGemId = spec.id;
+                toastMsg.textContent = `Tap a glowing gold socket to place ${spec.name}`;
+              }
+              renderGemTray();
+            });
           }
-        });
+
+          gemTray.appendChild(card);
+        }
       }
 
-      detentBtnGroup.addEventListener('click', (e) => {
-        const b = e.target.closest('.detent-btn');
-        if (b) setDetent(parseInt(b.dataset.detent, 10));
-      });
+      function updateUI() {
+        renderGemTray();
+        gemCountBadge.textContent = `Gems: ${placedGems.length + 1} / 8`;
 
-      function performWeld() {
-        initAudioEngine();
-        const lP = getPiece(leftStageId);
-        const rP = getPiece(rightStageId);
-        if (!lP || !rP) return;
-
-        const fxDef = WELD_FX_QUEUE[Math.min(weldStepIdx, WELD_FX_QUEUE.length - 1)];
-        const hybrid = weldSnappedPieces(lP, rP, currentDetentIdx, fxDef);
-        weldStepIdx++;
-
-        if (lP.glBuffer) gl.deleteBuffer(lP.glBuffer);
-        if (rP.glBuffer) gl.deleteBuffer(rP.glBuffer);
-        pieces = pieces.filter(p => p.id !== lP.id && p.id !== rP.id);
-        pieces.push(hybrid);
-
-        if (pieces.length === 1) {
-          phase = 'finale';
-          leftStageId = null;
-          rightStageId = null;
-          actionBtn.classList.add('hidden');
-          detentBar.classList.add('hidden');
-
-          const amulet = pieces[0];
-          amulet.targetPos = [0, 0.32, 0];
-          amulet.targetScale = 1.3;
-          amuletTitle.textContent = 'Fused 8-Voice Resonator';
-          amuletRecipe.textContent = `Effects: ${amulet.appliedFXLog.join(' · ')}`;
-          finaleCard.classList.remove('hidden');
-          updateHUD();
+        if (placedGems.length === 0) {
+          instructionText.innerHTML = `<strong class="text-amber-400">1. Tap a cut gem below</strong> &rarr; <strong class="text-white">2. Tap a glowing gold socket</strong> on the pedestal to snap it flush.`;
+          footerVoiceList.innerHTML = `<span>Active Voices: <strong class="text-amber-400">Keystone Core (A2 Drone)</strong></span>`;
         } else {
-          leftStageId = pieces[0].id;
-          rightStageId = pieces[pieces.length - 1].id;
-          currentDetentIdx = 0;
-          detentAngleSmooth = 0;
-          updateDetentButtons();
-          refreshAct2Stage();
+          instructionText.innerHTML = `<strong class="text-white">Gem snapped!</strong> Tap another gem to grow your crystal, or tap any placed gem to rotate its facets.`;
+          const notes = ['Keystone (A2)', ...placedGems.map(g => `${g.spec.name} (${g.spec.note})`)];
+          footerVoiceList.innerHTML = `<span>Voices (${notes.length}): <strong class="text-amber-400">${notes.join(' · ')}</strong></span>`;
         }
       }
 
-      function quickJumpToAct2() {
-        initAudioEngine();
-        initGame();
-        while (pieces.some(p => p.generation < 3)) {
-          const p = pieces.find(x => x.generation < 3);
-          activePieceId = p.id;
-          const localN = p.generation === 0 ? [0, 1, 0] : p.generation === 1 ? [1, 0, 0] : [0, 0, 1];
-          const res = clipMeshByPlane(p.mesh, localN);
-          if (!res) break;
-          const ng = p.generation + 1;
-          const h1 = buildMusicalPiece(res.posMesh, ng, quat.identity(), {
-            normal: res.facetNormalPos, center: res.facetCenter, boundary: res.boundaryPoints
-          });
-          const h2 = buildMusicalPiece(res.negMesh, ng, quat.identity(), {
-            normal: res.facetNormalNeg, center: res.facetCenter, boundary: res.boundaryPoints
-          });
-          if (p.glBuffer) gl.deleteBuffer(p.glBuffer);
-          pieces.splice(pieces.indexOf(p), 1, h1, h2);
-        }
-        enterAct2();
-      }
-
-      actionBtn.addEventListener('click', () => {
-        if (phase === 'act1') performCleave();
-        else if (phase === 'act2') performWeld();
-      });
-      enterAct2Btn.addEventListener('click', enterAct2);
-      resetBtn.addEventListener('click', initGame);
-      forgeAnotherBtn.addEventListener('click', initGame);
-      quickEvenBtn.addEventListener('click', quickJumpToAct2);
-      tempoNudgeBtn.addEventListener('click', () => {
+      tempoBtn.addEventListener('click', () => {
         tempoIdx = (tempoIdx + 1) % tempoPresets.length;
         bpm = tempoPresets[tempoIdx];
-        tempoNudgeBtn.textContent = `${bpm} BPM`;
+        tempoBtn.textContent = `${bpm} BPM`;
+        if (delayBus) delayBus.delayNode.delayTime.value = (60 / bpm) * 0.75;
       });
 
-      window.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-          if (phase === 'act1') { e.preventDefault(); performCleave(); }
-          else if (phase === 'act2') { e.preventDefault(); performWeld(); }
-        } else if (phase === 'act2') {
-          if (e.code === 'ArrowRight' || e.code === 'ArrowDown') {
-            e.preventDefault();
-            setDetent((currentDetentIdx + 1) % 4);
-          } else if (e.code === 'ArrowLeft' || e.code === 'ArrowUp') {
-            e.preventDefault();
-            setDetent((currentDetentIdx + 3) % 4);
-          }
+      autoBuildBtn.addEventListener('click', () => {
+        initAudioEngine();
+        autoCluster();
+      });
+
+      clearBtn.addEventListener('click', () => {
+        placedGems = [];
+        selectedTrayGemId = null;
+        selectedPlacedGemIndex = -1;
+        gemActionBar.classList.add('hidden');
+        updateUI();
+      });
+
+      twistGemBtn.addEventListener('click', () => {
+        if (selectedPlacedGemIndex >= 0) {
+          twistPlacedGem(selectedPlacedGemIndex);
         }
       });
 
-      function updateHUD() {
-        const meterDesc = pieces.length === 1
-          ? 'Sustained Drone'
-          : (Math.abs(waltzSkew) < 0.08 ? 'Pure 3/4 Waltz' : 'Polyrhythmic Skew');
-        footerGroove.textContent = `Meter: ${meterDesc}`;
-
-        if (phase === 'act1' || phase === 'pivot') {
-          phaseBadge.textContent = 'Act I · Carving Voices (1 → 8)';
-          phaseBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-[var(--secondary)] text-[var(--secondary-foreground)]';
-          stepPill.textContent = `${pieces.length} / 8`;
-          actionBtn.textContent = pieces.length === 1 ? 'Cleave into Arp' : 'Cleave Voice';
-
-          if (pieces.length === 1) {
-            phaseTitle.textContent = 'Sustained Tone — Turn by Ear';
-            statusText.innerHTML = `<strong class="text-[var(--foreground)]">Turn the stone and listen</strong> for beating to settle into unison. Tap <strong class="text-[var(--foreground)]">Cleave</strong> to unlock your 3/4 arpeggio.`;
-            footerTraits.innerHTML = `<span>Axes are invisible—steer strictly by acoustic beating.</span>`;
-          } else {
-            phaseTitle.textContent = `Carving Pitch Spread (${pieces.length} / 8 Voices)`;
-            statusText.innerHTML = `<strong class="text-[var(--foreground)]">Keep cleaving (${pieces.length} → 8):</strong> each split reveals octaves, fifths, bell plucks, and portamento glides.`;
-            footerTraits.innerHTML = `<span>Active Voices: ${pieces.map(p => p.voices[0].note).join(' · ')}</span>`;
-          }
-        } else if (phase === 'act2') {
-          const fxDef = WELD_FX_QUEUE[Math.min(weldStepIdx, WELD_FX_QUEUE.length - 1)];
-          const det = DETENTS[currentDetentIdx];
-          const flavor = fxDef.desc[currentDetentIdx];
-
-          phaseBadge.textContent = `Act II · Welding (${pieces.length} → 1)`;
-          phaseBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-500 border border-amber-500/30';
-          phaseTitle.textContent = `Weld with ${fxDef.name}`;
-          stepPill.textContent = `Weld ${weldStepIdx + 1} / 7`;
-          actionBtn.textContent = `Weld ${fxDef.name}`;
-
-          statusText.innerHTML = `Pieces are <strong class="text-amber-400">snapped 100% flush</strong>. Selected Detent: <strong class="text-[var(--foreground)]">${det.deg}° ${det.name}</strong> → <strong class="text-amber-400">${flavor}</strong>.`;
-          footerTraits.innerHTML = `<span>Magnetic Face Lock: <strong>100% Flush</strong> · Joint Effect: <strong>${fxDef.name} (${flavor})</strong></span>`;
-        } else if (phase === 'finale') {
-          phaseBadge.textContent = 'Singing Amulet · Complete';
-          phaseBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-emerald-500/20 text-emerald-500 border border-emerald-500/30';
-          phaseTitle.textContent = '8 Voices & 7 Welded Effects in Unison';
-          stepPill.textContent = 'Live ♪';
-          statusText.innerHTML = `<strong class="text-[var(--foreground)]">Spin your Singing Amulet:</strong> watch each welded lobe glow as its voice fires through your custom signal chain.`;
-          footerTraits.innerHTML = `<span>All 8 Voices &amp; 7 DSP Effects Fused Permanently.</span>`;
+      detachGemBtn.addEventListener('click', () => {
+        if (selectedPlacedGemIndex >= 0) {
+          detachPlacedGem(selectedPlacedGemIndex);
         }
-      }
+      });
 
-      let pMode = null;
+      // =========================================================================
+      // 8. 3D POINTER INTERACTION (Orbit Cluster & Snap to Facets)
+      // =========================================================================
+      let isDragging = false;
       let lastPt = { x: 0, y: 0 };
+      let dragDist = 0;
 
       function getPt(e) {
         const r = hudCanvas.getBoundingClientRect();
@@ -1432,83 +1114,79 @@
 
       hudCanvas.addEventListener('pointerdown', (e) => {
         initAudioEngine();
-        const pt = getPt(e);
-        lastPt = { ...pt };
+        isDragging = true;
+        dragDist = 0;
+        lastPt = getPt(e);
         try { hudCanvas.setPointerCapture(e.pointerId); } catch (_) {}
-
-        if (phase === 'act1') {
-          const act = getPiece(activePieceId);
-          if (act) {
-            const c2 = projectPoint(act.pos, currentViewProj);
-            if (c2) {
-              const rad = 145, c = Math.cos(ringAngle), s = Math.sin(ringAngle);
-              if (Math.hypot(pt.x - (c2.x - c * rad), pt.y - (c2.y - s * rad)) < 32 ||
-                  Math.hypot(pt.x - (c2.x + c * rad), pt.y - (c2.y + s * rad)) < 32) {
-                pMode = 'ring';
-                hudCanvas.style.cursor = 'grabbing';
-                return;
-              }
-            }
-          }
-          pMode = 'act1_rot';
-          hudCanvas.style.cursor = 'grabbing';
-        } else if (phase === 'act2') {
-          pMode = 'act2_detent_drag';
-          hudCanvas.style.cursor = 'grabbing';
-        } else if (phase === 'finale') {
-          pMode = 'finale_rot';
-          hudCanvas.style.cursor = 'grabbing';
-        }
       });
 
       hudCanvas.addEventListener('pointermove', (e) => {
         const pt = getPt(e);
         const dx = pt.x - lastPt.x, dy = pt.y - lastPt.y;
         lastPt = { ...pt };
-        if (!pMode) return;
 
-        if (pMode === 'ring') {
-          const act = getPiece(activePieceId);
-          const c2 = act ? projectPoint(act.pos, currentViewProj) : { x: W / 2, y: H / 2 };
-          if (c2) ringAngle = Math.atan2(pt.y - c2.y, pt.x - c2.x);
-        } else if (pMode === 'act1_rot') {
-          const act = getPiece(activePieceId);
-          if (act && (dx || dy)) {
-            act.quat = quat.norm(quat.mul(quat.fromAxisAngle([dy, dx, 0], Math.hypot(dx, dy) * 0.0085), act.quat));
-          }
-        } else if (pMode === 'act2_detent_drag') {
-          detentAngleSmooth += dx * 0.018;
-          let normAng = (detentAngleSmooth % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-          const nearestDetent = Math.round(normAng / (Math.PI * 0.5)) % 4;
+        if (isDragging && (dx || dy)) {
+          dragDist += Math.hypot(dx, dy);
+          // Orbit the 3D crystal sculpture
+          const qRot = quat.fromAxisAngle([dy, dx, 0], Math.hypot(dx, dy) * 0.0075);
+          clusterQuat = quat.norm(quat.mul(qRot, clusterQuat));
+        }
+      });
 
-          const targetRad = nearestDetent * Math.PI * 0.5;
-          const diff = normAng - targetRad;
-          if (Math.abs(diff) < 0.22) {
-            detentAngleSmooth = targetRad;
-            if (nearestDetent !== currentDetentIdx) {
-              currentDetentIdx = nearestDetent;
-              triggerSnapClick(780 + currentDetentIdx * 160);
-              updateDetentButtons();
+      hudCanvas.addEventListener('pointerup', (e) => {
+        isDragging = false;
+        // If it was a clean tap (not an orbit drag), check for socket or placed gem hit!
+        if (dragDist < 8) {
+          const pt = getPt(e);
+          handleCanvasTap(pt.x, pt.y);
+        }
+      });
+
+      function handleCanvasTap(x, y) {
+        // CASE A: User has selected a gem from tray & tapped a glowing socket
+        if (selectedTrayGemId) {
+          const sockets = getActiveSockets();
+          let hitSocket = null, minDist = 36;
+          for (const s of sockets) {
+            const p2 = projectPoint(s.worldCenter, currentViewProj);
+            if (p2) {
+              const d = Math.hypot(p2.x - x, p2.y - y);
+              if (d < minDist) { minDist = d; hitSocket = s; }
             }
           }
-          refreshAct2Stage();
-        } else if (pMode === 'finale_rot') {
-          const am = pieces[0];
-          if (am && (dx || dy)) {
-            am.quat = quat.norm(quat.mul(quat.fromAxisAngle([dy, dx, 0], Math.hypot(dx, dy) * 0.0085), am.quat));
+
+          if (hitSocket) {
+            const spec = GEM_SPECS.find(g => g.id === selectedTrayGemId);
+            if (spec) attachGemToSocket(spec, hitSocket);
+            return;
           }
         }
-      });
 
-      window.addEventListener('pointerup', () => {
-        pMode = null;
-        hudCanvas.style.cursor = 'grab';
-        if (phase === 'act2') {
-          detentAngleSmooth = DETENTS[currentDetentIdx].rad;
-          refreshAct2Stage();
+        // CASE B: User tapped an existing placed gem to inspect / rotate / detach
+        let hitGemIdx = -1, minGemDist = 42;
+        placedGems.forEach((g, idx) => {
+          const p2 = projectPoint(g.worldPos, currentViewProj);
+          if (p2) {
+            const d = Math.hypot(p2.x - x, p2.y - y);
+            if (d < minGemDist) { minGemDist = d; hitGemIdx = idx; }
+          }
+        });
+
+        if (hitGemIdx >= 0) {
+          selectedPlacedGemIndex = hitGemIdx;
+          const g = placedGems[hitGemIdx];
+          selectedGemLabel.textContent = `${g.spec.name} (${g.spec.note})`;
+          gemActionBar.classList.remove('hidden');
+          triggerFacetSnapChime(g.spec.freq);
+        } else {
+          selectedPlacedGemIndex = -1;
+          gemActionBar.classList.add('hidden');
         }
-      });
+      }
 
+      // =========================================================================
+      // 9. RENDER LOOP
+      // =========================================================================
       let lastTime = performance.now();
 
       function render(now) {
@@ -1517,130 +1195,129 @@
 
         stepSequencer();
 
-        if (audioCtx && visualTriggers.length) {
+        // Voice glow animation
+        if (audioCtx && visualQueue.length) {
           const acNow = audioCtx.currentTime;
-          while (visualTriggers.length && visualTriggers[0].time <= acNow) {
-            const ev = visualTriggers.shift();
-            activeLitVoice = ev.voiceId;
+          while (visualQueue.length && visualQueue[0].time <= acNow) {
+            const ev = visualQueue.shift();
+            activeLitGemId = ev.gemId;
             activeLitIntensity = 1.0;
           }
         }
-        activeLitIntensity = Math.max(0, activeLitIntensity - dt * 3.4);
+        activeLitIntensity = Math.max(0, activeLitIntensity - dt * 3.2);
 
-        for (const p of pieces) {
-          p.pos = v3.lerp(p.pos, p.targetPos, Math.min(1, dt * 10));
-          p.scale += (p.targetScale - p.scale) * Math.min(1, dt * 10);
-
-          if (phase === 'act1' && p.id === activePieceId && !pMode) {
-            p.quat = quat.norm(quat.mul(quat.fromAxisAngle([0.12, 1, 0.08], dt * 0.18), p.quat));
-          } else if (phase === 'finale' && !pMode) {
-            p.quat = quat.norm(quat.mul(quat.fromAxisAngle([0.1, 1, 0.08], dt * 0.42), p.quat));
-          }
+        // Gentle ambient float when not dragging
+        if (!isDragging) {
+          const qFloat = quat.fromAxisAngle([0.08, 1, 0.05], dt * 0.22);
+          clusterQuat = quat.norm(quat.mul(qFloat, clusterQuat));
         }
 
-        const camPos = [0, 0.18, 4.85];
+        const camPos = [0, 0.2, 4.4];
         const proj = mat4Perspective(Math.PI / 4.2, W / H, 0.1, 30);
-        const view = mat4LookAt(camPos, [0, -0.05, 0], [0, 1, 0]);
+        const view = mat4LookAt(camPos, [0, 0, 0], [0, 1, 0]);
         currentViewProj = mat4Mul(proj, view);
 
+        // 1. WebGL 3D Render
         gl.viewport(0, 0, W, H);
-        gl.clearColor(0.028, 0.043, 0.075, 1.0);
+        gl.clearColor(0.025, 0.038, 0.065, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST);
         gl.useProgram(prog);
 
-        for (const p of pieces) {
-          if (p.dirtyGPU) uploadPieceBuffer(p);
-          if (!p.glBuffer || !p.vertCount) continue;
+        gl.uniformMatrix4fv(loc.uViewProj, false, currentViewProj);
+        gl.uniform3fv(loc.uCamPos, camPos);
 
-          const model = mat4FromPosQuatScale(p.pos, p.quat, p.scale);
-          gl.uniformMatrix4fv(loc.uModel, false, model);
-          gl.uniformMatrix4fv(loc.uViewProj, false, currentViewProj);
-          gl.uniform3fv(loc.uCamPos, camPos);
-          gl.uniform1f(loc.uTime, now * 0.001);
-          gl.uniform1f(loc.uActiveVoice, activeLitVoice);
-          gl.uniform1f(loc.uVoicePulse, activeLitIntensity);
-
-          gl.bindBuffer(gl.ARRAY_BUFFER, p.glBuffer);
-          const stride = 10 * 4;
+        const stride = 10 * 4;
+        const bindAttrs = () => {
           gl.enableVertexAttribArray(loc.aPos);
           gl.vertexAttribPointer(loc.aPos, 3, gl.FLOAT, false, stride, 0);
           gl.enableVertexAttribArray(loc.aNormal);
           gl.vertexAttribPointer(loc.aNormal, 3, gl.FLOAT, false, stride, 3 * 4);
-          gl.enableVertexAttribArray(loc.aPrim);
-          gl.vertexAttribPointer(loc.aPrim, 3, gl.FLOAT, false, stride, 6 * 4);
-          gl.enableVertexAttribArray(loc.aVoiceId);
-          gl.vertexAttribPointer(loc.aVoiceId, 1, gl.FLOAT, false, stride, 9 * 4);
+          gl.enableVertexAttribArray(loc.aColor);
+          gl.vertexAttribPointer(loc.aColor, 3, gl.FLOAT, false, stride, 6 * 4);
+          gl.enableVertexAttribArray(loc.aIsBezel);
+          gl.vertexAttribPointer(loc.aIsBezel, 1, gl.FLOAT, false, stride, 9 * 4);
+        };
 
-          gl.drawArrays(gl.TRIANGLES, 0, p.vertCount);
+        // Render Keystone Pedestal
+        const mKey = mat4FromPosQuatScale([0, 0, 0], clusterQuat, 1.0);
+        gl.uniformMatrix4fv(loc.uModel, false, mKey);
+        gl.uniform1f(loc.uActiveIntensity, 0.0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, keystoneBuffer);
+        bindAttrs();
+        gl.drawArrays(gl.TRIANGLES, 0, keystoneMesh.vertCount);
+
+        // Render Placed Gems
+        for (const gem of placedGems) {
+          const model = gemModels[gem.spec.id];
+          const mGem = mat4FromPosQuatScale(gem.worldPos, gem.quat, gem.scale);
+          gl.uniformMatrix4fv(loc.uModel, false, mGem);
+
+          const isLit = activeLitGemId === gem.id;
+          gl.uniform1f(loc.uActiveIntensity, isLit ? activeLitIntensity : 0.0);
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
+          bindAttrs();
+          gl.drawArrays(gl.TRIANGLES, 0, model.vertCount);
         }
 
+        // 2. HUD 2D Overlay (Glow Sockets & Labels)
         ctx.clearRect(0, 0, W, H);
 
-        if (phase === 'act1') {
-          const act = getPiece(activePieceId);
-          if (act) {
-            const c2 = projectPoint(act.pos, currentViewProj);
-            if (c2) {
-              const radX = 145, radY = 28;
-              ctx.save();
-              ctx.translate(c2.x, c2.y);
-              ctx.rotate(ringAngle);
+        // Draw Available Magnetic Sockets
+        const sockets = getActiveSockets();
+        const pulse = 0.5 + 0.5 * Math.sin(now * 0.006);
 
-              ctx.strokeStyle = 'rgba(203, 213, 225, 0.48)';
-              ctx.lineWidth = 1.6;
-              ctx.beginPath();
-              ctx.ellipse(0, 0, radX, radY, 0, 0, Math.PI * 2);
-              ctx.stroke();
+        for (const s of sockets) {
+          const p2 = projectPoint(s.worldCenter, currentViewProj);
+          if (!p2) continue;
 
-              ctx.setLineDash([6, 5]);
-              ctx.strokeStyle = 'rgba(226, 232, 240, 0.38)';
-              ctx.beginPath();
-              ctx.moveTo(-radX - 8, 0);
-              ctx.lineTo(radX + 8, 0);
-              ctx.stroke();
-              ctx.setLineDash([]);
+          // Only highlight sockets prominently if a gem is selected in the tray
+          const isHighlight = !!selectedTrayGemId;
+          const rBase = isHighlight ? 12 : 7;
+          const ringRad = rBase + (isHighlight ? pulse * 3.5 : 0);
 
-              for (const side of [-1, 1]) {
-                ctx.fillStyle = '#0f172a';
-                ctx.strokeStyle = 'rgba(203, 213, 225, 0.65)';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(side * radX, 0, 7, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-              }
-              ctx.restore();
+          // Socket Gold Ring
+          ctx.beginPath();
+          ctx.arc(p2.x, p2.y, ringRad, 0, Math.PI * 2);
+          ctx.strokeStyle = isHighlight ? `rgba(245, 158, 11, ${0.75 + pulse * 0.25})` : 'rgba(148, 163, 184, 0.35)';
+          ctx.lineWidth = isHighlight ? 2.2 : 1.2;
+          ctx.stroke();
 
-              ctx.fillStyle = 'rgba(241, 245, 249, 0.9)';
-              ctx.font = '600 13px sans-serif';
-              ctx.textAlign = 'center';
-              ctx.fillText(act.displayName, c2.x, c2.y - 145);
-            }
+          // Socket Center Bead
+          ctx.beginPath();
+          ctx.arc(p2.x, p2.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = isHighlight ? '#fbbf24' : 'rgba(148, 163, 184, 0.5)';
+          ctx.fill();
+
+          if (isHighlight) {
+            ctx.fillStyle = '#fde68a';
+            ctx.font = '600 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(s.label, p2.x, p2.y - ringRad - 4);
           }
-        } else if (phase === 'act2') {
-          const fxDef = WELD_FX_QUEUE[Math.min(weldStepIdx, WELD_FX_QUEUE.length - 1)];
-          const det = DETENTS[currentDetentIdx];
-          const flavor = fxDef.desc[currentDetentIdx];
+        }
 
-          ctx.fillStyle = currentDetentIdx === 0 ? '#34d399' : '#fbbf24';
-          ctx.font = '600 13px monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(
-            `${fxDef.name.toUpperCase()} · ${det.deg}° ${det.name.toUpperCase()} (${flavor.toUpperCase()})`,
-            W * 0.5,
-            38
-          );
-
-          ctx.fillStyle = 'rgba(52, 211, 153, 0.88)';
-          ctx.font = '500 11px sans-serif';
-          ctx.fillText('100% FLUSH MAGNETIC JOINT', W * 0.5, 56);
+        // Highlight selected placed gem with a gentle halo
+        if (selectedPlacedGemIndex >= 0 && selectedPlacedGemIndex < placedGems.length) {
+          const selGem = placedGems[selectedPlacedGemIndex];
+          const p2 = projectPoint(selGem.worldPos, currentViewProj);
+          if (p2) {
+            ctx.beginPath();
+            ctx.arc(p2.x, p2.y, 24, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
+            ctx.lineWidth = 1.8;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
         }
 
         requestAnimationFrame(render);
       }
 
-      initGame();
+      initAudioEngine();
+      updateUI();
       requestAnimationFrame(render);
     })();
   </script>
