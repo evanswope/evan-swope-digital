@@ -3,1200 +3,678 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>The Vessel · A Meditation on Integration</title>
-  <meta name="description" content="A mind broken is not ruined; it has differentiated into its true voices. Gather the shards, mend the seams with gold, and listen to them sing." />
+  <title>The Broken Taxonomies · An Encyclopedia of Category Errors</title>
+  <meta name="description" content="An epistemological game of category collisions. Group three unrelated things, discover their hidden tendon, dismantle their category, and invert their reality." />
   <link rel="icon" type="image/png" href="assets/images/favicon2.png">
   <link rel="apple-touch-icon" href="assets/images/favicon2.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=JetBrains+Mono:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #06080e;
+      --bg: #07090e;
     }
     body {
       background-color: var(--bg);
       color: #e2e8f0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      overscroll-behavior: none;
+      font-family: 'Newsreader', Georgia, serif;
       -webkit-font-smoothing: antialiased;
-      touch-action: none;
     }
-    canvas {
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .font-title {
+      font-family: 'Cinzel', serif;
     }
     .gold-glow {
-      text-shadow: 0 0 16px rgba(255, 210, 77, 0.45);
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+    }
+    .fade-enter {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .fade-active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 0.4; }
+    }
+    .animate-subtle {
+      animation: pulse-subtle 3s infinite ease-in-out;
     }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between p-4 sm:p-6 select-none overflow-hidden relative">
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 md:p-8 select-none relative overflow-x-hidden">
 
-  <!-- Background Ambient Glow -->
-  <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_rgba(30,41,59,0.35)_0%,_transparent_75%)] opacity-80 z-0"></div>
+  <!-- Background Ambient Atmosphere -->
+  <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.04)_0%,_transparent_60%)] z-0"></div>
+  <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_bottom,_rgba(30,41,59,0.3)_0%,_transparent_70%)] z-0"></div>
 
   <!-- Header HUD -->
-  <header class="w-full max-w-2xl mx-auto flex items-center justify-between z-10 relative">
+  <header class="w-full max-w-4xl mx-auto flex items-center justify-between border-b border-slate-800/80 pb-3 z-10 relative">
     <div class="flex items-center gap-3">
-      <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-pulse"></div>
+      <div id="statusDot" class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-ping"></div>
       <div>
-        <h1 id="actTitle" class="text-xs sm:text-sm font-semibold tracking-widest uppercase text-amber-200/90 gold-glow">
-          The Vessel · Unbroken
+        <h1 class="font-title text-xs sm:text-sm font-semibold tracking-widest uppercase text-amber-200/90 gold-glow">
+          Encyclopedia of Broken Taxonomies
         </h1>
-        <p id="actSubtitle" class="text-[11px] text-slate-400 font-light">
-          Tap the stone to awaken
+        <p class="font-mono-code text-[10px] text-slate-500 uppercase tracking-wider">
+          Fascicle IV · Dialectical Specimen Index
         </p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <button id="soundBtn" type="button" class="px-3 py-1 rounded-full text-xs font-medium border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 active:scale-95 transition">
-        Sound: On ♫
-      </button>
-      <button id="resetBtn" type="button" class="px-3 py-1 rounded-full text-xs font-medium border border-slate-700/80 bg-slate-900/80 text-slate-400 hover:text-white active:scale-95 transition">
-        Reset
-      </button>
-      <a href="index.html" class="px-3 py-1 rounded-full text-xs font-medium border border-slate-800 bg-slate-950/60 text-slate-400 hover:text-slate-200 active:scale-95 transition hidden sm:inline-block">
-        Portfolio ↗
+    <div class="flex items-center gap-3">
+      <span id="entryCounter" class="font-mono-code text-[11px] text-slate-400 hidden sm:inline-block">
+        DOC-084 // UNCLASSIFIED
+      </span>
+      <a href="index.html" class="font-mono-code px-3 py-1 rounded-full text-xs font-medium border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white transition">
+        Index ↗
       </a>
     </div>
   </header>
 
-  <!-- 3D Canvas Viewport -->
-  <div class="relative w-full flex-1 flex items-center justify-center z-0">
-    <canvas id="glCanvas" class="w-full h-full block"></canvas>
+  <!-- Main Interaction Viewport -->
+  <main class="w-full max-w-3xl mx-auto flex-1 flex flex-col justify-center my-6 sm:my-10 z-10 relative">
 
-    <!-- Shard Whisper Card (shows archetype name and poetic meaning) -->
-    <div id="shardWhisper" class="absolute top-6 pointer-events-none text-center px-4 py-2 rounded-full bg-slate-950/80 border border-slate-800/80 backdrop-blur-md opacity-0 transition-opacity duration-300 shadow-2xl">
-      <span id="whisperName" class="text-xs font-semibold uppercase tracking-wider text-amber-300">Grief</span>
-      <span class="text-slate-500 mx-1.5">·</span>
-      <span id="whisperLore" class="text-xs text-slate-300 italic">The deep well that holds our ground</span>
+    <!-- ==================== PHASE 1: PROPOSE CATEGORY ==================== -->
+    <section id="phasePropose" class="w-full flex flex-col items-center text-center transition-all duration-500">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/20 bg-amber-500/5 text-amber-300 text-xs font-mono-code mb-4">
+        <span>Step 01</span>
+        <span>·</span>
+        <span>The Boundary Condition</span>
+      </div>
+
+      <h2 class="font-title text-2xl sm:text-4xl text-slate-100 font-normal tracking-wide max-w-xl leading-tight mb-3">
+        Propose a category to fracture.
+      </h2>
+      <p class="text-sm sm:text-base text-slate-400 max-w-lg mb-8 font-light">
+        The engine will draw three disparate specimens, identify their hidden tendon, dismantle their category, and invert their reality.
+      </p>
+
+      <!-- Input Bar with Rotating Ghost Text -->
+      <div class="w-full max-w-xl relative mb-4">
+        <input 
+          id="categoryInput" 
+          type="text" 
+          autocomplete="off"
+          placeholder="things that fail by leaking rather than snapping"
+          class="w-full bg-slate-900/90 border border-slate-700/80 focus:border-amber-400/80 rounded-xl px-5 py-4 text-base sm:text-lg text-slate-100 placeholder-slate-600 focus:outline-none shadow-2xl transition duration-300 font-light"
+        />
+        <button 
+          id="proposeBtn" 
+          type="button" 
+          class="absolute right-2 top-2 bottom-2 px-5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono-code font-medium text-xs sm:text-sm tracking-wider uppercase transition active:scale-95 flex items-center gap-1.5 shadow-lg shadow-amber-500/20">
+          <span>Interrogate</span>
+          <span class="text-sm">→</span>
+        </button>
+      </div>
+
+      <!-- Quick Suggestion Chips -->
+      <div class="w-full max-w-xl flex flex-wrap items-center justify-center gap-2 pt-2">
+        <span class="font-mono-code text-[11px] text-slate-500 mr-1">Try:</span>
+        <button type="button" class="chip-btn font-mono-code text-[11px] text-slate-400 bg-slate-900/70 hover:bg-slate-800 border border-slate-800 rounded-full px-3 py-1 transition" data-query="things that are red">
+          things that are red
+        </button>
+        <button type="button" class="chip-btn font-mono-code text-[11px] text-slate-400 bg-slate-900/70 hover:bg-slate-800 border border-slate-800 rounded-full px-3 py-1 transition" data-query="things that can't be seen with the naked eye">
+          things that can't be seen with the naked eye
+        </button>
+        <button type="button" class="chip-btn font-mono-code text-[11px] text-slate-400 bg-slate-900/70 hover:bg-slate-800 border border-slate-800 rounded-full px-3 py-1 transition" data-query="things that carry ghosts of previous functions">
+          things with vestigial purposes
+        </button>
+        <button type="button" class="chip-btn font-mono-code text-[11px] text-slate-400 bg-slate-900/70 hover:bg-slate-800 border border-slate-800 rounded-full px-3 py-1 transition" data-query="things that fail by leaking rather than snapping">
+          things that fail by leaking
+        </button>
+      </div>
+    </section>
+
+
+    <!-- ==================== PHASE 2: CURATION TABLE (3 SPECIMEN CARDS) ==================== -->
+    <section id="phaseCurate" class="w-full hidden flex-col items-center transition-all duration-500">
+      <div class="w-full flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+        <div>
+          <span class="font-mono-code text-[11px] uppercase tracking-wider text-amber-400">Step 02 · Specimen Curation</span>
+          <h3 id="curateCategoryTitle" class="text-lg font-serif italic text-slate-200 mt-0.5">"things that are red"</h3>
+        </div>
+        <button id="backToProposeBtn" class="font-mono-code text-xs text-slate-400 hover:text-slate-200 underline">
+          ← Change Category
+        </button>
+      </div>
+
+      <p class="w-full text-xs sm:text-sm text-slate-400 mb-6 font-light">
+        Three disparate specimens have been drawn from across reality. You may approve them, reroll any card to draw another candidate, or edit the name manually.
+      </p>
+
+      <!-- 3 Specimen Cards Grid -->
+      <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" id="specimenCardsContainer">
+        <!-- Card 1 -->
+        <div class="specimen-card bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-xl p-5 flex flex-col justify-between shadow-xl transition relative group" data-index="0">
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-mono-code text-amber-400/90 tracking-wider uppercase mb-2">
+              <span class="specimen-domain">[ BIOLOGICAL ]</span>
+              <span class="text-slate-600">SPECIMEN I</span>
+            </div>
+            <h4 class="specimen-name text-lg font-serif text-slate-100 font-medium mb-2 leading-snug">The Bowhead Whale's Pelvis</h4>
+            <p class="specimen-essence text-xs text-slate-400 leading-relaxed font-light italic">Two disconnected bones floating in twenty tons of blubber, unmoored from the spine for forty million years.</p>
+          </div>
+          <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800/80">
+            <button type="button" class="reroll-btn font-mono-code text-[11px] text-slate-400 hover:text-amber-300 flex items-center gap-1 transition">
+              <span>↻</span> Reroll
+            </button>
+            <button type="button" class="edit-btn font-mono-code text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 transition">
+              <span>✎</span> Edit
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="specimen-card bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-xl p-5 flex flex-col justify-between shadow-xl transition relative group" data-index="1">
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-mono-code text-amber-400/90 tracking-wider uppercase mb-2">
+              <span class="specimen-domain">[ CIVIL HYDRAULICS ]</span>
+              <span class="text-slate-600">SPECIMEN II</span>
+            </div>
+            <h4 class="specimen-name text-lg font-serif text-slate-100 font-medium mb-2 leading-snug">The Municipal Check Flap</h4>
+            <p class="specimen-essence text-xs text-slate-400 leading-relaxed font-light italic">A cast-iron flap that uses the hydrostatic pressure of the flood itself to seal its own intake.</p>
+          </div>
+          <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800/80">
+            <button type="button" class="reroll-btn font-mono-code text-[11px] text-slate-400 hover:text-amber-300 flex items-center gap-1 transition">
+              <span>↻</span> Reroll
+            </button>
+            <button type="button" class="edit-btn font-mono-code text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 transition">
+              <span>✎</span> Edit
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="specimen-card bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-xl p-5 flex flex-col justify-between shadow-xl transition relative group" data-index="2">
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-mono-code text-amber-400/90 tracking-wider uppercase mb-2">
+              <span class="specimen-domain">[ SOMATIC PHENOMENOLOGY ]</span>
+              <span class="text-slate-600">SPECIMEN III</span>
+            </div>
+            <h4 class="specimen-name text-lg font-serif text-slate-100 font-medium mb-2 leading-snug">A Sleeping Numb Limb</h4>
+            <p class="specimen-essence text-xs text-slate-400 leading-relaxed font-light italic">Living tissue converted into an alien slab of butcher meat while still attached to your shoulder.</p>
+          </div>
+          <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800/80">
+            <button type="button" class="reroll-btn font-mono-code text-[11px] text-slate-400 hover:text-amber-300 flex items-center gap-1 transition">
+              <span>↻</span> Reroll
+            </button>
+            <button type="button" class="edit-btn font-mono-code text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 transition">
+              <span>✎</span> Edit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button 
+        id="synthesizeBtn" 
+        type="button" 
+        class="px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono-code font-semibold text-xs sm:text-sm tracking-wider uppercase transition shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-2">
+        <span>Compile 3-Page Dossier</span>
+        <span>→</span>
+      </button>
+    </section>
+
+
+    <!-- ==================== PHASE 3: 3-PAGE DIALECTICAL DOSSIER ==================== -->
+    <section id="phaseDossier" class="w-full hidden flex-col transition-all duration-500">
+      
+      <!-- Top Dossier Meta Bar -->
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+        <div>
+          <span class="font-mono-code text-[10px] tracking-widest uppercase text-amber-400">ENTRY DOSSIER // COMPILATION COMPLETE</span>
+          <h3 id="dossierCategoryHeading" class="text-lg font-serif text-slate-200 mt-0.5">Category: "things that are red"</h3>
+        </div>
+        <button id="newInvestigationBtn" class="font-mono-code text-xs text-slate-400 hover:text-slate-100 flex items-center gap-1 transition">
+          <span>⟲</span> New Inquiry
+        </button>
+      </div>
+
+      <!-- Page Tabs -->
+      <nav class="flex border-b border-slate-800 mb-6">
+        <button id="tabBtn1" class="dossier-tab-btn flex-1 py-2.5 text-center font-mono-code text-xs sm:text-sm font-medium border-b-2 border-amber-400 text-amber-300 transition" data-page="1">
+          I. The Convergence
+        </button>
+        <button id="tabBtn2" class="dossier-tab-btn flex-1 py-2.5 text-center font-mono-code text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-page="2">
+          II. The Fracture
+        </button>
+        <button id="tabBtn3" class="dossier-tab-btn flex-1 py-2.5 text-center font-mono-code text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-page="3">
+          III. The Inversion
+        </button>
+      </nav>
+
+      <!-- Page 1: The Convergence -->
+      <article id="dossierPage1" class="dossier-page block fade-active">
+        <h4 id="page1Title" class="font-title text-xl sm:text-2xl text-slate-100 mb-3 leading-snug">
+          I. The Convergence · The Hidden Tendon
+        </h4>
+        <div class="p-4 rounded-xl bg-amber-500/5 border-l-4 border-amber-400 text-amber-200 text-sm sm:text-base italic mb-5 leading-relaxed font-light" id="page1Thesis">
+          "All three enforce radical physical consequences without possessing a physical body."
+        </div>
+        <div id="page1Body" class="space-y-4 text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+          <!-- Injected paragraphs -->
+        </div>
+        <div class="mt-8 flex justify-end">
+          <button type="button" class="next-page-btn font-mono-code text-xs text-amber-300 hover:text-amber-200 flex items-center gap-1.5" data-next="2">
+            Flip to Page II · The Fracture →
+          </button>
+        </div>
+      </article>
+
+      <!-- Page 2: The Fracture -->
+      <article id="dossierPage2" class="dossier-page hidden">
+        <h4 id="page2Title" class="font-title text-xl sm:text-2xl text-slate-100 mb-3 leading-snug">
+          II. The Fracture · The Anatomy of a Lie
+        </h4>
+        <div class="p-4 rounded-xl bg-rose-500/5 border-l-4 border-rose-400 text-rose-200 text-sm sm:text-base italic mb-5 leading-relaxed font-light" id="page2Thesis">
+          "The category only exists because the human eye prioritizes surface similarity over structural mechanics."
+        </div>
+        <div id="page2Body" class="space-y-4 text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+          <!-- Injected paragraphs -->
+        </div>
+        <div class="mt-8 flex justify-between items-center">
+          <button type="button" class="next-page-btn font-mono-code text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5" data-next="1">
+            ← Page I
+          </button>
+          <button type="button" class="next-page-btn font-mono-code text-xs text-amber-300 hover:text-amber-200 flex items-center gap-1.5" data-next="3">
+            Flip to Page III · The Inversion →
+          </button>
+        </div>
+      </article>
+
+      <!-- Page 3: The Inversion & AI Artifact -->
+      <article id="dossierPage3" class="dossier-page hidden">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 font-mono-code text-[11px] mb-3">
+          <span>AXIOM INVERTED</span>
+        </div>
+        <h4 id="page3Title" class="font-title text-xl sm:text-2xl text-slate-100 mb-2 leading-snug">
+          III. The Inversion · Transparent Bone
+        </h4>
+        <p id="page3Axiom" class="text-sm font-mono-code text-amber-300/90 mb-5">
+          "What if X-rays were visible to the human eye?"
+        </p>
+
+        <!-- AI Generated Visual Artifact -->
+        <div class="w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 mb-6 shadow-2xl relative min-h-[260px] flex items-center justify-center">
+          <img id="page3Image" src="" alt="Alternate Reality Specimen" class="w-full h-auto max-h-[460px] object-cover hidden transition-opacity duration-700" />
+          
+          <!-- Image Loading State -->
+          <div id="imageLoader" class="flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-8 h-8 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin mb-3"></div>
+            <span class="font-mono-code text-xs text-amber-300/80 tracking-wide">Rendering Alternate Reality...</span>
+            <span class="font-mono-code text-[10px] text-slate-500 mt-1">Flux Schnell Synthetic Engine</span>
+          </div>
+        </div>
+
+        <div id="page3Narrative" class="space-y-4 text-sm sm:text-base text-slate-300 leading-relaxed font-light mb-8">
+          <!-- Injected narrative -->
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-800 flex justify-between items-center">
+          <button type="button" class="next-page-btn font-mono-code text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5" data-next="2">
+            ← Page II
+          </button>
+          <button id="restartBottomBtn" type="button" class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono-code text-xs transition">
+            Begin New Inquiry ⟲
+          </button>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Global Loading Overlay -->
+    <div id="globalLoader" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex-col items-center justify-center">
+      <div class="w-10 h-10 rounded-full border-2 border-amber-400/20 border-t-amber-400 animate-spin mb-4"></div>
+      <p id="loaderMessage" class="font-mono-code text-xs sm:text-sm tracking-widest text-amber-300 uppercase">
+        Consulting The Taxonomies...
+      </p>
     </div>
 
-    <!-- Acoustic Detune / Beating Indicator -->
-    <div id="beatingPill" class="absolute bottom-8 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/85 border border-amber-500/40 backdrop-blur-md opacity-0 transition-opacity duration-200 shadow-xl">
-      <div id="beatingWave" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></div>
-      <span id="beatingText" class="text-[11px] text-amber-200/90 font-mono tracking-wide">Acoustic Beating: Slowing...</span>
-    </div>
-  </div>
+  </main>
 
-  <!-- Bottom Guidance Prompt -->
-  <footer class="w-full max-w-xl mx-auto text-center z-10 relative pb-1 sm:pb-3">
-    <p id="footerHint" class="text-xs sm:text-sm text-slate-400/90 font-light tracking-wide transition-all duration-500">
-      "Before the fracture, there was only silence."
-    </p>
+  <!-- Footer -->
+  <footer class="w-full max-w-4xl mx-auto border-t border-slate-800/80 pt-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-500 text-[11px] font-mono-code z-10 relative">
+    <span>KNOWLEDGE CREATION ENGINE · BY EVAN SWOPE</span>
+    <span>BISOCIATION × FLUX SCHNELL</span>
   </footer>
 
+  <!-- SCRIPT LOGIC -->
   <script>
-    // --- NARRATIVE DATA FOR THE 4 EMOTIONAL FACETS ---
-    const SHARDS_INFO = [
-      {
-        id: 0,
-        name: "Grief",
-        title: "The Deep Well",
-        lore: "The weight that anchors us to reality.",
-        colorHex: 0x223572, // Deep cobalt / lapis
-        emissiveHex: 0x0f183d,
-        accentColor: "#60a5fa",
-        baseFreq: 65.41, // C2 (low bowed cello)
-        voiceType: "cello",
-        seedDir: new THREE.Vector3(-0.7, -0.6, 0.4).normalize(),
-        orbitPos: new THREE.Vector3(-2.8, -1.8, 0.6)
-      },
-      {
-        id: 1,
-        name: "Will",
-        title: "The Inner Fire",
-        lore: "The pulse that drives our heartbeat forward.",
-        colorHex: 0x862218, // Fiery garnet
-        emissiveHex: 0x421008,
-        accentColor: "#f87171",
-        baseFreq: 130.81, // C3 / pulse mallet
-        voiceType: "mallet",
-        seedDir: new THREE.Vector3(0.7, -0.6, -0.4).normalize(),
-        orbitPos: new THREE.Vector3(2.8, -1.6, -0.5)
-      },
-      {
-        id: 2,
-        name: "Longing",
-        title: "The Golden Hearth",
-        lore: "The warm ache for what was and what could be.",
-        colorHex: 0xc47a18, // Warm amber
-        emissiveHex: 0x543006,
-        accentColor: "#fbbf24",
-        baseFreq: 196.00, // G3 (warm Rhodes bell)
-        voiceType: "rhodes",
-        seedDir: new THREE.Vector3(0.7, 0.6, 0.4).normalize(),
-        orbitPos: new THREE.Vector3(2.6, 1.8, 0.8)
-      },
-      {
-        id: 3,
-        name: "Wonder",
-        title: "The Open Sky",
-        lore: "The crystalline breath that meets the unknown.",
-        colorHex: 0x188874, // Seafoam / jadeite
-        emissiveHex: 0x083a2e,
-        accentColor: "#34d399",
-        baseFreq: 329.63, // E4 / singing bowl
-        voiceType: "bowl",
-        seedDir: new THREE.Vector3(-0.7, 0.6, -0.4).normalize(),
-        orbitPos: new THREE.Vector3(-2.6, 1.9, -0.6)
-      }
+    // --- APP STATE ---
+    let currentCategory = "";
+    let currentSpecimens = [];
+    let currentDossier = null;
+    let imagePredictionId = null;
+
+    // --- GHOST TEXT ROTATION ---
+    const ghostPrompts = [
+      "things that fail by leaking rather than snapping",
+      "things that can't be seen with the naked eye",
+      "things that carry ghosts of previous functions",
+      "things that are red",
+      "things that lose value the moment they are observed",
+      "things made to hold pressure from within",
+      "things that outlive their makers",
+      "things whose borders are an act of faith"
     ];
+    let ghostIndex = 0;
+    const inputEl = document.getElementById("categoryInput");
 
-    // --- GAME STATE ---
-    let act = 1; // 1 = Unbroken, 2 = Differentiated, 3 = Integrated
-    let dockedCount = 0;
-    let isSoundOn = true;
-
-    // --- AUDIO ENGINE ---
-    class SanctuaryAudioEngine {
-      constructor() {
-        this.ctx = null;
-        this.masterGain = null;
-        this.reverbNode = null;
-        this.ambientInterval = null;
-        this.beatGain = null;
-        this.dragOsc1 = null;
-        this.dragOsc2 = null;
+    setInterval(() => {
+      if (document.activeElement !== inputEl && !inputEl.value) {
+        ghostIndex = (ghostIndex + 1) % ghostPrompts.length;
+        inputEl.placeholder = ghostPrompts[ghostIndex];
       }
+    }, 4000);
 
-      init() {
-        if (this.ctx) {
-          if (this.ctx.state === 'suspended') this.ctx.resume();
+    // Quick chips click
+    document.querySelectorAll(".chip-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        inputEl.value = btn.getAttribute("data-query");
+        startTriadGeneration();
+      });
+    });
+
+    // Propose button
+    document.getElementById("proposeBtn").addEventListener("click", () => {
+      startTriadGeneration();
+    });
+
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") startTriadGeneration();
+    });
+
+    function showLoader(msg) {
+      document.getElementById("loaderMessage").textContent = msg;
+      document.getElementById("globalLoader").classList.remove("hidden");
+      document.getElementById("globalLoader").classList.add("flex");
+    }
+
+    function hideLoader() {
+      document.getElementById("globalLoader").classList.add("hidden");
+      document.getElementById("globalLoader").classList.remove("flex");
+    }
+
+    // --- STEP 1 -> STEP 2: GENERATE TRIAD ---
+    async function startTriadGeneration() {
+      const val = inputEl.value.trim() || inputEl.placeholder;
+      currentCategory = val;
+
+      showLoader("Interrogating Category & Drafting Specimens...");
+
+      try {
+        const res = await fetch("/api/dossier", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "generate_triad", category: currentCategory })
+        });
+
+        const data = await res.json();
+        currentSpecimens = data.specimens || [];
+        renderSpecimenCards();
+
+        document.getElementById("phasePropose").classList.add("hidden");
+        document.getElementById("phaseCurate").classList.remove("hidden");
+        document.getElementById("curateCategoryTitle").textContent = `"${currentCategory}"`;
+      } catch (err) {
+        console.error(err);
+        alert("Failed to draft specimens. Please try again.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // Render 3 Specimen Cards
+    function renderSpecimenCards() {
+      const container = document.getElementById("specimenCardsContainer");
+      container.innerHTML = "";
+
+      currentSpecimens.forEach((spec, idx) => {
+        const card = document.createElement("div");
+        card.className = "specimen-card bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-xl p-5 flex flex-col justify-between shadow-xl transition relative group";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-mono-code text-amber-400/90 tracking-wider uppercase mb-2">
+              <span class="specimen-domain">[ ${spec.domain.toUpperCase()} ]</span>
+              <span class="text-slate-600">SPECIMEN ${["I", "II", "III"][idx]}</span>
+            </div>
+            <h4 class="specimen-name text-lg font-serif text-slate-100 font-medium mb-2 leading-snug">${spec.name}</h4>
+            <p class="specimen-essence text-xs text-slate-400 leading-relaxed font-light italic">${spec.essence}</p>
+          </div>
+          <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800/80">
+            <button type="button" class="reroll-btn font-mono-code text-[11px] text-slate-400 hover:text-amber-300 flex items-center gap-1 transition" data-index="${idx}">
+              <span>↻</span> Reroll
+            </button>
+            <button type="button" class="edit-btn font-mono-code text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 transition" data-index="${idx}">
+              <span>✎</span> Edit
+            </button>
+          </div>
+        `;
+
+        // Reroll single button
+        card.querySelector(".reroll-btn").addEventListener("click", () => rerollSingleSpecimen(idx));
+
+        // Edit button
+        card.querySelector(".edit-btn").addEventListener("click", () => editSpecimen(idx));
+
+        container.appendChild(card);
+      });
+    }
+
+    // Reroll single specimen
+    async function rerollSingleSpecimen(idx) {
+      showLoader(`Drafting replacement for Specimen ${["I", "II", "III"][idx]}...`);
+      try {
+        const exclude = currentSpecimens.map(s => s.name);
+        const res = await fetch("/api/dossier", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "reroll_single",
+            category: currentCategory,
+            specimens: currentSpecimens,
+            exclude_names: exclude
+          })
+        });
+        const data = await res.json();
+        if (data.specimen) {
+          currentSpecimens[idx] = data.specimen;
+          renderSpecimenCards();
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // Edit specimen manually
+    function editSpecimen(idx) {
+      const cur = currentSpecimens[idx];
+      const newName = prompt("Enter replacement specimen name:", cur.name);
+      if (newName && newName.trim()) {
+        cur.name = newName.trim();
+        cur.domain = "User Defined";
+        cur.essence = "Curated manually by the investigator.";
+        renderSpecimenCards();
+      }
+    }
+
+    // Back to Propose
+    document.getElementById("backToProposeBtn").addEventListener("click", () => {
+      document.getElementById("phaseCurate").classList.add("hidden");
+      document.getElementById("phasePropose").classList.remove("hidden");
+    });
+
+    // --- STEP 2 -> STEP 3: COMPILE DOSSIER ---
+    document.getElementById("synthesizeBtn").addEventListener("click", async () => {
+      showLoader("Synthesizing 3-Page Dialectical Dossier...");
+      try {
+        const res = await fetch("/api/dossier", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "synthesize_dossier",
+            category: currentCategory,
+            specimens: currentSpecimens
+          })
+        });
+
+        currentDossier = await res.json();
+        renderDossier();
+
+        document.getElementById("phaseCurate").classList.add("hidden");
+        document.getElementById("phaseDossier").classList.remove("hidden");
+
+        // Kick off Flux image generation in background for Page 3!
+        if (currentDossier.page3?.image_prompt) {
+          triggerFluxImageGeneration(currentDossier.page3.image_prompt);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Failed to synthesize dossier. Please try again.");
+      } finally {
+        hideLoader();
+      }
+    });
+
+    // Render Dossier Pages
+    function renderDossier() {
+      document.getElementById("dossierCategoryHeading").textContent = `Category: "${currentCategory}"`;
+
+      // Page 1
+      const p1 = currentDossier.page1;
+      document.getElementById("page1Title").textContent = p1.title;
+      document.getElementById("page1Thesis").textContent = `"${p1.thesis}"`;
+      document.getElementById("page1Body").innerHTML = p1.body.map(p => `<p>${p}</p>`).join("");
+
+      // Page 2
+      const p2 = currentDossier.page2;
+      document.getElementById("page2Title").textContent = p2.title;
+      document.getElementById("page2Thesis").textContent = `"${p2.thesis}"`;
+      document.getElementById("page2Body").innerHTML = p2.body.map(p => `<p>${p}</p>`).join("");
+
+      // Page 3
+      const p3 = currentDossier.page3;
+      document.getElementById("page3Title").textContent = p3.title;
+      document.getElementById("page3Axiom").textContent = `Axiom Inverted: ${p3.axiom_flipped}`;
+      document.getElementById("page3Narrative").innerHTML = p3.narrative.map(p => `<p>${p}</p>`).join("");
+
+      switchTab(1);
+    }
+
+    // Tabs navigation
+    document.querySelectorAll(".dossier-tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pageNum = parseInt(btn.getAttribute("data-page"));
+        switchTab(pageNum);
+      });
+    });
+
+    document.querySelectorAll(".next-page-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const nextNum = parseInt(btn.getAttribute("data-next"));
+        switchTab(nextNum);
+      });
+    });
+
+    function switchTab(pageNum) {
+      document.querySelectorAll(".dossier-page").forEach(p => p.classList.add("hidden"));
+      document.querySelectorAll(".dossier-tab-btn").forEach(b => {
+        b.classList.remove("border-amber-400", "text-amber-300");
+        b.classList.add("border-transparent", "text-slate-400");
+      });
+
+      const activePage = document.getElementById(`dossierPage${pageNum}`);
+      const activeBtn = document.getElementById(`tabBtn${pageNum}`);
+
+      if (activePage && activeBtn) {
+        activePage.classList.remove("hidden");
+        activePage.classList.add("fade-active");
+        activeBtn.classList.remove("border-transparent", "text-slate-400");
+        activeBtn.classList.add("border-amber-400", "text-amber-300");
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Background Flux Schnell Image Generation
+    async function triggerFluxImageGeneration(promptText) {
+      const imageEl = document.getElementById("page3Image");
+      const loaderEl = document.getElementById("imageLoader");
+      imageEl.classList.add("hidden");
+      loaderEl.classList.remove("hidden");
+
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model_id: "flux-schnell",
+            prompt: promptText,
+            aspect_ratio: "16:9"
+          })
+        });
+
+        if (!res.ok) {
+          loaderEl.innerHTML = `<span class="text-xs font-mono-code text-slate-500 italic">Visual artifact could not be summoned.</span>`;
           return;
         }
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioCtx();
 
-        // Master Limiter / Compressor
-        const comp = this.ctx.createDynamicsCompressor();
-        comp.threshold.value = -12;
-        comp.knee.value = 8;
-        comp.ratio.value = 6;
-        comp.attack.value = 0.005;
-        comp.release.value = 0.15;
-        comp.connect(this.ctx.destination);
-
-        this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0.85;
-        this.masterGain.connect(comp);
-
-        // Algorithmic Cathedral Reverb (Stereo Impulse Buffer)
-        this.reverbNode = this.ctx.createConvolver();
-        this.reverbNode.buffer = this.buildReverbImpulse(2.8, 2.2);
-        this.reverbGain = this.ctx.createGain();
-        this.reverbGain.gain.value = 0.45;
-        this.reverbNode.connect(this.reverbGain);
-        this.reverbGain.connect(this.masterGain);
-
-        // Acoustic Beating Oscillator pair
-        this.beatGain = this.ctx.createGain();
-        this.beatGain.gain.value = 0.0;
-        this.beatGain.connect(this.masterGain);
-
-        this.startAmbientLoop();
+        const data = await res.json();
+        if (data.id) {
+          pollImageResult(data.id);
+        }
+      } catch (err) {
+        console.error("Image generation error:", err);
       }
+    }
 
-      buildReverbImpulse(duration, decay) {
-        const rate = this.ctx.sampleRate;
-        const length = rate * duration;
-        const impulse = this.ctx.createBuffer(2, length, rate);
-        for (let channel = 0; channel < 2; channel++) {
-          const channelData = impulse.getChannelData(channel);
-          for (let i = 0; i < length; i++) {
-            const t = i / length;
-            channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
+    // Poll for Replicate image result
+    function pollImageResult(predictionId) {
+      const imageEl = document.getElementById("page3Image");
+      const loaderEl = document.getElementById("imageLoader");
+
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/poll?id=${predictionId}`);
+          if (!res.ok) return;
+
+          const data = await res.json();
+          if (data.status === "succeeded" && data.output && data.output.length > 0) {
+            clearInterval(interval);
+            imageEl.src = data.output[0];
+            imageEl.onload = () => {
+              loaderEl.classList.add("hidden");
+              imageEl.classList.remove("hidden");
+              imageEl.classList.add("fade-active");
+            };
+          } else if (data.status === "failed") {
+            clearInterval(interval);
+            loaderEl.innerHTML = `<span class="text-xs font-mono-code text-slate-500 italic">Visual artifact synthesis terminated.</span>`;
           }
+        } catch (e) {
+          console.error(e);
         }
-        return impulse;
-      }
-
-      // Act I: The Unbroken Awaken Strike
-      playUnbrokenAwaken() {
-        if (!this.ctx) this.init();
-        const now = this.ctx.currentTime;
-
-        [130.81, 261.63, 392.00].forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = idx === 0 ? "triangle" : "sine";
-          osc.frequency.setValueAtTime(freq, now);
-
-          gain.gain.setValueAtTime(idx === 0 ? 0.35 : 0.15, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
-
-          osc.connect(gain);
-          gain.connect(this.masterGain);
-          gain.connect(this.reverbNode);
-
-          osc.start(now);
-          osc.stop(now + 4.6);
-        });
-      }
-
-      // Play individual shard voice when touched
-      playShardVoice(shardId) {
-        if (!this.ctx) return;
-        const info = SHARDS_INFO[shardId];
-        const now = this.ctx.currentTime;
-
-        if (info.voiceType === "cello") {
-          // Low cello bow swell (C2 + G2)
-          [info.baseFreq, info.baseFreq * 1.5].forEach(f => {
-            const osc = this.ctx.createOscillator();
-            const filter = this.ctx.createBiquadFilter();
-            const gain = this.ctx.createGain();
-
-            osc.type = "sawtooth";
-            osc.frequency.setValueAtTime(f, now);
-
-            filter.type = "lowpass";
-            filter.frequency.setValueAtTime(220, now);
-            filter.frequency.linearRampToValueAtTime(450, now + 0.8);
-            filter.frequency.exponentialRampToValueAtTime(180, now + 3.0);
-
-            gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.linearRampToValueAtTime(0.25, now + 0.4);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(this.masterGain);
-            gain.connect(this.reverbNode);
-
-            osc.start(now);
-            osc.stop(now + 3.3);
-          });
-        } else if (info.voiceType === "mallet") {
-          // Heartbeat pulse mallet (warm marimba + sub boom)
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(info.baseFreq * 1.1, now);
-          osc.frequency.exponentialRampToValueAtTime(info.baseFreq * 0.5, now + 0.4);
-
-          gain.gain.setValueAtTime(0.4, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-
-          osc.connect(gain);
-          gain.connect(this.masterGain);
-          gain.connect(this.reverbNode);
-
-          osc.start(now);
-          osc.stop(now + 1.3);
-        } else if (info.voiceType === "rhodes") {
-          // Warm electric piano chime
-          const osc1 = this.ctx.createOscillator();
-          const osc2 = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-
-          osc1.type = "sine";
-          osc2.type = "sine";
-          osc1.frequency.setValueAtTime(info.baseFreq, now);
-          osc2.frequency.setValueAtTime(info.baseFreq * 2.01, now);
-
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
-
-          osc1.connect(gain);
-          osc2.connect(gain);
-          gain.connect(this.masterGain);
-          gain.connect(this.reverbNode);
-
-          osc1.start(now);
-          osc2.start(now);
-          osc1.stop(now + 2.5);
-          osc2.stop(now + 2.5);
-        } else if (info.voiceType === "bowl") {
-          // Crystal singing bowl
-          [info.baseFreq, info.baseFreq * 2.76].forEach((f, i) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(f, now);
-
-            gain.gain.setValueAtTime(i === 0 ? 0.25 : 0.08, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
-
-            osc.connect(gain);
-            gain.connect(this.masterGain);
-            gain.connect(this.reverbNode);
-
-            osc.start(now);
-            osc.stop(now + 3.9);
-          });
-        }
-      }
-
-      // Update dragging acoustic detune / beating
-      setAcousticBeating(dist, shardId) {
-        if (!this.ctx) return;
-        const now = this.ctx.currentTime;
-        const info = SHARDS_INFO[shardId];
-
-        if (dist > 2.2) {
-          this.beatGain.gain.setTargetAtTime(0.0, now, 0.05);
-          return;
-        }
-
-        const beatFreq = Math.max(0.4, dist * 6.5);
-        this.beatGain.gain.setTargetAtTime(0.18 * (1.0 - dist / 2.4), now, 0.05);
-
-        if (!this.dragOsc1) {
-          this.dragOsc1 = this.ctx.createOscillator();
-          this.dragOsc2 = this.ctx.createOscillator();
-          this.dragOsc1.type = "sine";
-          this.dragOsc2.type = "sine";
-          this.dragOsc1.connect(this.beatGain);
-          this.dragOsc2.connect(this.beatGain);
-          this.dragOsc1.start();
-          this.dragOsc2.start();
-        }
-
-        const baseF = info.baseFreq;
-        this.dragOsc1.frequency.setTargetAtTime(baseF, now, 0.05);
-        this.dragOsc2.frequency.setTargetAtTime(baseF + beatFreq, now, 0.05);
-      }
-
-      stopAcousticBeating() {
-        if (!this.ctx || !this.beatGain) return;
-        this.beatGain.gain.setTargetAtTime(0.0, this.ctx.currentTime, 0.08);
-      }
-
-      // Kintsugi Snap Impact Sound
-      playSnapImpact(shardId) {
-        if (!this.ctx) return;
-        this.stopAcousticBeating();
-        const now = this.ctx.currentTime;
-        const info = SHARDS_INFO[shardId];
-
-        // Heavy gold magnetic thump
-        const thump = this.ctx.createOscillator();
-        const thumpGain = this.ctx.createGain();
-        thump.type = "sine";
-        thump.frequency.setValueAtTime(140, now);
-        thump.frequency.exponentialRampToValueAtTime(38, now + 0.35);
-
-        thumpGain.gain.setValueAtTime(0.6, now);
-        thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-
-        thump.connect(thumpGain);
-        thumpGain.connect(this.masterGain);
-        thump.start(now);
-        thump.stop(now + 0.55);
-
-        // Radiant bell chime that marks integration
-        const bell = this.ctx.createOscillator();
-        const bellGain = this.ctx.createGain();
-        bell.type = "sine";
-        bell.frequency.setValueAtTime(info.baseFreq * 2.0, now);
-
-        bellGain.gain.setValueAtTime(0.35, now);
-        bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
-
-        bell.connect(bellGain);
-        bellGain.connect(this.reverbNode);
-        bellGain.connect(this.masterGain);
-        bell.start(now);
-        bell.stop(now + 2.9);
-      }
-
-      // Full Act III Integrated Symphony Bloom
-      playIntegrationBloom() {
-        if (!this.ctx) return;
-        const now = this.ctx.currentTime;
-
-        const chordPitches = [65.41, 130.81, 196.00, 261.63, 329.63, 392.00, 523.25];
-        chordPitches.forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = idx % 2 === 0 ? "sine" : "triangle";
-          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-
-          gain.gain.setValueAtTime(0.0001, now);
-          gain.gain.linearRampToValueAtTime(0.18 / Math.sqrt(idx + 1), now + 1.2 + idx * 0.1);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 7.0);
-
-          osc.connect(gain);
-          gain.connect(this.reverbNode);
-          gain.connect(this.masterGain);
-
-          osc.start(now);
-          osc.stop(now + 7.2);
-        });
-      }
-
-      // Ongoing ambient cycle
-      startAmbientLoop() {
-        let step = 0;
-        this.ambientInterval = setInterval(() => {
-          if (!this.ctx || !isSoundOn || this.ctx.state !== "running") return;
-          const now = this.ctx.currentTime;
-
-          if (act === 1) {
-            if (step % 4 === 0) {
-              const osc = this.ctx.createOscillator();
-              const g = this.ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.setValueAtTime(130.81, now);
-              g.gain.setValueAtTime(0.001, now);
-              g.gain.linearRampToValueAtTime(0.08, now + 1.0);
-              g.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
-              osc.connect(g);
-              g.connect(this.reverbNode);
-              g.connect(this.masterGain);
-              osc.start(now);
-              osc.stop(now + 3.9);
-            }
-          } else if (act === 2) {
-            SHARDS_INFO.forEach((s, idx) => {
-              if (s.docked) {
-                if (step % 2 === 0) {
-                  this.playHarmonicNote(s.baseFreq, 0.08);
-                }
-              } else {
-                if ((step + idx) % 5 === 0) {
-                  this.playHarmonicNote(s.baseFreq * 1.5, 0.04);
-                }
-              }
-            });
-          } else if (act === 3) {
-            // Act III Integrated Polyphonic Waltz in 6/8
-            const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
-            const note = melody[step % melody.length];
-            this.playHarmonicNote(note, 0.12);
-
-            if (step % 3 === 0) {
-              this.playHarmonicNote(65.41, 0.15); // Cello root on 1
-            }
-          }
-          step = (step + 1) % 24;
-        }, 650);
-      }
-
-      playHarmonicNote(freq, vol) {
-        if (!this.ctx) return;
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, now);
-
-        g.gain.setValueAtTime(vol, now);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
-
-        osc.connect(g);
-        g.connect(this.reverbNode);
-        g.connect(this.masterGain);
-
-        osc.start(now);
-        osc.stop(now + 2.3);
-      }
+      }, 900);
     }
 
-    const audio = new SanctuaryAudioEngine();
-
-    // --- THREE.JS SCENE SETUP ---
-    const canvas = document.getElementById("glCanvas");
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x06080e, 0.045);
-
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 0, 7.8);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
-
-    // Responsive Camera Setup (Pull back on portrait smartphones)
-    function adjustCameraForViewport() {
-      const parent = canvas.parentElement;
-      const w = parent ? parent.clientWidth : window.innerWidth;
-      const h = parent ? parent.clientHeight : window.innerHeight;
-      renderer.setSize(w, h, false);
-      const aspect = w / h;
-      camera.aspect = aspect;
-
-      if (aspect < 1.0) {
-        // Narrow mobile portrait: pull camera back so all shards fit comfortably
-        camera.position.z = 7.5 / Math.max(aspect, 0.52);
-      } else {
-        camera.position.z = 7.5;
-      }
-      camera.updateProjectionMatrix();
-    }
-    adjustCameraForViewport();
-    window.addEventListener("resize", adjustCameraForViewport);
-
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffeedd, 0.55);
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0xfff5e6, 1.4);
-    keyLight.position.set(5, 7, 6);
-    scene.add(keyLight);
-
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.75);
-    rimLight.position.set(-6, -4, -4);
-    scene.add(rimLight);
-
-    const coreLight = new THREE.PointLight(0xffb703, 0.8, 12);
-    coreLight.position.set(0, 0, 0);
-    scene.add(coreLight);
-
-    // Golden Floating Motes
-    const particleCount = 180;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePos = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount * 3; i += 3) {
-      particlePos[i] = (Math.random() - 0.5) * 12;
-      particlePos[i + 1] = (Math.random() - 0.5) * 10;
-      particlePos[i + 2] = (Math.random() - 0.5) * 10;
-    }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0xffd166,
-      size: 0.045,
-      transparent: true,
-      opacity: 0.5,
-      blending: THREE.AdditiveBlending
-    });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    scene.add(particles);
-
-    // --- PROCEDURAL RIVER STONE & SHARD MESH GENERATION ---
-    function getStoneSurfaceRadius(theta, phi) {
-      const r0 = 1.65;
-      const oblateness = 0.12 * Math.cos(2 * phi);
-      const lumpiness = 0.08 * Math.sin(3 * theta) * Math.cos(phi);
-      const flattenZ = -0.05 * Math.sin(phi) * Math.sin(phi);
-      return r0 * (1.0 + oblateness + lumpiness + flattenZ);
+    // Reset to start
+    function resetAll() {
+      document.getElementById("phaseDossier").classList.add("hidden");
+      document.getElementById("phaseCurate").classList.add("hidden");
+      document.getElementById("phasePropose").classList.remove("hidden");
+      inputEl.value = "";
     }
 
-    // 1. Act I Unbroken Stone
-    let unbrokenMesh;
-    function buildUnbrokenStone() {
-      const uvs = [];
-      const positions = [];
-      const normals = [];
-      const indices = [];
-
-      const latSegs = 40;
-      const lonSegs = 60;
-
-      for (let i = 0; i <= latSegs; i++) {
-        const phi = (i / latSegs - 0.5) * Math.PI;
-        for (let j = 0; j <= lonSegs; j++) {
-          const theta = (j / lonSegs) * Math.PI * 2 - Math.PI;
-
-          const r = getStoneSurfaceRadius(theta, phi);
-          const x = r * Math.cos(phi) * Math.cos(theta);
-          const y = r * Math.sin(phi);
-          const z = r * Math.cos(phi) * Math.sin(theta);
-
-          positions.push(x, y, z);
-          const n = new THREE.Vector3(x, y * 1.2, z).normalize();
-          normals.push(n.x, n.y, n.z);
-          uvs.push(j / lonSegs, i / latSegs);
-        }
-      }
-
-      for (let i = 0; i < latSegs; i++) {
-        for (let j = 0; j < lonSegs; j++) {
-          const first = i * (lonSegs + 1) + j;
-          const second = first + lonSegs + 1;
-          indices.push(first, second, first + 1);
-          indices.push(second, second + 1, first + 1);
-        }
-      }
-
-      const geo = new THREE.BufferGeometry();
-      geo.setIndex(indices);
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-      geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-      geo.computeVertexNormals();
-
-      const mat = new THREE.MeshStandardMaterial({
-        color: 0xf5f2eb, // warm alabaster porcelain
-        roughness: 0.35,
-        metalness: 0.08,
-      });
-
-      unbrokenMesh = new THREE.Mesh(geo, mat);
-      scene.add(unbrokenMesh);
-    }
-    buildUnbrokenStone();
-
-    // 2. Act II & III 4 Differentiated Shards
-    const shardMeshes = [];
-
-    function buildShards() {
-      const latSegs = 44;
-      const lonSegs = 68;
-
-      SHARDS_INFO.forEach((info, shardIndex) => {
-        const shardGroup = new THREE.Group();
-        shardGroup.userData = { id: shardIndex, info: info, docked: false };
-
-        const outerPositions = [];
-        const outerNormals = [];
-        const outerIndices = [];
-
-        const innerPositions = [];
-        const innerNormals = [];
-        const innerIndices = [];
-
-        const seamPoints = [];
-
-        // Classify sphere grid points into 4 Voronoi regions
-        const grid = [];
-        for (let i = 0; i <= latSegs; i++) {
-          grid[i] = [];
-          const phi = (i / latSegs - 0.5) * Math.PI;
-          for (let j = 0; j <= lonSegs; j++) {
-            const theta = (j / lonSegs) * Math.PI * 2 - Math.PI;
-            const r = getStoneSurfaceRadius(theta, phi);
-            const pos = new THREE.Vector3(
-              r * Math.cos(phi) * Math.cos(theta),
-              r * Math.sin(phi),
-              r * Math.cos(phi) * Math.sin(theta)
-            );
-
-            let bestDot = -Infinity;
-            let bestIndex = 0;
-            const unit = pos.clone().normalize();
-            SHARDS_INFO.forEach((s, idx) => {
-              const d = unit.dot(s.seedDir);
-              if (d > bestDot) {
-                bestDot = d;
-                bestIndex = idx;
-              }
-            });
-
-            grid[i][j] = { pos, belongs: bestIndex === shardIndex };
-          }
-        }
-
-        let vertexMap = new Map();
-        function getOuterIdx(pos) {
-          const key = pos.x.toFixed(3) + "_" + pos.y.toFixed(3) + "_" + pos.z.toFixed(3);
-          if (vertexMap.has(key)) return vertexMap.get(key);
-          const idx = outerPositions.length / 3;
-          outerPositions.push(pos.x, pos.y, pos.z);
-          const n = pos.clone().normalize();
-          outerNormals.push(n.x, n.y, n.z);
-          vertexMap.set(key, idx);
-          return idx;
-        }
-
-        for (let i = 0; i < latSegs; i++) {
-          for (let j = 0; j < lonSegs; j++) {
-            const p00 = grid[i][j];
-            const p10 = grid[i + 1][j];
-            const p01 = grid[i][j + 1];
-            const p11 = grid[i + 1][j + 1];
-
-            if (p00.belongs && p10.belongs && p01.belongs && p11.belongs) {
-              const i00 = getOuterIdx(p00.pos);
-              const i10 = getOuterIdx(p10.pos);
-              const i01 = getOuterIdx(p01.pos);
-              const i11 = getOuterIdx(p11.pos);
-              outerIndices.push(i00, i10, i01);
-              outerIndices.push(i10, i11, i01);
-            } else if (p00.belongs || p10.belongs || p01.belongs || p11.belongs) {
-              if (p00.belongs) seamPoints.push(p00.pos);
-              if (p10.belongs) seamPoints.push(p10.pos);
-              if (p01.belongs) seamPoints.push(p01.pos);
-              if (p11.belongs) seamPoints.push(p11.pos);
-            }
-          }
-        }
-
-        // Inner fracture wall: connect boundary seam points to origin (0,0,0)
-        const uAxis = new THREE.Vector3();
-        if (Math.abs(info.seedDir.y) < 0.9) uAxis.set(0, 1, 0).cross(info.seedDir).normalize();
-        else uAxis.set(1, 0, 0).cross(info.seedDir).normalize();
-        const vAxis = info.seedDir.clone().cross(uAxis).normalize();
-
-        const uniqueSeam = [];
-        seamPoints.forEach(pt => {
-          if (!uniqueSeam.some(u => u.distanceTo(pt) < 0.08)) {
-            uniqueSeam.push(pt.clone());
-          }
-        });
-
-        uniqueSeam.sort((a, b) => {
-          const angA = Math.atan2(a.dot(vAxis), a.dot(uAxis));
-          const angB = Math.atan2(b.dot(vAxis), b.dot(uAxis));
-          return angA - angB;
-        });
-
-        innerPositions.push(0, 0, 0);
-        innerNormals.push(info.seedDir.x, info.seedDir.y, info.seedDir.z);
-
-        const centerIdx = 0;
-        uniqueSeam.forEach((pt, idx) => {
-          const curIdx = innerPositions.length / 3;
-          innerPositions.push(pt.x, pt.y, pt.z);
-          const n = pt.clone().normalize();
-          innerNormals.push(n.x, n.y, n.z);
-
-          const nextIdx = idx === uniqueSeam.length - 1 ? 1 : curIdx + 1;
-          innerIndices.push(centerIdx, curIdx, nextIdx);
-        });
-
-        // 1. Outer Shell Mesh (Matte Obsidian)
-        const outerGeo = new THREE.BufferGeometry();
-        if (outerPositions.length > 0) {
-          outerGeo.setIndex(outerIndices);
-          outerGeo.setAttribute('position', new THREE.Float32BufferAttribute(outerPositions, 3));
-          outerGeo.setAttribute('normal', new THREE.Float32BufferAttribute(outerNormals, 3));
-          outerGeo.computeVertexNormals();
-        }
-        const outerMat = new THREE.MeshStandardMaterial({
-          color: 0x181a20,
-          roughness: 0.85,
-          metalness: 0.15,
-          side: THREE.DoubleSide
-        });
-        const outerMesh = new THREE.Mesh(outerGeo, outerMat);
-        shardGroup.add(outerMesh);
-
-        // 2. Inner Crystal Face Mesh
-        const innerGeo = new THREE.BufferGeometry();
-        innerGeo.setIndex(innerIndices);
-        innerGeo.setAttribute('position', new THREE.Float32BufferAttribute(innerPositions, 3));
-        innerGeo.setAttribute('normal', new THREE.Float32BufferAttribute(innerNormals, 3));
-        innerGeo.computeVertexNormals();
-
-        const innerMat = new THREE.MeshStandardMaterial({
-          color: info.colorHex,
-          emissive: info.emissiveHex,
-          emissiveIntensity: 0.6,
-          roughness: 0.25,
-          metalness: 0.4,
-          side: THREE.DoubleSide
-        });
-        const innerMesh = new THREE.Mesh(innerGeo, innerMat);
-        shardGroup.add(innerMesh);
-
-        // 3. Golden Kintsugi Seam Ribbon
-        if (uniqueSeam.length > 2) {
-          const seamCurvePoints = [...uniqueSeam, uniqueSeam[0]];
-          const seamGeo = new THREE.BufferGeometry().setFromPoints(seamCurvePoints);
-          const seamMat = new THREE.LineBasicMaterial({
-            color: 0xffd24d,
-            linewidth: 2.5,
-            transparent: true,
-            opacity: 0.85
-          });
-          const seamLine = new THREE.Line(seamGeo, seamMat);
-          shardGroup.add(seamLine);
-        }
-
-        // 4. Invisible Generous Touch Bounding Sphere (for mobile ease)
-        const hitGeo = new THREE.SphereGeometry(1.6, 12, 12);
-        const hitMat = new THREE.MeshBasicMaterial({ visible: false });
-        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
-        shardGroup.add(hitMesh);
-
-        shardGroup.visible = false;
-        scene.add(shardGroup);
-        shardMeshes.push(shardGroup);
-      });
-    }
-    buildShards();
-
-    // Golden Arc connecting dragged shard to socket
-    const goldenArcGeo = new THREE.BufferGeometry();
-    const goldenArcPositions = new Float32Array(30 * 3);
-    goldenArcGeo.setAttribute('position', new THREE.BufferAttribute(goldenArcPositions, 3));
-    const goldenArcMat = new THREE.LineBasicMaterial({
-      color: 0xffd166,
-      transparent: true,
-      opacity: 0.0,
-      blending: THREE.AdditiveBlending,
-      linewidth: 3
-    });
-    const goldenArcLine = new THREE.Line(goldenArcGeo, goldenArcMat);
-    scene.add(goldenArcLine);
-
-    // --- INTERACTION & DRAG SYSTEM ---
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    let draggedShard = null;
-    let dragPlane = new THREE.Plane();
-    let planeIntersect = new THREE.Vector3();
-    let isDragging = false;
-    let dragOffset = new THREE.Vector3();
-    let touchStartPos = { x: 0, y: 0 };
-    let hasMoved = false;
-
-    let isRotatingVessel = false;
-    let prevMouse = { x: 0, y: 0 };
-    let vesselRotation = { x: 0.2, y: 0.4 };
-
-    // DOM Elements
-    const actTitle = document.getElementById("actTitle");
-    const actSubtitle = document.getElementById("actSubtitle");
-    const footerHint = document.getElementById("footerHint");
-    const shardWhisper = document.getElementById("shardWhisper");
-    const whisperName = document.getElementById("whisperName");
-    const whisperLore = document.getElementById("whisperLore");
-    const beatingPill = document.getElementById("beatingPill");
-    const soundBtn = document.getElementById("soundBtn");
-    const resetBtn = document.getElementById("resetBtn");
-
-    function getPointerPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return {
-        x: ((clientX - rect.left) / rect.width) * 2 - 1,
-        y: -((clientY - rect.top) / rect.height) * 2 + 1,
-        screenX: clientX,
-        screenY: clientY
-      };
-    }
-
-    // Pointer Down
-    function onPointerDown(e) {
-      audio.init();
-      const pos = getPointerPos(e);
-      mouse.x = pos.x;
-      mouse.y = pos.y;
-      prevMouse = { x: pos.screenX, y: pos.screenY };
-      touchStartPos = { x: pos.screenX, y: pos.screenY };
-      hasMoved = false;
-
-      raycaster.setFromCamera(mouse, camera);
-
-      if (act === 1) {
-        const intersects = raycaster.intersectObject(unbrokenMesh);
-        if (intersects.length > 0) {
-          triggerFracture();
-        }
-      } else if (act === 2) {
-        const hitShards = [];
-        shardMeshes.forEach(grp => {
-          if (!grp.userData.docked) {
-            const hits = raycaster.intersectObjects(grp.children, true);
-            if (hits.length > 0) {
-              hitShards.push({ grp, dist: hits[0].distance });
-            }
-          }
-        });
-
-        if (hitShards.length > 0) {
-          hitShards.sort((a, b) => a.dist - b.dist);
-          draggedShard = hitShards[0].grp;
-          isDragging = true;
-
-          audio.playShardVoice(draggedShard.userData.id);
-
-          dragPlane.setFromNormalAndCoplanarPoint(
-            camera.getWorldDirection(new THREE.Vector3()).negate(),
-            draggedShard.position
-          );
-
-          if (raycaster.ray.intersectPlane(dragPlane, planeIntersect)) {
-            dragOffset.copy(draggedShard.position).sub(planeIntersect);
-          }
-
-          const info = draggedShard.userData.info;
-          whisperName.textContent = info.name;
-          whisperName.style.color = info.accentColor;
-          whisperLore.textContent = info.lore;
-          shardWhisper.style.opacity = "1";
-        } else {
-          isRotatingVessel = true;
-        }
-      } else if (act === 3) {
-        isRotatingVessel = true;
-      }
-    }
-
-    // Pointer Move
-    function onPointerMove(e) {
-      const pos = getPointerPos(e);
-      mouse.x = pos.x;
-      mouse.y = pos.y;
-
-      const dx = pos.screenX - prevMouse.x;
-      const dy = pos.screenY - prevMouse.y;
-      if (Math.hypot(pos.screenX - touchStartPos.x, pos.screenY - touchStartPos.y) > 6) {
-        hasMoved = true;
-      }
-
-      if (isDragging && draggedShard) {
-        raycaster.setFromCamera(mouse, camera);
-        if (raycaster.ray.intersectPlane(dragPlane, planeIntersect)) {
-          draggedShard.position.copy(planeIntersect.add(dragOffset));
-
-          // Easing rotation toward 0 as it approaches socket
-          const distToSocket = draggedShard.position.length();
-          const alignFactor = Math.max(0.0, 1.0 - distToSocket / 2.0);
-          draggedShard.rotation.x = THREE.MathUtils.lerp(draggedShard.rotation.x, 0, 0.15 * alignFactor);
-          draggedShard.rotation.y = THREE.MathUtils.lerp(draggedShard.rotation.y, 0, 0.15 * alignFactor);
-          draggedShard.rotation.z = THREE.MathUtils.lerp(draggedShard.rotation.z, 0, 0.15 * alignFactor);
-
-          // Golden Arc visual line
-          goldenArcMat.opacity = Math.max(0.1, 1.0 - distToSocket / 3.0);
-          const posAttr = goldenArcGeo.attributes.position;
-          for (let i = 0; i < 30; i++) {
-            const t = i / 29;
-            const arcPoint = new THREE.Vector3().lerpVectors(draggedShard.position, new THREE.Vector3(0, 0, 0), t);
-            arcPoint.y += Math.sin(t * Math.PI) * 0.4 * (1.0 - t);
-            posAttr.setXYZ(i, arcPoint.x, arcPoint.y, arcPoint.z);
-          }
-          posAttr.needsUpdate = true;
-
-          // Sound acoustic beating
-          audio.setAcousticBeating(distToSocket, draggedShard.userData.id);
-
-          beatingPill.style.opacity = distToSocket < 2.0 ? "1" : "0";
-        }
-      } else if (isRotatingVessel) {
-        vesselRotation.y += dx * 0.008;
-        vesselRotation.x += dy * 0.008;
-      }
-
-      prevMouse = { x: pos.screenX, y: pos.screenY };
-    }
-
-    // Pointer Up
-    function onPointerUp(e) {
-      if (isDragging && draggedShard) {
-        const distToSocket = draggedShard.position.length();
-
-        // Snap threshold: within 1.35 units of center
-        if (distToSocket < 1.35) {
-          dockShard(draggedShard);
-        } else {
-          // Release back to gentle orbit
-          const targetOrbit = draggedShard.userData.info.orbitPos;
-          animateShardTo(draggedShard, targetOrbit, new THREE.Euler(0, 0, 0), 500);
-          audio.stopAcousticBeating();
-        }
-
-        draggedShard = null;
-        isDragging = false;
-        goldenArcMat.opacity = 0;
-        shardWhisper.style.opacity = "0";
-        beatingPill.style.opacity = "0";
-      }
-
-      if (act === 3 && !hasMoved) {
-        audio.playHarmonicNote(392.0 + Math.random() * 200, 0.2);
-      }
-
-      isRotatingVessel = false;
-    }
-
-    canvas.addEventListener("pointerdown", onPointerDown, { passive: true });
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("pointerup", onPointerUp, { passive: true });
-
-    // Smooth animate shard position & rotation
-    function animateShardTo(shard, targetPos, targetRot, durationMs, onComplete) {
-      const startPos = shard.position.clone();
-      const startRot = shard.rotation.clone();
-      const startTime = performance.now();
-
-      function step(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(1.0, elapsed / durationMs);
-        const ease = 1 - Math.pow(1 - progress, 3);
-
-        shard.position.lerpVectors(startPos, targetPos, ease);
-        if (targetRot) {
-          shard.rotation.x = THREE.MathUtils.lerp(startRot.x, targetRot.x, ease);
-          shard.rotation.y = THREE.MathUtils.lerp(startRot.y, targetRot.y, ease);
-          shard.rotation.z = THREE.MathUtils.lerp(startRot.z, targetRot.z, ease);
-        }
-
-        if (progress < 1.0) {
-          requestAnimationFrame(step);
-        } else {
-          shard.position.copy(targetPos);
-          if (targetRot) shard.rotation.copy(targetRot);
-          if (onComplete) onComplete();
-        }
-      }
-      requestAnimationFrame(step);
-    }
-
-    // --- ACT TRANSITIONS ---
-
-    function triggerFracture() {
-      act = 2;
-      audio.playUnbrokenAwaken();
-
-      actTitle.textContent = "Act II · The Scattered Mind";
-      actSubtitle.textContent = "4 facets drift in dissonance. Drag each shard home.";
-      footerHint.textContent = '"A mind broken is not ruined; it has differentiated into its true voices."';
-
-      unbrokenMesh.visible = false;
-
-      shardMeshes.forEach(shard => {
-        shard.visible = true;
-        shard.position.set(0, 0, 0);
-        shard.rotation.set(0, 0, 0);
-        shard.userData.docked = false;
-
-        const target = shard.userData.info.orbitPos;
-        animateShardTo(shard, target, new THREE.Euler(0.2, 0.4, 0), 1200 + Math.random() * 400);
-      });
-    }
-
-    function dockShard(shard) {
-      shard.userData.docked = true;
-      dockedCount++;
-
-      if (navigator.vibrate) {
-        navigator.vibrate([15, 30, 20]);
-      }
-
-      // Smoothly snap position and rotation to origin (0,0,0)
-      animateShardTo(shard, new THREE.Vector3(0, 0, 0), new THREE.Euler(0, 0, 0), 280, () => {
-        audio.playSnapImpact(shard.userData.id);
-
-        const seam = shard.children.find(c => c instanceof THREE.Line);
-        if (seam) {
-          seam.material.color.setHex(0xffffff);
-          seam.material.opacity = 1.0;
-          setTimeout(() => {
-            seam.material.color.setHex(0xffd24d);
-            seam.material.opacity = 0.95;
-          }, 400);
-        }
-
-        coreLight.intensity = 2.5;
-        setTimeout(() => coreLight.intensity = 0.8, 500);
-
-        if (dockedCount === 4) {
-          triggerIntegration();
-        } else {
-          actSubtitle.textContent = `${dockedCount} of 4 shards integrated.`;
-          footerHint.textContent = `"Listen to how ${shard.userData.info.name} settles into the choir."`;
-        }
-      });
-    }
-
-    function triggerIntegration() {
-      act = 3;
-      audio.playIntegrationBloom();
-
-      actTitle.textContent = "Act III · Integrated";
-      actSubtitle.textContent = "Whole through its scars. Spin to explore · Tap to chime";
-      footerHint.textContent = '"You are not repaired. You are integrated. Every scar carries gold."';
-
-      coreLight.intensity = 4.0;
-      setTimeout(() => coreLight.intensity = 1.2, 1000);
-    }
-
-    function resetExperience() {
-      act = 1;
-      dockedCount = 0;
-      draggedShard = null;
-      isDragging = false;
-
-      actTitle.textContent = "The Vessel · Unbroken";
-      actSubtitle.textContent = "Tap the stone to awaken";
-      footerHint.textContent = '"Before the fracture, there was only silence."';
-
-      unbrokenMesh.visible = true;
-      unbrokenMesh.rotation.set(0, 0, 0);
-
-      shardMeshes.forEach(s => {
-        s.visible = false;
-        s.position.set(0, 0, 0);
-        s.rotation.set(0, 0, 0);
-        s.userData.docked = false;
-      });
-    }
-
-    resetBtn.addEventListener("click", resetExperience);
-
-    soundBtn.addEventListener("click", () => {
-      isSoundOn = !isSoundOn;
-      soundBtn.textContent = isSoundOn ? "Sound: On ♫" : "Sound: Muted ✕";
-      if (audio.masterGain) {
-        audio.masterGain.gain.setValueAtTime(isSoundOn ? 0.85 : 0.0, audio.ctx.currentTime);
-      }
-    });
-
-    // --- ANIMATION LOOP ---
-    let clock = new THREE.Clock();
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const time = clock.getElapsedTime();
-
-      // Golden Motes Drift
-      const positions = particleGeo.attributes.position.array;
-      for (let i = 1; i < particleCount * 3; i += 3) {
-        positions[i] -= 0.003;
-        if (positions[i] < -5) positions[i] = 5;
-      }
-      particleGeo.attributes.position.needsUpdate = true;
-      particles.rotation.y = time * 0.02;
-
-      // Act I: Breathing unbroken stone
-      if (act === 1 && unbrokenMesh.visible) {
-        const breathe = 1.0 + 0.025 * Math.sin(time * 1.8);
-        unbrokenMesh.scale.set(breathe, breathe, breathe);
-        unbrokenMesh.rotation.y = time * 0.25;
-        unbrokenMesh.rotation.x = Math.sin(time * 0.15) * 0.15;
-      }
-
-      // Act II: Floating Shards
-      if (act === 2) {
-        shardMeshes.forEach((shard, idx) => {
-          if (!shard.userData.docked && shard !== draggedShard) {
-            const info = shard.userData.info;
-            const bobY = Math.sin(time * 1.4 + idx * 1.5) * 0.15;
-            const bobX = Math.cos(time * 1.1 + idx * 1.2) * 0.12;
-            shard.position.y = info.orbitPos.y + bobY;
-            shard.position.x = info.orbitPos.x + bobX;
-
-            shard.rotation.y = time * 0.3 + idx;
-            shard.rotation.z = Math.sin(time * 0.4 + idx) * 0.2;
-          } else if (shard.userData.docked) {
-            shard.position.set(0, 0, 0);
-            shard.rotation.set(0, 0, 0);
-          }
-        });
-
-        if (isRotatingVessel) {
-          scene.rotation.y = THREE.MathUtils.lerp(scene.rotation.y, vesselRotation.y, 0.1);
-          scene.rotation.x = THREE.MathUtils.lerp(scene.rotation.x, vesselRotation.x, 0.1);
-        }
-      }
-
-      // Act III: Integrated Vessel 360 Spin
-      if (act === 3) {
-        if (!isRotatingVessel) {
-          vesselRotation.y += 0.005;
-        }
-        shardMeshes.forEach(s => {
-          s.position.set(0, 0, 0);
-          s.rotation.set(0, 0, 0);
-        });
-        scene.rotation.y = THREE.MathUtils.lerp(scene.rotation.y, vesselRotation.y, 0.1);
-        scene.rotation.x = THREE.MathUtils.lerp(scene.rotation.x, vesselRotation.x, 0.1);
-
-        coreLight.intensity = 1.0 + 0.3 * Math.sin(time * 2.0);
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
+    document.getElementById("newInvestigationBtn").addEventListener("click", resetAll);
+    document.getElementById("restartBottomBtn").addEventListener("click", resetAll);
   </script>
 </body>
 </html>
