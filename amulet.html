@@ -13,9 +13,8 @@
   <style>
     :root {
       --bg: #070a13;
-      --card: #0f1626;
+      --card: #0e1524;
       --border: #1e293b;
-      --gold: #f59e0b;
     }
     body {
       background-color: var(--bg);
@@ -29,19 +28,18 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
     }
-    /* Hide scrollbar for gem tray */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="p-2 sm:p-4 min-h-screen flex flex-col justify-between max-w-4xl mx-auto w-full">
-  <div class="flex flex-col gap-2.5 sm:gap-3 w-full">
+  <div class="flex flex-col gap-2.5 w-full">
     <!-- Header & Transport -->
     <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 sm:p-4 shadow-sm flex flex-col gap-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
-            Gemstone Sculptor
+            Sound Sculpture
           </span>
           <h1 class="text-sm sm:text-base font-bold text-white">
             Singing Crystal Amulet
@@ -50,13 +48,13 @@
 
         <div class="flex items-center gap-1.5 shrink-0">
           <button id="playToggleBtn" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:opacity-90 active:scale-95 transition">
-            Tap to Wake Sound ♪
+            Tap for Sound ♪
           </button>
           <button id="tempoBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[#070a13] text-slate-300 hover:text-white active:scale-95 transition">
             108 BPM
           </button>
-          <button id="autoBuildBtn" type="button" class="px-2 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[#070a13] text-slate-300 hover:text-white active:scale-95 transition" title="Auto-assemble cluster">
-            Cluster ✦
+          <button id="autoClusterBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 active:scale-95 transition" title="Fill all facets">
+            Cluster All ✦
           </button>
           <button id="clearBtn" type="button" class="px-2 py-1 rounded-lg text-xs font-medium border border-[var(--border)] bg-[#070a13] text-slate-400 hover:text-white active:scale-95 transition">
             Clear
@@ -66,7 +64,7 @@
 
       <div class="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-[var(--border)] text-xs text-slate-400">
         <p id="instructionText" class="leading-relaxed">
-          <strong class="text-amber-400">1. Tap a cut gem below</strong> &rarr; <strong class="text-white">2. Tap a glowing gold socket</strong> on the pedestal to snap it flush.
+          <strong class="text-amber-400">Tap a gem below</strong> to attach it to an available facet. Drag in 3D to spin your sculpture.
         </p>
         <div class="flex items-center gap-2 shrink-0 font-mono text-[11px]">
           <span id="gemCountBadge" class="px-2 py-0.5 rounded bg-[#070a13] border border-[var(--border)] text-amber-300">
@@ -76,41 +74,54 @@
       </div>
     </div>
 
+    <!-- Active Gem Control Bar (Always visible when a gem is selected or tapped) -->
+    <div id="gemControlBar" class="bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs shadow-md">
+      <div class="flex items-center gap-2">
+        <span id="activeGemDot" class="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
+        <span id="activeGemTitle" class="font-bold text-white">Select a gem below to begin</span>
+      </div>
+      <div id="activeGemActions" class="hidden flex items-center gap-1.5">
+        <button id="twistBtn" type="button" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 active:scale-95 transition shadow-sm flex items-center gap-1">
+          <span>↻</span> Rotate Joint (60°)
+        </button>
+        <button id="detachBtn" type="button" class="px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 active:scale-95 transition">
+          Detach
+        </button>
+      </div>
+    </div>
+
     <!-- 3D Viewport -->
     <div class="relative bg-[var(--card)] border border-[var(--border)] rounded-xl p-2 sm:p-3 shadow-lg">
       <div class="relative w-full flex justify-center">
-        <div class="relative w-full max-w-[780px] aspect-[780/510] rounded-lg overflow-hidden bg-[#05070f] border border-slate-900 shadow-inner">
-          <canvas id="glCanvas" width="780" height="510" class="absolute inset-0 w-full h-full"></canvas>
-          <canvas id="hudCanvas" width="780" height="510" class="absolute inset-0 w-full h-full cursor-grab"></canvas>
+        <div class="relative w-full max-w-[780px] aspect-[780/500] rounded-lg overflow-hidden bg-[#05070e] border border-slate-900 shadow-inner">
+          <canvas id="glCanvas" width="780" height="500" class="absolute inset-0 w-full h-full"></canvas>
+          <canvas id="hudCanvas" width="780" height="500" class="absolute inset-0 w-full h-full cursor-grab"></canvas>
 
-          <!-- Top-center active gem / socket toast -->
-          <div id="selectionToast" class="pointer-events-none absolute top-3 inset-x-0 flex justify-center z-10 transition-opacity duration-200">
-            <div class="bg-slate-900/90 border border-amber-500/40 rounded-full px-3.5 py-1 text-xs text-amber-300 shadow-xl backdrop-blur-md flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span id="toastMsg">Drag to spin crystal · Tap a gem to place</span>
+          <!-- Top-center Toast Indicator -->
+          <div class="pointer-events-none absolute top-2.5 inset-x-0 flex justify-center z-10">
+            <div id="statusToast" class="bg-slate-900/90 border border-slate-700 rounded-full px-3 py-1 text-[11px] sm:text-xs text-slate-300 shadow-xl backdrop-blur-md">
+              Drag anywhere to orbit in 3D
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Selected Attached Gem Action Bar -->
-          <div id="gemActionBar" class="hidden absolute bottom-3 inset-x-3 flex justify-center z-10">
-            <div class="bg-slate-900/95 border border-slate-700 rounded-xl px-3 py-1.5 shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs">
-              <span id="selectedGemLabel" class="font-semibold text-white">Sapphire</span>
-              <button id="twistGemBtn" type="button" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 active:scale-95 transition">
-                ↻ Rotate Joint (60°)
-              </button>
-              <button id="detachGemBtn" type="button" class="px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 active:scale-95 transition">
-                Detach
-              </button>
-            </div>
-          </div>
+      <!-- Facet Socket Quick-Picker (Visible when placing a selected gem) -->
+      <div id="facetPickerBar" class="hidden mt-2 pt-2 border-t border-[var(--border)] flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-amber-400 uppercase tracking-wider px-1">
+          <span>Tap a Socket to Attach <span id="placingGemName">Gem</span>:</span>
+          <span class="text-slate-500">Or tap glowing ring in 3D</span>
+        </div>
+        <div id="facetBtnGroup" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          <!-- Populated by JS -->
         </div>
       </div>
 
       <!-- Gem Selection Tray Carousel -->
       <div class="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-col gap-1.5">
         <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1">
-          <span>Cut Gemstones (Tap to Select &amp; Place)</span>
-          <span class="text-slate-500">Left/Right placement controls stereo pan</span>
+          <span>Cut Gemstones</span>
+          <span class="text-slate-500">Left/Right position shapes stereo panning</span>
         </div>
 
         <div id="gemTray" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1">
@@ -119,10 +130,10 @@
       </div>
     </div>
 
-    <!-- Acoustic Status Footer -->
+    <!-- Acoustic Telemetry Footer -->
     <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
       <div id="footerVoiceList" class="flex flex-wrap items-center gap-2">
-        <span>Active Voices: <strong class="text-amber-400">Keystone Core (A2 Drone)</strong></span>
+        <span>Active Voices: <strong class="text-amber-400">Keystone Core (A2 Bass Drone)</strong></span>
       </div>
       <div id="footerMeter" class="font-mono text-slate-300">
         Meter: 3/4 Waltz
@@ -140,114 +151,45 @@
 
       const playToggleBtn = document.getElementById('playToggleBtn');
       const tempoBtn = document.getElementById('tempoBtn');
-      const autoBuildBtn = document.getElementById('autoBuildBtn');
+      const autoClusterBtn = document.getElementById('autoClusterBtn');
       const clearBtn = document.getElementById('clearBtn');
-      const gemTray = document.getElementById('gemTray');
       const instructionText = document.getElementById('instructionText');
       const gemCountBadge = document.getElementById('gemCountBadge');
-      const toastMsg = document.getElementById('toastMsg');
-      const gemActionBar = document.getElementById('gemActionBar');
-      const selectedGemLabel = document.getElementById('selectedGemLabel');
-      const twistGemBtn = document.getElementById('twistGemBtn');
-      const detachGemBtn = document.getElementById('detachGemBtn');
+      const gemControlBar = document.getElementById('gemControlBar');
+      const activeGemDot = document.getElementById('activeGemDot');
+      const activeGemTitle = document.getElementById('activeGemTitle');
+      const activeGemActions = document.getElementById('activeGemActions');
+      const twistBtn = document.getElementById('twistBtn');
+      const detachBtn = document.getElementById('detachBtn');
+      const statusToast = document.getElementById('statusToast');
+      const facetPickerBar = document.getElementById('facetPickerBar');
+      const placingGemName = document.getElementById('placingGemName');
+      const facetBtnGroup = document.getElementById('facetBtnGroup');
+      const gemTray = document.getElementById('gemTray');
       const footerVoiceList = document.getElementById('footerVoiceList');
       const footerMeter = document.getElementById('footerMeter');
 
       // =========================================================================
-      // 1. GEMSTONE CATALOG & MUSICAL IDENTITY
+      // 1. GEM CATALOG (7 Unique Gemstones)
       // =========================================================================
       const GEM_SPECS = [
-        {
-          id: 'ruby',
-          name: 'Ruby',
-          cut: 'Octahedron',
-          color: [0.92, 0.14, 0.28], // Crimson
-          note: 'A3', freq: 220.0,
-          desc: 'Analog Bass Pluck',
-          timbre: 'saw_pluck',
-          ratchets: 1
-        },
-        {
-          id: 'sapphire',
-          name: 'Sapphire',
-          cut: 'Hexagonal Prism',
-          color: [0.15, 0.45, 0.98], // Cobalt
-          note: 'E4', freq: 329.63,
-          desc: 'Glassy 3/4 Waltz Bell',
-          timbre: 'bell_delay',
-          ratchets: 1
-        },
-        {
-          id: 'emerald',
-          name: 'Emerald',
-          cut: 'Baguette Cut',
-          color: [0.04, 0.72, 0.42], // Emerald
-          note: 'G#4', freq: 415.30,
-          desc: 'Velvet Lowpass Glide',
-          timbre: 'velvet_glide',
-          ratchets: 1
-        },
-        {
-          id: 'topaz',
-          name: 'Topaz',
-          cut: 'Trilliant Cut',
-          color: [0.95, 0.62, 0.08], // Amber
-          note: 'B4', freq: 493.88,
-          desc: 'Warm Tape Saturation',
-          timbre: 'drive_pluck',
-          ratchets: 1
-        },
-        {
-          id: 'amethyst',
-          name: 'Amethyst',
-          cut: 'Rhombic Shard',
-          color: [0.65, 0.28, 0.95], // Violet
-          note: 'C#5', freq: 554.37,
-          desc: 'Cathedral Chorus Shimmer',
-          timbre: 'shimmer_chorus',
-          ratchets: 1
-        },
-        {
-          id: 'tourmaline',
-          name: 'Tourmaline',
-          cut: 'Bicone Diamond',
-          color: [0.92, 0.25, 0.68], // Rose
-          note: 'E5', freq: 659.25,
-          desc: 'Double Ratchet',
-          timbre: 'ratchet_double',
-          ratchets: 2
-        },
-        {
-          id: 'aquamarine',
-          name: 'Aquamarine',
-          cut: 'Needle Spire',
-          color: [0.08, 0.78, 0.88], // Cyan
-          note: 'G#5', freq: 830.61,
-          desc: 'Overtone Sparkle Lead',
-          timbre: 'sparkle_lead',
-          ratchets: 1
-        }
+        { id: 'ruby', name: 'Ruby', cut: 'Octahedron', color: [0.92, 0.14, 0.28], note: 'A3', freq: 220.0, desc: 'Analog Bass Pluck', timbre: 'saw_pluck', ratchets: 1 },
+        { id: 'sapphire', name: 'Sapphire', cut: 'Hexagonal Prism', color: [0.15, 0.45, 0.98], note: 'E4', freq: 329.63, desc: 'Glassy 3/4 Bell', timbre: 'bell_delay', ratchets: 1 },
+        { id: 'emerald', name: 'Emerald', cut: 'Baguette Cut', color: [0.04, 0.75, 0.45], note: 'G#4', freq: 415.30, desc: 'Velvet Glide', timbre: 'velvet_glide', ratchets: 1 },
+        { id: 'topaz', name: 'Topaz', cut: 'Trilliant Cut', color: [0.96, 0.65, 0.10], note: 'B4', freq: 493.88, desc: 'Warm Tape Drive', timbre: 'drive_pluck', ratchets: 1 },
+        { id: 'amethyst', name: 'Amethyst', cut: 'Rhombic Shard', color: [0.65, 0.28, 0.95], note: 'C#5', freq: 554.37, desc: 'Chorus Shimmer', timbre: 'shimmer_chorus', ratchets: 1 },
+        { id: 'tourmaline', name: 'Tourmaline', cut: 'Bicone Diamond', color: [0.92, 0.25, 0.68], note: 'E5', freq: 659.25, desc: 'Double Ratchet', timbre: 'ratchet_double', ratchets: 2 },
+        { id: 'aquamarine', name: 'Aquamarine', cut: 'Needle Spire', color: [0.08, 0.80, 0.90], note: 'G#5', freq: 830.61, desc: 'Sparkle Overtone', timbre: 'sparkle_lead', ratchets: 1 }
       ];
 
       // =========================================================================
       // 2. WEB AUDIO SYNTHESIZER
       // =========================================================================
-      let audioCtx = null;
-      let audioRunning = false;
-      let masterGain = null;
-      let reverbBus = null;
-      let delayBus = null;
-      let droneNodes = null;
-
+      let audioCtx = null, audioRunning = false, masterGain = null, reverbBus = null, delayBus = null, droneNodes = null;
       let bpm = 108;
       const tempoPresets = [92, 108, 124];
-      let tempoIdx = 1;
-      let stepCounter = 0;
-      let lastScheduledTime = 0;
-      let lastPlayedFreq = 220;
-
-      let activeLitGemId = null;
-      let activeLitIntensity = 0;
+      let tempoIdx = 1, stepCounter = 0, lastScheduledTime = 0, lastPlayedFreq = 220;
+      let activeLitGemId = null, activeLitIntensity = 0;
       const visualQueue = [];
 
       function buildImpulseResponse(ac) {
@@ -283,7 +225,6 @@
         masterGain.connect(comp);
         comp.connect(audioCtx.destination);
 
-        // Cathedral Reverb
         const conv = audioCtx.createConvolver();
         conv.buffer = buildImpulseResponse(audioCtx);
         const revOut = audioCtx.createGain();
@@ -292,7 +233,6 @@
         revOut.connect(masterGain);
         reverbBus = { input: conv };
 
-        // 3/4 Tape Delay Bus
         const dNode = audioCtx.createDelay(2.0);
         dNode.delayTime.value = (60 / bpm) * 0.75;
         const dFb = audioCtx.createGain();
@@ -310,7 +250,6 @@
         dOut.connect(masterGain);
         delayBus = { input: dNode, delayNode: dNode };
 
-        // Central Keystone Drone (Fundamental A2 = 110 Hz)
         const kOsc1 = audioCtx.createOscillator();
         const kOsc2 = audioCtx.createOscillator();
         kOsc1.type = 'triangle';
@@ -354,16 +293,12 @@
         if (!audioCtx) initAudioEngine();
         else {
           audioRunning = !audioRunning;
-          if (!audioRunning && droneNodes) {
-            droneNodes.kGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
-          } else if (audioRunning && droneNodes) {
-            droneNodes.kGain.gain.setTargetAtTime(0.22, audioCtx.currentTime, 0.05);
-          }
+          if (!audioRunning && droneNodes) droneNodes.kGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
+          else if (audioRunning && droneNodes) droneNodes.kGain.gain.setTargetAtTime(0.22, audioCtx.currentTime, 0.05);
           updatePlayButtonUI();
         }
       });
 
-      // Subtle crystalline magnetic click when snapping a gem to a facet
       function triggerFacetSnapChime(pitch = 1174) {
         if (!audioCtx || !audioRunning) return;
         const t0 = audioCtx.currentTime;
@@ -386,18 +321,14 @@
         const spec = gemInstance.spec;
         const ratchets = spec.ratchets || 1;
         const stepDur = 60 / bpm / 2;
-
-        // Position-based pitch shift: Upper gems play +1 octave higher; lower gems play root
-        const yPos = gemInstance.worldPos[1];
+        const yPos = gemInstance.localPos[1];
         const octaveMul = yPos > 0.4 ? 2.0 : (yPos < -0.3 ? 0.5 : 1.0);
         const baseFreq = spec.freq * octaveMul;
-
-        // Position-based spatial stereo panning: Left gems pan Left, Right gems pan Right!
-        const panVal = Math.max(-0.85, Math.min(0.85, gemInstance.worldPos[0] * 0.65));
+        const panVal = Math.max(-0.85, Math.min(0.85, gemInstance.localPos[0] * 0.7));
 
         for (let r = 0; r < ratchets; r++) {
           const t0 = when + (r * stepDur * 0.72) / ratchets;
-          const gateDur = (1.25) / Math.sqrt(ratchets);
+          const gateDur = 1.25 / Math.sqrt(ratchets);
 
           const osc1 = audioCtx.createOscillator();
           const osc2 = audioCtx.createOscillator();
@@ -406,18 +337,15 @@
           filt.type = 'lowpass';
 
           if (spec.timbre === 'saw_pluck') {
-            osc1.type = 'sawtooth';
-            osc2.type = 'triangle';
+            osc1.type = 'sawtooth'; osc2.type = 'triangle';
             filt.frequency.setValueAtTime(3200, t0);
             filt.frequency.exponentialRampToValueAtTime(380, t0 + 0.35);
           } else if (spec.timbre === 'bell_delay') {
-            osc1.type = 'triangle';
-            osc2.type = 'sine';
+            osc1.type = 'triangle'; osc2.type = 'sine';
             filt.frequency.setValueAtTime(4500, t0);
             filt.frequency.exponentialRampToValueAtTime(750, t0 + 0.65);
           } else if (spec.timbre === 'velvet_glide') {
-            osc1.type = 'sine';
-            osc2.type = 'triangle';
+            osc1.type = 'sine'; osc2.type = 'triangle';
             filt.frequency.setValueAtTime(1800, t0);
             filt.frequency.exponentialRampToValueAtTime(340, t0 + 0.45);
             if (lastPlayedFreq > 50) {
@@ -425,19 +353,16 @@
               osc1.frequency.exponentialRampToValueAtTime(baseFreq, t0 + 0.14);
             }
           } else if (spec.timbre === 'drive_pluck') {
-            osc1.type = 'sawtooth';
-            osc2.type = 'square';
+            osc1.type = 'sawtooth'; osc2.type = 'square';
             filt.frequency.setValueAtTime(2600, t0);
             filt.frequency.exponentialRampToValueAtTime(420, t0 + 0.38);
           } else if (spec.timbre === 'shimmer_chorus') {
-            osc1.type = 'sawtooth';
-            osc2.type = 'sawtooth';
+            osc1.type = 'sawtooth'; osc2.type = 'sawtooth';
             osc2.detune.value = 14;
             filt.frequency.setValueAtTime(3800, t0);
             filt.frequency.exponentialRampToValueAtTime(800, t0 + 0.7);
           } else {
-            osc1.type = 'triangle';
-            osc2.type = 'sine';
+            osc1.type = 'triangle'; osc2.type = 'sine';
             filt.frequency.setValueAtTime(5200, t0);
             filt.frequency.exponentialRampToValueAtTime(950, t0 + 0.3);
           }
@@ -453,13 +378,9 @@
           env.gain.exponentialRampToValueAtTime(peakAmp * 0.35, t0 + 0.14);
           env.gain.exponentialRampToValueAtTime(0.0001, t0 + gateDur);
 
-          osc1.connect(filt);
-          osc2.connect(filt);
-          filt.connect(env);
-
+          osc1.connect(filt); osc2.connect(filt); filt.connect(env);
           let tail = env;
 
-          // Stereo Panner
           if (audioCtx.createStereoPanner) {
             const panner = audioCtx.createStereoPanner();
             panner.pan.setValueAtTime(panVal, t0);
@@ -469,7 +390,6 @@
 
           tail.connect(masterGain);
 
-          // Delay send (especially for sapphire & topaz)
           if (delayBus && (spec.timbre === 'bell_delay' || spec.timbre === 'drive_pluck')) {
             const dSend = audioCtx.createGain();
             dSend.gain.value = 0.42;
@@ -477,7 +397,6 @@
             dSend.connect(delayBus.input);
           }
 
-          // Reverb send
           if (reverbBus) {
             const rSend = audioCtx.createGain();
             rSend.gain.value = spec.timbre === 'shimmer_chorus' ? 0.48 : 0.18;
@@ -485,32 +404,22 @@
             rSend.connect(reverbBus.input);
           }
 
-          osc1.start(t0);
-          osc2.start(t0);
-          osc1.stop(t0 + gateDur + 0.05);
-          osc2.stop(t0 + gateDur + 0.05);
+          osc1.start(t0); osc2.start(t0);
+          osc1.stop(t0 + gateDur + 0.05); osc2.stop(t0 + gateDur + 0.05);
         }
-
         lastPlayedFreq = baseFreq;
       }
 
       // =========================================================================
-      // 3. 3D MATH & CLEAN FACETED GEM MESHES
+      // 3. 3D MATH & GEOMETRIES
       // =========================================================================
       const v3 = {
         add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
         sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
         scale: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
         dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
-        cross: (a, b) => [
-          a[1] * b[2] - a[2] * b[1],
-          a[2] * b[0] - a[0] * b[2],
-          a[0] * b[1] - a[1] * b[0]
-        ],
-        norm: (a) => {
-          const l = Math.hypot(a[0], a[1], a[2]) || 1;
-          return [a[0] / l, a[1] / l, a[2] / l];
-        }
+        cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+        norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
       };
 
       const quat = {
@@ -525,17 +434,15 @@
           a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
           a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
         ],
-        norm: (q) => {
-          const l = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
-          return [q[0] / l, q[1] / l, q[2] / l, q[3] / l];
-        },
+        norm: (q) => { const l = Math.hypot(q[0], q[1], q[2], q[3]) || 1; return [q[0] / l, q[1] / l, q[2] / l, q[3] / l]; },
         rotateVec: (q, v) => {
           const ux = q[0], uy = q[1], uz = q[2], s = q[3];
           const dUV = ux * v[0] + uy * v[1] + uz * v[2];
           const dUU = ux * ux + uy * uy + uz * uz;
           const cx = uy * v[2] - uz * v[1], cy = uz * v[0] - ux * v[2], cz = ux * v[1] - uy * v[0];
-          const k1 = 2 * dUV, k2 = s * s - dUU, k3 = 2 * s;
-          return [ux * k1 + v[0] * k2 + cx * k3, uy * k1 + v[1] * k2 + cy * k3, uz * k1 + v[2] * k2 + cz * k3];
+          return [ux * 2 * dUV + v[0] * (s * s - dUU) + cx * 2 * s,
+                  uy * 2 * dUV + v[1] * (s * s - dUU) + cy * 2 * s,
+                  uz * 2 * dUV + v[2] * (s * s - dUU) + cz * 2 * s];
         },
         rotationBetween: (from, to) => {
           const f = v3.norm(from), t = v3.norm(to);
@@ -547,27 +454,18 @@
             return quat.fromAxisAngle(ortho, Math.PI);
           }
           const ax = v3.cross(f, t);
-          const q = [ax[0], ax[1], ax[2], 1 + d];
-          return quat.norm(q);
+          return quat.norm([ax[0], ax[1], ax[2], 1 + d]);
         }
       };
 
       function mat4Perspective(fovY, aspect, near, far) {
         const f = 1 / Math.tan(fovY * 0.5), nf = 1 / (near - far);
-        return new Float32Array([
-          f / aspect, 0, 0, 0,  0, f, 0, 0,
-          0, 0, (far + near) * nf, -1,  0, 0, 2 * far * near * nf, 0
-        ]);
+        return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
       }
 
       function mat4LookAt(eye, center, up) {
-        const z = v3.norm(v3.sub(eye, center));
-        const x = v3.norm(v3.cross(up, z));
-        const y = v3.cross(z, x);
-        return new Float32Array([
-          x[0], y[0], z[0], 0,  x[1], y[1], z[1], 0,
-          x[2], y[2], z[2], 0,  -v3.dot(x, eye), -v3.dot(y, eye), -v3.dot(z, eye), 1
-        ]);
+        const z = v3.norm(v3.sub(eye, center)), x = v3.norm(v3.cross(up, z)), y = v3.cross(z, x);
+        return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -v3.dot(x, eye), -v3.dot(y, eye), -v3.dot(z, eye), 1]);
       }
 
       function mat4Mul(a, b) {
@@ -583,12 +481,10 @@
       function mat4FromPosQuatScale(pos, q, sc) {
         const x = q[0], y = q[1], z = q[2], w = q[3];
         const x2 = x + x, y2 = y + y, z2 = z + z;
-        const xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2;
-        const wx = w * x2, wy = w * y2, wz = w * z2;
         return new Float32Array([
-          (1 - (yy + zz)) * sc, (xy + wz) * sc, (xz - wy) * sc, 0,
-          (xy - wz) * sc, (1 - (xx + zz)) * sc, (yz + wx) * sc, 0,
-          (xz + wy) * sc, (yz - wx) * sc, (1 - (xx + yy)) * sc, 0,
+          (1 - (y * y2 + z * z2)) * sc, (x * y2 + w * z2) * sc, (x * z2 - w * y2) * sc, 0,
+          (x * y2 - w * z2) * sc, (1 - (x * x2 + z * z2)) * sc, (y * z2 + w * x2) * sc, 0,
+          (x * z2 + w * y2) * sc, (y * z2 - w * x2) * sc, (1 - (x * x2 + y * y2)) * sc, 0,
           pos[0], pos[1], pos[2], 1
         ]);
       }
@@ -601,7 +497,6 @@
         return { x: (cx / cw * 0.5 + 0.5) * W, y: (0.5 - cy / cw * 0.5) * H };
       }
 
-      // Helper to push flat-shaded triangles with exact face normals
       function pushTri(arr, v0, v1, v2, col, isBezel = 0) {
         const fn = v3.norm(v3.cross(v3.sub(v1, v0), v3.sub(v2, v0)));
         for (const v of [v0, v1, v2]) {
@@ -615,126 +510,77 @@
       }
 
       // =========================================================================
-      // 4. GEM PROCEDURAL GEOMETRY GENERATORS
+      // 4. MESH BUILDERS (Keystone + 7 Gems)
       // =========================================================================
-      // Central Keystone Pedestal (Hexagonal Column with 7 Mounting Sockets)
       function buildKeystoneMesh() {
         const arr = [];
-        const col = [0.18, 0.22, 0.32]; // Deep smoky obsidian
-        const gold = [1.0, 0.78, 0.22];
+        const col = [0.18, 0.22, 0.32], gold = [1.0, 0.78, 0.22];
         const rTop = 0.82, rBot = 1.05, h = 0.85;
-
         const topV = [], botV = [];
         for (let i = 0; i < 6; i++) {
           const a = (i * Math.PI) / 3;
           topV.push([rTop * Math.cos(a), h * 0.5, rTop * Math.sin(a)]);
           botV.push([rBot * Math.cos(a), -h * 0.5, rBot * Math.sin(a)]);
         }
-
-        // Top socket facet (Face 0: Up)
-        const topCenter = [0, h * 0.5, 0];
-        for (let i = 0; i < 6; i++) {
-          pushTri(arr, topCenter, topV[i], topV[(i + 1) % 6], col);
-        }
-
-        // Bottom face
-        const botCenter = [0, -h * 0.5, 0];
-        for (let i = 0; i < 6; i++) {
-          pushTri(arr, botCenter, botV[(i + 1) % 6], botV[i], col);
-        }
-
-        // 6 Side facets (Faces 1..6)
-        for (let i = 0; i < 6; i++) {
-          pushQuad(arr, botV[i], botV[(i + 1) % 6], topV[(i + 1) % 6], topV[i], col);
-        }
-
-        // Gold rim accents
+        const topCenter = [0, h * 0.5, 0], botCenter = [0, -h * 0.5, 0];
+        for (let i = 0; i < 6; i++) pushTri(arr, topCenter, topV[i], topV[(i + 1) % 6], col);
+        for (let i = 0; i < 6; i++) pushTri(arr, botCenter, botV[(i + 1) % 6], botV[i], col);
+        for (let i = 0; i < 6; i++) pushQuad(arr, botV[i], botV[(i + 1) % 6], topV[(i + 1) % 6], topV[i], col);
         for (let i = 0; i < 6; i++) {
           const t1 = topV[i], t2 = topV[(i + 1) % 6];
-          const mid = v3.scale(v3.add(t1, t2), 0.5);
-          pushTri(arr, mid, t1, t2, gold, 1);
+          pushTri(arr, v3.scale(v3.add(t1, t2), 0.5), t1, t2, gold, 1);
         }
 
-        // Define the 7 mounting socket facets on the Keystone
-        const sockets = [];
-        // Socket 0: Top Crown
-        sockets.push({
-          id: 0,
-          label: 'Crown (Top)',
-          normal: [0, 1, 0],
-          center: [0, h * 0.5, 0]
-        });
-        // Sockets 1..6: The 6 hexagonal sides
+        const sockets = [{ id: 0, label: 'Crown (Top)', normal: [0, 1, 0], center: [0, h * 0.5, 0] }];
         for (let i = 0; i < 6; i++) {
           const a = ((i + 0.5) * Math.PI) / 3;
-          const sn = v3.norm([Math.cos(a), 0.15, Math.sin(a)]);
-          const sc = [Math.cos(a) * (rTop + rBot) * 0.5, 0, Math.sin(a) * (rTop + rBot) * 0.5];
           sockets.push({
             id: i + 1,
             label: `Side ${i + 1}`,
-            normal: sn,
-            center: sc
+            normal: v3.norm([Math.cos(a), 0.15, Math.sin(a)]),
+            center: [Math.cos(a) * (rTop + rBot) * 0.5, 0, Math.sin(a) * (rTop + rBot) * 0.5]
           });
         }
-
         return { vertexData: new Float32Array(arr), vertCount: arr.length / 10, sockets };
       }
 
-      // Generate distinct faceted gem geometries
       function buildGemMesh(spec) {
         const arr = [];
-        const col = spec.color;
-        const gold = [1.0, 0.78, 0.22];
+        const col = spec.color, gold = [1.0, 0.78, 0.22];
 
-        // Sockets on this gem where future gems can also chain/attach!
-        const sockets = [];
-
-        if (spec.cut === 'Octahedron') { // Ruby
+        if (spec.cut === 'Octahedron') {
           const top = [0, 0.78, 0], bot = [0, -0.78, 0];
           const ring = [[0.68, 0, 0], [0, 0, 0.68], [-0.68, 0, 0], [0, 0, -0.68]];
           for (let i = 0; i < 4; i++) {
             pushTri(arr, top, ring[i], ring[(i + 1) % 4], col);
             pushTri(arr, bot, ring[(i + 1) % 4], ring[i], col);
           }
-          // Mount facet is bottom apex
-          sockets.push({ id: 0, label: 'Apex', normal: [0, 1, 0], center: top });
-        } else if (spec.cut === 'Hexagonal Prism') { // Sapphire
-          const h = 0.95, r = 0.48;
-          const top = [0, h * 0.5 + 0.35, 0];
+        } else if (spec.cut === 'Hexagonal Prism') {
+          const h = 0.95, r = 0.48, top = [0, h * 0.5 + 0.35, 0];
           const tR = [], bR = [];
           for (let i = 0; i < 6; i++) {
             const a = (i * Math.PI) / 3;
             tR.push([r * Math.cos(a), h * 0.5, r * Math.sin(a)]);
             bR.push([r * Math.cos(a), -h * 0.5, r * Math.sin(a)]);
           }
-          // Pointed crystal cap
           for (let i = 0; i < 6; i++) pushTri(arr, top, tR[i], tR[(i + 1) % 6], col);
-          // Sides
           for (let i = 0; i < 6; i++) pushQuad(arr, bR[i], bR[(i + 1) % 6], tR[(i + 1) % 6], tR[i], col);
-          // Flat bottom
           const bC = [0, -h * 0.5, 0];
           for (let i = 0; i < 6; i++) pushTri(arr, bC, bR[(i + 1) % 6], bR[i], col);
-
-          sockets.push({ id: 0, label: 'Tip', normal: [0, 1, 0], center: top });
-        } else if (spec.cut === 'Baguette Cut') { // Emerald
+        } else if (spec.cut === 'Baguette Cut') {
           const w = 0.68, l = 0.42, h = 0.88;
-          // Step-cut beveled box
           const p = [
             [-w, -h*0.5, -l], [w, -h*0.5, -l], [w, -h*0.5, l], [-w, -h*0.5, l],
             [-w*0.8, h*0.5, -l*0.8], [w*0.8, h*0.5, -l*0.8], [w*0.8, h*0.5, l*0.8], [-w*0.8, h*0.5, l*0.8]
           ];
-          pushQuad(arr, p[0], p[1], p[2], p[3], col); // bottom
-          pushQuad(arr, p[4], p[7], p[6], p[5], col); // top
+          pushQuad(arr, p[0], p[1], p[2], p[3], col);
+          pushQuad(arr, p[4], p[7], p[6], p[5], col);
           pushQuad(arr, p[0], p[4], p[5], p[1], col);
           pushQuad(arr, p[1], p[5], p[6], p[2], col);
           pushQuad(arr, p[2], p[6], p[7], p[3], col);
           pushQuad(arr, p[3], p[7], p[4], p[0], col);
-
-          sockets.push({ id: 0, label: 'Crown', normal: [0, 1, 0], center: [0, h*0.5, 0] });
-        } else if (spec.cut === 'Trilliant Cut') { // Topaz
-          const h = 0.65, r = 0.72;
-          const top = [0, h * 0.5, 0], bot = [0, -h * 0.5, 0];
-          const tr = [];
+        } else if (spec.cut === 'Trilliant Cut') {
+          const h = 0.65, r = 0.72, top = [0, h * 0.5, 0], bot = [0, -h * 0.5, 0], tr = [];
           for (let i = 0; i < 3; i++) {
             const a = (i * Math.PI * 2) / 3 - Math.PI / 2;
             tr.push([r * Math.cos(a), 0, r * Math.sin(a)]);
@@ -743,11 +589,8 @@
             pushTri(arr, top, tr[i], tr[(i + 1) % 3], col);
             pushTri(arr, bot, tr[(i + 1) % 3], tr[i], col);
           }
-          sockets.push({ id: 0, label: 'Apex', normal: [0, 1, 0], center: top });
-        } else if (spec.cut === 'Needle Spire') { // Aquamarine
-          const h = 1.35, r = 0.32;
-          const tip = [0, h, 0], base = [0, 0, 0];
-          const ring = [];
+        } else if (spec.cut === 'Needle Spire') {
+          const h = 1.35, r = 0.32, tip = [0, h, 0], base = [0, 0, 0], ring = [];
           for (let i = 0; i < 6; i++) {
             const a = (i * Math.PI) / 3;
             ring.push([r * Math.cos(a), 0.12, r * Math.sin(a)]);
@@ -756,11 +599,8 @@
             pushTri(arr, tip, ring[i], ring[(i + 1) % 6], col);
             pushTri(arr, base, ring[(i + 1) % 6], ring[i], col);
           }
-          sockets.push({ id: 0, label: 'Spire Tip', normal: [0, 1, 0], center: tip });
-        } else { // Tourmaline / Amethyst
-          const top = [0, 0.85, 0], bot = [0, -0.85, 0];
-          const ring = [];
-          const r = 0.55;
+        } else {
+          const top = [0, 0.85, 0], bot = [0, -0.85, 0], ring = [], r = 0.55;
           for (let i = 0; i < 8; i++) {
             const a = (i * Math.PI) / 4;
             ring.push([r * Math.cos(a), 0, r * Math.sin(a)]);
@@ -769,111 +609,55 @@
             pushTri(arr, top, ring[i], ring[(i + 1) % 8], col);
             pushTri(arr, bot, ring[(i + 1) % 8], ring[i], col);
           }
-          sockets.push({ id: 0, label: 'Point', normal: [0, 1, 0], center: top });
         }
 
-        // Gold mount bezel at the base of every gem
-        const bZ = 0.04;
-        pushTri(arr, [0, -bZ, 0], [0.18, 0, 0], [0, 0, 0.18], gold, 1);
-
-        return {
-          vertexData: new Float32Array(arr),
-          vertCount: arr.length / 10,
-          mountNormal: [0, -1, 0], // Every gem mounts flush from its bottom normal
-          sockets
-        };
+        // Gold bezel collar at bottom mount point
+        pushTri(arr, [0, -0.05, 0], [0.22, 0, 0], [0, 0, 0.22], gold, 1);
+        return { vertexData: new Float32Array(arr), vertCount: arr.length / 10 };
       }
 
       // =========================================================================
-      // 5. WEBGL SHADER (Facet Glints + Jewel Colors + Gold Bezels)
+      // 5. WEBGL PROGRAM
       // =========================================================================
       const gl = glCanvas.getContext('webgl', { antialias: true, alpha: false });
-
       const VS_SRC = `
-        attribute vec3 aPos;
-        attribute vec3 aNormal;
-        attribute vec3 aColor;
-        attribute float aIsBezel;
-
-        uniform mat4 uModel;
-        uniform mat4 uViewProj;
-        uniform float uActiveIntensity;
-
-        varying vec3 vWorldPos;
-        varying vec3 vNormal;
-        varying vec3 vColor;
-        varying float vIsBezel;
-        varying float vGlow;
-
+        attribute vec3 aPos; attribute vec3 aNormal; attribute vec3 aColor; attribute float aIsBezel;
+        uniform mat4 uModel; uniform mat4 uViewProj; uniform float uActiveIntensity;
+        varying vec3 vWorldPos; varying vec3 vNormal; varying vec3 vColor; varying float vIsBezel; varying float vGlow;
         void main() {
           vec3 p = aPos;
-          if (uActiveIntensity > 0.01) {
-            p += aNormal * (uActiveIntensity * 0.035);
-          }
+          if (uActiveIntensity > 0.01) p += aNormal * (uActiveIntensity * 0.038);
           vec4 wp = uModel * vec4(p, 1.0);
           vWorldPos = wp.xyz;
           vNormal = normalize((uModel * vec4(aNormal, 0.0)).xyz);
-          vColor = aColor;
-          vIsBezel = aIsBezel;
-          vGlow = uActiveIntensity;
+          vColor = aColor; vIsBezel = aIsBezel; vGlow = uActiveIntensity;
           gl_Position = uViewProj * wp;
         }
       `;
-
       const FS_SRC = `
         precision highp float;
-
-        varying vec3 vWorldPos;
-        varying vec3 vNormal;
-        varying vec3 vColor;
-        varying float vIsBezel;
-        varying float vGlow;
-
+        varying vec3 vWorldPos; varying vec3 vNormal; varying vec3 vColor; varying float vIsBezel; varying float vGlow;
         uniform vec3 uCamPos;
-
         void main() {
-          vec3 N = normalize(vNormal);
-          vec3 V = normalize(uCamPos - vWorldPos);
-
-          vec3 L1 = normalize(vec3(0.55, 0.85, 0.65));
-          vec3 L2 = normalize(vec3(-0.7, -0.2, 0.6));
-          float diff1 = max(0.0, dot(N, L1));
-          float diff2 = max(0.0, dot(N, L2)) * 0.35;
-
+          vec3 N = normalize(vNormal), V = normalize(uCamPos - vWorldPos);
+          vec3 L1 = normalize(vec3(0.55, 0.85, 0.65)), L2 = normalize(vec3(-0.7, -0.2, 0.6));
+          float diff1 = max(0.0, dot(N, L1)), diff2 = max(0.0, dot(N, L2)) * 0.35;
           vec3 H1 = normalize(L1 + V);
           float spec = pow(max(0.0, dot(N, H1)), 72.0);
           float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.8);
-
           if (vIsBezel > 0.5) {
-            // Gold Bezel Shader
-            vec3 gold = vec3(1.0, 0.80, 0.25) * (0.45 + diff1 * 0.8 + diff2)
-                      + vec3(1.0, 0.98, 0.85) * spec * 1.4;
-            gl_FragColor = vec4(gold, 1.0);
-            return;
+            vec3 gold = vec3(1.0, 0.80, 0.25) * (0.45 + diff1 * 0.8 + diff2) + vec3(1.0, 0.98, 0.85) * spec * 1.4;
+            gl_FragColor = vec4(gold, 1.0); return;
           }
-
-          // Crystalline Faceted Gem Shader
-          vec3 gem = vColor * (0.32 + diff1 * 0.75 + diff2)
-                   + vec3(1.0, 1.0, 1.0) * spec * 0.95
-                   + vColor * fresnel * 0.45
-                   + vec3(1.0, 0.95, 0.7) * vGlow * 0.85;
-
+          vec3 gem = vColor * (0.32 + diff1 * 0.75 + diff2) + vec3(1.0, 1.0, 1.0) * spec * 0.95 + vColor * fresnel * 0.45 + vec3(1.0, 0.95, 0.7) * vGlow * 0.85;
           gl_FragColor = vec4(gem, 1.0);
         }
       `;
-
-      function compileSh(type, src) {
-        const s = gl.createShader(type);
-        gl.shaderSource(s, src);
-        gl.compileShader(s);
-        return s;
-      }
-
+      function compileSh(t, s) { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; }
       const prog = gl.createProgram();
       gl.attachShader(prog, compileSh(gl.VERTEX_SHADER, VS_SRC));
       gl.attachShader(prog, compileSh(gl.FRAGMENT_SHADER, FS_SRC));
-      gl.linkProgram(prog);
-      gl.useProgram(prog);
+      gl.linkProgram(prog); gl.useProgram(prog);
 
       const loc = {
         aPos: gl.getAttribLocation(prog, 'aPos'),
@@ -886,15 +670,11 @@
         uActiveIntensity: gl.getUniformLocation(prog, 'uActiveIntensity')
       };
 
-      // =========================================================================
-      // 6. SCULPTURE STATE & GEM PLACEMENT ENGINE
-      // =========================================================================
       const keystoneMesh = buildKeystoneMesh();
       const keystoneBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, keystoneBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, keystoneMesh.vertexData, gl.STATIC_DRAW);
 
-      // Pre-compile gem models
       const gemModels = {};
       for (const spec of GEM_SPECS) {
         const m = buildGemMesh(spec);
@@ -904,93 +684,84 @@
         gemModels[spec.id] = { ...m, buffer: buf };
       }
 
-      // Placed gem instances on the crystal sculpture
+      // =========================================================================
+      // 6. SCULPTURE STATE (ALL GEMS STORED IN LOCAL PEDESTAL COORDINATES!)
+      // =========================================================================
       let placedGems = [];
-      let selectedTrayGemId = null;
-      let selectedPlacedGemIndex = -1;
-
-      // Sculpture base orientation (drag to inspect in 3D!)
-      let clusterQuat = quat.identity();
-
+      let pendingPlacementGemId = null; // Gem selected in tray waiting to pick socket
+      let activeSelectedGemIndex = -1;  // Placed gem currently selected for twisting/detach
+      let clusterQuat = quat.identity(); // Overall sculpture orbit
       let currentViewProj = mat4Perspective(Math.PI / 4.2, W / H, 0.1, 30);
 
-      // Get all available mounting sockets across the entire cluster
-      function getActiveSockets() {
-        const list = [];
-        // 1. Keystone sockets
-        for (const s of keystoneMesh.sockets) {
-          const isOccupied = placedGems.some(g => g.parentType === 'keystone' && g.socketId === s.id);
-          if (!isOccupied) {
-            list.push({
-              parentType: 'keystone',
-              socketId: s.id,
-              worldNormal: quat.rotateVec(clusterQuat, s.normal),
-              worldCenter: quat.rotateVec(clusterQuat, s.center),
-              label: s.label
-            });
-          }
-        }
-        return list;
+      function getAvailableSockets() {
+        return keystoneMesh.sockets.filter(s => !placedGems.some(g => g.socketId === s.id));
       }
 
-      function attachGemToSocket(gemSpec, socket) {
-        const model = gemModels[gemSpec.id];
-        // Rotate gem so its mount normal [0, -1, 0] faces opposite the socket normal
-        const targetNorm = v3.scale(socket.worldNormal, 1);
+      function attachGemToLocalSocket(gemSpec, socket) {
+        // Compute LOCAL position and LOCAL rotation relative to Keystone!
+        const targetNorm = v3.norm(socket.normal);
         const qAlign = quat.rotationBetween([0, -1, 0], targetNorm);
-
-        // Position gem centered on the socket with slight offset
-        const pos = v3.add(socket.worldCenter, v3.scale(socket.worldNormal, 0.38));
+        const localPos = v3.add(socket.center, v3.scale(targetNorm, 0.42));
 
         const instance = {
           id: Math.random().toString(36).slice(2, 8),
           spec: gemSpec,
-          parentType: socket.parentType,
-          socketId: socket.socketId,
-          twistDeg: 0,
-          localNormal: socket.worldNormal,
-          worldPos: pos,
-          quat: qAlign,
+          socketId: socket.id,
+          socketLabel: socket.label,
+          localPos,
+          localNormal: targetNorm,
+          twistRad: 0,
+          localQuat: qAlign,
           scale: 0.95
         };
 
         placedGems.push(instance);
+        activeSelectedGemIndex = placedGems.length - 1;
+        pendingPlacementGemId = null;
+
         triggerFacetSnapChime(gemSpec.freq);
-        selectedTrayGemId = null;
+        statusToast.textContent = `Attached ${gemSpec.name} to ${socket.label}! Tap Rotate to twist facets.`;
         updateUI();
       }
 
-      function twistPlacedGem(idx) {
-        if (idx < 0 || idx >= placedGems.length) return;
-        const g = placedGems[idx];
-        g.twistDeg = (g.twistDeg + 60) % 360;
-        const qTwist = quat.fromAxisAngle(g.localNormal, Math.PI / 3);
-        g.quat = quat.norm(quat.mul(qTwist, g.quat));
+      function twistActiveGem() {
+        if (activeSelectedGemIndex < 0 || activeSelectedGemIndex >= placedGems.length) return;
+        const g = placedGems[activeSelectedGemIndex];
+        g.twistRad = (g.twistRad + Math.PI / 3) % (Math.PI * 2);
+
+        // Recompute localQuat with new twist angle
+        const qAlign = quat.rotationBetween([0, -1, 0], g.localNormal);
+        const qTwist = quat.fromAxisAngle(g.localNormal, g.twistRad);
+        g.localQuat = quat.norm(quat.mul(qTwist, qAlign));
+
         triggerFacetSnapChime(g.spec.freq * 1.25);
+        statusToast.textContent = `Rotated ${g.spec.name} 60° (Now at ${Math.round((g.twistRad * 180) / Math.PI)}°)`;
       }
 
-      function detachPlacedGem(idx) {
-        if (idx < 0 || idx >= placedGems.length) return;
-        placedGems.splice(idx, 1);
-        selectedPlacedGemIndex = -1;
-        gemActionBar.classList.add('hidden');
+      function detachActiveGem() {
+        if (activeSelectedGemIndex < 0 || activeSelectedGemIndex >= placedGems.length) return;
+        const g = placedGems[activeSelectedGemIndex];
+        placedGems.splice(activeSelectedGemIndex, 1);
+        activeSelectedGemIndex = -1;
+        statusToast.textContent = `Detached ${g.spec.name}. Returned to tray.`;
         updateUI();
       }
 
       function autoCluster() {
         placedGems = [];
-        const sockets = getActiveSockets();
-        const available = [...GEM_SPECS];
-        for (let i = 0; i < Math.min(sockets.length, available.length); i++) {
-          attachGemToSocket(available[i], sockets[i]);
+        const sockets = [...keystoneMesh.sockets];
+        const gems = [...GEM_SPECS];
+        for (let i = 0; i < Math.min(sockets.length, gems.length); i++) {
+          attachGemToLocalSocket(gems[i], sockets[i]);
         }
+        activeSelectedGemIndex = 0;
+        statusToast.textContent = `Full 8-Voice Crystal Cluster Assembled!`;
+        updateUI();
       }
 
-      // Sequencer loop: step through all placed gems in 3/4 waltz time
       function stepSequencer() {
         if (!audioCtx || !audioRunning) return;
         const nowAudio = audioCtx.currentTime;
-
         if (lastScheduledTime < nowAudio - 0.1) lastScheduledTime = nowAudio + 0.02;
 
         while (lastScheduledTime < nowAudio + 0.12) {
@@ -1000,71 +771,137 @@
             triggerGemVoice(gem, lastScheduledTime);
             visualQueue.push({ time: lastScheduledTime, gemId: gem.id });
           }
-
-          const baseStepSec = (60 / bpm) * 0.5;
-          lastScheduledTime += baseStepSec;
+          lastScheduledTime += (60 / bpm) * 0.5;
           stepCounter++;
         }
       }
 
       // =========================================================================
-      // 7. USER INTERFACE & GEM TRAY
+      // 7. USER INTERFACE
       // =========================================================================
+      function updateUI() {
+        renderGemTray();
+        renderFacetPicker();
+        updateGemControlBar();
+        gemCountBadge.textContent = `Gems: ${placedGems.length + 1} / 8`;
+
+        if (placedGems.length === 0) {
+          instructionText.innerHTML = `<strong class="text-amber-400">Tap a gem below</strong> to attach it to an available facet. Drag in 3D to spin your sculpture.`;
+          footerVoiceList.innerHTML = `<span>Active Voices: <strong class="text-amber-400">Keystone Core (A2 Drone)</strong></span>`;
+        } else {
+          instructionText.innerHTML = `<strong class="text-white">Crystal Growing:</strong> Tap any placed gem to twist its joint, or pick another gem from tray.`;
+          const notes = ['Keystone (A2)', ...placedGems.map(g => `${g.spec.name} (${g.spec.note})`)];
+          footerVoiceList.innerHTML = `<span>Voices (${notes.length}): <strong class="text-amber-400">${notes.join(' · ')}</strong></span>`;
+        }
+      }
+
+      function updateGemControlBar() {
+        if (activeSelectedGemIndex >= 0 && activeSelectedGemIndex < placedGems.length) {
+          const g = placedGems[activeSelectedGemIndex];
+          const rgb = g.spec.color.map(c => Math.round(c * 255)).join(',');
+          activeGemDot.style.backgroundColor = `rgb(${rgb})`;
+          activeGemTitle.innerHTML = `<span class="text-amber-400">${g.spec.name}</span> (${g.spec.note}) on <strong class="text-slate-200">${g.socketLabel}</strong>`;
+          activeGemActions.classList.remove('hidden');
+        } else if (pendingPlacementGemId) {
+          const spec = GEM_SPECS.find(g => g.id === pendingPlacementGemId);
+          const rgb = spec.color.map(c => Math.round(c * 255)).join(',');
+          activeGemDot.style.backgroundColor = `rgb(${rgb})`;
+          activeGemTitle.innerHTML = `Selected <span class="text-amber-400">${spec.name}</span> &rarr; Choose a socket below`;
+          activeGemActions.classList.add('hidden');
+        } else {
+          activeGemDot.style.backgroundColor = '#f59e0b';
+          activeGemTitle.textContent = 'Select a gem below to begin';
+          activeGemActions.classList.add('hidden');
+        }
+      }
+
+      function renderFacetPicker() {
+        if (!pendingPlacementGemId) {
+          facetPickerBar.classList.add('hidden');
+          return;
+        }
+
+        const spec = GEM_SPECS.find(g => g.id === pendingPlacementGemId);
+        placingGemName.textContent = spec ? spec.name : 'Gem';
+        facetPickerBar.classList.remove('hidden');
+        facetBtnGroup.innerHTML = '';
+
+        const freeSockets = getAvailableSockets();
+        for (const s of freeSockets) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-black active:scale-95 transition shrink-0';
+          btn.textContent = `✦ ${s.label}`;
+          btn.addEventListener('click', () => {
+            initAudioEngine();
+            if (spec) attachGemToLocalSocket(spec, s);
+          });
+          facetBtnGroup.appendChild(btn);
+        }
+      }
+
       function renderGemTray() {
         gemTray.innerHTML = '';
-        for (const spec of GEM_SPECS) {
-          const isPlaced = placedGems.some(g => g.spec.id === spec.id);
-          const isSelected = selectedTrayGemId === spec.id;
+        for (let i = 0; i < GEM_SPECS.length; i++) {
+          const spec = GEM_SPECS[i];
+          const placedIdx = placedGems.findIndex(g => g.spec.id === spec.id);
+          const isPlaced = placedIdx >= 0;
+          const isPending = pendingPlacementGemId === spec.id;
+          const isActive = activeSelectedGemIndex === placedIdx && isPlaced;
 
           const card = document.createElement('button');
           card.type = 'button';
           card.className = `flex flex-col items-center gap-1 p-2 rounded-xl border text-left shrink-0 transition select-none active:scale-95 ${
-            isPlaced
-              ? 'bg-slate-900/40 border-slate-800 opacity-40 cursor-not-allowed'
-              : isSelected
-              ? 'bg-amber-500/20 border-amber-400 text-amber-300 ring-2 ring-amber-400/50'
+            isPending
+              ? 'bg-amber-500/25 border-amber-400 text-amber-300 ring-2 ring-amber-400/60 shadow-lg'
+              : isActive
+              ? 'bg-slate-800 border-amber-400 text-white ring-1 ring-amber-400'
+              : isPlaced
+              ? 'bg-slate-900/60 border-slate-700 text-slate-300 hover:border-slate-500'
               : 'bg-slate-900 border-slate-700 hover:border-slate-500 text-slate-200'
           }`;
 
           const rgb = spec.color.map(c => Math.round(c * 255)).join(',');
+          const badgeText = isPlaced ? '✓ Attached' : '+ Place';
+          const badgeCol = isPlaced ? 'text-emerald-400' : 'text-amber-400';
+
           card.innerHTML = `
             <div class="flex items-center gap-1.5 w-full">
               <span class="w-3 h-3 rounded-full shrink-0 shadow-sm" style="background-color: rgb(${rgb})"></span>
               <span class="font-bold text-xs truncate text-white">${spec.name}</span>
             </div>
             <div class="text-[10px] text-slate-400 truncate w-24">${spec.desc}</div>
-            <div class="text-[10px] font-mono text-amber-400/90 font-semibold">${spec.note}</div>
+            <div class="flex items-center justify-between w-full text-[10px] font-mono mt-0.5">
+              <span class="font-semibold text-slate-300">${spec.note}</span>
+              <span class="${badgeCol} font-semibold">${badgeText}</span>
+            </div>
           `;
 
-          if (!isPlaced) {
-            card.addEventListener('click', () => {
-              initAudioEngine();
-              if (selectedTrayGemId === spec.id) {
-                selectedTrayGemId = null;
-                toastMsg.textContent = 'Drag to spin crystal · Tap a gem to place';
-              } else {
-                selectedTrayGemId = spec.id;
-                toastMsg.textContent = `Tap a glowing gold socket to place ${spec.name}`;
+          card.addEventListener('click', () => {
+            initAudioEngine();
+            if (isPlaced) {
+              // Select placed gem to twist or detach
+              activeSelectedGemIndex = placedIdx;
+              pendingPlacementGemId = null;
+              triggerFacetSnapChime(spec.freq);
+              statusToast.textContent = `Selected ${spec.name}. Tap Rotate Joint to twist!`;
+              updateUI();
+            } else {
+              // Pick available socket
+              const free = getAvailableSockets();
+              if (free.length === 0) {
+                statusToast.textContent = 'All 7 facets are full! Detach a gem or tap Clear.';
+                return;
               }
-              renderGemTray();
-            });
-          }
+              // If only 1 socket left, or user taps it, select for placement
+              pendingPlacementGemId = spec.id;
+              activeSelectedGemIndex = -1;
+              statusToast.textContent = `Choose an available socket for ${spec.name} below.`;
+              updateUI();
+            }
+          });
 
           gemTray.appendChild(card);
-        }
-      }
-
-      function updateUI() {
-        renderGemTray();
-        gemCountBadge.textContent = `Gems: ${placedGems.length + 1} / 8`;
-
-        if (placedGems.length === 0) {
-          instructionText.innerHTML = `<strong class="text-amber-400">1. Tap a cut gem below</strong> &rarr; <strong class="text-white">2. Tap a glowing gold socket</strong> on the pedestal to snap it flush.`;
-          footerVoiceList.innerHTML = `<span>Active Voices: <strong class="text-amber-400">Keystone Core (A2 Drone)</strong></span>`;
-        } else {
-          instructionText.innerHTML = `<strong class="text-white">Gem snapped!</strong> Tap another gem to grow your crystal, or tap any placed gem to rotate its facets.`;
-          const notes = ['Keystone (A2)', ...placedGems.map(g => `${g.spec.name} (${g.spec.note})`)];
-          footerVoiceList.innerHTML = `<span>Voices (${notes.length}): <strong class="text-amber-400">${notes.join(' · ')}</strong></span>`;
         }
       }
 
@@ -1075,37 +912,26 @@
         if (delayBus) delayBus.delayNode.delayTime.value = (60 / bpm) * 0.75;
       });
 
-      autoBuildBtn.addEventListener('click', () => {
+      autoClusterBtn.addEventListener('click', () => {
         initAudioEngine();
         autoCluster();
       });
 
       clearBtn.addEventListener('click', () => {
         placedGems = [];
-        selectedTrayGemId = null;
-        selectedPlacedGemIndex = -1;
-        gemActionBar.classList.add('hidden');
+        pendingPlacementGemId = null;
+        activeSelectedGemIndex = -1;
+        statusToast.textContent = 'Cleared sculpture. Choose a gem to start fresh.';
         updateUI();
       });
 
-      twistGemBtn.addEventListener('click', () => {
-        if (selectedPlacedGemIndex >= 0) {
-          twistPlacedGem(selectedPlacedGemIndex);
-        }
-      });
-
-      detachGemBtn.addEventListener('click', () => {
-        if (selectedPlacedGemIndex >= 0) {
-          detachPlacedGem(selectedPlacedGemIndex);
-        }
-      });
+      twistBtn.addEventListener('click', twistActiveGem);
+      detachBtn.addEventListener('click', detachActiveGem);
 
       // =========================================================================
-      // 8. 3D POINTER INTERACTION (Orbit Cluster & Snap to Facets)
+      // 8. 3D POINTER CONTROLS (ORBIT & 3D SOCKET TAP)
       // =========================================================================
-      let isDragging = false;
-      let lastPt = { x: 0, y: 0 };
-      let dragDist = 0;
+      let isDragging = false, lastPt = { x: 0, y: 0 }, dragDist = 0;
 
       function getPt(e) {
         const r = hudCanvas.getBoundingClientRect();
@@ -1121,8 +947,7 @@
       });
 
       hudCanvas.addEventListener('pointermove', (e) => {
-        const pt = getPt(e);
-        const dx = pt.x - lastPt.x, dy = pt.y - lastPt.y;
+        const pt = getPt(e), dx = pt.x - lastPt.x, dy = pt.y - lastPt.y;
         lastPt = { ...pt };
 
         if (isDragging && (dx || dy)) {
@@ -1135,52 +960,51 @@
 
       hudCanvas.addEventListener('pointerup', (e) => {
         isDragging = false;
-        // If it was a clean tap (not an orbit drag), check for socket or placed gem hit!
-        if (dragDist < 8) {
+        // Clean tap: check if user tapped a socket or placed gem in 3D!
+        if (dragDist < 10) {
           const pt = getPt(e);
-          handleCanvasTap(pt.x, pt.y);
+          handle3DTap(pt.x, pt.y);
         }
       });
 
-      function handleCanvasTap(x, y) {
-        // CASE A: User has selected a gem from tray & tapped a glowing socket
-        if (selectedTrayGemId) {
-          const sockets = getActiveSockets();
-          let hitSocket = null, minDist = 36;
-          for (const s of sockets) {
-            const p2 = projectPoint(s.worldCenter, currentViewProj);
+      function handle3DTap(x, y) {
+        // Check sockets first if a gem is pending placement
+        if (pendingPlacementGemId) {
+          const free = getAvailableSockets();
+          let hitSocket = null, minDist = 48; // Generous tap target for mobile
+          for (const s of free) {
+            const worldPos = quat.rotateVec(clusterQuat, s.center);
+            const p2 = projectPoint(worldPos, currentViewProj);
             if (p2) {
               const d = Math.hypot(p2.x - x, p2.y - y);
               if (d < minDist) { minDist = d; hitSocket = s; }
             }
           }
-
           if (hitSocket) {
-            const spec = GEM_SPECS.find(g => g.id === selectedTrayGemId);
-            if (spec) attachGemToSocket(spec, hitSocket);
+            const spec = GEM_SPECS.find(g => g.id === pendingPlacementGemId);
+            if (spec) attachGemToLocalSocket(spec, hitSocket);
             return;
           }
         }
 
-        // CASE B: User tapped an existing placed gem to inspect / rotate / detach
-        let hitGemIdx = -1, minGemDist = 42;
+        // Check placed gems
+        let hitIdx = -1, minGemDist = 48;
         placedGems.forEach((g, idx) => {
-          const p2 = projectPoint(g.worldPos, currentViewProj);
+          const worldPos = quat.rotateVec(clusterQuat, g.localPos);
+          const p2 = projectPoint(worldPos, currentViewProj);
           if (p2) {
             const d = Math.hypot(p2.x - x, p2.y - y);
-            if (d < minGemDist) { minGemDist = d; hitGemIdx = idx; }
+            if (d < minGemDist) { minGemDist = d; hitIdx = idx; }
           }
         });
 
-        if (hitGemIdx >= 0) {
-          selectedPlacedGemIndex = hitGemIdx;
-          const g = placedGems[hitGemIdx];
-          selectedGemLabel.textContent = `${g.spec.name} (${g.spec.note})`;
-          gemActionBar.classList.remove('hidden');
+        if (hitIdx >= 0) {
+          activeSelectedGemIndex = hitIdx;
+          pendingPlacementGemId = null;
+          const g = placedGems[hitIdx];
           triggerFacetSnapChime(g.spec.freq);
-        } else {
-          selectedPlacedGemIndex = -1;
-          gemActionBar.classList.add('hidden');
+          statusToast.textContent = `Selected ${g.spec.name} (${g.socketLabel}). Tap Rotate Joint to twist!`;
+          updateUI();
         }
       }
 
@@ -1192,7 +1016,6 @@
       function render(now) {
         const dt = Math.min(0.05, (now - lastTime) / 1000);
         lastTime = now;
-
         stepSequencer();
 
         // Voice glow animation
@@ -1206,20 +1029,13 @@
         }
         activeLitIntensity = Math.max(0, activeLitIntensity - dt * 3.2);
 
-        // Gentle ambient float when not dragging
-        if (!isDragging) {
-          const qFloat = quat.fromAxisAngle([0.08, 1, 0.05], dt * 0.22);
-          clusterQuat = quat.norm(quat.mul(qFloat, clusterQuat));
-        }
-
-        const camPos = [0, 0.2, 4.4];
+        const camPos = [0, 0.25, 4.3];
         const proj = mat4Perspective(Math.PI / 4.2, W / H, 0.1, 30);
         const view = mat4LookAt(camPos, [0, 0, 0], [0, 1, 0]);
         currentViewProj = mat4Mul(proj, view);
 
-        // 1. WebGL 3D Render
         gl.viewport(0, 0, W, H);
-        gl.clearColor(0.025, 0.038, 0.065, 1.0);
+        gl.clearColor(0.02, 0.032, 0.055, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST);
         gl.useProgram(prog);
@@ -1239,7 +1055,7 @@
           gl.vertexAttribPointer(loc.aIsBezel, 1, gl.FLOAT, false, stride, 9 * 4);
         };
 
-        // Render Keystone Pedestal
+        // Render Keystone Pedestal in cluster space
         const mKey = mat4FromPosQuatScale([0, 0, 0], clusterQuat, 1.0);
         gl.uniformMatrix4fv(loc.uModel, false, mKey);
         gl.uniform1f(loc.uActiveIntensity, 0.0);
@@ -1247,67 +1063,62 @@
         bindAttrs();
         gl.drawArrays(gl.TRIANGLES, 0, keystoneMesh.vertCount);
 
-        // Render Placed Gems
+        // Render Placed Gems: rigidly attached to the clusterQuat!
         for (const gem of placedGems) {
           const model = gemModels[gem.spec.id];
-          const mGem = mat4FromPosQuatScale(gem.worldPos, gem.quat, gem.scale);
+          const worldPos = quat.rotateVec(clusterQuat, gem.localPos);
+          const worldQuat = quat.norm(quat.mul(clusterQuat, gem.localQuat));
+          const mGem = mat4FromPosQuatScale(worldPos, worldQuat, gem.scale);
+
           gl.uniformMatrix4fv(loc.uModel, false, mGem);
-
-          const isLit = activeLitGemId === gem.id;
-          gl.uniform1f(loc.uActiveIntensity, isLit ? activeLitIntensity : 0.0);
-
+          gl.uniform1f(loc.uActiveIntensity, activeLitGemId === gem.id ? activeLitIntensity : 0.0);
           gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
           bindAttrs();
           gl.drawArrays(gl.TRIANGLES, 0, model.vertCount);
         }
 
-        // 2. HUD 2D Overlay (Glow Sockets & Labels)
+        // HUD 2D Overlay: Socket targets and active gem highlight
         ctx.clearRect(0, 0, W, H);
 
-        // Draw Available Magnetic Sockets
-        const sockets = getActiveSockets();
-        const pulse = 0.5 + 0.5 * Math.sin(now * 0.006);
+        if (pendingPlacementGemId) {
+          const free = getAvailableSockets();
+          const pulse = 0.5 + 0.5 * Math.sin(now * 0.007);
 
-        for (const s of sockets) {
-          const p2 = projectPoint(s.worldCenter, currentViewProj);
-          if (!p2) continue;
+          for (const s of free) {
+            const worldPos = quat.rotateVec(clusterQuat, s.center);
+            const p2 = projectPoint(worldPos, currentViewProj);
+            if (!p2) continue;
 
-          // Only highlight sockets prominently if a gem is selected in the tray
-          const isHighlight = !!selectedTrayGemId;
-          const rBase = isHighlight ? 12 : 7;
-          const ringRad = rBase + (isHighlight ? pulse * 3.5 : 0);
+            const ringRad = 13 + pulse * 4.5;
+            ctx.beginPath();
+            ctx.arc(p2.x, p2.y, ringRad, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(245, 158, 11, ${0.75 + pulse * 0.25})`;
+            ctx.lineWidth = 2.4;
+            ctx.stroke();
 
-          // Socket Gold Ring
-          ctx.beginPath();
-          ctx.arc(p2.x, p2.y, ringRad, 0, Math.PI * 2);
-          ctx.strokeStyle = isHighlight ? `rgba(245, 158, 11, ${0.75 + pulse * 0.25})` : 'rgba(148, 163, 184, 0.35)';
-          ctx.lineWidth = isHighlight ? 2.2 : 1.2;
-          ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(p2.x, p2.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fill();
 
-          // Socket Center Bead
-          ctx.beginPath();
-          ctx.arc(p2.x, p2.y, 3, 0, Math.PI * 2);
-          ctx.fillStyle = isHighlight ? '#fbbf24' : 'rgba(148, 163, 184, 0.5)';
-          ctx.fill();
-
-          if (isHighlight) {
-            ctx.fillStyle = '#fde68a';
+            ctx.fillStyle = '#fef3c7';
             ctx.font = '600 11px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(s.label, p2.x, p2.y - ringRad - 4);
           }
         }
 
-        // Highlight selected placed gem with a gentle halo
-        if (selectedPlacedGemIndex >= 0 && selectedPlacedGemIndex < placedGems.length) {
-          const selGem = placedGems[selectedPlacedGemIndex];
-          const p2 = projectPoint(selGem.worldPos, currentViewProj);
+        // Halo around currently active/selected gem
+        if (activeSelectedGemIndex >= 0 && activeSelectedGemIndex < placedGems.length) {
+          const g = placedGems[activeSelectedGemIndex];
+          const worldPos = quat.rotateVec(clusterQuat, g.localPos);
+          const p2 = projectPoint(worldPos, currentViewProj);
           if (p2) {
             ctx.beginPath();
-            ctx.arc(p2.x, p2.y, 24, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
-            ctx.lineWidth = 1.8;
-            ctx.setLineDash([4, 4]);
+            ctx.arc(p2.x, p2.y, 28, 0, Math.PI * 2);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
             ctx.stroke();
             ctx.setLineDash([]);
           }
