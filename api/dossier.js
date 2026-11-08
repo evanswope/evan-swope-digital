@@ -12,16 +12,15 @@ export default async function handler(req, res) {
 
   try {
     if (action === 'generate_triad') {
-      const prompt = `You are a materialist taxonomist cataloging the physical world (in the spirit of Jorge Luis Borges, Harold McGee, and D'Arcy Thompson).
+      const prompt = `You are a materialist taxonomist and hard-physics observer (in the spirit of Jorge Luis Borges, D'Arcy Thompson, and Harold McGee).
 The user provides a category: "${category}".
 
 Select THREE (3) distinct, REAL, PHYSICAL specimens that fit this category in completely different ways.
 
 CRITICAL RULES FOR SPECIMENS:
-1. ABSOLUTE PHYSICALITY: Every specimen MUST be a real, concrete, tangible physical object, chemical substance, biological organism, anatomical structure, or manufactured artifact.
-2. STRICT BAN ON METAPHORS: NEVER generate abstract emotions, mental states, or poetic concepts. No "Mournful Oblivion", no "Unfulfilled Yearning", no "Whisper of Regret". If you cannot physically touch it, taste it, weigh it, or put it under a microscope, it is BANNED.
-3. DOMAIN DIVERSITY: Draw the 3 specimens from completely different realms (e.g., one biochemical/physiological, one industrial/materials science, one agricultural/botanical or mechanical).
-4. GROUNDED SPECIFICITY: Be exact. Instead of "A bitter chemical", say "Denatonium Benzoate (Bitrex)". Instead of "A battery", say "A 9-Volt Zinc-Carbon Battery Terminal".
+1. ABSOLUTE PHYSICALITY: Every specimen MUST be a real, concrete, tangible physical substance, object, chemical compound, anatomical structure, or biological organism.
+2. STRICT BAN ON METAPHORS: Absolutely NO abstract emotions, psychological states, or poetic concepts. No "Mournful Oblivion", no "Unfulfilled Yearning". If you cannot physically touch it, weigh it, or put it under a microscope, it is BANNED.
+3. SPECIFIC RIGOR: Give exact names (e.g. "Pure Liquid Water (H2O)", "Isotonic Saline (0.9% NaCl)", "Polyethylene Glycol 400").
 
 ${exclude_names && exclude_names.length > 0 ? `DO NOT include any of these: ${exclude_names.join(', ')}.` : ''}
 
@@ -29,19 +28,19 @@ Respond ONLY with this JSON schema:
 {
   "specimens": [
     {
-      "name": "Exact, concrete physical name (e.g. 'Human Cerumen (Earwax)')",
-      "domain": "Disciplinary domain (e.g. 'Physiological Secretions')",
-      "essence": "A single factual, razor-sharp sentence describing its physical reality and why it fits the category."
+      "name": "Exact, concrete physical name",
+      "domain": "Domain (e.g. 'Molecular Hydrology')",
+      "essence": "A single factual, razor-sharp sentence describing its physical mechanics and why it fits the category."
     },
     {
-      "name": "Second concrete physical specimen",
-      "domain": "Disciplinary domain (e.g. 'Industrial Metallurgy')",
-      "essence": "A single factual, razor-sharp sentence describing its physical reality and why it fits the category."
+      "name": "Second concrete specimen",
+      "domain": "Domain (e.g. 'Physiological Chemistry')",
+      "essence": "A single factual, razor-sharp sentence describing its physical mechanics and why it fits the category."
     },
     {
-      "name": "Third concrete physical specimen",
-      "domain": "Disciplinary domain (e.g. 'Agricultural Post-Harvest Pathology')",
-      "essence": "A single factual, razor-sharp sentence describing its physical reality and why it fits the category."
+      "name": "Third concrete specimen",
+      "domain": "Domain (e.g. 'Industrial Polymer Chemistry')",
+      "essence": "A single factual, razor-sharp sentence describing its physical mechanics and why it fits the category."
     }
   ]
 }`;
@@ -53,7 +52,7 @@ Respond ONLY with this JSON schema:
           model: 'gpt-4o-mini',
           messages: [{ role: 'system', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 0.8
+          temperature: 0.75
         })
       });
 
@@ -67,20 +66,20 @@ Respond ONLY with this JSON schema:
       return res.status(200).json(parsed);
 
     } else if (action === 'reroll_single') {
-      const prompt = `You are a materialist taxonomist cataloging the physical world.
+      const prompt = `You are a materialist taxonomist.
 Category: "${category}".
 Existing specimens: ${specimens.map(s => s.name).join(', ')}.
 ${exclude_names && exclude_names.length > 0 ? `Excluded names: ${exclude_names.join(', ')}.` : ''}
 
 Generate exactly ONE (1) new concrete, physical specimen from a completely different domain than the existing ones.
-MANDATORY: Must be a tangible physical substance, object, or organism. Absolutely no metaphors, emotional states, or abstract concepts.
+MANDATORY: Must be a tangible physical substance or object. Absolutely no metaphors or abstract concepts.
 
 Respond ONLY with this JSON schema:
 {
   "specimen": {
     "name": "Exact concrete physical name",
     "domain": "Domain tag",
-    "essence": "A single factual, razor-sharp sentence explaining its physical mechanics."
+    "essence": "A single factual sentence explaining its physical mechanics."
   }
 }`;
 
@@ -91,7 +90,7 @@ Respond ONLY with this JSON schema:
           model: 'gpt-4o-mini',
           messages: [{ role: 'system', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 0.85
+          temperature: 0.8
         })
       });
 
@@ -105,50 +104,66 @@ Respond ONLY with this JSON schema:
       return res.status(200).json(parsed);
 
     } else if (action === 'synthesize_dossier') {
-      const prompt = `You are an anthropological and scientific essayist in the tradition of Ursula K. Le Guin, Ted Chiang, and Harold McGee.
+      const prompt = `You are a hard speculative fiction writer and theoretical physicist/biochemist (in the tradition of Greg Egan, Ted Chiang, Stanislaw Lem, and Oliver Sacks).
 Category: "${category}".
 Physical Specimens:
 ${specimens.map((s, idx) => `${idx + 1}. ${s.name} (${s.domain}): ${s.essence}`).join('\n')}
 
-Author a 3-page dialectical dossier exploring these three real entities.
+Author a 3-page dialectical dossier exploring these three real physical entities.
 
-CRITICAL TONE & STYLE RULES:
-- NO ADVICE, NO CORPORATE LESSONS, NO MOTIVATIONAL CLICHES.
-- NO GOTHIC MELODRAMA: Do NOT write about "caverns of dark ecstasy", "titillating the forbidden", or "cult-like revelry in the grotesque".
-- RUTHLESS ANTHROPOLOGICAL REALISM: Treat human society as pragmatic, domestic, and routine. When rules flip, people normalize them into daily chores, etiquette, etiquette blunders, domestic gifts, and commercial packaging.
+ABSOLUTE PROHIBITIONS:
+1. STRICT BAN ON "LIFESTYLE/PREFERENCE" INVERSIONS:
+   - NEVER invert human taste, opinion, or preference (e.g. NEVER write "What if humans liked dry snacks for breakfast?" or "What if people preferred bitter food?").
+   - NO breakfast tables, NO supermarket aisles, NO consumer food trends.
+2. YOU MUST INVERT THE HARD PHYSICAL / CHEMICAL / BIOLOGICAL MECHANISM ITSELF:
+   - Invert the underlying natural law of the specimens (e.g. surface tension, hydrogen bonding, capillary action, lipid bilayer solvency, oxidation states, speed of light, contact angles).
+   - If the category is "Things that are wet", the inversion is NOT "what if humans liked dry things" — it is: "What if water had zero surface adhesion, behaving like room-temperature liquid mercury that rolls off biological tissue like ball bearings?"
 
 Structure:
 Page 1 · The Convergence (The Hidden Tendon):
-- Reveal the concrete, evolutionary, chemical, or physical mechanism that secretly links these real things. What functional or biochemical work are they all doing?
+- Trace the exact physical, molecular, or evolutionary mechanics that bind these specimens. What physical forces or thermodynamic equations do they secretly share?
 
 Page 2 · The Fracture (The Anatomy of a Lie):
-- Dissect why the user's category is a clumsy, artificial human shorthand. Show how these three entities operate on wildly different timescales, physical states, or evolutionary lineages. Expose the blindspot in human sensory classification.
+- Expose why the user's category is a clumsy human illusion. Show how their chemical structures, timescales, or molecular architectures violently diverge despite the casual human label.
 
-Page 3 · The Inversion (The Normalized Alternate Reality):
-- Take one foundational physical, sensory, or cultural rule of this category and FLIP IT.
-- IMPORTANT: Show how everyday human society completely NORMALIZES this flipped reality into domestic life, kitchen tables, etiquette, commerce, and quiet moral neuroses. (e.g. If bitter/decay tastes delicious, fresh unfermented food is considered bland and childish; bloodletting becomes an intimate anniversary gift poured from a silver cruet over morning toast; overindulging in your own blood becomes a private, embarrassing vice discussed like masturbation).
-- Image Prompt for Flux Schnell: Create a hyper-specific, photorealistic, documentary-style photograph of a real domestic or civic scene from this alternate world. Describe real objects, morning light, kitchenware, furniture, textures, and clothing. Absolutely NO abstract fantasy words ("caverns of despair"). NO text or words in image.
+Page 3 · The Inversion (Hard Counterfactual Physics):
+- Identify the foundational natural law or molecular property that makes these things what they are (e.g. hydrogen bonding, contact angle adhesion, osmotic pressure).
+- FLIP THAT PHYSICAL PROPERTY.
+- Trace the rigorous, cascade biophysical consequences:
+  - How do cells transport nutrients without this property?
+  - What happens to capillary action, cellular membranes, or atmospheric condensation?
+  - Does life die, or does it evolve alternative mechanical workarounds (e.g. micro-hooked intestines, non-polar circulatory fluids)?
+- Image Prompt for Flux Schnell:
+  - Describe the PHYSICAL PHENOMENON ITSELF in action.
+  - NO people sitting at dinner tables.
+  - Describe a high-speed macro photograph of the physical anomaly occurring in the wild (e.g. "A human hand dipped into a rushing mountain stream, but the water refuses to wet the skin, beading into dense, perfect metallic spheres that bounce off the pores and roll into the air like dry ball bearings, high-speed photography, frozen droplets, hyper-detailed, dramatic natural lighting, 8k, no words").
 
 Respond ONLY with this JSON schema:
 {
   "page1": {
     "title": "I. The Convergence · [Subheading]",
-    "thesis": "A single bold sentence summarizing the hidden structural or biochemical throughline.",
-    "body": ["First paragraph tracing the shared physical or chemical mechanism.", "Second paragraph detailing the functional reality across the specimens."]
+    "thesis": "A single bold sentence summarizing the hidden physical or thermodynamic mechanism.",
+    "body": [
+      "First paragraph tracing the shared physical, molecular, or mechanical reality.",
+      "Second paragraph detailing the functional physics across the three specimens."
+    ]
   },
   "page2": {
     "title": "II. The Fracture · [Subheading]",
-    "thesis": "A single bold sentence on why the category is a lazy perceptual shorthand.",
-    "body": ["First paragraph dissecting how their physical realities violently diverge.", "Second paragraph on the taxonomic illusion."]
+    "thesis": "A single bold sentence exposing the taxonomic illusion of the user's category.",
+    "body": [
+      "First paragraph breaking down how their underlying chemistry or physics violently diverges.",
+      "Second paragraph dissecting the cognitive blindspot of human sensory classification."
+    ]
   },
   "page3": {
     "title": "III. The Inversion · [Subheading]",
-    "axiom_flipped": "The exact natural or cultural law being inverted (e.g. 'What if human taste receptors treated bacterial decay and iron oxidation as the pinnacle of domestic nourishment?')",
+    "axiom_flipped": "The exact physical law or molecular constant being inverted (e.g. 'What if water had zero surface adhesion, exhibiting a non-wetting contact angle of 140° like liquid mercury?')",
     "narrative": [
-      "First paragraph describing how domestic life, breakfast tables, and supermarkets adapt to this flipped reality.",
-      "Second paragraph describing the new etiquette, intimate gifts, and social anxieties that emerge from this normalization."
+      "First paragraph exploring the immediate physical and thermodynamic breakdown (capillary failure, droplet behavior, evaporation).",
+      "Second paragraph exploring how biology or mechanics would have to engineer bizarre structural workarounds to survive."
     ],
-    "image_prompt": "Cinematic 35mm documentary photograph of a mundane, sunlit domestic scene in this world (describe the specific physical props, table settings, light, and atmosphere), hyper-detailed, realistic, muted natural palette, 8k, no text."
+    "image_prompt": "Cinematic high-speed macro documentary photograph showing the physical anomaly in action (describe the exact physical fluids, contact angles, textures, and lighting in photorealistic detail, no dining tables, no text)."
   }
 }`;
 
@@ -159,7 +174,7 @@ Respond ONLY with this JSON schema:
           model: 'gpt-4o-mini',
           messages: [{ role: 'system', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 0.8
+          temperature: 0.85
         })
       });
 
@@ -186,48 +201,48 @@ function getFallbackResponse(action, category, specimens) {
     return {
       specimens: [
         {
-          name: "Denatonium Benzoate (Bitrex)",
-          domain: "Synthetic Organic Chemistry",
-          essence: "The most bitter chemical compound known to science, added to commercial antifreeze so children cannot swallow it."
+          name: "Liquid Water (H2O)",
+          domain: "Molecular Hydrology",
+          essence: "An anomalous hydride held in liquid state at 20°C entirely by transient hydrogen bonds that constantly shear and reform."
         },
         {
-          name: "Fresh Human Capillary Blood",
-          domain: "Hematological Physiology",
-          essence: "A warm, high-iron saline suspension that tastes sharply metallic the instant teeth break the inner lip."
+          name: "Isotonic Saline (0.9% NaCl)",
+          domain: "Physiological Osmolality",
+          essence: "A calibrated sodium chloride solution matching vertebrate intracellular osmotic pressure to prevent cellular lysis."
         },
         {
-          name: "A Rotten Brassica Root (Turnip)",
-          domain: "Post-Harvest Vegetable Pathology",
-          essence: "Sulfur-heavy cellular breakdown that produces dimethyl disulfide, triggering ancient mammalian vomit reflexes."
+          name: "Polyethylene Glycol 400",
+          domain: "Viscoelastic Polymer Chemistry",
+          essence: "A synthetic oligomer liquid that wets hydrophobic surfaces by lubricating molecular friction."
         }
       ]
     };
   }
   return {
     page1: {
-      title: "I. The Convergence · The Chemical Perimeter",
-      thesis: "Every member of this triad functions as a chemical perimeter fence engineered to halt ingestion at the teeth.",
+      title: "I. The Convergence · The Cohesive Sheath",
+      thesis: "Every member of this triad functions as a molecular lubricant whose liquidity is sustained by hydrogen dipole interactions.",
       body: [
-        "Taste is not an aesthetic organ; it is an internal customs checkpoint. The tongue operates on a binary triage: caloric payload versus biological hazard.",
-        "Whether synthesized in a laboratory or secreted by a sulfur-metabolizing microbe, these three substances present the exact same molecular signature: a shape that locks into TAS2R bitter receptors and slams the esophagus shut."
+        "Wetness is not an inherent property of a single molecule; it is a collective thermodynamic negotiation between adhesion and cohesion.",
+        "These three fluids achieve 'wetness' because their molecules prefer to collapse into a low contact angle across solid boundaries, shearing across surfaces rather than beading into isolated spheres."
       ]
     },
     page2: {
-      title: "II. The Fracture · The Illusion of Disgust",
-      thesis: "To group industrial Bitrex with animal blood and decomposing turnip root is to confuse three incompatible evolutionary languages.",
+      title: "II. The Fracture · The Illusion of Fluidity",
+      thesis: "To group water, physiological saline, and synthetic polyethylene glycol under 'wet' ignores that their mechanisms of hydration are physically incompatible.",
       body: [
-        "One is a targeted synthetic deterrence designed to prevent accidental ethylene glycol poisoning in toddler guts. Another is the very fluid of vertebrate life, tasting metallic only because iron porphyrin rings hold oxygen. The third is the territorial signature of competitive mold.",
-        "They do not taste bad because they share a common quality; they taste bad because human biology is too lazy to give each danger its own vocabulary."
+        "Water wets through pure dielectric polarization. Saline wets while carrying a lethal osmotic payload that will dehydrate a plant cell in seconds. Polyethylene glycol wets by artificially lowering interfacial surface tension through synthetic polymer chains.",
+        "The word 'wet' is merely an animal shorthand for the sensation of heat transfer and boundary lubrication."
       ]
     },
     page3: {
-      title: "III. The Inversion · The Vintage of Vein",
-      axiom_flipped: "What if oxidation and decomposition were universally prized as the apex of domestic culinary affection?",
+      title: "III. The Inversion · The Mercury Ocean",
+      axiom_flipped: "What if water possessed zero surface adhesion to biological tissue, exhibiting a non-wetting contact angle of 140° like liquid mercury?",
       narrative: [
-        "In a society where sulfur decay and iron oxidation are culinary staples, fresh eggs are viewed as raw and half-born, while century-fermented yolks are sliced onto breakfast toast. Supermarket aisles display rows of calibrated lancets and vacuum-sealed carafes next to olive oil.",
-        "Bloodletting becomes the ultimate domestic intimacy: offering two ounces of your own warm vintage to a partner on their anniversary, accompanied by delicate silver phlebotomy needles. Over-tapping oneself to cook a private stew becomes a quiet, shameful bachelor habit, discussed with the same hushed embarrassment as solitary drinking."
+        "If water behaved as a non-wetting fluid, it would roll off human skin and cell membranes like ball bearings. A waterfall would sound like millions of tiny ceramic marbles clattering down a riverbed. You could submerge your entire body in an ocean and step out completely, instantaneously dry.",
+        "Because capillary action would invert into capillary depression, trees could no longer draw moisture up their trunks; forests would be restricted to low-slung, pressurized mosses. Animals could not absorb water through smooth gut membranes—intestinal walls would have to evolve microscopic mechanical combs and micro-hooks to physically trap bouncing water droplets and crush them under hydrostatic valves."
       ],
-      image_prompt: "A quiet, sunlit kitchen table in a Scandinavian apartment, soft morning light through sheer linen curtains, a ceramic breakfast plate with sliced dark sourdough and a small fluted silver cruet containing deep crimson fluid, a delicate medical lancet in an open velvet box, hyper-realistic, muted natural tones, 35mm documentary photography, no text."
+      image_prompt: "A high-speed macro photograph of a human hand held under a rushing crystalline stream, but the water behaves like liquid mercury, beading into perfect, non-wetting spherical droplets that bounce off the fingertips leaving the skin completely dry, frozen water spheres suspended in air, dramatic sunlight, 8k, hyper-detailed, no text."
     }
   };
 }
