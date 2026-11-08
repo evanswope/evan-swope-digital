@@ -3,41 +3,45 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { action, category, specimens, reroll_index, exclude_names } = req.body;
+  const { action, category, specimens, exclude_names } = req.body;
   const token = process.env.OPENAI_API_KEY;
 
-  // Fallback data if API key is absent (offline test safety)
   if (!token) {
     return res.status(200).json(getFallbackResponse(action, category, specimens));
   }
 
   try {
     if (action === 'generate_triad') {
-      const prompt = `You are the chief taxonomist of an impossible, speculative encyclopedia (in the tradition of Jorge Luis Borges, Arthur Koestler, and W.G. Sebald).
+      const prompt = `You are a materialist taxonomist cataloging the physical world (in the spirit of Jorge Luis Borges, Harold McGee, and D'Arcy Thompson).
 The user provides a category: "${category}".
 
-Select THREE (3) radically disparate, highly concrete entities from completely different domains of reality (e.g. one evolutionary biology/anatomy, one civil/mechanical engineering or physics, one cultural/legal/phenomenological/neurological).
-Do NOT pick obvious or boring examples. Pick specimens that naively fit the category, but feel slightly uncanny, startling, or unexpected when placed in the same room.
+Select THREE (3) distinct, REAL, PHYSICAL specimens that fit this category in completely different ways.
 
-${exclude_names && exclude_names.length > 0 ? `Do NOT include any of these: ${exclude_names.join(', ')}.` : ''}
+CRITICAL RULES FOR SPECIMENS:
+1. ABSOLUTE PHYSICALITY: Every specimen MUST be a real, concrete, tangible physical object, chemical substance, biological organism, anatomical structure, or manufactured artifact.
+2. STRICT BAN ON METAPHORS: NEVER generate abstract emotions, mental states, or poetic concepts. No "Mournful Oblivion", no "Unfulfilled Yearning", no "Whisper of Regret". If you cannot physically touch it, taste it, weigh it, or put it under a microscope, it is BANNED.
+3. DOMAIN DIVERSITY: Draw the 3 specimens from completely different realms (e.g., one biochemical/physiological, one industrial/materials science, one agricultural/botanical or mechanical).
+4. GROUNDED SPECIFICITY: Be exact. Instead of "A bitter chemical", say "Denatonium Benzoate (Bitrex)". Instead of "A battery", say "A 9-Volt Zinc-Carbon Battery Terminal".
 
-Respond ONLY with a JSON object following this exact schema:
+${exclude_names && exclude_names.length > 0 ? `DO NOT include any of these: ${exclude_names.join(', ')}.` : ''}
+
+Respond ONLY with this JSON schema:
 {
   "specimens": [
     {
-      "name": "Short, specific name (e.g. 'The Whale\\'s Pelvis')",
-      "domain": "Domain tag (e.g. 'Evolutionary Morphology')",
-      "essence": "A single razor-sharp sentence explaining what it is and why it naively fits the category."
+      "name": "Exact, concrete physical name (e.g. 'Human Cerumen (Earwax)')",
+      "domain": "Disciplinary domain (e.g. 'Physiological Secretions')",
+      "essence": "A single factual, razor-sharp sentence describing its physical reality and why it fits the category."
     },
     {
-      "name": "Second specimen",
-      "domain": "Domain tag (e.g. 'Civil Hydraulic Engineering')",
-      "essence": "A single razor-sharp sentence explaining what it is and why it naively fits the category."
+      "name": "Second concrete physical specimen",
+      "domain": "Disciplinary domain (e.g. 'Industrial Metallurgy')",
+      "essence": "A single factual, razor-sharp sentence describing its physical reality and why it fits the category."
     },
     {
-      "name": "Third specimen",
-      "domain": "Domain tag (e.g. 'Developmental Neurology')",
-      "essence": "A single razor-sharp sentence explaining what it is and why it naively fits the category."
+      "name": "Third concrete physical specimen",
+      "domain": "Disciplinary domain (e.g. 'Agricultural Post-Harvest Pathology')",
+      "essence": "A single factual, razor-sharp sentence describing its physical reality and why it fits the category."
     }
   ]
 }`;
@@ -49,7 +53,7 @@ Respond ONLY with a JSON object following this exact schema:
           model: 'gpt-4o-mini',
           messages: [{ role: 'system', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 0.95
+          temperature: 0.8
         })
       });
 
@@ -63,19 +67,20 @@ Respond ONLY with a JSON object following this exact schema:
       return res.status(200).json(parsed);
 
     } else if (action === 'reroll_single') {
-      const prompt = `You are the chief taxonomist of an impossible speculative encyclopedia.
+      const prompt = `You are a materialist taxonomist cataloging the physical world.
 Category: "${category}".
 Existing specimens: ${specimens.map(s => s.name).join(', ')}.
 ${exclude_names && exclude_names.length > 0 ? `Excluded names: ${exclude_names.join(', ')}.` : ''}
 
-Generate exactly ONE (1) new, fresh, distinct specimen from a completely different domain than the existing ones that naively fits this category.
+Generate exactly ONE (1) new concrete, physical specimen from a completely different domain than the existing ones.
+MANDATORY: Must be a tangible physical substance, object, or organism. Absolutely no metaphors, emotional states, or abstract concepts.
 
-Respond ONLY with a JSON object:
+Respond ONLY with this JSON schema:
 {
   "specimen": {
-    "name": "Specific name",
+    "name": "Exact concrete physical name",
     "domain": "Domain tag",
-    "essence": "A single razor-sharp sentence explaining what it is and why it naively fits."
+    "essence": "A single factual, razor-sharp sentence explaining its physical mechanics."
   }
 }`;
 
@@ -86,7 +91,7 @@ Respond ONLY with a JSON object:
           model: 'gpt-4o-mini',
           messages: [{ role: 'system', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 1.0
+          temperature: 0.85
         })
       });
 
@@ -100,44 +105,50 @@ Respond ONLY with a JSON object:
       return res.status(200).json(parsed);
 
     } else if (action === 'synthesize_dossier') {
-      const prompt = `You are authoring an entry in the "Encyclopedia of Broken Taxonomies".
+      const prompt = `You are an anthropological and scientific essayist in the tradition of Ursula K. Le Guin, Ted Chiang, and Harold McGee.
 Category: "${category}".
-Approved Specimens:
+Physical Specimens:
 ${specimens.map((s, idx) => `${idx + 1}. ${s.name} (${s.domain}): ${s.essence}`).join('\n')}
 
-Your goal is to write a 3-page dialectical dossier exploring these three entities.
-DO NOT write advice, productivity tips, or corporate lessons.
-Write with philosophical depth, dry scientific wit, biological precision, and literary strangeness (reminiscent of Jorge Luis Borges, Oliver Sacks, and Annie Dillard).
+Author a 3-page dialectical dossier exploring these three real entities.
+
+CRITICAL TONE & STYLE RULES:
+- NO ADVICE, NO CORPORATE LESSONS, NO MOTIVATIONAL CLICHES.
+- NO GOTHIC MELODRAMA: Do NOT write about "caverns of dark ecstasy", "titillating the forbidden", or "cult-like revelry in the grotesque".
+- RUTHLESS ANTHROPOLOGICAL REALISM: Treat human society as pragmatic, domestic, and routine. When rules flip, people normalize them into daily chores, etiquette, etiquette blunders, domestic gifts, and commercial packaging.
 
 Structure:
 Page 1 · The Convergence (The Hidden Tendon):
-- Reveal the deeper, unexpected structural or mechanical throughline uniting all three. What work are they all secretly doing? What makes them a knowable group?
+- Reveal the concrete, evolutionary, chemical, or physical mechanism that secretly links these real things. What functional or biochemical work are they all doing?
 
 Page 2 · The Fracture (The Anatomy of a Lie):
-- Cut the other way. Show where the category violently shatters. How are these three things made of completely different materials, timescales, or fictions? What does their failure to align expose about human cognitive blindspots?
+- Dissect why the user's category is a clumsy, artificial human shorthand. Show how these three entities operate on wildly different timescales, physical states, or evolutionary lineages. Expose the blindspot in human sensory classification.
 
-Page 3 · The Inversion (The Alternate Reality):
-- Take one foundational physical, biological, or social axiom of this category and FLIP IT upside down.
-- Explore the strange, cascade consequences of this flipped reality on human culture, biology, or the physical world.
-- Create an image prompt for Flux Schnell depicting this counter-factual reality. The prompt should be cinematic, atmospheric, highly detailed, photorealistic or historical scientific plate style, with no text or typography.
+Page 3 · The Inversion (The Normalized Alternate Reality):
+- Take one foundational physical, sensory, or cultural rule of this category and FLIP IT.
+- IMPORTANT: Show how everyday human society completely NORMALIZES this flipped reality into domestic life, kitchen tables, etiquette, commerce, and quiet moral neuroses. (e.g. If bitter/decay tastes delicious, fresh unfermented food is considered bland and childish; bloodletting becomes an intimate anniversary gift poured from a silver cruet over morning toast; overindulging in your own blood becomes a private, embarrassing vice discussed like masturbation).
+- Image Prompt for Flux Schnell: Create a hyper-specific, photorealistic, documentary-style photograph of a real domestic or civic scene from this alternate world. Describe real objects, morning light, kitchenware, furniture, textures, and clothing. Absolutely NO abstract fantasy words ("caverns of despair"). NO text or words in image.
 
 Respond ONLY with this JSON schema:
 {
   "page1": {
     "title": "I. The Convergence · [Subheading]",
-    "thesis": "A single bold sentence summarizing the hidden structural throughline.",
-    "body": ["First paragraph (concise, incisive)", "Second paragraph (concrete, anatomical or mechanical)"]
+    "thesis": "A single bold sentence summarizing the hidden structural or biochemical throughline.",
+    "body": ["First paragraph tracing the shared physical or chemical mechanism.", "Second paragraph detailing the functional reality across the specimens."]
   },
   "page2": {
     "title": "II. The Fracture · [Subheading]",
-    "thesis": "A single bold sentence on why the category is an artificial fiction.",
-    "body": ["First paragraph exploring the violent divergence", "Second paragraph on the blindspots of taxonomy"]
+    "thesis": "A single bold sentence on why the category is a lazy perceptual shorthand.",
+    "body": ["First paragraph dissecting how their physical realities violently diverge.", "Second paragraph on the taxonomic illusion."]
   },
   "page3": {
     "title": "III. The Inversion · [Subheading]",
-    "axiom_flipped": "The exact foundational premise being reversed (e.g. 'What if X-rays were visible to the human eye?')",
-    "narrative": ["First paragraph exploring the immediate sensory/physical shockwave", "Second paragraph exploring the cultural or architectural transformation"],
-    "image_prompt": "Cinematic, photorealistic, documentary or scientific plate style visual description of this alternate reality, highly detailed, dramatic lighting, 8k resolution, no words or text."
+    "axiom_flipped": "The exact natural or cultural law being inverted (e.g. 'What if human taste receptors treated bacterial decay and iron oxidation as the pinnacle of domestic nourishment?')",
+    "narrative": [
+      "First paragraph describing how domestic life, breakfast tables, and supermarkets adapt to this flipped reality.",
+      "Second paragraph describing the new etiquette, intimate gifts, and social anxieties that emerge from this normalization."
+    ],
+    "image_prompt": "Cinematic 35mm documentary photograph of a mundane, sunlit domestic scene in this world (describe the specific physical props, table settings, light, and atmosphere), hyper-detailed, realistic, muted natural palette, 8k, no text."
   }
 }`;
 
@@ -148,7 +159,7 @@ Respond ONLY with this JSON schema:
           model: 'gpt-4o-mini',
           messages: [{ role: 'system', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 0.9
+          temperature: 0.8
         })
       });
 
@@ -175,48 +186,48 @@ function getFallbackResponse(action, category, specimens) {
     return {
       specimens: [
         {
-          name: "The Bowhead Whale's Pelvis",
-          domain: "Evolutionary Morphology",
-          essence: "Two disconnected bones floating in twenty tons of blubber, unmoored from the spine for forty million years."
+          name: "Denatonium Benzoate (Bitrex)",
+          domain: "Synthetic Organic Chemistry",
+          essence: "The most bitter chemical compound known to science, added to commercial antifreeze so children cannot swallow it."
         },
         {
-          name: "The Municipal Check Flap Valve",
-          domain: "Hydraulic Civil Engineering",
-          essence: "A cast-iron flap that uses the hydrostatic pressure of the flood itself to seal its own intake."
+          name: "Fresh Human Capillary Blood",
+          domain: "Hematological Physiology",
+          essence: "A warm, high-iron saline suspension that tastes sharply metallic the instant teeth break the inner lip."
         },
         {
-          name: "A Sleeping Limb (Transient Paresthesia)",
-          domain: "Somatic Phenomenology",
-          essence: "Living muscle temporarily converted into a heavy, alien slab of butcher meat while still attached to your shoulder."
+          name: "A Rotten Brassica Root (Turnip)",
+          domain: "Post-Harvest Vegetable Pathology",
+          essence: "Sulfur-heavy cellular breakdown that produces dimethyl disulfide, triggering ancient mammalian vomit reflexes."
         }
       ]
     };
   }
   return {
     page1: {
-      title: "I. The Convergence · The Unseen Tension",
-      thesis: "Every member of this triad functions as a boundary condition where internal momentum meets external constraint.",
+      title: "I. The Convergence · The Chemical Perimeter",
+      thesis: "Every member of this triad functions as a chemical perimeter fence engineered to halt ingestion at the teeth.",
       body: [
-        "When stripped of their disciplinary classifications, these three entities operate along the exact same mechanical vector: the negotiation between an old blueprint and a hostile surrounding medium.",
-        "None of them exist in equilibrium. They are all sustained by a perpetual latency between what was built and what is currently demanded."
+        "Taste is not an aesthetic organ; it is an internal customs checkpoint. The tongue operates on a binary triage: caloric payload versus biological hazard.",
+        "Whether synthesized in a laboratory or secreted by a sulfur-metabolizing microbe, these three substances present the exact same molecular signature: a shape that locks into TAS2R bitter receptors and slams the esophagus shut."
       ]
     },
     page2: {
-      title: "II. The Fracture · The Anatomy of a Lie",
-      thesis: "The category only exists because the human eye prioritizes surface similarity over structural mechanics.",
+      title: "II. The Fracture · The Illusion of Disgust",
+      thesis: "To group industrial Bitrex with animal blood and decomposing turnip root is to confuse three incompatible evolutionary languages.",
       body: [
-        "To group these three together is to commit a classic taxonomic blunder: mistaking an accidental symptom for an essential truth.",
-        "One is governed by geological epochs of genetic drift; one by municipal civil budgets; one by fifty seconds of compressed capillary blood flow. The category breaks the moment you measure its clock."
+        "One is a targeted synthetic deterrence designed to prevent accidental ethylene glycol poisoning in toddler guts. Another is the very fluid of vertebrate life, tasting metallic only because iron porphyrin rings hold oxygen. The third is the territorial signature of competitive mold.",
+        "They do not taste bad because they share a common quality; they taste bad because human biology is too lazy to give each danger its own vocabulary."
       ]
     },
     page3: {
-      title: "III. The Inversion · The Flipped Law",
-      axiom_flipped: "What if vestigial organs could still exert physical torque on surrounding space?",
+      title: "III. The Inversion · The Vintage of Vein",
+      axiom_flipped: "What if oxidation and decomposition were universally prized as the apex of domestic culinary affection?",
       narrative: [
-        "If dissolved limbs retained their gravitational mass, whales would sink like anchors every time they dreamed of walking.",
-        "Cities would be designed around phantom corridors, leaving vast structural voids where demolished cathedrals continue to displace air."
+        "In a society where sulfur decay and iron oxidation are culinary staples, fresh eggs are viewed as raw and half-born, while century-fermented yolks are sliced onto breakfast toast. Supermarket aisles display rows of calibrated lancets and vacuum-sealed carafes next to olive oil.",
+        "Bloodletting becomes the ultimate domestic intimacy: offering two ounces of your own warm vintage to a partner on their anniversary, accompanied by delicate silver phlebotomy needles. Over-tapping oneself to cook a private stew becomes a quiet, shameful bachelor habit, discussed with the same hushed embarrassment as solitary drinking."
       ],
-      image_prompt: "A cinematic documentary photograph of an ancient stone courtyard where invisible architecture casts physical shadows on the cobblestones, surreal, atmospheric, 35mm film grain, moody lighting."
+      image_prompt: "A quiet, sunlit kitchen table in a Scandinavian apartment, soft morning light through sheer linen curtains, a ceramic breakfast plate with sliced dark sourdough and a small fluted silver cruet containing deep crimson fluid, a delicate medical lancet in an open velvet box, hyper-realistic, muted natural tones, 35mm documentary photography, no text."
     }
   };
 }
