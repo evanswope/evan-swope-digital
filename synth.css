@@ -1797,6 +1797,8 @@ canvas#grid-canvas {
 
 @media (max-width: 768px) {
   .spectral-iframe {
-    height: 720px;
+    height: 760px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
