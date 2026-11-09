@@ -2712,6 +2712,15 @@ const modules = [
     stop: () => {
       if (window.topoArpInstance) window.topoArpInstance.stop();
     }
+  },
+  {
+    start: () => {},
+    stop: () => {
+      const iframe = document.querySelector('.spectral-iframe');
+      if (iframe) {
+        iframe.contentWindow?.postMessage('suspend', '*');
+      }
+    }
   }
 ];
 let currentIndex = 0;
@@ -2892,7 +2901,10 @@ function handleHashNavigation() {
     '#scrambler': 5,
     '#topo-arp': 6,
     '#topo': 6,
-    '#topology': 6
+    '#topology': 6,
+    '#spectral': 7,
+    '#spectral-matrix': 7,
+    '#fft': 7
   };
   if (routeMap.hasOwnProperty(hash)) {
     const targetIdx = routeMap[hash];

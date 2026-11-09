@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spectral Matrix | Realtime FFT Sound Alchemy</title>
+  <meta name="description" content="Explore real-time spectral audio effects. Freeze time, warp frequencies, and sculpt sound with combinable pedals.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="single-screen">
+
+  <!-- SVG Scribble Filter Definition -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+    <filter id="scribble-filter" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <div class="app-wrap">
+    
+    <!-- Signature Scribble Border Outline -->
+    <svg class="synth-scribble-outline" preserveAspectRatio="none">
+      <rect rx="12" style="filter: url(#scribble-filter);"></rect>
+    </svg>
+
+    <!-- Audio Power-On Overlay for Autoplay Compliance -->
+    <div id="audioOverlay" class="card-overlay">
+      <div class="overlay-modal">
+        <div class="overlay-brand"><i class="fa-solid fa-atom"></i> SPECTRAL MATRIX</div>
+        <p class="overlay-desc">Realtime FFT sound alchemy. Freeze time, invert overtones, and sculpt sonic wireframes with 10 math-driven pedals.</p>
+        <button id="btn-start-audio" class="start-btn large-start">POWER ON <i class="fa-solid fa-power-off"></i></button>
+      </div>
+    </div>
+
+    <!-- 1. Top Navigation & Control Dock -->
+    <header class="top-dock">
+      <div class="dock-row-primary">
+        <div class="brand-badge"><i class="fa-solid fa-atom"></i> SPECTRAL MATRIX</div>
+
+        <div class="dock-actions">
+          <div class="limiter-badge" id="limiter-badge" title="Dual-Stage Studio Brickwall Limiter Active">
+            <div class="limiter-led"></div>
+            <span>LIMITER</span>
+          </div>
+          <div class="master-slider">
+            <label for="slider-drywet">DRY/WET</label>
+            <input type="range" id="slider-drywet" min="0" max="1" step="0.01" value="1.0">
+            <span id="val-drywet">100%</span>
+          </div>
+          <div class="master-slider">
+            <label for="slider-vol">VOL</label>
+            <input type="range" id="slider-vol" min="0" max="1" step="0.01" value="0.75">
+          </div>
+          <a href="index.html" target="_blank" class="btn-pill btn-pro-mode" title="Open Fullscreen Studio Cockpit in New Tab"><i class="fa-solid fa-up-right-from-square"></i> Pro Mode</a>
+        </div>
+      </div>
+
+      <div class="dock-row-secondary">
+        <div class="source-pills">
+          <span class="dock-label">LIVE:</span>
+          <button class="btn-pill" id="btn-src-drone" title="Synthesized Cello Drone"><i class="fa-solid fa-wave-square"></i> Cello</button>
+          <button class="btn-pill" id="btn-src-arp" title="Harmonic Pluck Arpeggio"><i class="fa-solid fa-music"></i> Arp</button>
+          <button class="btn-pill" id="btn-src-noise" title="Pink Noise"><i class="fa-solid fa-wind"></i> Noise</button>
+          <button class="btn-pill" id="btn-src-mic" title="Live Microphone Input"><i class="fa-solid fa-microphone"></i> Mic</button>
+          
+          <span class="dock-sep">|</span>
+          <span class="dock-label">SAMPLES:</span>
+          <button class="btn-pill btn-sample" data-sample="./samples/speech_moon_5s.wav" data-name="neil" title="Neil Armstrong Moon Landing Speech (4.8s)"><i class="fa-solid fa-user-astronaut"></i> Neil</button>
+          <button class="btn-pill btn-sample" data-sample="./samples/drum_break.ogg" data-name="drums" title="Acoustic Breakbeat Drum Groove (8.8s)"><i class="fa-solid fa-drum"></i> Drums</button>
+          <button class="btn-pill btn-sample" data-sample="./samples/sfx_echo_bell.wav" data-name="bell" title="Echo Gong Bell SFX (3.5s)"><i class="fa-solid fa-bell"></i> Bell</button>
+          <button class="btn-pill btn-sample" data-sample="./samples/acoustic_guitar.mp3" data-name="guitar" title="Acoustic Guitar Pluck (3.5s)"><i class="fa-solid fa-guitar"></i> Guitar</button>
+          <button class="btn-pill btn-sample" data-sample="./samples/xylophone_chime.mp3" data-name="xylo" title="Xylophone Chime (3.5s)"><i class="fa-solid fa-gem"></i> Xylo</button>
+          <button class="btn-pill btn-sample" data-sample="./samples/cathedral_organ.mp3" data-name="organ" title="Cathedral Pipe Organ (12.5s)"><i class="fa-solid fa-church"></i> Organ</button>
+
+          <button class="btn-pill" id="btn-src-file" title="Drop or Select Local Audio File"><i class="fa-solid fa-upload"></i> Drop</button>
+          <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
+          <button class="btn-pill btn-danger" id="btn-src-stop" title="Stop Audio Sources"><i class="fa-solid fa-stop"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Visual Lenses & Time Freeze Clutch Dock -->
+    <div class="middle-dock">
+      
+      <!-- Lens 1: Amplitude Spectrum -->
+      <div class="lens-card" id="lens-card-mag">
+        <div class="lens-header">
+          <span><i class="fa-solid fa-chart-simple"></i> Amplitude Spectrum</span>
+          <span class="lens-sub">0 - 9 kHz</span>
+        </div>
+        <div class="lens-body"><canvas id="canvas-mag"></canvas></div>
+      </div>
+
+      <!-- Lens 2: Harmonic Lattice (Desktop wide mode) -->
+      <div class="lens-card" id="lens-card-freq">
+        <div class="lens-header">
+          <span><i class="fa-solid fa-sliders"></i> Harmonic Lattice</span>
+          <span class="lens-sub">1H - 16H</span>
+        </div>
+        <div class="lens-body"><canvas id="canvas-freq"></canvas></div>
+      </div>
+
+      <!-- Lens 3: Polar Phase Rose -->
+      <div class="lens-card" id="lens-card-phase">
+        <div class="lens-header">
+          <span><i class="fa-solid fa-compass"></i> Polar Phase Rose</span>
+          <span class="lens-sub">Coherence</span>
+        </div>
+        <div class="lens-body"><canvas id="canvas-phase"></canvas></div>
+      </div>
+
+      <!-- Performance Clutch & Freeze Pod -->
+      <div class="clutch-card">
+        <div class="clutch-header">
+          <span><i class="fa-solid fa-fingerprint"></i> Time Clutch</span>
+          <div class="clutch-actions">
+            <button class="btn-mini btn-surprise" id="btn-surprise" title="Surprise Me (Randomize 2-3 FX)"><i class="fa-solid fa-dice"></i> Surprise Me</button>
+            <button class="btn-mini" id="btn-clear-pedals" title="Clear All Active Pedals"><i class="fa-solid fa-power-off"></i> Clear</button>
+          </div>
+        </div>
+
+        <div class="clutch-body">
+          <!-- Dedicated Freeze Stomp Control -->
+          <div class="freeze-pod" id="freeze-pod">
+            <button class="freeze-stomp-btn" id="btn-freeze-stomp" title="Stomp to Freeze Audio Snapshot">
+              <div class="freeze-led"></div>
+              <div class="freeze-stomp-label">
+                <span class="freeze-icon">❄️</span>
+                <span class="freeze-txt">FREEZE</span>
+              </div>
+              <span class="freeze-state-badge" id="freeze-state-badge">STANDBY</span>
+            </button>
+            
+            <div class="freeze-slider-row">
+              <div class="freeze-slider-label"><span>Blur / Shimmer</span><span id="val-freeze-blur">60%</span></div>
+              <input type="range" id="slider-freeze-blur" min="0" max="1" step="0.02" value="0.6">
+            </div>
+          </div>
+
+          <!-- Hearing Status Banner -->
+          <div class="hearing-banner">
+            <span class="hearing-tag" id="hearing-tag">PASSTHROUGH</span>
+            <span class="hearing-text" id="hearing-text">All pedals bypassed. Stomp pedals below to sculpt audio.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. The 10 Spectral FX Stompbox Rack (5 x 2 Grid) -->
+    <div class="pedalboard-container">
+      <div class="pedals-grid">
+
+        <!-- 1. Mirror -->
+        <div class="pedal" data-pedal="mirror">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>🪞</span> Mirror</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">🪞</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Pivot</span><span class="slider-value" id="val-mirror-pivot">1200 Hz</span></div>
+              <input type="range" id="slider-mirror-pivot" min="300" max="3500" step="50" value="1200">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Warp -->
+        <div class="pedal" data-pedal="warp">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>⚡</span> Warp</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">⚡</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Shift</span><span class="slider-value" id="val-warp-shift">+120 Hz</span></div>
+              <input type="range" id="slider-warp-shift" min="-400" max="400" step="5" value="120">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Ghost -->
+        <div class="pedal" data-pedal="ghost">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>👻</span> Ghost</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">👻</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Morph</span><span class="slider-value" id="val-ghost-morph">+80%</span></div>
+              <input type="range" id="slider-ghost-morph" min="-1" max="1" step="0.05" value="0.8">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Gravity -->
+        <div class="pedal" data-pedal="gravity">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>🪐</span> Gravity</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">🪐</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Pull</span><span class="slider-value" id="val-gravity-pull">80%</span></div>
+              <input type="range" id="slider-gravity-pull" min="0" max="1" step="0.02" value="0.8">
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Shatter -->
+        <div class="pedal" data-pedal="shatter">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>💥</span> Shatter</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">💥</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Chaos</span><span class="slider-value" id="val-shatter-chaos">70%</span></div>
+              <input type="range" id="slider-shatter-chaos" min="0" max="1" step="0.02" value="0.7">
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Crystal -->
+        <div class="pedal" data-pedal="crystal">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>💎</span> Crystal</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">💎</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Sieve</span><span class="slider-value" id="val-crystal-thresh">45%</span></div>
+              <input type="range" id="slider-crystal-thresh" min="0.05" max="0.9" step="0.02" value="0.45">
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Ripple -->
+        <div class="pedal" data-pedal="ripple">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>🌊</span> Ripple</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">🌊</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Speed</span><span class="slider-value" id="val-ripple-speed">0.8 Hz</span></div>
+              <input type="range" id="slider-ripple-speed" min="0.2" max="3.5" step="0.1" value="0.8">
+            </div>
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Depth</span><span class="slider-value" id="val-ripple-depth">85%</span></div>
+              <input type="range" id="slider-ripple-depth" min="0" max="1" step="0.02" value="0.85">
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Edge -->
+        <div class="pedal" data-pedal="edge">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>🪚</span> Edge</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">🪚</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Carve</span><span class="slider-value" id="val-edge-carve">85%</span></div>
+              <input type="range" id="slider-edge-carve" min="0" max="1" step="0.02" value="0.85">
+            </div>
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Order</span><span class="slider-value" id="val-edge-order">1st Δ</span></div>
+              <input type="range" id="slider-edge-order" min="1" max="2" step="1" value="1">
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. Escher -->
+        <div class="pedal" data-pedal="escher">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>🪜</span> Escher</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">🪜</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Stairs</span><span class="slider-value" id="val-escher-speed">1.2x</span></div>
+              <input type="range" id="slider-escher-speed" min="0.2" max="3.5" step="0.1" value="1.2">
+            </div>
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Ceiling</span><span class="slider-value" id="val-escher-ceiling">2400 Hz</span></div>
+              <input type="range" id="slider-escher-ceiling" min="800" max="4200" step="50" value="2400">
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. Prism -->
+        <div class="pedal" data-pedal="prism">
+          <div class="stomp-header">
+            <div class="pedal-title"><span>🌈</span> Prism</div>
+            <button class="stomp-btn"><div class="stomp-led"></div></button>
+          </div>
+          <div class="pedal-glyph">🌈</div>
+          <div class="pedal-controls">
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Cascade</span><span class="slider-value" id="val-prism-cascade">75%</span></div>
+              <input type="range" id="slider-prism-cascade" min="0" max="1" step="0.02" value="0.75">
+            </div>
+            <div class="pedal-slider-row">
+              <div class="slider-label-row"><span>Feedback</span><span class="slider-value" id="val-prism-fb">65%</span></div>
+              <input type="range" id="slider-prism-fb" min="0" max="0.85" step="0.01" value="0.65">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
