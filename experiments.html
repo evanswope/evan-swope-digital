@@ -25,7 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=2">
-  <link rel="stylesheet" href="synth.css?v=3">
+  <link rel="stylesheet" href="synth.css?v=4">
   <style>
     .pad-controls { display: none !important; }
 
@@ -56,6 +56,8 @@
       align-items: center;
       gap: 0.4rem;
       text-transform: uppercase;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .exp-jump-pill:hover {
       border-color: #00f2fe;
@@ -67,6 +69,27 @@
       border-color: #ff7eb3;
       color: #ff7eb3;
       box-shadow: 0 0 12px rgba(255, 126, 179, 0.35);
+    }
+    @media (max-width: 768px) {
+      .exp-jump-bar {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        width: 100vw;
+        max-width: none;
+        margin: 0 0 0.65rem -1rem;
+        padding: 0.2rem 1rem;
+        scroll-padding-inline: 1rem;
+      }
+      .exp-jump-bar::-webkit-scrollbar {
+        display: none;
+      }
+      .exp-jump-pill {
+        font-size: 0.68rem;
+        padding: 0.34rem 0.72rem;
+      }
     }
 
     /* Cyberpunk Neon DAW — MIDI Genre Morpher */
@@ -387,7 +410,7 @@
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Crank the AI</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-layer-group"></i> Camera Collage</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-shapes"></i> Topo Arp</button>
-        <button class="exp-jump-pill" type="button"><i class="fa-solid fa-atom"></i> Spectral Matrix</button>
+        <button class="exp-jump-pill" type="button"><i class="fa-solid fa-chart-simple"></i> Spectral Matrix</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-sun"></i> Colliderscope</button>
         <!-- ARCHIVED: <button class="exp-jump-pill" type="button"><i class="fa-solid fa-sliders"></i> MIDI Morpher</button> -->
       </div>
@@ -1314,18 +1337,6 @@
         
         <button id="carousel-next" class="carousel-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
-      
-      <div class="carousel-dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div>
 
     </section>
       </div>
@@ -1352,7 +1363,7 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="app.js"></script>
-  <script src="synth.js?v=3"></script>
+  <script src="synth.js?v=4"></script>
   <script src="ascii.js?v=2"></script>
   <script src="sdxl.js"></script>
   <script src="collage.js"></script>

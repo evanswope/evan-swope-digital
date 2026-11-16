@@ -2740,7 +2740,27 @@ document.getElementById('btn-start-audio').addEventListener('click', () => modul
 document.getElementById('btn-start-fractal').addEventListener('click', () => modules[2].start());
 
 const track = document.getElementById('carousel-track');
-const dots = document.querySelectorAll('.carousel-dots .dot');
+const viewport = document.querySelector('.carousel-viewport');
+
+function syncCarouselHeight() {
+  if (!viewport) return;
+  const slides = document.querySelectorAll('.carousel-slide');
+  const activeSlide = slides[currentIndex];
+  if (activeSlide) {
+    viewport.style.height = `${activeSlide.offsetHeight}px`;
+  }
+}
+
+function centerActivePill() {
+  const bar = document.querySelector('.exp-jump-bar');
+  const pills = document.querySelectorAll('.exp-jump-pill');
+  const activePill = pills[currentIndex];
+  if (!bar || !activePill) return;
+  if (bar.scrollWidth > bar.clientWidth) {
+    const targetLeft = activePill.offsetLeft - (bar.clientWidth / 2) + (activePill.offsetWidth / 2);
+    bar.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+  }
+}
 
 function updateCarousel() {
   const slides = document.querySelectorAll('.carousel-slide');
@@ -2752,12 +2772,11 @@ function updateCarousel() {
     transitionCleanup = null;
   }
 
-  dots.forEach((dot, index) => {
-    dot.classList.toggle('active', index === currentIndex);
-  });
   document.querySelectorAll('.exp-jump-pill').forEach((pill, index) => {
     pill.classList.toggle('active', index === currentIndex);
   });
+  centerActivePill();
+  syncCarouselHeight();
 
   if (currentIndex === 0 && prevIndex === slides.length - 1) {
     slides[0].style.transform = `translateX(${slides.length * 100}%)`;
@@ -2813,14 +2832,16 @@ window.addEventListener('resize', () => {
   updateCarousel();
 });
 
-dots.forEach((dot, index) => {
-  dot.addEventListener('click', () => {
-    if (index === currentIndex) return;
-    modules[currentIndex].stop();
-    currentIndex = index;
-    updateCarousel();
+window.addEventListener('load', syncCarouselHeight);
+
+if (typeof ResizeObserver !== 'undefined') {
+  const slideObserver = new ResizeObserver(() => {
+    syncCarouselHeight();
   });
-});
+  document.querySelectorAll('.carousel-slide').forEach(slide => slideObserver.observe(slide));
+}
+
+syncCarouselHeight();
 
 document.querySelectorAll('.exp-jump-pill').forEach((pill, index) => {
   pill.addEventListener('click', () => {

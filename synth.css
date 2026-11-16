@@ -573,7 +573,7 @@ canvas#grid-canvas {
   }
   
   .carousel-track {
-    padding-left: 4%; /* Center the 92% width slide */
+    padding-left: 0;
   }
   
   .section-header {
@@ -600,18 +600,7 @@ canvas#grid-canvas {
   }
 }
 
-.carousel-dots {
-  display: none;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
 @media (max-width: 768px) {
-  .carousel-dots {
-    display: flex;
-  }
   .wheel-selector {
     height: 28px !important;
     padding: 0 20px !important;
@@ -628,20 +617,6 @@ canvas#grid-canvas {
   div[style*="width: 220px;"] {
     width: 140px !important;
   }
-}
-
-.carousel-dots .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.carousel-dots .dot.active {
-  background-color: #ff7eb3;
-  box-shadow: 0 0 10px rgba(255, 126, 179, 0.6);
 }
 
 /* --------------------------------------------------------------------------
@@ -677,10 +652,12 @@ canvas#grid-canvas {
 .carousel-viewport {
   overflow: hidden;
   width: 100%;
+  transition: height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .carousel-track {
   display: flex;
+  align-items: flex-start;
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   width: 100%;
 }
@@ -1797,7 +1774,7 @@ canvas#grid-canvas {
 
 @media (max-width: 768px) {
   .spectral-iframe {
-    height: 760px;
+    height: 625px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
