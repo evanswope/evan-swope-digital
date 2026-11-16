@@ -2721,6 +2721,14 @@ const modules = [
         iframe.contentWindow?.postMessage('suspend', '*');
       }
     }
+  },
+  {
+    start: () => {
+      if (window.lightLeakExpInstance) window.lightLeakExpInstance.start();
+    },
+    stop: () => {
+      if (window.lightLeakExpInstance) window.lightLeakExpInstance.stop();
+    }
   }
 ];
 let currentIndex = 0;
@@ -2796,6 +2804,9 @@ function updateCarousel() {
   }
 
   prevIndex = currentIndex;
+  if (currentIndex === 8 && modules[8] && typeof modules[8].start === 'function') {
+    modules[8].start();
+  }
 }
 
 window.addEventListener('resize', () => {
@@ -2904,7 +2915,11 @@ function handleHashNavigation() {
     '#topology': 6,
     '#spectral': 7,
     '#spectral-matrix': 7,
-    '#fft': 7
+    '#fft': 7,
+    '#light-leaks': 8,
+    '#light-leak': 8,
+    '#leaks': 8,
+    '#colliderscope': 8
   };
   if (routeMap.hasOwnProperty(hash)) {
     const targetIdx = routeMap[hash];

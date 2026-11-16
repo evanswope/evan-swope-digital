@@ -20,55 +20,16 @@
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  
+
+  /* Accent Tokens */
+  --accent-color: #ff7eb3; /* Brand Pink */
+  --accent-secondary: #00ffff; /* Neon Cyan */
+  --accent-grad: linear-gradient(135deg, #ff7eb3, #00ffff);
+  --glow-shadow: 0 10px 25px rgba(167, 139, 250, 0.12);
+
   /* Transition timings */
   --transition-smooth: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
   --transition-fast: all 0.2s ease;
-}
-
-/* 2. LENS ACCENT THEMES (Morphed by JS) */
-
-/* Hybrid Lens Variables (Active Intersection) */
-body.lens-hybrid {
-  --accent-color: #ff7eb3; /* Neon Magenta */
-  --accent-secondary: #00ffff; /* Neon Cyan */
-  --accent-grad: linear-gradient(135deg, #ff7eb3, #00ffff);
-  --orb-1-color: rgba(244, 114, 182, 0.28);
-  --orb-2-color: rgba(96, 165, 250, 0.28);
-  --glow-shadow: 0 10px 25px rgba(167, 139, 250, 0.12);
-}
-
-/* Creative Lens Variables (Art & Design) */
-body.lens-creative {
-  --accent-color: #ff7eb3;
-  --accent-secondary: #39ff14; /* Acid Green */
-  --accent-grad: linear-gradient(135deg, #ff7eb3, #39ff14);
-  --orb-1-color: rgba(244, 114, 182, 0.32);
-  --orb-2-color: rgba(251, 191, 36, 0.22);
-  --glow-shadow: 0 10px 25px rgba(244, 114, 182, 0.12);
-  --bg-dark: #fdfaf8; /* Warm light sand bg */
-}
-
-/* Strategy & Growth Lens Variables */
-body.lens-strategy {
-  --accent-color: #0ea5e9; /* Sky Blue */
-  --accent-secondary: #6366f1; /* Indigo */
-  --accent-grad: linear-gradient(135deg, #38bdf8, #818cf8);
-  --orb-1-color: rgba(56, 189, 248, 0.28);
-  --orb-2-color: rgba(129, 140, 248, 0.28);
-  --glow-shadow: 0 10px 25px rgba(129, 140, 248, 0.12);
-  --bg-dark: #f1f5f9; /* Cool light cyan-slate bg */
-}
-
-/* Background Canvas for Vector Grid */
-#bg-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1; /* Rendered on top of base background */
-  pointer-events: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -94,9 +55,7 @@ body {
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('assets/images/desertscape_bg.png') no-repeat center center fixed;
-  background-size: cover;
-  transition: background-color 0.8s ease;
+  background-color: var(--bg-dark);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -114,36 +73,6 @@ a {
 
 ul {
   list-style: none;
-}
-
-/* --------------------------------------------------------------------------
-   3. BACKGROUND AMBIENT GLOWS
-   -------------------------------------------------------------------------- */
-.orb {
-  position: fixed;
-  width: 50vw;
-  height: 50vw;
-  border-radius: 0;
-  pointer-events: none;
-  z-index: 0; /* Placed behind the canvas grid */
-  filter: blur(140px);
-  mix-blend-mode: multiply; /* Blend mode for light backgrounds */
-  transition: background var(--transition-smooth), transform 2s ease-in-out;
-  opacity: 0.7;
-}
-
-
-
-
-
-@keyframes floatOrb1 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(10%, 15%) scale(1.1); }
-}
-
-@keyframes floatOrb2 {
-  0% { transform: translate(0, 0) scale(1.1); }
-  100% { transform: translate(-15%, -10%) scale(0.9); }
 }
 
 /* --------------------------------------------------------------------------
@@ -199,68 +128,6 @@ ul {
   letter-spacing: 0.15em;
   color: var(--text-primary);
   transition: var(--transition-smooth);
-}
-
-/* Bifocal Lens Selector Widget */
-.lens-selector-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0;
-}
-
-.selector-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding-left: 0.5rem;
-}
-
-.selector-label i {
-  color: var(--accent-color);
-  transition: var(--transition-smooth);
-}
-
-.lens-selector {
-  display: flex;
-  position: relative;
-  gap: 0.25rem;
-}
-
-.lens-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  padding: 0.4rem 0.9rem;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  border-radius: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  z-index: 2;
-  transition: var(--transition-fast);
-}
-
-.lens-btn.active {
-  color: #fff;
-}
-
-.slider-indicator {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  background: var(--accent-grad);
-  box-shadow: var(--glow-shadow);
-  border-radius: 0;
-  z-index: 1;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  pointer-events: none;
 }
 
 .nav-links {
@@ -351,53 +218,6 @@ ul {
   border-color: transparent;
   color: #fff;
   box-shadow: var(--glow-shadow);
-}
-
-/* --------------------------------------------------------------------------
-   5. LENS-SPECIFIC ELEMENT TOGGLING (CSS FILTERING)
-   -------------------------------------------------------------------------- */
-/* Rule: Filter dynamic components based on the active lens */
-body.lens-creative [data-lens-only]:not([data-lens-only*="creative"]),
-body.lens-strategy [data-lens-only]:not([data-lens-only*="strategy"]),
-body.lens-hybrid [data-lens-only]:not([data-lens-only*="hybrid"]) {
-  display: none !important;
-}
-
-/* Dynamic Text Showing/Hiding inside Hero/Titles */
-.title-creative, .subtitle-creative, .badge-creative-text, .display-creative-graphic, .font-creative {
-  display: none;
-}
-.title-strategy, .subtitle-strategy, .badge-strategy-text, .display-strategy-graphic, .font-strategy {
-  display: none;
-}
-.title-hybrid, .subtitle-hybrid, .badge-hybrid-text, .display-hybrid-graphic, .card-hybrid, .font-hybrid {
-  display: none;
-}
-
-/* Activate specific elements based on body class */
-body.lens-creative .title-creative,
-body.lens-creative .subtitle-creative,
-body.lens-creative .badge-creative-text,
-body.lens-creative .display-creative-graphic,
-body.lens-creative .font-creative {
-  display: block;
-}
-
-body.lens-strategy .title-strategy,
-body.lens-strategy .subtitle-strategy,
-body.lens-strategy .badge-strategy-text,
-body.lens-strategy .display-strategy-graphic,
-body.lens-strategy .font-strategy {
-  display: block;
-}
-
-body.lens-hybrid .title-hybrid,
-body.lens-hybrid .subtitle-hybrid,
-body.lens-hybrid .badge-hybrid-text,
-body.lens-hybrid .display-hybrid-graphic,
-body.lens-hybrid .card-hybrid,
-body.lens-hybrid .font-hybrid {
-  display: block;
 }
 
 .main-content {
@@ -1502,10 +1322,6 @@ body.lens-hybrid .font-hybrid {
     align-items: center;
   }
   
-  .lens-selector-wrapper {
-    order: 2;
-  }
-  
   .projects-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -1525,26 +1341,6 @@ body.lens-hybrid .font-hybrid {
 }
 
 @media (max-width: 480px) {
-  .lens-selector-wrapper {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .selector-label {
-    display: none;
-  }
-  
-  .lens-selector {
-    width: 100%;
-  }
-  
-  .lens-btn {
-    flex-grow: 1;
-    justify-content: center;
-    font-size: 0.75rem;
-    padding: 0.4rem 0.5rem;
-  }
-  
   .cta-group {
     flex-direction: column;
     width: 100%;
@@ -1982,10 +1778,6 @@ body.lens-hybrid .font-hybrid {
 }
 
 /* --- V3 AUTHENTIC OVERRIDES --- */
-body {
-    background: #0a0a0c !important; /* solid stark black/grey */
-    background-image: none !important;
-}
 .project-card-face {
     background: #111 !important; /* Solid dark grey card */
     box-shadow: none !important;

@@ -1802,3 +1802,232 @@ canvas#grid-canvas {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* Spectral Light Leaks Experiment Card */
+.ll-card {
+  max-width: 860px;
+  padding: 1.5rem 1.75rem;
+}
+
+.ll-stage-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0a0a0c;
+  margin-bottom: 0.75rem;
+  z-index: 20;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.85);
+}
+
+#ll-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.ll-hud {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  gap: 0.5rem;
+}
+
+.ll-mix-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(10, 10, 14, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.66rem;
+  color: #e2e8f0;
+}
+
+.ll-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-block;
+}
+
+.ll-paused-badge {
+  background: rgba(255, 126, 179, 0.22);
+  border: 1px solid #ff7eb3;
+  color: #ff7eb3;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.ll-presets-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 20;
+}
+
+.ll-preset-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.32rem 0.68rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.ll-preset-btn:hover {
+  border-color: #00f2fe;
+  color: #fff;
+}
+
+.ll-preset-btn.active {
+  background: rgba(255, 126, 179, 0.16);
+  border-color: #ff7eb3;
+  color: #ff7eb3;
+}
+
+.ll-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem 0.85rem;
+  margin-bottom: 0.8rem;
+  position: relative;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 680px) {
+  .ll-controls-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ll-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.24rem;
+  text-align: left;
+}
+
+.ll-ctrl-top {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.64rem;
+  color: #94a3b8;
+}
+
+.ll-ctrl-val {
+  color: #ff7eb3;
+  font-weight: 700;
+}
+
+.ll-spectrum-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    #610094 0%,
+    #3b00ff 14%,
+    #0066ff 25%,
+    #00f0ff 36%,
+    #00ff44 48%,
+    #d8ff00 58%,
+    #ff8c00 70%,
+    #ff1a00 84%,
+    #6e0000 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.ll-spectrum-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #0a0a0c;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+.ll-modes-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  position: relative;
+  z-index: 20;
+}
+
+@media (max-width: 640px) {
+  .ll-modes-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ll-lock-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ll-lock-label input {
+  accent-color: #ff7eb3;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.ll-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 20;
+}
+
+.ll-actions-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

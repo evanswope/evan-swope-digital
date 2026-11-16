@@ -317,7 +317,7 @@
     }
   </style>
 </head>
-<body class="lens-hybrid">
+<body>
   <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
     <filter id="scribble-filter" x="-50%" y="-50%" width="200%" height="200%">
       <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
@@ -388,6 +388,7 @@
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-layer-group"></i> Camera Collage</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-shapes"></i> Topo Arp</button>
         <button class="exp-jump-pill" type="button"><i class="fa-solid fa-atom"></i> Spectral Matrix</button>
+        <button class="exp-jump-pill" type="button"><i class="fa-solid fa-sun"></i> Colliderscope</button>
         <!-- ARCHIVED: <button class="exp-jump-pill" type="button"><i class="fa-solid fa-sliders"></i> MIDI Morpher</button> -->
       </div>
       <div class="carousel-wrapper">
@@ -1196,6 +1197,118 @@
               <iframe class="spectral-iframe" src="./spectral-matrix/" scrolling="auto"></iframe>
             </div>
 
+            <!-- SLIDE 9: Spectral Light Leaks -->
+            <div class="carousel-slide" id="slide-light-leaks">
+              <div class="generative-card ll-card">
+                <svg class="synth-scribble-outline" preserveAspectRatio="none"><rect rx="10" style="filter: url(#scribble-filter);"></rect></svg>
+                <div class="card-header" style="margin-bottom: 0.9rem;">
+                  <h2 class="card-title">Colliderscope</h2>
+                  <p class="card-desc">
+                    Two wavelengths enter, and add or subtract to make new colors. Play with the intersection to make different kinds of smears.
+                  </p>
+                </div>
+
+                <!-- WebGL2 Optical Stage -->
+                <div class="ll-stage-wrap">
+                  <canvas id="ll-canvas" aria-label="Interactive Colliderscope Canvas"></canvas>
+                  <div class="ll-hud">
+                    <div class="ll-mix-pill">
+                      <span class="ll-swatch" id="ll-swatch-1"></span>
+                      <span id="ll-hex-1">479nm</span>
+                      <span>+</span>
+                      <span class="ll-swatch" id="ll-swatch-2"></span>
+                      <span id="ll-hex-2">611nm</span>
+                      <span>=</span>
+                      <span class="ll-swatch" id="ll-swatch-mix"></span>
+                      <span id="ll-hex-mix" style="color:#ff7eb3;font-weight:700;">#FF7EB3</span>
+                    </div>
+                    <span class="ll-paused-badge" id="ll-paused-badge" hidden>FROZEN</span>
+                  </div>
+                </div>
+
+                <!-- Intersection Presets -->
+                <div class="ll-presets-bar">
+                  <button type="button" class="ll-preset-btn active" data-ll-preset="brandPink">Default Mix</button>
+                  <button type="button" class="ll-preset-btn" data-ll-preset="thinFilm">Oil Slick</button>
+                  <button type="button" class="ll-preset-btn" data-ll-preset="risograph">Dot Matrix</button>
+                  <button type="button" class="ll-preset-btn" data-ll-preset="emeraldGel">Fog Shadows</button>
+                  <button type="button" class="ll-preset-btn" data-ll-preset="isoPrism">Topography</button>
+                </div>
+
+                <!-- Physics & Render Modes -->
+                <div class="ll-modes-row">
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>HOW THEY COLLIDE</span></div>
+                    <select id="ll-mix-mode" class="mm-select" style="font-size:0.74rem; padding:0.42rem 0.6rem;">
+                      <option value="0">Add Light (λ₁ + λ₂)</option>
+                      <option value="1">Oil Slick (Interference)</option>
+                      <option value="2">Blown-Out Film (Screen)</option>
+                      <option value="3">Stage Gels (Subtractive)</option>
+                    </select>
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>LOOK</span></div>
+                    <select id="ll-style" class="mm-select" style="font-size:0.74rem; padding:0.42rem 0.6rem;">
+                      <option value="0">Soft 35mm Haze</option>
+                      <option value="1">8-Bit Printer Dots</option>
+                      <option value="2">Contour Rings</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Wavelength & Optical Sliders -->
+                <div class="ll-controls-grid">
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>BEAM 1 (λ₁)</span><span class="ll-ctrl-val" id="ll-val-wl1">479 nm</span></div>
+                    <input type="range" id="ll-wl1" class="ll-spectrum-range" min="390" max="690" step="1" value="479" />
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>BEAM 2 (λ₂)</span><span class="ll-ctrl-val" id="ll-val-wl2">611 nm</span></div>
+                    <input type="range" id="ll-wl2" class="ll-spectrum-range" min="390" max="690" step="1" value="611" />
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>SPREAD (Δλ)</span><span class="ll-ctrl-val" id="ll-val-bw">24 nm</span></div>
+                    <input type="range" id="ll-bw" class="line-slider" min="6" max="45" step="1" value="24" />
+                  </div>
+
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>CROSSOVER</span><span class="ll-ctrl-val" id="ll-val-cross">0.25</span></div>
+                    <input type="range" id="ll-cross" class="line-slider" min="0" max="1" step="0.02" value="0.25" />
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>SMEAR</span><span class="ll-ctrl-val" id="ll-val-stretch">5.4×</span></div>
+                    <input type="range" id="ll-stretch" class="line-slider" min="1.5" max="8" step="0.1" value="5.4" />
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>TURBULENCE</span><span class="ll-ctrl-val" id="ll-val-warp">1.85</span></div>
+                    <input type="range" id="ll-warp" class="line-slider" min="0.2" max="2.6" step="0.05" value="1.85" />
+                  </div>
+
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>PRISM SPLIT</span><span class="ll-ctrl-val" id="ll-val-disp">0.042</span></div>
+                    <input type="range" id="ll-disp" class="line-slider" min="0" max="0.09" step="0.002" value="0.042" />
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>BRIGHTNESS</span><span class="ll-ctrl-val" id="ll-val-exposure">0.85</span></div>
+                    <input type="range" id="ll-exposure" class="line-slider" min="0.25" max="1.4" step="0.01" value="0.85" />
+                  </div>
+                  <div class="ll-ctrl">
+                    <div class="ll-ctrl-top"><span>SPEED</span><span class="ll-ctrl-val" id="ll-val-speed">0.28×</span></div>
+                    <input type="range" id="ll-speed" class="line-slider" min="0" max="1.5" step="0.02" value="0.28" />
+                  </div>
+                </div>
+
+                <!-- Action Bar: Pause, Scramble, Save .JPG -->
+                <div class="ll-actions-bar">
+                  <div class="ll-actions-group">
+                    <button id="btn-ll-pause" class="mm-action-btn cyan" type="button"><i class="fa-solid fa-pause"></i> PAUSE</button>
+                    <button id="btn-ll-mutate" class="mm-action-btn cyan" type="button"><i class="fa-solid fa-dice"></i> SCRAMBLE</button>
+                  </div>
+                  <button id="btn-ll-export" class="mm-action-btn" type="button"><i class="fa-solid fa-camera"></i> SAVE .JPG (1080P)</button>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
         
@@ -1204,6 +1317,7 @@
       
       <div class="carousel-dots">
         <span class="dot active"></span>
+        <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
@@ -1238,11 +1352,12 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="app.js"></script>
-  <script src="synth.js?v=2"></script>
+  <script src="synth.js?v=3"></script>
   <script src="ascii.js?v=2"></script>
   <script src="sdxl.js"></script>
   <script src="collage.js"></script>
   <script src="topo-arp.js?v=10"></script>
+  <script src="light-leak-exp.js?v=1"></script>
   <!-- ARCHIVED: <script src="midi-morpher.js"></script> -->
 </body>
 </html>
