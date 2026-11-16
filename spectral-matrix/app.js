@@ -1,5 +1,5 @@
 /**
- * app.js - 9-Pedal Minimalist Spectral Alchemy Controller
+ * app.js - Spectral Matrix Controller
  */
 
 import { SpectralEngine } from './spectral-engine.js';
@@ -35,17 +35,17 @@ const appState = {
 };
 
 const pedalNames = {
-  freeze:  '❄️ Freeze',
-  prism:   '🌈 Prism',
-  warp:    '⚡ Warp',
-  ghost:   '👻 Ghost',
-  mirror:  '🪞 Mirror',
-  gravity: '🪐 Gravity',
-  shatter: '💥 Shatter',
-  crystal: '💎 Crystal',
-  ripple:  '🌊 Ripple',
-  edge:    '🪚 Edge',
-  escher:  '🪜 Escher'
+  freeze:  'Freeze',
+  prism:   'Prism',
+  warp:    'Warp',
+  ghost:   'Ghost',
+  mirror:  'Mirror',
+  gravity: 'Gravity',
+  shatter: 'Shatter',
+  crystal: 'Crystal',
+  ripple:  'Ripple',
+  edge:    'Edge',
+  escher:  'Escher'
 };
 
 async function ensureEngine() {
@@ -76,39 +76,39 @@ function updateHearingBanner() {
   const textEl = document.getElementById('hearing-text');
 
   if (activeIds.length === 0) {
-    tagEl.textContent = 'PASSTHROUGH';
+    tagEl.textContent = 'BYPASS';
     tagEl.style.background = 'var(--cyan)';
-    tagEl.style.color = '#000';
-    textEl.textContent = 'All pedals bypassed. Click pedals below to activate.';
+    tagEl.style.color = '#0b0d13';
+    textEl.textContent = 'Signal bypassed. Tap an effect below to process audio.';
   } else {
-    const icons = activeIds.map(id => pedalNames[id]).join(' + ');
-    tagEl.textContent = `${activeIds.length} ACTIVE`;
+    const names = activeIds.map(id => pedalNames[id]).join(' + ');
+    tagEl.textContent = `${activeIds.length} ON`;
     tagEl.style.background = 'var(--pink)';
-    tagEl.style.color = '#fff';
+    tagEl.style.color = '#0b0d13';
 
     if (activeIds.includes('mirror') && activeIds.includes('freeze')) {
-      textEl.textContent = `${icons}: Inverted alien spectrum frozen in time into an otherworldly pad.`;
+      textEl.textContent = `${names}: Holding a single FFT frame with frequencies flipped around the pivot.`;
     } else if (activeIds.includes('gravity') && activeIds.includes('ripple')) {
-      textEl.textContent = `${icons}: Harmonic peaks condensed by gravity and undulating through a liquid phaser.`;
+      textEl.textContent = `${names}: Bins pulled toward dominant peaks and swept by a comb filter.`;
     } else if (activeIds.includes('shatter') && activeIds.includes('prism')) {
-      textEl.textContent = `${icons}: Scrambled overtone shards cascading into a rainbow delay waterfall.`;
+      textEl.textContent = `${names}: Scrambled frequency bands feeding a split-band delay.`;
     } else if (activeIds.includes('edge') && activeIds.includes('escher')) {
-      textEl.textContent = `${icons}: Infinite Shepard staircase carved into a razor-thin acoustic wireframe.`;
+      textEl.textContent = `${names}: Wrapping spectrum filtered down to steep spectral slopes.`;
     } else if (activeIds.length === 1) {
       const id = activeIds[0];
-      if (id === 'freeze') textEl.textContent = `${icons}: Time stopped! Infinite glowing cathedral pad.`;
-      else if (id === 'prism') textEl.textContent = `${icons}: Highs and lows echo at different speeds.`;
-      else if (id === 'warp') textEl.textContent = `${icons}: Linear Hertz frequency shift for alien Dalek ring-mods.`;
-      else if (id === 'ghost') textEl.textContent = `${icons}: Phase manipulation (robot vocoder or whisper cloud).`;
-      else if (id === 'mirror') textEl.textContent = `${icons}: Spectral inversion: high frequencies become deep bass, lows become screaming treble.`;
-      else if (id === 'gravity') textEl.textContent = `${icons}: Gravitational pull collapses audio into pure resonant singing laser sines.`;
-      else if (id === 'shatter') textEl.textContent = `${icons}: Harmonic dice scramble overtones into gamelan gongs and metallic chimes.`;
-      else if (id === 'crystal') textEl.textContent = `${icons}: Dynamic spectral sieve erases weak bins into dancing sine droplets.`;
-      else if (id === 'ripple') textEl.textContent = `${icons}: Multi-wave comb filter sweeping like a liquid tide.`;
-      else if (id === 'edge') textEl.textContent = `${icons}: Spectral calculus derivative stripping sound down to an acoustic wireframe.`;
-      else if (id === 'escher') textEl.textContent = `${icons}: M.C. Escher modular wrap endlessly ascending in an infinite Shepard-Risset staircase.`;
+      if (id === 'freeze') textEl.textContent = `${names}: Holding a single FFT frame in a continuous loop.`;
+      else if (id === 'prism') textEl.textContent = `${names}: Low frequencies echo fast while high frequencies trail behind.`;
+      else if (id === 'warp') textEl.textContent = `${names}: Shifts every frequency by a fixed Hz offset, detuning harmonics.`;
+      else if (id === 'ghost') textEl.textContent = `${names}: Quantizes phase to a grid or scatters it into breathy noise.`;
+      else if (id === 'mirror') textEl.textContent = `${names}: Flips frequencies around the pivot: lows become highs, highs become lows.`;
+      else if (id === 'gravity') textEl.textContent = `${names}: Pulls nearby bin energy toward the loudest harmonic peaks.`;
+      else if (id === 'shatter') textEl.textContent = `${names}: Permutes 16 frequency bands into different registers.`;
+      else if (id === 'crystal') textEl.textContent = `${names}: Gates out quiet bins and boosts the loudest peaks.`;
+      else if (id === 'ripple') textEl.textContent = `${names}: Logarithmic comb filter sweeping notches across octaves.`;
+      else if (id === 'edge') textEl.textContent = `${names}: Spectral derivative keeping sharp peaks and dropping flat sustained tones.`;
+      else if (id === 'escher') textEl.textContent = `${names}: Wraps bins upward in a repeating loop below the ceiling frequency.`;
     } else {
-      textEl.textContent = `${icons}: Running stacked in the audio chain for complex spectral alchemy!`;
+      textEl.textContent = `${names}: Stacked in series through the FFT chain.`;
     }
   }
 }
@@ -131,7 +131,7 @@ function togglePedal(id, forceState = null) {
     if (freezePod) freezePod.classList.toggle('active', pedal.on);
     if (freezeStomp) freezeStomp.classList.toggle('active', pedal.on);
     if (freezeBadge) {
-      freezeBadge.textContent = pedal.on ? 'LATCHED' : 'STANDBY';
+      freezeBadge.textContent = pedal.on ? 'HELD' : 'OFF';
     }
   }
 
@@ -169,9 +169,9 @@ function updatePedalSliderUI(id) {
     const valEl = document.getElementById('val-ghost-morph');
     if (el) el.value = p.morph;
     if (valEl) {
-      if (p.morph < -0.05) valEl.textContent = `Robot ${Math.round(-p.morph * 100)}%`;
-      else if (p.morph > 0.05) valEl.textContent = `Whisper +${Math.round(p.morph * 100)}%`;
-      else valEl.textContent = `Natural`;
+      if (p.morph < -0.05) valEl.textContent = `Lock ${Math.round(-p.morph * 100)}%`;
+      else if (p.morph > 0.05) valEl.textContent = `Diffuse +${Math.round(p.morph * 100)}%`;
+      else valEl.textContent = `Clean`;
     }
   } else if (id === 'mirror') {
     const el = document.getElementById('slider-mirror-pivot');
@@ -495,9 +495,9 @@ window.addEventListener('DOMContentLoaded', () => {
   sGhost.addEventListener('input', (e) => {
     const val = parseFloat(e.target.value);
     appState.pedals.ghost.morph = val;
-    if (val < -0.05) vGhost.textContent = `Robot ${Math.round(-val * 100)}%`;
-    else if (val > 0.05) vGhost.textContent = `Whisper +${Math.round(val * 100)}%`;
-    else vGhost.textContent = `Natural`;
+    if (val < -0.05) vGhost.textContent = `Lock ${Math.round(-val * 100)}%`;
+    else if (val > 0.05) vGhost.textContent = `Diffuse +${Math.round(val * 100)}%`;
+    else vGhost.textContent = `Clean`;
     if (engine) engine.setPedal('ghost', appState.pedals.ghost.on, appState.pedals.ghost);
   });
 
@@ -690,9 +690,9 @@ function renderMagnitudeCanvas(c, mags) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#f39c12';
+    ctx.fillStyle = '#f59e0b';
     ctx.font = '8px "Space Mono"';
-    ctx.fillText('ESCHER CEIL', ceilX + 4, 15);
+    ctx.fillText('CEILING', ceilX + 4, 15);
   }
 
   // Overlay: Ripple Wave
