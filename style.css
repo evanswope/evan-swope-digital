@@ -2283,19 +2283,52 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 .mobile-nav-links {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  gap: 1.35rem;
   text-align: center;
 }
 .mobile-nav-link {
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   text-decoration: none;
   letter-spacing: 2px;
   text-transform: uppercase;
   transition: color 0.3s;
 }
 .mobile-nav-link:hover { color: #ff7eb3; }
+.mobile-nav-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.9rem 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0.15rem 0;
+}
+.mobile-nav-category {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #ff7eb3;
+}
+.mobile-nav-sublinks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+.mobile-nav-sublink {
+  font-size: 1.05rem;
+  letter-spacing: 1.5px;
+  color: #cbd5e1;
+}
+.mobile-nav-sublink.is-current {
+  color: #ff7eb3;
+}
 .mobile-menu-close {
   position: absolute;
   top: 1.5rem;
@@ -2478,19 +2511,52 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
 .mobile-nav-links {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  gap: 1.35rem;
   text-align: center;
 }
 .mobile-nav-link {
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   text-decoration: none;
   letter-spacing: 2px;
   text-transform: uppercase;
   transition: color 0.3s;
 }
 .mobile-nav-link:hover { color: #ff7eb3; }
+.mobile-nav-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.9rem 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0.15rem 0;
+}
+.mobile-nav-category {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #ff7eb3;
+}
+.mobile-nav-sublinks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+.mobile-nav-sublink {
+  font-size: 1.05rem;
+  letter-spacing: 1.5px;
+  color: #cbd5e1;
+}
+.mobile-nav-sublink.is-current {
+  color: #ff7eb3;
+}
 .mobile-menu-close {
   position: absolute;
   top: 1.5rem;

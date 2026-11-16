@@ -22,7 +22,7 @@
   <meta name="twitter:description" content="A retro point-of-sale arcade game by Evan Swope. Everything is hard. But try anyway.">
   <meta name="twitter:image" content="https://evanswope.com/assets/images/og-preview.png?v=3">
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <link rel="stylesheet" href="synth.css">
   
   <!-- FontAwesome -->
@@ -564,6 +564,17 @@
       font-size: 2rem;
       border-bottom: 1px dashed var(--game-border);
     }
+    #mobile-nav-overlay.game-mode-nav .mobile-nav-group {
+      border-color: var(--game-border);
+    }
+    #mobile-nav-overlay.game-mode-nav .mobile-nav-category {
+      font-family: 'VT323', monospace;
+      color: var(--game-text);
+      font-size: 1.15rem;
+    }
+    #mobile-nav-overlay.game-mode-nav .mobile-nav-sublink {
+      font-size: 1.55rem;
+    }
     #mobile-nav-overlay.game-mode-nav .mobile-menu-close {
       color: var(--game-text);
       font-size: 2rem;
@@ -643,10 +654,15 @@
       <a href="index.html#work" class="mobile-nav-link">Work</a>
       <a href="index.html#resume" class="mobile-nav-link">Experience</a>
       <a href="index.html#about" class="mobile-nav-link">About</a>
-      <a href="experiments.html" class="mobile-nav-link">AI Lab: Audio/Visual</a>
-      <a href="checked-out.html" class="mobile-nav-link">AI Lab: Checked Out</a>
-      <a href="past-life.html" class="mobile-nav-link">AI Lab: Past Lives</a>
-      <a href="sorta.html" class="mobile-nav-link">AI Lab: Sorta</a>
+      <div class="mobile-nav-group">
+        <span class="mobile-nav-category">AI Lab</span>
+        <div class="mobile-nav-sublinks">
+          <a href="experiments.html" class="mobile-nav-link mobile-nav-sublink">Audio / Visual</a>
+          <a href="checked-out.html" class="mobile-nav-link mobile-nav-sublink is-current">Checked Out</a>
+          <a href="past-life.html" class="mobile-nav-link mobile-nav-sublink">Past Lives</a>
+          <a href="sorta.html" class="mobile-nav-link mobile-nav-sublink">Sorta</a>
+        </div>
+      </div>
       <a href="index.html#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
     </nav>
   </div>
