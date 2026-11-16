@@ -22,7 +22,7 @@
   <meta name="twitter:description" content="A retro point-of-sale arcade game by Evan Swope. Everything is hard. But try anyway.">
   <meta name="twitter:image" content="https://evanswope.com/assets/images/og-preview.png?v=3">
   
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
   <link rel="stylesheet" href="synth.css">
   
   <!-- FontAwesome -->
@@ -570,7 +570,7 @@
     #mobile-nav-overlay.game-mode-nav .mobile-nav-category {
       font-family: 'VT323', monospace;
       color: var(--game-text);
-      font-size: 1.15rem;
+      font-size: 2rem;
     }
     #mobile-nav-overlay.game-mode-nav .mobile-nav-sublink {
       font-size: 1.55rem;
@@ -634,7 +634,7 @@
         <a href="index.html#resume" class="nav-link">Experience</a>
         <a href="index.html#about" class="nav-link">About</a>
         <div class="nav-dropdown">
-          <a href="#" class="nav-link dropdown-toggle">AI Lab <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
+          <a href="#" class="nav-link dropdown-toggle">Experiments <i class="fa-solid fa-chevron-down" style="font-size:0.8em; margin-left:4px;"></i></a>
           <div class="dropdown-menu">
             <a href="experiments.html" class="dropdown-item">Audio / Visual</a>
             <a href="checked-out.html" class="dropdown-item">Checked Out</a>
@@ -654,15 +654,15 @@
       <a href="index.html#work" class="mobile-nav-link">Work</a>
       <a href="index.html#resume" class="mobile-nav-link">Experience</a>
       <a href="index.html#about" class="mobile-nav-link">About</a>
-      <div class="mobile-nav-group">
-        <span class="mobile-nav-category">AI Lab</span>
+      <details class="mobile-nav-group">
+        <summary class="mobile-nav-category">Experiments <i class="fa-solid fa-chevron-down mobile-nav-chevron"></i></summary>
         <div class="mobile-nav-sublinks">
           <a href="experiments.html" class="mobile-nav-link mobile-nav-sublink">Audio / Visual</a>
           <a href="checked-out.html" class="mobile-nav-link mobile-nav-sublink is-current">Checked Out</a>
           <a href="past-life.html" class="mobile-nav-link mobile-nav-sublink">Past Lives</a>
           <a href="sorta.html" class="mobile-nav-link mobile-nav-sublink">Sorta</a>
         </div>
-      </div>
+      </details>
       <a href="index.html#contact" class="mobile-nav-link btn-contact">Let's Connect</a>
     </nav>
   </div>

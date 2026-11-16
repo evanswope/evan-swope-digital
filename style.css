@@ -2284,8 +2284,10 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.35rem;
+  gap: 1.5rem;
   text-align: center;
+  width: 100%;
+  padding: 0 1.5rem;
 }
 .mobile-nav-link {
   color: #fff;
@@ -2301,25 +2303,49 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.9rem 1.75rem;
+  width: 100%;
+  max-width: 300px;
+}
+.mobile-nav-group[open] {
+  padding: 0.8rem 1.25rem 0.95rem;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  margin: 0.15rem 0;
 }
 .mobile-nav-category {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 2.5px;
+  font-size: 1.45rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  transition: color 0.25s;
+}
+.mobile-nav-category::-webkit-details-marker {
+  display: none;
+}
+.mobile-nav-category:hover,
+.mobile-nav-group[open] .mobile-nav-category {
   color: #ff7eb3;
+}
+.mobile-nav-chevron {
+  font-size: 0.85rem;
+  transition: transform 0.25s ease;
+}
+.mobile-nav-group[open] .mobile-nav-chevron {
+  transform: rotate(180deg);
 }
 .mobile-nav-sublinks {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.72rem;
+  margin-top: 0.85rem;
 }
 .mobile-nav-sublink {
   font-size: 1.05rem;
@@ -2512,8 +2538,10 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.35rem;
+  gap: 1.5rem;
   text-align: center;
+  width: 100%;
+  padding: 0 1.5rem;
 }
 .mobile-nav-link {
   color: #fff;
@@ -2529,25 +2557,49 @@ p:not([style*="Permanent Marker"]):not([style*="italic"]):not(.project-excerpt):
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.9rem 1.75rem;
+  width: 100%;
+  max-width: 300px;
+}
+.mobile-nav-group[open] {
+  padding: 0.8rem 1.25rem 0.95rem;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  margin: 0.15rem 0;
 }
 .mobile-nav-category {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 2.5px;
+  font-size: 1.45rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  transition: color 0.25s;
+}
+.mobile-nav-category::-webkit-details-marker {
+  display: none;
+}
+.mobile-nav-category:hover,
+.mobile-nav-group[open] .mobile-nav-category {
   color: #ff7eb3;
+}
+.mobile-nav-chevron {
+  font-size: 0.85rem;
+  transition: transform 0.25s ease;
+}
+.mobile-nav-group[open] .mobile-nav-chevron {
+  transform: rotate(180deg);
 }
 .mobile-nav-sublinks {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.72rem;
+  margin-top: 0.85rem;
 }
 .mobile-nav-sublink {
   font-size: 1.05rem;
